@@ -466,6 +466,7 @@ def main():
             ("opt", "Needle"),
             ("ode-linear", "Floquet"),
             ("ode-linear", "Krylov"),
+            ("quad", "Tricky"),
             ("linalg", "EigLandscapes"),
             ("applics", "VanillaOptions"),
             ("approx", "Noisy"),

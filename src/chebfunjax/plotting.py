@@ -4318,6 +4318,84 @@ def _singfun_source_axis_limits(piece):
     return (tuple(map(float, piece.interval)), y_lim, True)
 
 
+def _source_scalar_chebtech_line_data(piece):
+    """Source curve samples for a real scalar polynomial on its physical map.
+
+    The source ONEFUN grid is chosen before an unbounded physical mapping;
+    values are obtained by coefficient prolongation and the tech transform.
+    Complex, array-valued and singular techs retain their existing adapters.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/plotData.m, @bndfun/plotData.m,
+        @unbndfun/plotData.m, @mapping/mapping.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.fun.unbndfun import Unbndfun
+    from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+
+    tech = piece.tech
+    if (not isinstance(tech, (Chebtech1, Chebtech2))
+            or tech.coeffs.ndim != 1 or len(tech) == 0
+            or jnp.issubdtype(tech.coeffs.dtype, jnp.complexfloating)):
+        return None
+    a, b = map(float, piece.interval)
+    if not isinstance(piece, Unbndfun) and not (np.isfinite(a) and np.isfinite(b)):
+        return None
+    count = min(max(501, int(np.floor(4 * np.pi * len(tech) + 0.5))), 65537)
+    nodes = chebpts(count, kind=1 if isinstance(tech, Chebtech1) else 2)
+    x = (piece.forward_map(nodes) if isinstance(piece, Unbndfun)
+         else b * (nodes + 1) / 2 + a * (1 - nodes) / 2)
+    return np.asarray(x), np.asarray(tech.prolong(count).values)
+
+
+def _source_plot_value_limits(values):
+    """Source scalar min/max omit NaNs and retain signed infinities.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/plotData.m, @unbndfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    present = values[~np.isnan(values)]
+    if present.size == 0:
+        return np.nan, np.nan
+    return float(np.min(present)), float(np.max(present))
+
+
+def _source_scalar_chebtech_axis_limits(piece):
+    """Source curve extrema and the unbounded width-ten window.
+
+    Unbounded extrema use the source open physical-domain mask, rather than
+    restricting the data to the visible window. Bounded limits include both
+    endpoints. This helper covers smooth real scalar Chebtech1/2 pieces.
+
+    Provenance
+    ----------
+    MATLAB source : @chebtech/plotData.m, @bndfun/plotData.m,
+        @unbndfun/plotData.m
+    Chebfun commit: 7574c77
+    """
+    from chebfunjax.fun.unbndfun import Unbndfun
+
+    data = _source_scalar_chebtech_line_data(piece)
+    if data is None:
+        return None
+    x, y = data
+    a, b = map(float, piece.interval)
+    if isinstance(piece, Unbndfun):
+        y = y[(x > a) & (x < b)]
+        if not np.isfinite(a) and not np.isfinite(b):
+            limits = (-10.0, 10.0)
+        elif not np.isfinite(a):
+            limits = (b - 10.0, b)
+        else:
+            limits = (a, a + 10.0)
+    else:
+        limits = (a, b)
+    return limits, _source_plot_value_limits(y), True
+
+
 def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
     """Sample a (possibly piecewise / unbounded / singular) Chebfun.
 
@@ -4325,8 +4403,9 @@ def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
     infinite endpoints clipped to a finite window and singular endpoints
     approached from the interior (MATLAB plots blow-ups the same way).
 
-    Ordinary bounded polynomial plots use the source per-tech Chebyshev
-    grid when ``_source_grid`` is enabled. Other callers retain their
+    Ordinary bounded polynomial plots and smooth real scalar unbounded
+    Chebtech pieces use the source per-tech Chebyshev grid when
+    ``_source_grid`` is enabled. Other callers retain their
     existing window/singular/parametric sampling adapter.
 
     Provenance
@@ -4343,6 +4422,11 @@ def _sample_pieces(f, numpts: int = 2001, interval=None, *, _source_grid=False):
     out = []
     for p in f.funs:
         a, b = float(p.interval[0]), float(p.interval[1])
+        if _source_grid and interval is None and isinstance(p, Unbndfun):
+            source_data = _source_scalar_chebtech_line_data(p)
+            if source_data is not None:
+                out.append(source_data)
+                continue
         if (_source_grid and interval is None and np.isfinite(a) and np.isfinite(b)
                 and isinstance(p.tech, Singfun)):
             data = _source_singfun_plot_data(p)
@@ -4736,6 +4820,15 @@ def _function_lims(f, numpts=2001, interval=None):
     from chebfunjax.tech.trigtech import Trigtech
 
     for p in f.funs:
+        if interval is None:
+            source_limits = _source_scalar_chebtech_axis_limits(p)
+            if source_limits is not None:
+                sx, sy, _source_default = source_limits
+                xlim[0] = min(xlim[0], sx[0])
+                xlim[1] = max(xlim[1], sx[1])
+                ylim[0] = min(ylim[0], sy[0])
+                ylim[1] = max(ylim[1], sy[1])
+                continue
         a, b = float(p.interval[0]), float(p.interval[1])
         a = wlo if not np.isfinite(a) else max(a, wlo)
         b = whi if not np.isfinite(b) else min(b, whi)
@@ -4939,7 +5032,9 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
     nodes for markers. Ordinary bounded polynomial curves use the source degree-based
     Chebyshev plotting grid; ``numpts`` is accepted and ignored there,
     matching MATLAB's deprecated option. Explicit windows, parametric
-    plots and singular/unbounded sampling retain their existing adapters.
+    plots and singular, complex or array-valued unbounded sampling retain
+    their existing adapters. Smooth real scalar unbounded Chebtech curves
+    map the source ONEFUN grid before applying the source physical window.
     Bounded Chebtech markers use the original representation grid separately
     from line samples; explicit intervals suppress those markers.
 

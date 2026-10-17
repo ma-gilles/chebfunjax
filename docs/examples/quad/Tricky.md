@@ -6,6 +6,8 @@
 
 Python translation: [`examples/quad/tricky.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/quad/tricky.py)
 
+> Current execution qualification (2026-10-17): all 12 output blocks and nine figures below come from a completed CPU run of the current Python script with pinned JAX/JAXlib 0.11.0. The source warning `Function not resolved using 6091 pts.` is emitted and its unresolved approximation is preserved. Plot sampling follows the pinned MATLAB source, including the Airy window [0, 10]. The unbounded Airy integral remains `+Inf`, a scientific gap relative to the native result; the finite [0, 40] counterpart is finite. Axis limits, ticks, fonts and raster differences remain; the images do not claim pixel parity. See [`tricky_full_current_cpu_20261017.json`](../../tricky_full_current_cpu_20261017.json) for measurements and independent checks.
+
 ## 0. Introduction
 
 FJ gave a talk at ENS Lyon today with a number of examples in it that intrigued LNT. Here we play with some of those examples in Chebfun. Now Chebfun is just numerical, with no guarantees of accuracy, which means it is not a competitor for FJ's Arb method of rigorous quadrature [1]. The point of this example is only to see how Chebfun does, unrigorously in floating point arithmetic, on some challenging examples people have cooked up over the years.
@@ -30,9 +32,9 @@ Iexact =
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,       1]    14160     0.071  4.5e-07
+[       0,       1]    14128     0.071  4.5e-07
 vertical scale = 1.1
-Elapsed time is 8.968066 seconds.
+Elapsed time is 14.219207 seconds.
 ```
 
 ![Tricky figure 01](../../images/quad/Tricky_01.png)
@@ -45,17 +47,16 @@ tic, f = chebfun(ff,[0 1],'splitting','on'), I = sum(f); toc
 
 ```text
 f =
-   chebfun column (7 smooth pieces)
+   chebfun column (6 smooth pieces)
        interval       length     endpoint values
 [       0,    0.38]       75     0.071     0.11
-[    0.38,    0.44]       90      0.11    0.034
+[    0.38,    0.44]       87      0.11    0.034
 [    0.44,    0.59]       42     0.034   0.0015
-[    0.59,     0.6]       30    0.0015   0.0015
-[     0.6,     0.6]       59    0.0015   0.0055
+[    0.59,     0.6]       97    0.0015   0.0055
 [     0.6,    0.62]       76    0.0055  0.00081
 [    0.62,       1]       23   0.00081  4.5e-07
-vertical scale = 1.1    Total length = 395
-Elapsed time is 7.940559 seconds.
+vertical scale = 1.1    Total length = 400
+Elapsed time is 33.956552 seconds.
 ```
 
 ## 2. Violent oscillation
@@ -79,7 +80,7 @@ f =
 vertical scale =   1
 I =
    0.347400172657248
-Elapsed time is 0.908811 seconds.
+Elapsed time is 1.448628 seconds.
 ```
 
 ![Tricky figure 02](../../images/quad/Tricky_02.png)
@@ -98,8 +99,8 @@ tic, f = chebfun(ff,[0 8],'splitting','on'); I = sum(f), toc
 Iexact =
    0.098651704478365
 I =
-   0.167437287128485
-Elapsed time is 478.073997 seconds.
+   0.087881488553783
+Elapsed time is 10.556709 seconds.
 ```
 
 By increasing splitMaxLength greatly, we can get an answer but it's outrageously slow *and* it's only accurate to 6 digits. Specifically, the commands
@@ -125,11 +126,11 @@ Iexact =
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[      -1,       1]      389      -2.7     0.37
+[      -1,       1]      393      -2.7     0.37
 vertical scale = 2.7
 I =
-  -0.999065350291922
-Elapsed time is 1.069864 seconds.
+  -0.999065350291923
+Elapsed time is 1.462648 seconds.
 ```
 
 ![Tricky figure 03](../../images/quad/Tricky_03.png)
@@ -151,11 +152,11 @@ Iexact =
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,     Inf]      438      0.36 -1.4e-17
+[       0,     Inf]      261      0.36  5.6e-11
 vertical scale = 0.36
 I =
-   0.378751605379086
-Elapsed time is 1.953673 seconds.
+  inf
+Elapsed time is 5.295050 seconds.
 ```
 
 ![Tricky figure 04](../../images/quad/Tricky_04.png)
@@ -170,11 +171,11 @@ tic, f = chebfun(ff,[0 40]), I = sum(f), toc
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,      40]      121      0.36        0
+[       0,      40]      121      0.36   -1e-17
 vertical scale = 0.36
 I =
-   0.378751605379086
-Elapsed time is 0.579687 seconds.
+   0.378751605379087
+Elapsed time is 0.685647 seconds.
 ```
 
 ## 6. Absolute value of polynomial
@@ -194,12 +195,12 @@ Iexact =
 f =
    chebfun column (2 smooth pieces)
        interval       length     endpoint values
-[       0,    0.62]       14         6  1.8e-15
-[    0.62,       1]       11   1.9e-14       49
+[       0,    0.62]       13         6  9.8e-15
+[    0.62,       1]       12   5.4e-15       49
 vertical scale =  49    Total length = 25
 I =
   11.147310550057142
-Elapsed time is 0.904852 seconds.
+Elapsed time is 4.251475 seconds.
 ```
 
 ![Tricky figure 05](../../images/quad/Tricky_05.png)
@@ -220,7 +221,7 @@ Iexact =
         5050
 I =
         5050
-Elapsed time is 6.316139 seconds.
+Elapsed time is 8.932107 seconds.
 ```
 
 ![Tricky figure 06](../../images/quad/Tricky_06.png)
@@ -238,8 +239,8 @@ plot(f)
 Iexact =
   -0.142818642026328
 I =
-  -0.142818642026332
-Elapsed time is 2.355577 seconds.
+  -0.142818642026329
+Elapsed time is 8.885599 seconds.
 ```
 
 ![Tricky figure 07](../../images/quad/Tricky_07.png)
@@ -261,11 +262,11 @@ Iexact =
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,       3]   1240175      0.84     0.12
+[       0,       3]   1239813      0.84     0.12
 vertical scale =   1
 I =
-   0.749974368527183
-Elapsed time is 8.753611 seconds.
+   0.749974368527190
+Elapsed time is 12.854563 seconds.
 ```
 
 ![Tricky figure 08](../../images/quad/Tricky_08.png)
@@ -282,8 +283,8 @@ plot(f)
 
 ```text
 I =
-   0.749974368527192
-Elapsed time is 211.706808 seconds.
+   0.749974368527185
+Elapsed time is 116.876490 seconds.
 ```
 
 ![Tricky figure 09](../../images/quad/Tricky_09.png)

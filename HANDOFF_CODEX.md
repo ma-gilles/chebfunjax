@@ -1,3 +1,20 @@
+## Full Tricky execution and source plotting checkpoint — 2026-10-17
+
+Actual modified-script CPU execution completes all12output slots and9figures
+in256.53s owned wall,4.58GiB sampled peak, stable6528inputs/no survivors.
+Source plotData grids/prolongation/physical mapping and unbounded width10
+replace the custom per-piece whole-function evaluator and Airy width50.
+All30focused plotting checks pass. All12scientific capture arrays remain
+byte-identical to the preserved prior run; all9figures match qualified
+retained-data renders. Actual output/page/figures are refreshed together.
+Evidence:`docs/tricky_full_current_cpu_20261017.json`.
+
+The unbounded Airy integral is actually+Inf: a remaining scientific gap,
+already present before plotting changes. The finite counterpart is finite.
+The intentionally unresolved block4 approximation/warning is preserved.
+Native representation, axes/ticks/fonts/raster parity remain open. This is
+execution qualification, not full-page or full-library parity.
+
 ## Krylov final block checkpoint — 2026-10-17
 
 The final piecewise-coefficient example now applies the literal source

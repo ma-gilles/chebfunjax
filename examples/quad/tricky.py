@@ -15,7 +15,6 @@ from __future__ import annotations
 import os
 import sys
 import time
-import warnings
 
 import jax
 import jax.numpy as jnp
@@ -63,22 +62,16 @@ def show(name, v):
         print(" " * pad + f"{v:.15f}")
 
 
-def plot(f, window=None):
-    """plot(f) of a (piecewise) chebfun on its domain (or ``window``)."""
+def plot(f):
+    """Draw the source Chebfun curve on the standard MATLAB axes."""
+    from chebfunjax.plotting import matlab_plot
+
     FIG[0] += 1
-    a, b = window if window is not None else (float(f.domain.a), float(f.domain.b))
-    fig, ax = plt.subplots(figsize=(6.0, 2.7))
-    for p in f.funs:
-        pa, pb = (max(float(p.interval[0]), a), min(float(p.interval[1]), b))
-        if pb <= pa:
-            continue
-        m = max(64, min(4000, 4 * p.n))
-        xs = np.linspace(pa, pb, m)
-        ax.plot(xs, np.real(np.asarray(f(jnp.asarray(xs)))), color="C0", lw=1.0)
-    ax.set_xlim(a, b)
-    ax.grid(True)
+    fig = plt.figure(figsize=(6.0, 2.7))
+    ax = fig.add_axes([.13, .11, .775, .815])
+    matlab_plot(f, ax=ax)
+    ax.grid(False)
     fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(_IMG, f"Tricky_{FIG[0]:02d}.png"), size=(600, 270))
     plt.close(fig)
 
@@ -93,7 +86,6 @@ def _np_handle(fn):
 
 def run():
     os.makedirs(_IMG, exist_ok=True)
-    warnings.filterwarnings("ignore")
 
     # Three spikes.
     def ff(x):
@@ -133,7 +125,7 @@ def run():
     Iexact = 0.378751605379086535
     show("Iexact", Iexact)
     tic(); f = cj.chebfun(ff, domain=[0, np.inf]); show("f", f); show("I", float(f.sum())); toc()
-    plot(f, window=(0.0, 50.0))
+    plot(f)
     tic(); f = cj.chebfun(ff, domain=[0, 40]); show("f", f); show("I", float(f.sum())); toc()
 
     # A kinked integrand.

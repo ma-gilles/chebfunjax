@@ -1,0 +1,578 @@
+{
+  "scope": "Tricky published outputblock4 current CPU scientific qualification and examplewarning visibility correction; no wholepage qualification.",
+  "base_commit": "b6b34946b2aa99fcba56b6631ebd64ff027aa861",
+  "input": {
+    "integrand_source": "def ff(x):\n    return (jnp.exp(x) - jnp.floor(jnp.exp(x))) * jnp.sin(x + jnp.exp(x))",
+    "domain": [
+      0,
+      8
+    ],
+    "splitting": true,
+    "default_splitPrefs": {
+      "splitLength": 160,
+      "splitMaxLength": 6000
+    },
+    "script_sha256": "26ba20a91304290d79d512d402879105ac67644846a9cb87345707d2255a4a3e",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "backend": "cpu",
+    "x64": true
+  },
+  "execution": {
+    "command_exit_code": 0,
+    "wall_seconds": 28.23499641008675,
+    "sampled_peak_summed_rss_kib": 1531612,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "construction_seconds": 21.739058979786932,
+  "science_seconds": 23.35368900373578,
+  "actual_integral": 0.08788148855378317,
+  "actual_displayed_integral": "0.087881488553783",
+  "native_published_displayed_integral": "0.087881488553783",
+  "old_page_displayed_integral": "0.167437287128485",
+  "display_matches_native_published": true,
+  "source_budget_warning": {
+    "message": "Function not resolved using 6091 pts.",
+    "category": "UserWarning",
+    "filename": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_qualification_20261017/src/chebfunjax/chebfun1d/_construction_context.py",
+    "lineno": 255,
+    "elapsed_seconds": 18.52322121988982,
+    "source_budget_state": {
+      "total_limit": 6000,
+      "actual_length": 6091,
+      "raw_split_length": 160,
+      "selected_k": 32,
+      "edge": 5.017279836814924,
+      "hscale": 8.0,
+      "vscale": 0.9980648255794292,
+      "pieces": [
+        {
+          "interval": [
+            0.0,
+            0.6931471805599452
+          ],
+          "length": 19,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            0.6931471805599452,
+            1.0986122886681098
+          ],
+          "length": 16,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.0986122886681098,
+            1.3862943611198904
+          ],
+          "length": 16,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.3862943611198904,
+            1.6094379124341
+          ],
+          "length": 15,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.6094379124341,
+            1.7877048181469732
+          ],
+          "length": 14,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.7877048181469732,
+            1.791759469228055
+          ],
+          "length": 6,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.791759469228055,
+            1.9459101490553132
+          ],
+          "length": 14,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            1.9459101490553132,
+            2.0794415416798357
+          ],
+          "length": 14,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            2.0794415416798357,
+            2.197224577336219
+          ],
+          "length": 13,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            2.197224577336219,
+            2.3978952727983702
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            2.3978952727983702,
+            2.484906649788
+          ],
+          "length": 13,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            2.484906649788,
+            2.7080502011022096
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            2.7080502011022096,
+            2.8793856350094837
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            2.8793856350094837,
+            2.890371757896165
+          ],
+          "length": 9,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            2.890371757896165,
+            3.0445224377234226
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.0445224377234226,
+            3.1780538303479453
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.1780538303479453,
+            3.295836866004329
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.295836866004329,
+            3.49650756146648
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.49650756146648,
+            3.6635616461296467
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.6635616461296467,
+            3.8712010109078907
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.8712010109078907,
+            3.9318256327243253
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            3.9318256327243253,
+            4.0
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.0,
+            4.04305126783455
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.04305126783455,
+            4.246010289628866
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.246010289628866,
+            4.248495242049359
+          ],
+          "length": 8,
+          "ishappy": true
+        },
+        {
+          "interval": [
+            4.248495242049359,
+            4.290459441148392
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.290459441148392,
+            4.330733340286331
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.330733340286331,
+            4.5217885770490405
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.5217885770490405,
+            4.61512051684126
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.61512051684126,
+            4.753590191106365
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.753590191106365,
+            4.836281906951478
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.836281906951478,
+            4.886974090590572
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            4.886974090590572,
+            5.017279836814924
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.017279836814924,
+            5.111987788356544
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.111987788356544,
+            5.25227342804663
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.25227342804663,
+            5.375278407684165
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.375278407684165,
+            5.525452939131784
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.525452939131784,
+            5.641907070938114
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.641907070938114,
+            5.762726469565893
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.762726469565893,
+            5.937536205082426
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            5.937536205082426,
+            6.0
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.0,
+            6.198478716492309
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.198478716492309,
+            6.378426183651587
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.378426183651587,
+            6.419691039737801
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.419691039737801,
+            6.440946540632921
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.440946540632921,
+            6.557122254200287
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.557122254200287,
+            6.673297967767654
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.673297967767654,
+            6.836648983883827
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            6.836648983883827,
+            7.0
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.0,
+            7.122377077716993
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.122377077716993,
+            7.244754155433986
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.244754155433986,
+            7.267358838579163
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.267358838579163,
+            7.3046647230320705
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.3046647230320705,
+            7.305330899540158
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.305330899540158,
+            7.457330172802148
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.457330172802148,
+            7.60932944606414
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.60932944606414,
+            7.8046647230320705
+          ],
+          "length": 129,
+          "ishappy": false
+        },
+        {
+          "interval": [
+            7.8046647230320705,
+            8.0
+          ],
+          "length": 129,
+          "ishappy": false
+        }
+      ]
+    }
+  },
+  "post_finalization": {
+    "total_length": 6085,
+    "piece_count": 57,
+    "unhappy_piece_count": 46
+  },
+  "independent_representation_integral": {
+    "method": "ClosedformChebyshevpolynomialintegrals accumulated inNumPy longdouble: (b-a)*sum_even(c[k]/(1-k*k)); independent of librarysum, no functioncallbacks or solver.",
+    "independent_integral_longdouble": "0.08788148855378320834",
+    "public_integral": 0.08788148855378317,
+    "absolute_difference_longdouble": "4.252105395216587702e-17",
+    "analytic_reference": 0.0986517044783652,
+    "public_absolute_error": 0.010770215924582036,
+    "native_cached_approximation": 0.087881488553783,
+    "native_cached_absolute_error": 0.010770215924582202,
+    "post_finalization_total_length": 6085,
+    "post_finalization_piece_count": 57,
+    "post_finalization_unhappy_count": 46,
+    "limitations": [
+      "Defaultconstructor intentionally returns unresolvedapproximation afterbudgetwarning; analyticaccuracy is not an acceptancepredicate.",
+      "Agreement of librarysum with representationintegral does not establishrepresentationaccuracy or nativeconstructorparity."
+    ]
+  },
+  "change": {
+    "old_sha256": "26ba20a91304290d79d512d402879105ac67644846a9cb87345707d2255a4a3e",
+    "new_sha256": "b197f09e154b38746c33ab7324c082370569f874f6c67489df2e2bc2b1a4f8ca",
+    "changes": [
+      "Remove import warnings",
+      "Remove run() blanket warnings.filterwarnings(ignore)"
+    ],
+    "all_other_AST_nodes_identical": true,
+    "full_example_rerun": false,
+    "baseline_source_archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_run_v2_20261017/baseline_evidence.zip",
+      "archive_sha256": "9c0373552b2f3d9630b9736608a8bf8fc78c3c0ac0dbc9848925535ad2abc957",
+      "verified_entries": 6561,
+      "source_guard_verified_before_mutation": true
+    }
+  },
+  "static_validation": "Ruff examples/quad/tricky.py and git diff --check passed; allbodyprose/MATLABcells/figureplacement unchanged; only block4output+qualificationnote updated.",
+  "baseline_evidence": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_run_v2_20261017/baseline_evidence.zip",
+    "archive_sha256": "9c0373552b2f3d9630b9736608a8bf8fc78c3c0ac0dbc9848925535ad2abc957",
+    "verified_entries": 6561,
+    "source_guard_verified_before_mutation": true
+  },
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_run_v2_20261017",
+  "prior_observer_failure": {
+    "root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_run_20261017",
+    "cause": "Observer attemptedtoJSONserialize JAXscalar beforeforwarding budgetwarning; run failed and doesnotqualify numerics.",
+    "correction": "Warning forwardedfirst; metadata scalar conversion+nonfatalcapture; no filters or scientific overrides."
+  },
+  "limits": [
+    "No librarysplitter correction was needed; current publicconstructor matches the intentionally inaccurate nativepublisheddefaultresult at displayedprecision.",
+    "Analyticerror~0.0107702 preserved, warning remains visible; no tolerance/degree/budget adjustment.",
+    "Removing blanketwarningfilter is ASTbridged; completecurrentexample and otheroutputs/figures still need execution.",
+    "No freshMATLAB invocation forTricky; published HTML/source reference reused.",
+    "Independent coefficient integration verifies the returned representation integral; it does not prove pointwise approximation accuracy."
+  ]
+}

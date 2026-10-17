@@ -1,0 +1,107 @@
+{
+  "status": "Current full script completed; scientific and raster gaps remain",
+  "base_commit": "b6b34946b2aa99fcba56b6631ebd64ff027aa861",
+  "source_sha256": {
+    "examples/quad/tricky.py": "8708e581d53efdb85dca7eb1df4ec86deac00f19ee1512f740cbac403bec5d5a",
+    "src/chebfunjax/plotting.py": "63f19f303c7193a22b8518f6f5dae6f2a64b984793bd84f50537ee3405b7d0ab",
+    "src/chebfunjax/tech/_source_clenshaw.py": "bb204f9e8f317e8eb2b9d5c871d75dbc3bbcfb972f83e57799c275e0cc1b9281",
+    "tests/test_scalar_plot_source.py": "6051c45e359e259dabf865e5fc2c66ccdc75c636a123f5fb869dea7c2571837f"
+  },
+  "execution": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 256.53250908106565,
+    "sampled_peak_summed_rss_kib": 4799752,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "backend": "cpu",
+    "x64": true
+  },
+  "script_seconds": 248.9613146521151,
+  "scientific_slots": 12,
+  "actual_current_execution_figures": 9,
+  "source_guard_files": 6528,
+  "all_12_scientific_capture_arrays_byte_identical_to_prior_execution": true,
+  "all_9_final_pngs_byte_identical_to_saved_data_renders": true,
+  "warnings": [
+    {
+      "message": "Function not resolved using 6091 pts.",
+      "category": "UserWarning",
+      "filename": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_block4_qualification_20261017/examples/quad/../../src/chebfunjax/chebfun1d/_construction_context.py",
+      "lineno": 255,
+      "source_slot": 4,
+      "elapsed_seconds": 57.95301277702674
+    }
+  ],
+  "scientific_overrides": [],
+  "independent_checks": {
+    "all_12_output_labels_match_native": true,
+    "finite_public_integrals": 11,
+    "finite_coefficients_all_slots": true,
+    "finite_interval_representation_integral_max_abs_difference": 2.2473342631279536e-15,
+    "direct_parametric_plot_polynomial_max_abs_difference": 9.776623954849128e-13,
+    "physical_inverse_roundtrip_plot_polynomial_max_abs_difference": 1.887664746735851e-10,
+    "bounds": "Original MATLAB page has no scientific accuracy inequalities; observed errors are descriptive. Finite-prefix checks do not establish improper-integral accuracy."
+  },
+  "source_plot_policy": {
+    "native_reference_commit": "7574c77",
+    "plotData": "Chebtech count min(max(501,round(4*pi*n)),65537), source prolong/values and physical maps",
+    "unbounded_x_window": [
+      0,
+      10
+    ],
+    "grid": false,
+    "standard_image_size": [
+      600,
+      270
+    ]
+  },
+  "tests": {
+    "passed": 30,
+    "new": 15,
+    "existing": 15,
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "page_audit": {
+    "output_blocks": 12,
+    "figures": 9,
+    "original_prose_matlab_cells_and_figure_placement_unchanged": true,
+    "raw_stdout_preserved": true,
+    "rendered_output_trailing_spaces_removed": true
+  },
+  "remaining_gaps": [
+    {
+      "kind": "scientific",
+      "slot": 6,
+      "description": "Unbounded Airy public integral is +Inf, versus native published0.378751605379086. All stored coefficients finite. Present unchanged in previous scientific execution. Finite-domain slot7 gives0.3787516053790867; independent mapped-polynomial [0,40] integral0.3787516053791465 does not validate the infinite tail."
+    },
+    {
+      "kind": "source_intended_failure",
+      "slot": 4,
+      "description": "Unresolved integral0.08788148855378317 matches native displayed approximation but differs from analytic0.0986517044783652. Warning retained; no fitted correction."
+    },
+    {
+      "kind": "presentation",
+      "description": "Axis ylimits/ticks/fonts/raster discrepancies remain. Correct source sampling, order and dimensions do not prove pixel parity."
+    }
+  ],
+  "artifacts": {
+    "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_final_full_run_20261017",
+    "raw_stdout": "supervision/stdout",
+    "raw_stderr": "supervision/stderr",
+    "representation_data": "slot01..12.json/.npz",
+    "actual_figures": "images/Tricky_01..09.png and figure01..09.json/.npz",
+    "official_reference_manifest": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_full_run_20261017/official_reference_images/MANIFEST.json",
+    "reference_role": "Fetched2026-10-17 after baseline run as comparison assets; not scientific execution inputs.",
+    "earlier_plot_source_archive_sha256": "2117262588824e1b5f0896a3c36bb70908a0164467c58b1cd116fb5bfba6fdde",
+    "earlier_censored_full_archive_sha256": "8165adc3dcdcb55229140641cf0f4af606e35e61bb7ef0057a9b2b4360da6a74"
+  }
+}
