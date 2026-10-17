@@ -1,3 +1,36 @@
+## Physical polynomial conversion and 3D CI process lifetime — 2026-10-17
+
+Physical-domain polynomial conversion now batches elementwise binomial and
+power weights while retaining each sequential tail reduction and update.
+Five retained cases/324 coefficient rows, including actual ThreeBody physical
+p/q, preserve the original intermediate and final coefficient bytes. Component
+105 unchanged regressions pass; parent independently verifies the complete
+8741-payload archive and pinned native source snapshots. Shared-host cold
+polynomial-pair observation improves79.343s to28.655s (2.77x), with sampled
+peak3.43GiB to2.17GiB. These are descriptive observations, not matched MATLAB
+performance qualification. Weight storage is quadratic in polynomial degree;
+large degrees beyond retained cases remain unqualified.
+
+Only the five existing 3D port shards now run a fresh pytest process per file.
+The sorted modulo inventory, paths, parts,900-second per-test timeout and
+90-minute job limits are unchanged. Failures propagate while later files run.
+Default runner behavior for all other shards is preserved. Two older3D runner
+shutdown143 logs motivate bounded process lifetime; their root cause remains
+unproven. No green CI claim is made.
+
+Fresh combined-source root gates:43 polynomial/rational checks pass31.035s;
+6 runner protocol checks pass0.136s. All8236/8238 inputs remain stable; all
+1414/1372 actual runtime imports are preguarded, no owned survivors. Independent
+root archive review verifies8167payloads/8124full-byte preimages. Earlier
+protocol snapshots remain uncredited/superseded, including one passing run
+with two unpreguarded standard-library imports. Fullstatic checks pass.
+Evidence:docs/poly_port_joint_cpu_20261017.json.
+
+Next: actual ThreeBody full seven-output residue path and all four figures;
+prior whole run was RSS-censored before completion. High-degree numerical
+accuracy, remaining library/API/native assertions, all322 actual pages,
+matched CPU performance and latest-main green CI/coverage remain open.
+
 ## PDE option factory and recursive 3D selectors — 2026-10-17
 
 Public pdeset and explicit show_pdeset_options now expose all23inheritedODE

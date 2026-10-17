@@ -1,4 +1,8 @@
-"""Run a complete port shard, optionally partitioning its test files."""
+"""Run a complete port shard, optionally using a fresh process per file.
+
+Process exit releases JAX compilation caches and allocator state between files.
+All selections and the existing900-second per-test timeout are preserved.
+"""
 
 import argparse
 import subprocess
@@ -10,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--part", type=int, default=0)
     parser.add_argument("--parts", type=int, default=1)
+    parser.add_argument("--fresh-file-processes", action="store_true")
     parser.add_argument("paths", nargs="+")
     args = parser.parse_args()
     if args.parts < 1 or not 0 <= args.part < args.parts:
@@ -27,15 +32,28 @@ def main():
         parser.error("partition would contain no test files")
     # Modulo partition of a single sorted inventory is exhaustive and disjoint.
     selected = files[args.part::args.parts]
-    paths = args.paths if args.parts == 1 else [str(path) for path in selected]
     print(
         f"Port shard {args.part + 1}/{args.parts}: "
         f"{len(selected)}/{len(files)} test files", flush=True,
     )
-    return subprocess.run([
-        sys.executable, "-m", "pytest", *paths, "-q", "--tb=short",
-        "--timeout=900", "-p", "no:cacheprovider",
-    ]).returncode
+    if not args.fresh_file_processes:
+        paths = args.paths if args.parts == 1 else [str(path) for path in selected]
+        return subprocess.run([
+            sys.executable, "-m", "pytest", *paths, "-q", "--tb=short",
+            "--timeout=900", "-p", "no:cacheprovider",
+        ]).returncode
+    status = 0
+    for index, path in enumerate(selected, 1):
+        print(f"Port file {index}/{len(selected)}: {path}", flush=True)
+        result = subprocess.run([
+            sys.executable, "-m", "pytest", str(path), "-q", "--tb=short",
+            "--timeout=900", "-p", "no:cacheprovider",
+        ])
+        # Run every selection even after a failure; propagate the first code.
+        if status == 0 and result.returncode:
+            status = result.returncode
+    return status
+
 
 
 if __name__ == "__main__":

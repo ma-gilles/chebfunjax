@@ -1,3 +1,14 @@
+## Latest scoped package: polynomial conversion and CI process lifetime
+
+CPU-only qualification:43 polynomial/rational integration checks and6 runner
+protocol checks pass. Physical-domain conversion retains intermediate/final
+bytes on retained cases; observed shared-host polynomial-pair time79.343s to
+28.655s is not final MATLAB performance parity. Five existing3D shards use a
+fresh process per file with identical selection/timeouts. Root archive and
+runtime-import coverage verified. See [evidence](poly_port_joint_cpu_20261017.json).
+Whole ThreeBody, all322 actual pages/figures, remaining original assertions and
+API/correctness issues, matched performance and green latest-main CI remain open.
+
 # MATLAB Chebfun parity checklist
 
 Updated 2026-10-17. **Active and incomplete; CPU only.** Reference:

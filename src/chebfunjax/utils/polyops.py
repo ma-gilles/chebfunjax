@@ -16,6 +16,24 @@ import jax.numpy as jnp
 __all__ = ["poly", "residue", "fred", "volt"]
 
 
+def _poly_affine_weights(n, alpha, beta):
+    """Batch elementwise BNDFUN/POLY weights, retaining source operations."""
+    from jax.scipy.special import gammaln
+
+    indices = jnp.arange(n)
+    powers = jnp.maximum(indices[None, :] - indices[:, None], 0)
+    log_factorials = gammaln(indices + 1.)
+    binom = jnp.round(jnp.exp(log_factorials[None, :]
+                             - log_factorials[powers]
+                             - log_factorials[:, None]))
+    binom = jnp.where(indices[None, :] >= indices[:, None], binom, 0.)
+    beta_powers = beta**indices
+    # Preserve the source loop's scalar exponentiation, including Python
+    # float arithmetic when the domain endpoints are Python floats.
+    alpha_powers = jnp.asarray([alpha**j for j in range(n)])
+    return binom * beta_powers[powers] * alpha_powers[:, None]
+
+
 def poly(f, n=None):
     """Descending polynomial coefficients of the selected FUN (one-based).
 
@@ -26,8 +44,6 @@ def poly(f, n=None):
     Scalar output uses a Python vector; array-valued output retains rows.
     """
     import warnings
-
-    from jax.scipy.special import gammaln
 
     from chebfunjax.fun.singfun import Singfun
     from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
@@ -59,10 +75,11 @@ def poly(f, n=None):
     if a != -1.0 or b != 1.0:
         alpha, beta = 2/(b-a), -(b+a)/(b-a)
         out = out[:, ::-1]
+        weights = _poly_affine_weights(out.shape[1], alpha, beta)
         for j in range(out.shape[1]):
-            k = jnp.arange(j, out.shape[1])
-            binom = jnp.round(jnp.exp(gammaln(k+1.)-gammaln(k-j+1.)-gammaln(j+1.)))
-            bba = binom*beta**(k-j)*alpha**j
+            # Keep the source tail length and reduction order. Padding a
+            # reduction to n could change its floating-point sum tree.
+            bba = weights[j, j:]
             out = out.at[:, j].set(jnp.sum(out[:, j:]*bba, axis=1))
         out = out[:, ::-1]
     return out[0] if scalar else out

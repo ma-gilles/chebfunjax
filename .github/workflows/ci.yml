@@ -249,6 +249,7 @@ jobs:
               tests/test_matlab_port/chebfun2
               tests/test_matlab_port/chebfun2v
           - name: chebfun3d-a
+            isolate_files: true
             part: 0
             parts: 5
             paths: >-
@@ -256,6 +257,7 @@ jobs:
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-b
+            isolate_files: true
             part: 1
             parts: 5
             paths: >-
@@ -263,6 +265,7 @@ jobs:
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-c
+            isolate_files: true
             part: 2
             parts: 5
             paths: >-
@@ -270,6 +273,7 @@ jobs:
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-d
+            isolate_files: true
             part: 3
             parts: 5
             paths: >-
@@ -277,6 +281,7 @@ jobs:
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-e
+            isolate_files: true
             part: 4
             parts: 5
             paths: >-
@@ -350,6 +355,7 @@ jobs:
           pixi run python scripts/run_port_shard.py
           --part ${{ matrix.shard.part || 0 }}
           --parts ${{ matrix.shard.parts || 1 }}
+          ${{ matrix.shard.isolate_files && '--fresh-file-processes' || '' }}
           -- ${{ matrix.shard.paths }}
       - name: Check shard covers no stray directories
         if: matrix.shard.name == 'chebfun-a'

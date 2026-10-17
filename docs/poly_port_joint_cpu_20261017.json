@@ -1,0 +1,70 @@
+{
+  "base": "f3285a81ad4238926583a8159b251305d56f8327",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poly_port_joint_root_cpu_20261017.zip",
+  "sha256": "abb6d03ba40d852dcbbd603b4a78b77cd4d2cda849b340e4217bb9ff76edaea2",
+  "verified_payloads": 8167,
+  "full_preimages": 8124,
+  "guard_edges": 32946,
+  "source_hashes": {
+    "src/chebfunjax/utils/polyops.py": "50842d6eb55f0e31761c801ca7266e399ccd12a8b2825fb2cd98a914476123d2",
+    "scripts/run_port_shard.py": "e96e116839b19de28d7f34f3e7e70b99b4a44e3d42c640307faf218acc0a8e7c",
+    "tests/test_port_file_lifecycle.py": "712ff3fbf5f767f0d2fd34f10a04d02b0bd1c8f6f2280afad4fe7d96b8422f96",
+    ".github/workflows/ci.yml": "d39967ba904fc8b65bc94319a0db718873ce44fdf6272ca2df9850842f94844a"
+  },
+  "gates": [
+    {
+      "name": "poly",
+      "tests": 43,
+      "pytest_seconds": 31.035,
+      "actual_imports": 1414,
+      "all_imports_preguarded": true,
+      "inputs": 8236,
+      "peak_rss_kib": 1612416,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "name": "protocol",
+      "tests": 6,
+      "pytest_seconds": 0.136,
+      "actual_imports": 1372,
+      "all_imports_preguarded": true,
+      "inputs": 8238,
+      "peak_rss_kib": 400936,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  ],
+  "component": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poly_affine_complete_cpu_20261017.zip",
+    "sha256": "4209c6a9e7ca63a9f39faec491ec20419f6c856220227c41ba0375a82e4cab9a",
+    "verified_payloads": 8741,
+    "artifact_payloads": 129,
+    "guard_sets": 10,
+    "guard_edges": 87314,
+    "unique_full_byte_preimages": 8620,
+    "native_pinned_sources": 3,
+    "completed_gates_with_all_actual_imports_preguarded": [
+      "three_body_poly_narrow_20261017",
+      "poly_gamma_bridge_20261017",
+      "poly_gamma_tests_20261017",
+      "poly_affine_bridge_v2_p_20261017",
+      "poly_affine_bridge_v2_q_20261017",
+      "poly_affine_tests_v2_20261017",
+      "poly_affine_matched_20261017/baseline",
+      "poly_affine_matched_20261017/candidate"
+    ],
+    "uncredited_censored_gates": [
+      "poly_affine_bridge_v2_20261017",
+      "poly_affine_bridge_v2b_20261017"
+    ],
+    "source_sha256": "50842d6eb55f0e31761c801ca7266e399ccd12a8b2825fb2cd98a914476123d2",
+    "scope": "Independent all artifact/guard/fullbyte preimage/native-pin review, plus self-contained immutable archive with complete edge closure. Shared-host timings descriptive only; not native highdegree/wholeThreeBody/fullAPI/performance closure."
+  },
+  "ci_selection_bridge": "Removing five isolate_files flags and conditional CLI flag produces byte-identical baseline workflow; original paths/partitions/timeouts unchanged.",
+  "limits": [
+    "Protocol v2 is superseded; v3 six checks passed but two actual imports were not preguarded, so not credited. Final v4 preguards both.",
+    "Shared-host timings are descriptive; full MATLAB performance, high-degree correctness, whole ThreeBody and green latest-main CI remain open.",
+    "Fresh file process lifecycle addresses process lifetime; cause of older runner shutdown143 is unproven."
+  ]
+}
