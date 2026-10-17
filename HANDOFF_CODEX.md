@@ -1,3 +1,15 @@
+# Latest Padé empty optional defaults — 2026-10-17
+
+Native isempty defaults restored for optional tolerance/radius/FFTlength.
+None, emptylist and emptyJAXarray work for coefficients and callable input;
+zero tolerance remains nonempty and disables robustification. Six baseline
+failures nowpass; final23CPUchecks include all17priorchecks unchanged. Fresh
+pinnedMATLAB numeric/callableemptydefaults and zero-tolerance controls pass.
+Stable declaredinputs/no survivors; other361libraryfiles byteidentical and
+allothermodulefunctions/oldtestbodies ASTunchanged. FullAPI, exactnumerical,
+matchedperformance/latestCI/coverage remainopen.
+Evidence: docs/pade_optional_defaults_cpu_20261017.json.
+
 # Latest Lorenz warning slot and TransientGrowth diagnosis — 2026-10-17
 
 Full unchanged Lorenz numerical/plot operands run33.63s, all1381runtimefiles

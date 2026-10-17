@@ -220,6 +220,11 @@
       "scope": "Three default native predicates plus 14 Python JAX/correctness/authored controls; full API/alternate parameters/exact FFT/SVD/performance remain open",
       "sha256": "ae3b3bb80250ccf8f4b2ed192f38a913e8705142928ad559e025b63c1b85d189"
     },
+    "pade_optional_defaults_cpu_20261017": {
+      "path": "docs/pade_optional_defaults_cpu_20261017.json",
+      "scope": "Native empty optional Pad\u00e9 defaults restored; None/emptylist/emptyJAXarray supported, zero tolerance retained; not fullAPI completion",
+      "sha256": "85e91aa36f1edb4b1219859608fb6f65c16bc96f8f5d1b24c26842236377200f"
+    },
     "pde_color_whole_20261017": {
       "path": "docs/pde_color_whole_cpu_20261017.json",
       "scope": "Superseding four ThreeBody image observations; numerical artifacts equal prior Python observation, native high-degree discrepancy remains open.",
@@ -95919,6 +95924,10 @@
         {
           "artifact": "pade_jax_source_cpu_20261017",
           "scope": "Default original predicates1-3 and source-backed zero/tiny-complex repairs; bounded scoped qualification only"
+        },
+        {
+          "artifact": "pade_optional_defaults_cpu_20261017",
+          "scope": "Fresh23Pythonchecks include priorliteral3 plus6emptydefaultcases; freshnativeempty/zero controls. Full-itemstatuses unchanged."
         }
       ],
       "functions": [
@@ -95935,6 +95944,11 @@
               "native_source_sha256": "1e677549f735e0be6bd056d14593b8731258e39d12cab76d03d5f3e75cd29259",
               "scope": "Default original invocation; no full-function/API promotion",
               "source_binding_ref": "docs/pade_jax_source_cpu_20261017.json"
+            },
+            {
+              "artifact": "pade_optional_defaults_cpu_20261017",
+              "library_source_sha256": "cb788cf338bd7a40e236cdbb148cb0d10a3ddbb1f5a3fd26553d7df227aebe16",
+              "scope": "Native empty-optional grammar and retained23checks on recordedsource; fullAPIopen"
             }
           ],
           "implementation_status": "unverified",
@@ -122631,6 +122645,10 @@
         {
           "artifact": "pade_jax_source_cpu_20261017",
           "scope": "Default original predicates1-3 and source-backed zero/tiny-complex repairs; bounded scoped qualification only"
+        },
+        {
+          "artifact": "pade_optional_defaults_cpu_20261017",
+          "scope": "Fresh23Pythonchecks include priorliteral3 plus6emptydefaultcases; freshnativeempty/zero controls. Full-itemstatuses unchanged."
         }
       ],
       "functions": [
@@ -122647,6 +122665,11 @@
               "native_source_sha256": "3800c68bd99bc7ed8b5a055fc47ae7891bc5bbe76a685125ab398bf51d69cd68",
               "scope": "Default original invocation; no full-function/API promotion",
               "source_binding_ref": "docs/pade_jax_source_cpu_20261017.json"
+            },
+            {
+              "artifact": "pade_optional_defaults_cpu_20261017",
+              "library_source_sha256": "cb788cf338bd7a40e236cdbb148cb0d10a3ddbb1f5a3fd26553d7df227aebe16",
+              "scope": "Native empty-optional grammar and retained23checks on recordedsource; fullAPIopen"
             }
           ],
           "implementation_status": "unverified",

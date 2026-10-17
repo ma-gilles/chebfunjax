@@ -250,3 +250,11 @@ finds 28 happy pieces and zero warning attempts/emissions with original operands
 and preferences. The cached native unresolved warning remains different; no
 warning is synthesized and no full example/figure/energy parity is claimed.
 These two page rows now link scoped evidence; full-item statuses are unchanged.
+
+## Padé optional default grammar — 2026-10-17
+
+[Fresh empty-default evidence](pade_optional_defaults_cpu_20261017.json) attaches
+the six repaired empty-argument cases and final 23-check Python gate to the
+Padé source/test entries. A fresh pinned MATLAB invocation confirms empty
+numeric/callable defaults and nonempty zero tolerance. Full-item statuses
+remain unverified; this is a source-bound grammar scope.

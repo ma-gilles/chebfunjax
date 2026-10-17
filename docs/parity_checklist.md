@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Padé native empty optional defaults:None/emptylist/emptyJAXarray accepted; zero tolerance preserved. Six baseline failures fixed;23finalCPUchecks pass plus fresh pinnednative empty/default/zero controls. [Evidence](pade_optional_defaults_cpu_20261017.json). Wider API/numerical/performance/latestCI remains open.
+
+
 - [x] Close Lorenz fourth blank outputslot with actual captured complex-plot warning and explicit source-slot markers. Full final33.63s/all1381runtimefiles preguarded, exact non-outputMarkdown, allfour600x270figures. [Evidence](lorenz_warning_cpu_20261017.json). Six other targeted blanks/three count differences and full numerical/raster parity remain open.
 - [x] Diagnose TransientGrowth originalconstructor warning:28happyFUNs/2032coefficients,0actualwarning attempts/emissions; no library fix or synthetic warning justified. [Evidence](transient_growth_constructor_cpu_20261017.json). Fullpage and freshnative warning difference remain unqualified.
 

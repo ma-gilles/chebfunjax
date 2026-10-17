@@ -29,9 +29,9 @@ def padeapprox(
     f,
     m: int,
     n: int,
-    tol: float = 1e-14,
-    r: float = 1.0,
-    N_fft: int = 2048,
+    tol: float | None = 1e-14,
+    r: float | None = 1.0,
+    N_fft: int | None = 2048,
 ):
     r"""Padé approximation to a function or Taylor series (robust, SVD-based).
 
@@ -53,12 +53,13 @@ def padeapprox(
         Desired denominator degree (>= 0).
     tol : float, optional
         Relative tolerance for robustification.  Set to 0 to disable.
-        Default: 1e-14.
+        Default: 1e-14. None or an empty array selects this default.
     r : float, optional
         Radius for FFT-based Taylor coefficient extraction when ``f`` is
-        callable.  Default: 1.0.
+        callable.  Default: 1.0. None or an empty array selects this default.
     N_fft : int, optional
         Number of roots of unity for FFT when ``f`` is callable.
+        None or an empty array selects the default of 2048.
         Default: 2048.
 
     Returns
@@ -117,7 +118,12 @@ def padeapprox(
     # ------------------------------------------------------------------
     # 1.  Extract Taylor coefficients if f is callable
     # ------------------------------------------------------------------
+    # Native isempty defaults apply to tolerance for either input form;
+    # radius and sampling defaults apply only when extracting coefficients.
+    tol = 1e-14 if tol is None or jnp.asarray(tol).size == 0 else tol
     if callable(f):
+        r = 1.0 if r is None or jnp.asarray(r).size == 0 else r
+        N_fft = 2048 if N_fft is None or jnp.asarray(N_fft).size == 0 else N_fft
         z = r * jnp.exp(2j * jnp.pi * jnp.arange(N_fft) / N_fft)
         fvals = jnp.asarray(f(z), dtype=complex)
         c_full = jnp.fft.fft(fvals) / N_fft

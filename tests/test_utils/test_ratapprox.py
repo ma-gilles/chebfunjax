@@ -101,6 +101,23 @@ class TestPadeJaxSource:
     independent contracts also require JAX arrays and differentiable evaluation.
     """
 
+    @pytest.mark.parametrize("kind", ["none", "list", "jax_array"])
+    @pytest.mark.parametrize("callable_input", [False, True])
+    def test_empty_optional_arguments_follow_native_defaults(self, kind, callable_input):
+        # padeapprox.m lines36-44: isempty selects defaults; zero is not empty.
+        empty = None if kind == "none" else ([] if kind == "list" else jnp.empty((0,)))
+        coefficients = jnp.array([1.0, 0.25j])
+        f = (lambda z: 1 / (1 - 0.25j*z)) if callable_input else coefficients
+        evaluate, a, b, mu, nu, poles, residues = padeapprox(
+            f, 0, 1, tol=empty, r=empty, N_fft=empty
+        )
+        assert (mu, nu) == (0, 1)
+        npt.assert_allclose(a, [1.0], rtol=1e-13, atol=0)
+        npt.assert_allclose(b, [1.0, -0.25j], rtol=1e-13, atol=1e-15)
+        assert poles.shape == residues.shape == (1,)
+        z = jnp.array([0.0, 0.5 + 0.25j])
+        npt.assert_allclose(evaluate(z), 1 / (1 - 0.25j*z), rtol=1e-13)
+
     def test_zero_degree_is_negative_infinity(self):
         evaluate, a, b, mu, nu, poles, residues = padeapprox([0.0], 0, 0)
         assert mu == -np.inf
