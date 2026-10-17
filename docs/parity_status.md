@@ -34,12 +34,18 @@ remaining-page count.
   controls, final affected-control repeats and current public integration.
   See [joint integration](compose_airy_joint_cpu_20261017.json).
 
+- [x] Public smooth Bndfun.compose and constructor DATA scales, with nine
+  restored original predicates and preserved supplemental legacy controls.
+- [x] Cross-kind C1/C2 outer composition and native minimum-length/column
+  checks. Combined qualification: 81 controls, including the nine originals.
+  See [combined evidence](bndfun_crosskind_integration_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted
   assertions, skips, strict xfails and host NumPy/SciPy numerical routes.
-- [ ] Missing public Bndfun.compose API; nonempty constructor DATA,
-  Singfun/Unbndfun/heterogeneous composition and native warning/API gaps.
+- [ ] Singfun/Unbndfun/heterogeneous composition and native warning/API
+  gaps; remaining invalid-input and future JAX list-DATA behavior.
 - [ ] Authored fixed-48 advection control and chemical PDE accuracy.
 - [ ] Small explicit Hermite ASY, nonlinear parameter/backend cases,
   interpolation norms/grids, remaining Subsref clauses and Chebfun3T predicate.

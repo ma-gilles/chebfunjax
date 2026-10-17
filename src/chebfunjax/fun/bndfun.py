@@ -14,12 +14,13 @@ import jax.numpy as jnp
 
 from chebfunjax.domain import Domain
 from chebfunjax.fun.classicfun import Classicfun
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.utils.interpolation import barymat
 from chebfunjax.utils.quadrature import chebpts, legpts
 
 # Machine epsilon for float64
 _EPS = float(jnp.finfo(jnp.float64).eps)
+_COMPOSE_OMITTED = object()
 
 
 class Bndfun(Classicfun):
@@ -64,6 +65,48 @@ class Bndfun(Classicfun):
     --------
     Classicfun, Chebtech2, Domain
     """
+
+    def compose(self, op, g=_COMPOSE_OMITTED, data=_COMPOSE_OMITTED,
+                pref=_COMPOSE_OMITTED):
+        """Compose on canonical coordinates, retaining this bounded domain.
+
+        ``f.compose(op)`` and ``f.compose(op, g)`` use Tech defaults.
+        ``f.compose(outer)`` means outer(f), mapping f's values through
+        outer's inverse affine map before canonical Tech composition.
+        Supplying data or pref selects the native constructor-pref branch;
+        data's vscale and hscale are forwarded to Tech population.
+
+        Provenance: @bndfun/compose.m, Chebfun 7574c77.
+        Singfun-backed Bndfuns are outside this smooth C1/C2 API port.
+        """
+        from chebfunjax.chebpref import ChebfunPref
+
+        if not isinstance(self.onefun, (Chebtech1, Chebtech2)):
+            raise NotImplementedError("Bndfun.compose supports smooth Chebtech1/2 onefuns")
+        if g is _COMPOSE_OMITTED and data is _COMPOSE_OMITTED and pref is _COMPOSE_OMITTED:
+            if isinstance(op, Bndfun):
+                a, b = op.domain.a, op.domain.b
+                mapped = (self.onefun-a)/(b-a) - (b-self.onefun)/(b-a)
+                onefun = mapped.compose(op.onefun)
+            else:
+                onefun = self.onefun.compose(op)
+        elif data is _COMPOSE_OMITTED and pref is _COMPOSE_OMITTED:
+            # Native three-argument branch requires a BNDFUN G.
+            onefun = self.onefun.compose(op, g.onefun)
+        else:
+            resolved = ChebfunPref() if pref is _COMPOSE_OMITTED else ChebfunPref(pref)
+            empty_g = (g is _COMPOSE_OMITTED or g is None
+                       or (isinstance(g, (list, tuple)) and not g)
+                       or getattr(g, "size", None) == 0)
+            inner = None if empty_g else g.onefun
+            constructor_data = None if data is _COMPOSE_OMITTED else data
+            if constructor_data is not None and not isinstance(constructor_data, dict):
+                if jnp.size(constructor_data) == 0:
+                    constructor_data = None
+                else:
+                    raise TypeError("Bndfun compose data must be a mapping or empty")
+            onefun = self.onefun.compose(op, inner, pref=resolved, data=constructor_data)
+        return type(self)(onefun=onefun, domain=self.domain)
 
     def cumsum(self):
         """Native bounded antiderivative; a split onefun yields two Bndfuns.
@@ -197,7 +240,7 @@ class Bndfun(Classicfun):
 
         Examples
         --------
-        >>> from chebfunjax.tech.chebtech import Chebtech2
+        >>> from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
         >>> t = Chebtech2.from_function(jnp.sin)
         >>> d = Domain((-1.0, 1.0))
         >>> f = Bndfun.from_chebtech(t, d)

@@ -1,113 +1,72 @@
-"""Port of MATLAB Chebfun tests/bndfun/test_compose.m (Opus 4.8).
+"""Nine original public Bndfun compose predicates, Chebfun 7574c77.
 
-chebfunjax does not expose ``compose`` at the Bndfun/Classicfun level, but the
-underlying ``Chebtech2.compose`` provides it; a Bndfun composition is exactly
-``Bndfun.from_chebtech(f.onefun.compose(op[, g]), f.domain)`` -- which is what
-MATLAB @classicfun/compose.m does internally (delegate to the onefun, rewrap).
-The scalar-valued cases are ported this way and self-validated against the
-analytic exact at the SAME tolerance MATLAB uses.  The array-valued cases now
-work too (FIXED, Fable 5, Big-Three array-valued epic): the onefun is a
-Chebtech2 that supports (n, m) coefficients, so unary, binary, and
-tech-of-tech composition all act column-wise.
-
-Provenance
-----------
-MATLAB source : tests/bndfun/test_compose.m
-Chebfun commit: 7574c77
+Source tests/bndfun/test_compose.m uses a row linspace. Native array-valued
+feval concatenates the column results into one row; all its infinity norms
+are therefore vector max norms, while clause6 uses the default vector2 norm.
+The earlier manual-onefun adapted cases remain in test_compose_legacy_controls.
 """
-
-from __future__ import annotations
 
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
+from chebfunjax.chebpref import ChebfunPref
 from chebfunjax.domain import Domain
 from chebfunjax.fun.bndfun import Bndfun
 
-EPS = float(np.finfo(np.float64).eps)
-DOM = Domain((-2.0, 7.0))
-XR = np.linspace(-2.0, 7.0, 1000)
-X = jnp.asarray(XR)
+EPS = np.finfo(np.float64).eps
+DOM = Domain((-2., 7.))
+X = jnp.linspace(-2., 7., 1000)
 
 
-def _bf(f, dom=DOM, n=None):
-    # xfail cases pass a small fixed n so a non-converging build stays fast.
-    return Bndfun.from_function(f, dom, n=n)
+def _bf(op, domain=DOM):
+    return Bndfun.from_function(op, domain)
 
 
-def _ninf(a):
-    return float(jnp.max(jnp.abs(jnp.asarray(a))))
+def _columns(*values):
+    return jnp.stack(values, axis=-1)
 
 
-class TestBndfunCompose:
-    def test_scalar_unary_sin(self):
-        # compose(f, @sin) with f = identity  ->  sin(x)
-        f = _bf(lambda x: x)
-        g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
-        assert _ninf(np.sin(XR) - np.asarray(g(X))) < 10 * g.vscale * EPS
-
-    def test_array_valued_unary_sin_2col(self):
-        # pass(2): compose([x x], @sin).
-        # FIXED (Fable 5, Big-Three array-valued epic): (n, m) onefun compose.
-        f = _bf(lambda x: jnp.stack([x, x], axis=-1))
-        g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
-        exact = np.stack([np.sin(XR), np.sin(XR)], axis=-1)
-        assert _ninf(np.asarray(g(X)) - exact) < 10 * g.vscale * EPS
-
-    def test_array_valued_unary_sin_x_xsq(self):
-        # pass(3): compose([x x^2], @sin).
-        # FIXED (Fable 5, Big-Three array-valued epic).
-        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1))
-        g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
-        exact = np.stack([np.sin(XR), np.sin(XR ** 2)], axis=-1)
-        assert _ninf(np.asarray(g(X)) - exact) < 1e2 * g.vscale * EPS
-
-    def test_array_valued_unary_sin_3col(self):
-        # pass(4): compose([x x x^2], @sin).
-        # FIXED (Fable 5, Big-Three array-valued epic).
-        f = _bf(lambda x: jnp.stack([x, x, x ** 2], axis=-1))
-        g = Bndfun.from_chebtech(f.onefun.compose(jnp.sin), f.domain)
-        exact = np.stack([np.sin(XR), np.sin(XR), np.sin(XR ** 2)], axis=-1)
-        assert _ninf(np.asarray(g(X)) - exact) < 1e2 * g.vscale * EPS
-
-    def test_binary_plus(self):
-        # compose(f1, @plus, f2) = sin(x) + cos(x)
-        f1 = _bf(jnp.sin)
-        f2 = _bf(jnp.cos)
-        g = Bndfun.from_chebtech(f1.onefun.compose(jnp.add, f2.onefun), DOM)
-        exact = np.sin(XR) + np.cos(XR)
-        assert _ninf(exact - np.asarray(g(X))) < 10 * g.vscale * EPS
-
-    def test_array_valued_binary_times(self):
-        # pass(6): compose([sin cos], @times, [cos exp]).
-        # FIXED (Fable 5, Big-Three array-valued epic): binary onefun compose.
-        f1 = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1))
-        f2 = _bf(lambda x: jnp.stack([jnp.cos(x), jnp.exp(x)], axis=-1))
-        g = Bndfun.from_chebtech(f1.onefun.compose(jnp.multiply, f2.onefun), DOM)
-        exact = np.stack([np.sin(XR) * np.cos(XR), np.cos(XR) * np.exp(XR)], axis=-1)
-        assert _ninf(exact - np.asarray(g(X))) < 1e2 * g.vscale * EPS
-
-    def test_function_composition_scalar(self):
-        # compose(f, g) = g(f) with f = x^2 (range [0, 49]) and g = sin on [0, 49]
-        f = _bf(lambda x: x ** 2)
-        g = _bf(jnp.sin, Domain((0.0, 49.0)))
-        h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
-        assert _ninf(np.asarray(h(X)) - np.sin(XR ** 2)) < 1e2 * h.vscale * EPS
-
-    def test_function_composition_g_array(self):
-        # pass(8): compose(f, g) = g(f) with f = x^2, g = [sin cos] on [0, 49].
-        # FIXED (Fable 5, Big-Three array-valued epic): array-valued g.
-        f = _bf(lambda x: x ** 2)
-        g = _bf(lambda x: jnp.stack([jnp.sin(x), jnp.cos(x)], axis=-1), Domain((0.0, 49.0)))
-        h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
-        exact = np.stack([np.sin(XR ** 2), np.cos(XR ** 2)], axis=-1)
-        assert _ninf(np.asarray(h(X)) - exact) < 1e2 * h.vscale * EPS
-
-    def test_function_composition_f_array(self):
-        # pass(9): compose(f, g) = g(f) with f = [x x^2], g = sin on [-2, 49].
-        # FIXED (Fable 5, Big-Three array-valued epic): array-valued f.
-        f = _bf(lambda x: jnp.stack([x, x ** 2], axis=-1))
-        g = _bf(jnp.sin, Domain((-2.0, 49.0)))
-        h = Bndfun.from_chebtech(f.onefun.compose(g), DOM)
-        exact = np.stack([np.sin(XR), np.sin(XR ** 2)], axis=-1)
-        assert _ninf(np.asarray(h(X)) - exact) < 1e2 * h.vscale * EPS
+@pytest.mark.parametrize('clause', range(1, 10))
+def test_original_compose(clause, record_property):
+    pref = ChebfunPref()
+    if clause <= 4:
+        if clause == 1:
+            op = lambda x: x
+        elif clause == 2:
+            op = lambda x: _columns(x, x)
+        elif clause == 3:
+            op = lambda x: _columns(x, x*x)
+        else:
+            op = lambda x: _columns(x, x, x*x)
+        f = _bf(op)
+        result = f.compose(jnp.sin, None, None, pref)
+        error = result(X) - jnp.sin(op(X))
+    elif clause == 5:
+        result = _bf(jnp.sin).compose(jnp.add, _bf(jnp.cos), None, pref)
+        error = result(X) - (jnp.sin(X) + jnp.cos(X))
+    elif clause == 6:
+        f1 = _bf(lambda x: _columns(jnp.sin(x), jnp.cos(x)))
+        f2 = _bf(lambda x: _columns(jnp.cos(x), jnp.exp(x)))
+        result = f1.compose(jnp.multiply, f2, None, pref)
+        h = _bf(lambda x: _columns(jnp.sin(x)*jnp.cos(x),
+                                   jnp.cos(x)*jnp.exp(x)))
+        error = h(X) - result(X)
+    else:
+        f = _bf((lambda x: _columns(x, x*x)) if clause == 9 else (lambda x: x*x))
+        outer_domain = Domain((-2., 49.)) if clause == 9 else Domain((0., 49.))
+        outer = _bf((lambda x: _columns(jnp.sin(x), jnp.cos(x)))
+                    if clause == 8 else jnp.sin, outer_domain)
+        result = f.compose(outer)
+        exact = (_columns(jnp.sin(X*X), jnp.cos(X*X)) if clause == 8 else
+                 _columns(jnp.sin(X), jnp.sin(X*X)) if clause == 9 else jnp.sin(X*X))
+        error = result(X) - exact
+    # Column-major flatten is the native row-valued array feval convention.
+    vector = np.asarray(error).reshape(-1, order='F')
+    measured = np.linalg.norm(vector) if clause == 6 else np.linalg.norm(vector, np.inf)
+    bound = (10 if clause in (1, 2, 5) else 100)*result.vscale*EPS
+    record_property('native_clause', clause)
+    record_property('error', float(measured))
+    record_property('original_bound', float(bound))
+    assert result.domain == DOM
+    assert measured < bound

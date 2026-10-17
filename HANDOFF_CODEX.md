@@ -1,3 +1,28 @@
+## Smooth Bndfun and cross-kind composition — 2026-10-17
+
+Public Bndfun.compose now follows native argument-count branches, canonical
+inverse-affine mapping for outer(f), empty-G DATA/PREF dispatch and vscale/
+hscale constructor forwarding. Nine original native predicates restored with
+unchanged bounds/operands/norms; nine old adapted controls retained separately.
+Singfun-backed Bndfun is explicitly unsupported in this smooth port.
+
+Native generic isa(op,chebtech) recognizes C1 and C2 outer objects. Three
+classification sites now retain cross-kind outer length, column error checks
+and g(f) evaluation. Independent T32 controls demonstrate the old aliasing;
+no output length is fitted or forced. Existing same-kind algorithm branches
+remain unchanged. Public preference docstrings from717f057f are retained.
+
+Combined frozen CPU run:81passed in26.25s,8095stableinputs,1390observedimports
+all preguarded, no surviving children. This repeats component controls, not81
+new original assertions. Full lint/F821/provenance pass. JAX0.11 list-size
+deprecation warnings are retained explicitly; no future-version claim.
+
+Evidence:docs/bndfun_compose_source_cpu_20261017.json,
+docs/tech_compose_crosskind_source_cpu_20261017.json and
+docs/bndfun_crosskind_integration_cpu_20261017.json. Singfun/Unbndfun/mixed
+binary/warning APIs, full pages/figures/performance and latest green CI remain
+open. Inverse endpoint and real-valued2D dtype candidates are separate work.
+
 ## Public composition preferences and complex-axis Airy — 2026-10-17
 
 Public C1/C2 unary/binary composition now forwards effective explicit,

@@ -1,0 +1,218 @@
+{
+  "status": "Smooth Bndfun public compose API and9 original predicates qualified",
+  "base": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "accepted_publicpref_overlay": {
+    "src/chebfunjax/tech/chebtech.py": "3e75f1690dc4da0412af96c38e0bdbe73a6141a9bb274330db9d86c3893c0de5",
+    "src/chebfunjax/chebfun1d/chebfun.py": "6fde5fe63e6e434b3c14801b69162499c172dcbfef15d0fbbf5f3652fac2afa5"
+  },
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_predicates": 9,
+  "new_source_controls": 18,
+  "accepted_publicpref_regressions": 32,
+  "distinct_passing_controls": 59,
+  "qualification": "9original predicates+14analytic controls+32publicprefs passed before explicit empty-G normalization;12dispatch controls including4new empty-G variants pass final source. Sole-change bridge retained; no single59-case final-source run claimed.",
+  "native_sources": {
+    "@bndfun/compose.m": "28\u201358 omitted unary/binary/canonical inverse-map branches;60\u201373 constructor data/preferences branch",
+    "@mapping/mapping.m": "linear inverse affine expression used on canonical onefun",
+    "@chebtech/parseDataInputs.m": "vscale0/hscale1 defaults for missing/empty fields",
+    "@chebtech/populate.m": "uses constructor vscale/hscale in existing adaptive population/happiness machinery",
+    "tests/bndfun/test_compose.m": "All9literal operands/bounds/defaultadaptive constructors; x rowlinspace1000 on[-2,7]",
+    "@chebtech/feval.m": "Array-valued row input concatenates columns into one row"
+  },
+  "contracts": [
+    "Bndfun.compose delegates on canonical onefun, retains the inner bounded domain and C1/C2 technology, and uses outer-domain inverse affine mapping for g(f); no physical callback replacement.",
+    "Omitted unary/binary prefs use Tech defaults; explicit data branch resolves ChebfunPref including session defaults; sentinels distinguish omitted arguments. Empty G accepted in data/pref branch.",
+    "Nonempty DATA vscale/hscale, including per-column vscale, forwarded unchanged to existing _adaptive_construct. Missing or empty field defaults match native. No constructor physical hscale rescaling in compose.",
+    "Mapped clauses1\u20135/7\u20139 use actual public calls and native vector infinity norms; clause2 explicitlyflattened bynorm. Clause6 uses independently constructed h and default vectorEuclidean norm, replacing old weaker max-entry analytic reference.",
+    "Native rowlinspace array feval is a rowvector; native infinity norm is maxentry, not matrix row-sum. Python column storage is flattened column-major only for applying native vector norms."
+  ],
+  "baseline": "All9 public predicates initially failed because Bndfun.compose was missing; failed preimages/runtime preserved.",
+  "legacy_companion": {
+    "path": "tests/test_matlab_port/bndfun/test_compose_legacy_controls.py",
+    "sha256": "24ffefb9b9095d5d87a91dd7b5f77297714a59d9089b8ef93466867db5e615a3",
+    "byte_identical": true,
+    "controls": 9,
+    "rerun": false,
+    "counted": false
+  },
+  "runs": {
+    "baseline": {
+      "cases": 9,
+      "failures": [
+        "test_original_compose[1]",
+        "test_original_compose[2]",
+        "test_original_compose[3]",
+        "test_original_compose[4]",
+        "test_original_compose[5]",
+        "test_original_compose[6]",
+        "test_original_compose[7]",
+        "test_original_compose[8]",
+        "test_original_compose[9]"
+      ],
+      "pytest_summary": "======================== 9 failed, 10 warnings in 8.54s ========================",
+      "guarded_inputs": 7874,
+      "runtime_imports": 1386,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 14.81069179205224,
+      "sampled_peak_summed_rss_kib": 853320,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "original9": {
+      "cases": 9,
+      "failures": [],
+      "pytest_summary": "======================= 9 passed, 10 warnings in 17.25s ========================",
+      "guarded_inputs": 7874,
+      "runtime_imports": 1387,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 24.066943460144103,
+      "sampled_peak_summed_rss_kib": 1271280,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "controls": {
+      "cases": 46,
+      "failures": [],
+      "pytest_summary": "======================= 46 passed, 13 warnings in 13.36s =======================",
+      "guarded_inputs": 7875,
+      "runtime_imports": 1403,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 19.779826181009412,
+      "sampled_peak_summed_rss_kib": 1176736,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "empty_signature": {
+      "cases": 12,
+      "failures": [],
+      "pytest_summary": "======================== 12 passed, 5 warnings in 0.17s ========================",
+      "guarded_inputs": 7875,
+      "runtime_imports": 1382,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.597647964954376,
+      "sampled_peak_summed_rss_kib": 438572,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    }
+  },
+  "measurements": [
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[1]",
+      "time": "3.966",
+      "properties": {
+        "native_clause": "1",
+        "error": "1.27675647831893e-15",
+        "original_bound": "2.2188757253247045e-15"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[2]",
+      "time": "2.390",
+      "properties": {
+        "native_clause": "2",
+        "error": "1.27675647831893e-15",
+        "original_bound": "2.2188757253247045e-15"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[3]",
+      "time": "1.699",
+      "properties": {
+        "native_clause": "3",
+        "error": "1.5404344466674047e-14",
+        "original_bound": "2.219881639525024e-14"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[4]",
+      "time": "3.020",
+      "properties": {
+        "native_clause": "4",
+        "error": "1.5404344466674047e-14",
+        "original_bound": "2.219881639525024e-14"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[5]",
+      "time": "0.830",
+      "properties": {
+        "native_clause": "5",
+        "error": "1.7208456881689926e-15",
+        "original_bound": "3.1400972205251e-15"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[6]",
+      "time": "1.453",
+      "properties": {
+        "native_clause": "6",
+        "error": "3.366148660195463e-12",
+        "original_bound": "1.83576312002128e-11"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[7]",
+      "time": "2.098",
+      "properties": {
+        "native_clause": "7",
+        "error": "1.8707257964933888e-14",
+        "original_bound": "2.2190440965997603e-14"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[8]",
+      "time": "0.919",
+      "properties": {
+        "native_clause": "8",
+        "error": "1.8707257964933888e-14",
+        "original_bound": "2.2204244002297916e-14"
+      }
+    },
+    {
+      "classname": "tests.test_matlab_port.bndfun.test_compose_matlab",
+      "name": "test_original_compose[9]",
+      "time": "0.694",
+      "properties": {
+        "native_clause": "9",
+        "error": "1.6708856520608606e-14",
+        "original_bound": "2.219881639525023e-14"
+      }
+    }
+  ],
+  "scope_limits": [
+    "Only smooth same-kind C1/C2 Bndfun composition qualified; Singfun-backed Bndfun explicitly unsupported. Classicfun, Singfun and Unbndfun source unchanged.",
+    "Cross-technology outer composition, invalid-input/error-identifier parity and nonstandard constructor DATA fields not qualified.",
+    "No native capture, full Bndfun/API/library/page/CI/performance parity claim.",
+    "Actual pytest import/JUnitwarnings retained."
+  ],
+  "assertion_bounds_weakened": false,
+  "source_files": [
+    "src/chebfunjax/fun/bndfun.py",
+    "src/chebfunjax/tech/chebtech.py",
+    "tests/test_matlab_port/bndfun/test_compose_matlab.py",
+    "tests/test_matlab_port/bndfun/test_compose_legacy_controls.py",
+    "tests/test_bndfun_compose_source_controls.py"
+  ],
+  "static": "Selected ruff and git diff --check pass",
+  "integration_note": "Minimal Tech diff is relative accepted correctedpref source3e75...; it does not alter docstrings, so preserve main717 doc-only clarification. Do not replace unrelated main source wholesale."
+}

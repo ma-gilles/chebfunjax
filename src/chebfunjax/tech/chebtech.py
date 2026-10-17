@@ -2387,7 +2387,7 @@ def _source_compose_preferences(tech, op, other, pref):
     lengths = [tech.n]
     if other is not None:
         lengths.append(other.n)
-    elif isinstance(op, type(tech)):
+    elif isinstance(op, (Chebtech1, Chebtech2)):
         lengths.append(op.n)
     resolved["minSamples"] = max(resolved["minSamples"], *lengths)
     resolved["chebfuneps"] = max(_EPS, resolved["chebfuneps"])
@@ -2395,13 +2395,19 @@ def _source_compose_preferences(tech, op, other, pref):
     return resolved
 
 
-def _source_compose_construct(cls, raw_op, refiner, pref):
+def _source_compose_construct(cls, raw_op, refiner, pref, data=None):
     """Native make/populate protocol; fixed and Turbo branches retain raw OP.
 
     @chebtech{1,2}/chebtech{1,2}.m fixedLength dispatch precedes populate.
     ConstructorTurbo also receives the original OP, not a composed callback.
     """
     from chebfunjax.chebfun1d._construction_context import fixed_length
+    # @chebtech/parseDataInputs.m recognizes these population scales.
+    data = {} if data is None else dict(data)
+    def scale(name, default):
+        value = data.get(name)
+        return default if value is None or jnp.size(value) == 0 else value
+    vscale, hscale = scale("vscale", 0.0), scale("hscale", 1.0)
     fixed = fixed_length(pref)
     turbo = bool(pref["useTurbo"])
     if fixed is not None and not turbo:
@@ -2419,6 +2425,7 @@ def _source_compose_construct(cls, raw_op, refiner, pref):
             return chosen(function, values, forwarded)
     plain = cls._adaptive_construct(
         raw_op, tol=pref["chebfuneps"], check=pref["happinessCheck"],
+        vscale=vscale, hscale=hscale,
         sample_test=False, refinement_function=refiner,
         max_length=pref["maxLength"], min_samples=pref["minSamples"],
         extrapolate=bool(pref["extrapolate"]), use_turbo=turbo,
@@ -3530,6 +3537,7 @@ class Chebtech2(eqx.Module):
         tol: float | None = None,
         refinement_function: str = "nested",
         pref=None,
+        data=None,
     ) -> "Chebtech2":
         """Compose an operator with this Chebtech2.
 
@@ -3595,6 +3603,8 @@ class Chebtech2(eqx.Module):
         source raw operator, including its native nonidentity-operand behavior.
 
         """
+        if data is not None and pref is None:
+            pref = {}
         if pref is not None:
             pref = _source_compose_preferences(self, op, g, pref)
             selected = pref["refinementFunction"]
@@ -3608,8 +3618,8 @@ class Chebtech2(eqx.Module):
             # coefficients before selecting new nested-grid samples.
             return tech.coeffs2vals(_prolong_coeffs(tech.coeffs, n))[rows]
 
-        if isinstance(op, Chebtech2):
-            # Compose two Chebtech2 objects: op(self(x))
+        if isinstance(op, (Chebtech1, Chebtech2)):
+            # Native isa(op, chebtech) includes either polynomial technology.
             if (_compose_column_count(self) > 1
                     and _compose_column_count(op) > 1):
                 raise _TechOperationError(
@@ -3674,7 +3684,7 @@ class Chebtech2(eqx.Module):
         import math
 
         if pref is not None:
-            return _source_compose_construct(Chebtech2, op, refine_values, pref)
+            return _source_compose_construct(Chebtech2, op, refine_values, pref, data)
 
         start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
         return Chebtech2._adaptive_construct(
@@ -6360,6 +6370,7 @@ class Chebtech1(eqx.Module):
         maxpow2: int = 16,
         extrapolate: bool = False,
         pref=None,
+        data=None,
     ) -> "Chebtech1":
         """Compose an operator with this Chebtech1.
 
@@ -6382,6 +6393,8 @@ class Chebtech1(eqx.Module):
         source raw operator, including its native nonidentity-operand behavior.
 
         """
+        if data is not None and pref is None:
+            pref = {}
         if pref is not None:
             pref = _source_compose_preferences(self, op, g, pref)
 
@@ -6392,7 +6405,7 @@ class Chebtech1(eqx.Module):
             # them to values. Pointwise Clenshaw has a different roundoff path.
             return tech.coeffs2vals(_prolong_coeffs(tech.coeffs, n))
 
-        if isinstance(op, Chebtech1):
+        if isinstance(op, (Chebtech1, Chebtech2)):
             if (_compose_column_count(self) > 1
                     and _compose_column_count(op) > 1):
                 raise _TechOperationError(
@@ -6437,7 +6450,7 @@ class Chebtech1(eqx.Module):
             return sample_n(n), False
 
         if pref is not None:
-            return _source_compose_construct(Chebtech1, op, refine_values, pref)
+            return _source_compose_construct(Chebtech1, op, refine_values, pref, data)
 
         start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
         return Chebtech1._adaptive_construct(

@@ -1,0 +1,175 @@
+{
+  "status": "Cross-kind C1/C2 Tech g(f) source-family recognition corrected",
+  "base": "717f057f48056ccb11c68aed90d3bfcef7c74823",
+  "overlay": "Qualified Bndfun package cd0e8881b3508a8fbf851d1efd0ec92c6eff11f1256ef2da76ffec361945c5c7; current main compose docstrings retained with executable-AST bridge",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "new_controls": 54,
+  "original_matlab_predicates_added": 0,
+  "routes": [
+    "Default Tech compose",
+    "Explicit pref={} compose",
+    "Explicit pref={} and constructor DATA(vscale1,hscale1)"
+  ],
+  "source_evidence": {
+    "@chebtech/compose.m": "nfuns1 isa(op,chebtech) adds outer length to minSamples and rejects only actual multiple columns on BOTH operands with exact CHEBFUN:CHEBTECH:compose:arrval",
+    "@chebtech1/compose.m": "Inner-kind complete coefficient-grid resampling remains unchanged",
+    "@chebtech2/compose.m": "Inner-kind nested/resampling coefficient-grid path remains unchanged"
+  },
+  "causal_failure": "Opposite-kind outer was treated as generic callable; this omitted outer length, exact array guard and scalar-one-column normalization. Three family recognition checks correct all routes.",
+  "baseline_basis": {
+    "c1_inner": {
+      "outer_length": 33,
+      "effective_min_samples": 17,
+      "returned_coefficients": 3,
+      "max_error": 1.973128900980512
+    },
+    "c2_inner": {
+      "outer_length": 33,
+      "effective_min_samples": 17,
+      "returned_coefficients": 1,
+      "max_error": 1.9937334009805128
+    }
+  },
+  "candidate_basis": {
+    "c1_inner": {
+      "effective_min_samples": 33,
+      "returned_coefficients": 33,
+      "max_error": 5.551115123125783e-15
+    },
+    "c2_inner": {
+      "effective_min_samples": 33,
+      "returned_coefficients": 33,
+      "max_error": 7.105427357601002e-15
+    }
+  },
+  "scientific_control": "Exact coefficient-basis T32 outer and coefficient-basis identity inner; independent NumPy Chebyshev polynomial evaluation on61separate points.100eps*vscale is a NEW mathematical/source-route control, not an original MATLAB test bound. No adaptive length, solver tolerance, cap or reference value forced.",
+  "array_controls": "Each direction/route includes actual2column-on-both rejection with exact identifier, valid scalar-vs-array compositions, and scalar1column storage on either/both operands; full actual shapes/errors captured.",
+  "runs": {
+    "baseline_c1_inner": {
+      "cases": 27,
+      "failures": [
+        "test_crosskind_source[basis_t32-default-c1_inner]",
+        "test_crosskind_source[basis_t32-pref-c1_inner]",
+        "test_crosskind_source[basis_t32-data-c1_inner]",
+        "test_crosskind_source[arrval-default-c1_inner]",
+        "test_crosskind_source[arrval-pref-c1_inner]",
+        "test_crosskind_source[arrval-data-c1_inner]",
+        "test_crosskind_source[inner_column-default-c1_inner]",
+        "test_crosskind_source[inner_column-pref-c1_inner]",
+        "test_crosskind_source[inner_column-data-c1_inner]",
+        "test_crosskind_source[outer_column-default-c1_inner]",
+        "test_crosskind_source[outer_column-pref-c1_inner]",
+        "test_crosskind_source[outer_column-data-c1_inner]",
+        "test_crosskind_source[both_column-default-c1_inner]",
+        "test_crosskind_source[both_column-pref-c1_inner]",
+        "test_crosskind_source[both_column-data-c1_inner]",
+        "test_crosskind_source[outer_array_inner_column-default-c1_inner]",
+        "test_crosskind_source[outer_array_inner_column-pref-c1_inner]",
+        "test_crosskind_source[outer_array_inner_column-data-c1_inner]",
+        "test_crosskind_source[inner_array_outer_column-default-c1_inner]",
+        "test_crosskind_source[inner_array_outer_column-pref-c1_inner]",
+        "test_crosskind_source[inner_array_outer_column-data-c1_inner]"
+      ],
+      "pytest_summary": "=========== 21 failed, 6 passed, 27 deselected, 28 warnings in 9.73s ===========",
+      "guarded_inputs": 7877,
+      "runtime_imports": 1377,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 15.552177336998284,
+      "sampled_peak_summed_rss_kib": 820612,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "baseline_c2_inner": {
+      "cases": 27,
+      "failures": [
+        "test_crosskind_source[basis_t32-default-c2_inner]",
+        "test_crosskind_source[basis_t32-pref-c2_inner]",
+        "test_crosskind_source[basis_t32-data-c2_inner]",
+        "test_crosskind_source[arrval-default-c2_inner]",
+        "test_crosskind_source[arrval-pref-c2_inner]",
+        "test_crosskind_source[arrval-data-c2_inner]",
+        "test_crosskind_source[inner_column-default-c2_inner]",
+        "test_crosskind_source[inner_column-pref-c2_inner]",
+        "test_crosskind_source[inner_column-data-c2_inner]",
+        "test_crosskind_source[outer_column-default-c2_inner]",
+        "test_crosskind_source[outer_column-pref-c2_inner]",
+        "test_crosskind_source[outer_column-data-c2_inner]",
+        "test_crosskind_source[both_column-default-c2_inner]",
+        "test_crosskind_source[both_column-pref-c2_inner]",
+        "test_crosskind_source[both_column-data-c2_inner]",
+        "test_crosskind_source[outer_array_inner_column-default-c2_inner]",
+        "test_crosskind_source[outer_array_inner_column-pref-c2_inner]",
+        "test_crosskind_source[outer_array_inner_column-data-c2_inner]",
+        "test_crosskind_source[inner_array_outer_column-default-c2_inner]",
+        "test_crosskind_source[inner_array_outer_column-pref-c2_inner]",
+        "test_crosskind_source[inner_array_outer_column-data-c2_inner]"
+      ],
+      "pytest_summary": "=========== 21 failed, 6 passed, 27 deselected, 28 warnings in 8.27s ===========",
+      "guarded_inputs": 7877,
+      "runtime_imports": 1377,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 14.08113339683041,
+      "sampled_peak_summed_rss_kib": 731124,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "candidate_c1_inner": {
+      "cases": 27,
+      "failures": [],
+      "pytest_summary": "================ 27 passed, 27 deselected, 28 warnings in 6.73s ================",
+      "guarded_inputs": 7877,
+      "runtime_imports": 1377,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 12.721731157042086,
+      "sampled_peak_summed_rss_kib": 791784,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "candidate_c2_inner": {
+      "cases": 27,
+      "failures": [],
+      "pytest_summary": "================ 27 passed, 27 deselected, 28 warnings in 5.31s ================",
+      "guarded_inputs": 7877,
+      "runtime_imports": 1377,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.251469457987696,
+      "sampled_peak_summed_rss_kib": 728084,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    }
+  },
+  "source_bridge": {
+    "only_production_change": "Three same-class tests generalized to the C1/C2 Chebtech family plus one descriptive comment.",
+    "byte_exact_replacement_verified": true,
+    "baseline_source_sha256": "bb9354079350a48b226a04a3b939559110bbad8b213886b1089ae1bac2e1b7a7",
+    "candidate_source_sha256": "b2d63b4e382b3819b46b90a30eeca4a1d469d4d41baa796556c1fb2b77865551",
+    "all_other_worktree_inputs_byte_identical": true,
+    "unchanged": "All heterogeneous binary operator branches, grid/refiner code, constructors, default source bounds and scalar-column helpers unchanged.",
+    "original44_not_repeated_or_counted": true
+  },
+  "scope_limits": [
+    "Heterogeneous binary OP(F,G) grid semantics unchanged and unqualified by these g(f) controls.",
+    "No additional public Bndfun/Chebfun cross-kind, periodic, Singfun or Unbndfun API claim.",
+    "Fixed/Turbo cross-kind construction and arbitrary callback preference protocols not exercised here.",
+    "No native capture, original44 repeat, whole-library/CI/page/performance parity claim. Actual pytest/JUnitwarnings retained."
+  ],
+  "original_bounds_changed": false,
+  "static": "Selected ruff and git diff --check pass",
+  "source_files": [
+    "src/chebfunjax/tech/chebtech.py",
+    "tests/test_tech_compose_crosskind_source.py"
+  ],
+  "integration": "Apply minimal3check patch atop accepted Bndfun/main source; do not overwrite unrelated main edits."
+}
