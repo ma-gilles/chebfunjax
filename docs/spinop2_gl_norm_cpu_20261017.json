@@ -1,0 +1,72 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_packet_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/spinop2_gl_norm_diagnostic_packet_20261017.tar.gz",
+    "sha256": "c898e0b6b8de06c39a90e46e93f9d807c1fcfc137f7c4d52b5d9d5fde9ece18b",
+    "verified_payloads": 19083,
+    "guard_edges": 68967,
+    "cas_objects": 11680,
+    "missing_edges": [
+      {
+        "run": "spinop2_gl_norm_constructor_cpu_20261017",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/prepare_guard.py",
+        "sha256": "b12afdc5b8e183dd171b301852ccd7aed1f0d2e40409c4b4bfe20c7876154acf"
+      },
+      {
+        "run": "spinop2_gl_norm_native_cpu_20261017",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/guard.json",
+        "sha256": "fc395e0600b70dae079ef156c8896efc76b5a18dea0291fac84db9f0c7af9594"
+      },
+      {
+        "run": "spinop2_gl_norm_native_retry_cpu_20261017",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/guard.json",
+        "sha256": "fc395e0600b70dae079ef156c8896efc76b5a18dea0291fac84db9f0c7af9594"
+      },
+      {
+        "run": "spinop2_gl_norm_python_cpu_20261017",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/prepare_guard.py",
+        "sha256": "eeb59620604034d7f5e938e77a53b290f762de9b8a170cc00ce534f3b1733dfd"
+      }
+    ],
+    "limits": [
+      "Successful native_retry diagnostic has one unavailable incidental prior guard.json preimage. Scientific inputs/source/executable coverage must be separately scoped; do not claim full native guard closure.",
+      "Original focused pytest passed, but reported runtime imports came from earlier norm diagnostic; focused actual-import coverage not established by this archive. Fresh instrumented run pending.",
+      "No full MATLAB runtime-image, norm-provider equivalence, random constructor parity, or original-test relaxation claim."
+    ]
+  },
+  "runtime_supplement": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spinop2_gl_norm_diag_20261017/spinop2_gl_norm_focused_runtime_supplement_20261017.tar.gz",
+    "sha256": "61821e66edd3ce3f352bd91e5911b603cfab63e22c013910e83af46daee4faa0",
+    "verified_payloads": 13
+  },
+  "focused_gate": {
+    "tests": 1,
+    "pytest_seconds": 110.38,
+    "actual_imports": 1500,
+    "all_actual_imports_preguarded": true,
+    "guard_inputs": 8837,
+    "complete_full_byte_preimages": true,
+    "sampled_peak_summed_rss_kib": 3316220,
+    "inputs_stable": true,
+    "survivors": [],
+    "source_head": "f3285a81ad4238926583a8159b251305d56f8327"
+  },
+  "repaired_test_sha256": "4f86b33cdcd59725dafa75c0b33b5254d0bd7c4bc18ad75d1198ba1ce317e6c7",
+  "diff_scope": "Only authored normalization reevaluation bound32eps to512eps, with adjacent measured native/JAX values. All other bytes including original pointwise2e-14 check unchanged.",
+  "identical_input_diagnostic": {
+    "same_input_coefficients_sha256": "4bb11e733dc4f15a9d684b5c58d58d95479d00774085d475c9527b3ea4d7f249",
+    "native_reevaluated_norm": 0.9999999999999397,
+    "native_error": 6.0285110237146e-14,
+    "python_reevaluated_norm": 1.0000000000000469,
+    "python_error": 4.6851411639181606e-14,
+    "native_vs_python_normalized_samples_max_abs": 1.6153745008296028e-14,
+    "same_seed_four_point_python_comparison_max_abs": 0.0
+  },
+  "limits": [
+    "Successful native diagnostic lacks one incidental prior guard.json preimage; all native full-edge closure is not claimed.",
+    "Licensed native runtime image, full norm/RNG/provider equality and original test parity remain unqualified.",
+    "Earlier noninstrumented focused gate passed but its actual runtime coverage was unverified; new instrumented gate supersedes that claim."
+  ],
+  "integration_base": "5bbf557c2d70aac41f6e56fbbd856b3701ee11b0",
+  "integration_scope": "Test-only repair copied byte-exactly from qualified f328 candidate; current main differs in polynomial conversion and CI lifecycle. No library edit in this package; final main CI remains required."
+}

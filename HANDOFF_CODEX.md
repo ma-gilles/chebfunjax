@@ -1,3 +1,29 @@
+## Spinop2 GL authored normalization bound — 2026-10-17
+
+The authored GL normalization reevaluation check now allows512eps rather
+than32eps. This is supported by identical51x51complex coefficient bits:
+MATLAB R2025b reevaluates0.9999999999999397 (error6.03e-14), while JAX
+reevaluates1.0000000000000469 (error4.69e-14). Both violate the old authored
+bound; the original MATLAB test does not impose that bound. The adjacent
+comment records both values. Same-seed four-point comparison remains2e-14;
+all other test bytes are unchanged. No library algorithm or original bound
+is changed. Approximate extremum-estimator/provider equivalence remains open.
+
+Fresh instrumented focused test passes110.38s on isolatedf328 source;
+all8837inputs stable/all1500actual pytest imports preguarded/no survivors,
+sampled3.16GiB. Parent independently verifies19083original payloads and13
+supplemental payloads, with complete focused-test full-byte input coverage.
+The earlier passing uninstrumented test had unverified actual runtime
+coverage; its earlier claim is superseded by the fresh emitting runner.
+
+Native successful diagnostic retains12327/12328guard input preimages; one
+incidental prior guard.json is unavailable. Selected source/coefficient/
+executable identities are covered, not the full licensed MATLAB runtime.
+Four missing edges across older attempts are explicitly recorded. This is
+scoped diagnostic evidence and a false authored-contract repair, not full
+norm/RNG/native-constructor parity or green latest-main CI.
+Evidence:docs/spinop2_gl_norm_cpu_20261017.json.
+
 ## Physical polynomial conversion and 3D CI process lifetime — 2026-10-17
 
 Physical-domain polynomial conversion now batches elementwise binomial and

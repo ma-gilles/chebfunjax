@@ -1,3 +1,13 @@
+## Spinop2 GL authored test repair
+
+Identical-input MATLAB and JAX normalized norm reevaluations both reject the
+old authored32eps expectation. The check now uses512eps with both measured
+values adjacent; the2e-14 pointwise comparison is unchanged. Fresh instrumented
+focused test passes on isolatedf328 source, all1500actualimports preguarded;
+fullstatic checks pass. Native diagnostic has one unavailable incidental prior
+guard preimage; full norm/RNG equivalence and latest-main CI remain open.
+[Scoped evidence](spinop2_gl_norm_cpu_20261017.json).
+
 ## Latest scoped package: polynomial conversion and CI process lifetime
 
 CPU-only qualification:43 polynomial/rational integration checks and6 runner
