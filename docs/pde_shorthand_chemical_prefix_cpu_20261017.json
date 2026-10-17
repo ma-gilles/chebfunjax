@@ -1,0 +1,99 @@
+{
+  "base_commit": "d40a04eec9203e44153ac35ba42643b3a5c7a0e4",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cpu_only": true,
+  "jax": "0.11.0",
+  "binary64": true,
+  "changes": [
+    "Native linear Neumann/Dirichlet boundary row assembly with literal source domain-width/2 scaling",
+    "Optional public symmetric fourth boundary argument and endpoint tokens; explicit legacy rejection for unsupported string tokens",
+    "Preserve linear-before-nonlinear residual ordering, numeric scalar target schedule and existing general-system projection/initialization",
+    "Ordered endpoint diagonal sum fixes n33 one-ulp left diagonal error; cosine and matvec unchanged"
+  ],
+  "verification": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/pde_shorthand_qualified_20261017.zip",
+    "sha256": "4cf63b6e465910265db63fc5440cb824530de06248163fe7aa887b514e61d5bc",
+    "entries": 3411,
+    "bytes": 30589062,
+    "verified": true,
+    "licensed_runtime_excluded": true,
+    "full_goal_complete": false,
+    "passed": 97,
+    "distinct": 97,
+    "supervisor_seconds": 165.29988226294518,
+    "peak_summed_rss_kib": 4028500,
+    "stable": true,
+    "survivors": []
+  },
+  "native_scope": {
+    "shorthand": "four installed-MATLAB primary fixedn9 cases: Neumann/Dirichlet on[-1,1] and[2,6]",
+    "chemical": "fixedn33,times[0,.1,.2]; actual constructor and captured-coefficient forward replay, all9species/time cells",
+    "same_input_actions": "Final tests compare actual captured native initial/probe boundary actions; no generic dot oracle",
+    "full_adaptive_example_complete": false
+  },
+  "acceptance_bounds": {
+    "source_arrays": "100*eps*max(1,maxabs(reference))",
+    "native_forward": 1e-07,
+    "analytic_forward": 1e-07,
+    "analytic_solver_tolerances": [
+      1e-09,
+      1e-11
+    ],
+    "widened": false
+  },
+  "input_evaluation_limit": {
+    "own_initial_max_abs_difference": 4.440892098500626e-16,
+    "own_offset_max_abs_difference_after_sum_fix": 4.796163466380676e-14,
+    "native_offset_bound": 2.220446049250313e-14,
+    "own_offset_parity_claimed": false,
+    "test_scope": "Same-input native offset comparison plus exact own-state/own-offset identity. Production state and offset remain untouched; original public forward bound retained. Constructor/Clenshaw bit parity not established."
+  },
+  "preserved_failed_gates": [
+    "collection import error",
+    "13pass4fail controls: analytic/native tolerance context and closure inspection",
+    "23pass1fail: truncated initial polynomial lost retained pointValues",
+    "corrected metadata replay offset failure",
+    "same-input n33 boundary actions exposed one-ulp diagonal reduction defect"
+  ],
+  "review_paths": [
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_shorthand_final_source_review_v2_20261017/REVIEW.json",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_shorthand_final_evidence_audit_20261017/AUDIT.json"
+  ],
+  "publication_input_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9d13b1f7867ccb63d02033f08e38ca31e4c99833747d95e47bd4abcd5d265350",
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "4e36c0d2a5ab05b46997e8deaaec73e1d8039305bca7529bf7e0cbef5a8f3713",
+    "src/chebfunjax/chebfun1d/pde15s.py": "523cd9bf2d5483825b79f90d888848f6242e2e311b134bccede5914afb403159",
+    "tests/test_pde_shorthand_native.py": "f0ba6acbb879a4eb8a78335608ff9572cc3229be4c9a2df6ff8137aeaaffcedb",
+    "tests/test_pde_shorthand_contracts.py": "a5a6544ab3e8e9c534193db6cae3726d4cf6b22f14cdb7be29e05afcf15753b2",
+    "tests/test_pde_ndf_chemical_prefix_native.py": "11339e5fcfd5dd4d7054754924cdd45e460043a4c003fce039cfe77aa1985d90",
+    "tests/references/pde_shorthand_native/metadata.json": "0126f6b678c31bb715a3f0a9373b381bf119f61d2dfc3414b0f966f2d504d60c",
+    "tests/references/pde_shorthand_native/FIXTURE_HASHES.json": "c19a7a9b829665b0b0454be97576f9519cd2fb7d24ed4e5f7b0b063e8853b6e5",
+    "tests/references/pde_shorthand_native/dirichlet_domain2/solver_capture.mat": "8f48b01131ee68c5a31990864f36ab64be0552a2c4f3e4bdbf167f64c8cda822",
+    "tests/references/pde_shorthand_native/dirichlet_domain2/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+    "tests/references/pde_shorthand_native/dirichlet_domain2/public_output.mat": "53ce94d29796a8232047ae1b0fdfbf57684d074ebb1599728c04932e93348168",
+    "tests/references/pde_shorthand_native/neumann_domain2/solver_capture.mat": "177d6e76dadfab94ab2a42a9b50fcaf801a2b21d455f7375c171726c1d3c141a",
+    "tests/references/pde_shorthand_native/neumann_domain2/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+    "tests/references/pde_shorthand_native/neumann_domain2/public_output.mat": "4cddcd4384128f088913b2321cb18e99bda02b8b3eb0e9cfd12a004daa4d8cda",
+    "tests/references/pde_shorthand_native/dirichlet_domain1/solver_capture.mat": "9a68bb454db8f74b382cc071a2a7501b87db9cc2b9f859e9be1ca3756e3d07c5",
+    "tests/references/pde_shorthand_native/dirichlet_domain1/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+    "tests/references/pde_shorthand_native/dirichlet_domain1/public_output.mat": "c70d16b5235b05d577070baa27d81a3c91323cad34c233570378b7209fcd04b3",
+    "tests/references/pde_shorthand_native/neumann_domain1/solver_capture.mat": "955257131270cb979711fcf80cabfd96238b7c97c912f2e4e2956ce715086521",
+    "tests/references/pde_shorthand_native/neumann_domain1/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+    "tests/references/pde_shorthand_native/neumann_domain1/public_output.mat": "8e199f9a93c30e10ea135bece9e1712d5a30a7d571e8a03449c93784e365b4ec",
+    "tests/references/pde_chemical_prefix_native/solver_capture.mat": "848f4ab61e29bb60b1036f370d3208df7636adf315771f77736799f6825d4a96",
+    "tests/references/pde_chemical_prefix_native/solver_summary.json": "37346b9ac0bf02c5aeced8c4e5a68f9abaf60281a67f75580f71acb37bd0e44c",
+    "tests/references/pde_chemical_prefix_native/boundary_actions_metadata.json": "a959937a064ce6265cf69e4d22d421405760f91efbce83c6e9e82c328b15fca9",
+    "tests/references/pde_chemical_prefix_native/public_output.mat": "ace2e93c6de5cbfd50b61088e15fdb413fcfaa8675c6e3e04198d8e1795bb71c",
+    "tests/references/pde_chemical_prefix_native/boundary_actions.mat": "0f0948fc9270ba598a0079b43fe48174ba11f5933db320b3b2679d75a300c00a",
+    "tests/references/pde_chemical_prefix_native/metadata.json": "c1a69b9959778f0cac5ffa953f4509fbed7b8d0ee407b54e95d483bcece4d068",
+    "tests/references/pde_chemical_prefix_native/FIXTURE_HASHES.json": "68bd0d2e7aa572315a707820fb01744446981b8ef4d5b2cf999ddb0327331b9c"
+  },
+  "remaining": [
+    "Full original31-time adaptive chemical example",
+    "Broader boundary syntax,complex/Fourier/sparse/variable-mass paths and native return representation",
+    "Remaining production NumPy/SciPy routes",
+    "Initial evaluation/representation parity including measured offset amplification",
+    "Full library/test/page/figure/speed audit and green latest-main CI"
+  ],
+  "full_goal_complete": false
+}

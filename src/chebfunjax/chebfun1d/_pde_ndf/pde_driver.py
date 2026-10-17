@@ -28,6 +28,7 @@ from .adaptive import scalar_happiness, system_happiness
 from .arity import _call_flexible as invoke
 from .arity import _positional_arity
 from .dae_init import dense_numjac, initialize_full_mass
+from .linear_boundary import _linear_boundary_matrix, _split_endpoint_specs
 from .ndf import startup
 from .ndf_segment import segment
 from .source_arithmetic import binary, matvec
@@ -138,8 +139,6 @@ def solve(
     size = coefficients.shape[1] if system else 1
     if system and jnp.iscomplexobj(coefficients):
         raise NotImplementedError("System NDF currently requires real components")
-    if system and any(spec is not None and not callable(spec) for spec in (lbc, rbc)):
-        raise NotImplementedError("System boundaries require callable handles or None")
     if len(u0.funs) != 1:
         # pdeSolve first attempts merge(all, 1025, tol), then rejects pieces.
         u0 = u0.merge("all", max_length=1025, tol=spatial_tol)
@@ -163,14 +162,7 @@ def solve(
     outputs = [current]
     traces = []
     throw_bc_warning = True
-    boundary = []
-    for side, specs in [(0, lbc), (-1, rbc)]:
-        if specs is None:
-            continue
-        for spec in specs if isinstance(specs, (list, tuple)) else [specs]:
-            boundary.append((side, spec))
-    linear = [b for b in boundary if not callable(b[1])]
-    nonlinear = [b for b in boundary if callable(b[1])]
+    linear, nonlinear = _split_endpoint_specs(lbc, rbc, size, system)
     ordered = linear + nonlinear
     while current_time < float(times[-1]):
         n = length
@@ -200,9 +192,9 @@ def solve(
                         spec, current_time, coordinate, components(initial_values), role="boundary"
                     )
                 )
-                for _, spec in ordered
+                for _, spec in nonlinear
             ]
-            if order != sum(boundary_counts):
+            if order != len(linear) + sum(boundary_counts):
                 raise ValueError("System differential orders must match boundary residual count")
         else:
             invoke(pdefun, current_time, coordinate, Values(initial_values, context))
@@ -223,6 +215,9 @@ def solve(
             order = 0
             projection = jnp.eye(n)
         mass = projection
+        boundary_matrix, linear_rhs = _linear_boundary_matrix(
+            linear, n, size, domain, initial_values.dtype
+        )
 
         def raw(t, y):
             if system:
@@ -232,8 +227,9 @@ def solve(
                     [jnp.broadcast_to(v.vals if isinstance(v, Values) else v, (n,)) for v in answer]
                 )
                 rhs = projection @ jnp.reshape(matrix, (-1,), order="F")
-                row = 0
-                for (side, spec), count in zip(ordered, boundary_counts):
+                rhs = rhs.at[: len(linear)].set(matvec(boundary_matrix, y) - linear_rhs)
+                row = len(linear)
+                for (side, spec), count in zip(nonlinear, boundary_counts):
                     for value in _invoke_system(
                         spec, t, coordinate, columns, role="boundary", expected_count=count
                     ):
@@ -245,20 +241,20 @@ def solve(
             answer = invoke(pdefun, t, coordinate, u)
             values = answer.vals if isinstance(answer, Values) else jnp.asarray(answer)
             rhs = matvec(projection, jnp.broadcast_to(values, y.shape))
-            for i, (side, spec) in enumerate(ordered):
-                if callable(spec):
-                    value = invoke(spec, t, coordinate, u)
-                    value = value.vals if isinstance(value, Values) else jnp.asarray(value)
-                    value = value if value.ndim == 0 else value[side]
-                else:
-                    value = y[side] - spec
+            rhs = rhs.at[: len(linear)].set(matvec(boundary_matrix, y) - linear_rhs)
+            for i, (side, spec) in enumerate(nonlinear, start=len(linear)):
+                value = invoke(spec, t, coordinate, u)
+                value = value.vals if isinstance(value, Values) else jnp.asarray(value)
+                value = value if value.ndim == 0 else value[side]
                 rhs = rhs.at[i].set(value)
             return rhs
 
         # pdeSolve.m: BCVALOFFSET = F(BCrows) - q.  q is nonzero only
         # for numeric linear boundary conditions in this scalar API.
         boundary_rhs = jnp.asarray(
-            [spec for _, spec in linear] + [0.0] * (order if system else len(nonlinear)),
+            jnp.concatenate(
+                (linear_rhs, jnp.zeros(order - len(linear), dtype=initial_values.dtype))
+            ),
             dtype=initial_values.dtype,
         )
         initial_raw = raw(current_time, initial_values)

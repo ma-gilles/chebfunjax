@@ -1,0 +1,15 @@
+{
+  "metadata.json": "0126f6b678c31bb715a3f0a9373b381bf119f61d2dfc3414b0f966f2d504d60c",
+  "dirichlet_domain2/solver_capture.mat": "8f48b01131ee68c5a31990864f36ab64be0552a2c4f3e4bdbf167f64c8cda822",
+  "dirichlet_domain2/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+  "dirichlet_domain2/public_output.mat": "53ce94d29796a8232047ae1b0fdfbf57684d074ebb1599728c04932e93348168",
+  "neumann_domain2/solver_capture.mat": "177d6e76dadfab94ab2a42a9b50fcaf801a2b21d455f7375c171726c1d3c141a",
+  "neumann_domain2/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+  "neumann_domain2/public_output.mat": "4cddcd4384128f088913b2321cb18e99bda02b8b3eb0e9cfd12a004daa4d8cda",
+  "dirichlet_domain1/solver_capture.mat": "9a68bb454db8f74b382cc071a2a7501b87db9cc2b9f859e9be1ca3756e3d07c5",
+  "dirichlet_domain1/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+  "dirichlet_domain1/public_output.mat": "c70d16b5235b05d577070baa27d81a3c91323cad34c233570378b7209fcd04b3",
+  "neumann_domain1/solver_capture.mat": "955257131270cb979711fcf80cabfd96238b7c97c912f2e4e2956ce715086521",
+  "neumann_domain1/complete.json": "c328e87435c7c7fa80c3a15a89f9b12fa073b36a4f9d823e974257a0206f4f2b",
+  "neumann_domain1/public_output.mat": "8e199f9a93c30e10ea135bece9e1712d5a30a7d571e8a03449c93784e365b4ec"
+}

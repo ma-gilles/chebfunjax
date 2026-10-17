@@ -1,0 +1,1 @@
+{"orders":[2,2,2],"linear_boundary_rows":6,"nonlinear_boundary_counts":[0,0],"state_size":99,"mass_size":[99,99],"B_size":[6,99],"primary_output_times":[0,0.1,0.2],"primary_output_y_size":[3,99],"callback_count":4,"rng_unchanged":false,"fixed_N":33,"adaptive_grid":false,"licensed_source_copied":false,"full_published_adaptive_example_run":false}

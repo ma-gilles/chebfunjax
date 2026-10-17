@@ -14,13 +14,25 @@ Native ODE runtime/source release: MATLAB R2025b.
 """
 
 from ._pde_ndf.arity import _call_flexible, _positional_arity
+from ._pde_ndf.linear_boundary import _boundary_token
 from ._pde_ndf.pde_driver import solve
 
 __all__ = ["pde15s", "_call_flexible", "_positional_arity"]
 
 
 def pde15s(
-    pdefun, t, u0, *, lbc=None, rbc=None, n=None, n_default=64, method="NDF", rtol=1e-6, atol=1e-6
+    pdefun,
+    t,
+    u0,
+    bc=None,
+    *,
+    lbc=None,
+    rbc=None,
+    n=None,
+    n_default=64,
+    method="NDF",
+    rtol=1e-6,
+    atol=1e-6,
 ):
     """Return scalar or multicomponent array-valued Chebfuns at the supplied increasing output times.
 
@@ -28,6 +40,10 @@ def pde15s(
     coefficient prolongation and outputs. For scalar inputs, omitting both boundary conditions
     preserves the Python unconstrained nodal evolution extension, not periodic
     Fourier semantics. Two supplied times remain two outputs in this API.
+
+    bc='neumann' or bc='dirichlet' supplies symmetric source linear endpoint
+    conditions, one row per component at each end. The same tokens can be
+    supplied separately as lbc and rbc; callbacks retain their residual counts.
 
     method='NDF' uses JAX only and native default tolerances (1e-6 for both).
     Explicit historical methods retain the existing SciPy compatibility path;
@@ -46,7 +62,15 @@ def pde15s(
     MATLAB @chebfun/pde15s.m and pdeSolve.m; R2025b ode15s.m.
     Chebfun commit: 7574c77
     """
+    if bc is not None:
+        if method != "NDF":
+            raise NotImplementedError("Boundary shorthand is implemented for method='NDF'")
+        if lbc is not None or rbc is not None:
+            raise ValueError("Use bc or explicit lbc/rbc, not both")
+        lbc = rbc = _boundary_token(bc)
     if method != "NDF":
+        if any(isinstance(spec, str) for spec in (lbc, rbc)):
+            raise NotImplementedError("Endpoint shorthand is implemented for method='NDF'")
         from ._pde_legacy import pde15s as legacy_pde15s
 
         return legacy_pde15s(
