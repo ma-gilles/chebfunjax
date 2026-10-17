@@ -1,5 +1,28 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## 2026-10-16: AAA refinement sampling and MATLAB grids
+
+Rational minimax initialization now samples the original handle first and
+its constructed Chebfun on the two refined AAA sweeps, retaining the handle
+for extrema and normalized private-kernel units. Both AAA grid sites reuse
+the existing JAX R2025b grid helper; positive half-integer counts now round
+away from zero. Three new regressions fail before correction and pass after;
+all 34 distinct final focused checks pass, including ten original rational
+clauses at unchanged bounds and eight existing Needle grid checks.
+
+The fresh CPU FermiDirac page completes all four fits and six 600x270 figures.
+Iteration counts now match native 1/12/6/6. Independent coefficient replay
+on the actual native plotting grids differs by 6.44e-15, 1.91e-13, 9.46e-14
+and 6.57e-14; these are descriptive differences, not new acceptance bounds.
+Non-timing stdout is unchanged. The first four renders are identical to prior
+Python output; the last two differ by at most one RGB level. Actual page
+and changed renders are regenerated. Native poles/references, fplot sampling,
+rendering and existing host minimax numerics remain open. No matched speed
+claim is made. Full parity and green latest-main CI remain unresolved.
+See `docs/minimax_aaa_initialization_source_cpu_20261016.json` for source
+hashes, baseline failures, guarded receipts, review and verified archive.
+
+
 ## Current status (2026-10-16; takes precedence over older status sections)
 
 Full MATLAB/example/test/figure/speed parity is incomplete. Read the current

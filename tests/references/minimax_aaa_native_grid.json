@@ -1,0 +1,133 @@
+{
+  "array_records": [
+    {
+      "event_index": 2,
+      "fixture_key": "xk1",
+      "fixture_shape": [
+        42
+      ],
+      "kind": "reference",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_02_sweep_1_reference.mat",
+      "mat_sha256": "227f4c60aedaa15a9c805327c68b3601124116757bc2827ae6d36c64904ec92a",
+      "matlab_saved_shapes": {
+        "xk": [
+          42,
+          1
+        ]
+      },
+      "raw_uint64_sha256": "1e69492008ae605910ef3f16d86d9eda668d149d33bde629123eaf43b11d23ec",
+      "sweep": 1
+    },
+    {
+      "event_index": 1,
+      "fixture_key": "Z1",
+      "fixture_shape": [
+        5000
+      ],
+      "kind": "sampling",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_01_sweep_1_sampling.mat",
+      "mat_sha256": "cd5195d5a553d54ef9599057278e6650d488cd4f5736478da776995c1ae566f4",
+      "matlab_saved_shapes": {
+        "Z": [
+          1,
+          5000
+        ]
+      },
+      "raw_uint64_sha256": "fa1536c42d27ddf3871e0f45967424020b118eee449aa6bccfa372e97fe44b15",
+      "sweep": 1
+    },
+    {
+      "event_index": 4,
+      "fixture_key": "xk2",
+      "fixture_shape": [
+        42
+      ],
+      "kind": "reference",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_04_sweep_2_reference.mat",
+      "mat_sha256": "a30c969e7eb4ac6485b5f0b83613d809491926c2823668cc487cc84d622a99e7",
+      "matlab_saved_shapes": {
+        "xk": [
+          42,
+          1
+        ]
+      },
+      "raw_uint64_sha256": "b6d87482cda91e4cb4702358399c7f41c7ee73aa79bd4c394d6e2f5d6a2ce041",
+      "sweep": 2
+    },
+    {
+      "event_index": 3,
+      "fixture_key": "Z2",
+      "fixture_shape": [
+        4839
+      ],
+      "kind": "sampling",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_03_sweep_2_sampling.mat",
+      "mat_sha256": "6b73f06c2b25a006b1ce9bab3fb1f61ab8ed58782e20088f57ed7b9c64f5a452",
+      "matlab_saved_shapes": {
+        "Z": [
+          4839,
+          1
+        ]
+      },
+      "raw_uint64_sha256": "a21e95f8c849fa0de61a05fb1d0142e07dcab3d7375ac434daeb2c53f40ece34",
+      "sweep": 2
+    },
+    {
+      "event_index": 6,
+      "fixture_key": "xk3",
+      "fixture_shape": [
+        42
+      ],
+      "kind": "reference",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_06_sweep_3_reference.mat",
+      "mat_sha256": "2c93b1e06988ed80c5a8c94f98688c93ffc72a719c6dd6dbe06ba7963334242f",
+      "matlab_saved_shapes": {
+        "xk": [
+          42,
+          1
+        ]
+      },
+      "raw_uint64_sha256": "cf673e23b1253006ed1c446ba9d1377513561236e0f829fcfcea25bbd5cec46c",
+      "sweep": 3
+    },
+    {
+      "event_index": 5,
+      "fixture_key": "Z3",
+      "fixture_shape": [
+        4839
+      ],
+      "kind": "sampling",
+      "mat_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/event_05_sweep_3_sampling.mat",
+      "mat_sha256": "776152e03e1081448549fa4d2e987d214cbf6185bce5fff288408298c406ec2c",
+      "matlab_saved_shapes": {
+        "Z": [
+          4839,
+          1
+        ]
+      },
+      "raw_uint64_sha256": "e89cfc5f87e738509ed754a7aa71a93f627eb4e2c4dbcfad0a75d15e8a41944f",
+      "sweep": 3
+    }
+  ],
+  "capture_summary_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/native_aaa_sampling.json",
+  "capture_summary_sha256": "cc196165c66e4ee58d1a778fdf32de516a7d02430d02e2151d7ddd860c8a8771",
+  "event_log_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/output/aaa_sampling/events.jsonl",
+  "event_log_sha256": "260d3161097566f6bce4d69c60fe7c736ce2e157c5a11db411e73a1721ed2f8d",
+  "fixture_npz_bytes": 99168,
+  "fixture_npz_sha256": "1078d7b58af02cc9bd62caa5446954f785ea55b6a5df0a8aba1e2947a9c1dece",
+  "grid_generation_provenance": "MATLAB minimax.m AAALawsonInit at Chebfun commit 7574c77680d7e82b79626300bf255498271a72df.",
+  "instrumented_minimax_sha256": "7e622511393b70366242ea74e88dbd888c5caf6942b5f5fae345b95f9e25ef88",
+  "native_capture_complete": true,
+  "native_capture_target": "published FermiDirac nested fermi(1000,20), AAA-Lawson initialization only",
+  "original_minimax_sha256": "74d6ac72694031c3e38ede572ee3f352d80d55297855185c29fdf4ffaed2bb0f",
+  "purpose": "Native MATLAB AAA-Lawson grid/reference fixture; coordinates flattened in MATLAB column-major order for raw uint64 checks.",
+  "reference_clean_after": true,
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "reference_root": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+  "scope_limit": "Fixture captures only the three sampling grids and resulting reference sets from one successful L=1000,n=20 native fit. It does not capture or qualify AAA/SVD/Lawson internals.",
+  "supervisor_command_exit_code": 0,
+  "supervisor_exit_code": 0,
+  "supervisor_inputs_stable": true,
+  "supervisor_receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_aaa_sampling_native_20261016/supervisor_run/receipt.json",
+  "supervisor_receipt_sha256": "5f6d9b3e8258832afd563721940f54782eeddd0591e04433b144055da7066501"
+}

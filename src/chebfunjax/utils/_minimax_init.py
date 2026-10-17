@@ -189,7 +189,9 @@ def initialize_rational(source, handle, m, n, symmetry, kernel, *, silent=False)
     if result is None or not result.success:
         if not silent:
             print('Trying AAA-Lawson-based initialization...')
-        reference = _aaa_lawson_init(handle, m, n, float(source.domain.a), float(source.domain.b))
+        reference = _aaa_lawson_init(
+            handle, m, n, float(source.domain.a), float(source.domain.b), source,
+        )
         result = kernel(m, n, reference)
     for step in (1, 2):
         if result.success:

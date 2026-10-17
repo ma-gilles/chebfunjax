@@ -174,3 +174,64 @@ def test_source_first_trial_failure_keeps_initial_delta(monkeypatch):
     assert np.isinf(result.err)
     assert result.delta == 1.
     assert result.iter == 1
+
+
+def _observe_aaa_sample_inputs(monkeypatch):
+    """Observe sample provenance while replacing only the approximation engine."""
+    samples, references = [], []
+
+    def aaa(evaluator, grid, *args):
+        samples.append((np.asarray(grid).copy(), np.asarray(evaluator(jnp.asarray(grid)))))
+        return lambda x: jnp.zeros_like(jnp.asarray(x)), np.asarray([-1., 1.])
+
+    def reference(evaluator, rh, m, n, support, a, b):
+        probes = jnp.asarray([-.75, .25])
+        references.append(np.asarray(evaluator(probes)))
+        return np.linspace(a, b, m+n+2)
+
+    monkeypatch.setattr(mm, '_aaamn_lawson', aaa)
+    monkeypatch.setattr(mm, '_find_reference_rat', reference)
+    return samples, references
+
+
+def test_aaa_refinements_sample_constructed_source_but_extrema_keep_handle(monkeypatch):
+    # Native AAALawsonInit uses fHandle on sweep1 and feval(f,Z) on sweeps2/3.
+    # A deliberately coarse source distinguishes these inputs exactly; this
+    # construction preference is test data, not a relaxed minimax error bound.
+    handle = lambda x: 1 + 2.**-40 * jnp.asarray(x)  # noqa: E731
+    source = chebfun(handle, eps=1e-10)
+    assert len(source) == 1
+    samples, references = _observe_aaa_sample_inputs(monkeypatch)
+    monkeypatch.setattr(initial, '_cf_reference', lambda *args: np.linspace(-1., 1., 6))
+    calls = 0
+
+    def kernel(*args):
+        nonlocal calls
+        calls += 1
+        return SimpleNamespace(success=calls == 2)
+
+    assert initial.initialize_rational(source, handle, 2, 2, 0, kernel, silent=True).success
+    assert len(samples) == 3 and len(references) == 3
+    np.testing.assert_array_equal(samples[0][1], 1 + 2.**-40 * samples[0][0])
+    for grid, values in samples[1:]:
+        # The constructed Chebfun includes its stored endpoint values;
+        # compare its actual samples rather than assuming a constant everywhere.
+        np.testing.assert_array_equal(values, np.asarray(source(jnp.asarray(grid))))
+    for values in references:
+        np.testing.assert_array_equal(values, 1 + 2.**-40 * np.asarray([-.75, .25]))
+
+
+def test_private_scaled_kernel_keeps_aaa_refinement_values_normalized(monkeypatch):
+    handle = lambda x: 10 * jnp.ones_like(jnp.asarray(x))  # noqa: E731
+    source = chebfun(handle)
+    samples, references = _observe_aaa_sample_inputs(monkeypatch)
+    monkeypatch.setattr(mm, '_compute_trial_rational',
+                        lambda *args: (None, 1e-19, False, None, None, None))
+    result = _rational_kernel(handle, 2, 2, domain=(-1., 1.),
+                              source_f=source, source_norm=float(source.norm(2)), silent=True)
+    assert not result.success
+    assert len(samples) == 3 and len(references) == 3
+    for _, values in samples:
+        np.testing.assert_array_equal(values, np.ones_like(values))
+    for values in references:
+        np.testing.assert_array_equal(values, np.ones_like(values))

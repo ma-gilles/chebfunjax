@@ -1,0 +1,295 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_head": "d6fb8512333241be0488d1a76a913213441aa670",
+  "candidate_state": "Uncommitted exact six-file overlay at execution; source SHA256 values below identify the qualified implementation.",
+  "scope": "AAALawsonInit source evaluator provenance, MATLAB sampling grids and positive half-away count rounding; original rational clauses and fresh FermiDirac page.",
+  "changes": [
+    "Use original function handle on initial AAA sweep, constructed Chebfun on two refined sweeps, and original handle for extrema.",
+    "Normalize constructed-source samples consistently in direct private kernel initialization.",
+    "Reuse existing pure-JAX R2025b source_grid at initial and refined AAA sampling sites.",
+    "Round positive grid shape counts half away from zero using integer arithmetic.",
+    "Regenerate actual FermiDirac page timings and changed figures."
+  ],
+  "qualified_source_hashes": {
+    "src/chebfunjax/utils/minimax.py": "0194fefebcfe21517cd2950afda88fc6c7cf427f0904ff3054782a85c1a7cc41",
+    "src/chebfunjax/utils/_minimax_init.py": "da7365fa687800638032db73bb49bf52cd00daa4337af8451500017d1d25bc57",
+    "tests/test_matlab_port/misc/test_minimax_initialization_source.py": "fcf820fcaaa6f6f3b2058f961880e498b31a919697ebb6e3b52e07b1cac4c1ad",
+    "tests/test_utils/test_minimax_aaa_native_grid.py": "fa01757eea066152fc837171dbc0cd79af0ee7efb0054b7113087be030707de0",
+    "tests/references/minimax_aaa_native_grid.npz": "1078d7b58af02cc9bd62caa5446954f785ea55b6a5df0a8aba1e2947a9c1dece",
+    "tests/references/minimax_aaa_native_grid.json": "8b73ab05cff18f211bda98a9d27d4e47917bd5f360f4e7ebb67ed266585c06a2"
+  },
+  "verification": {
+    "baseline_sampling_regression": "Corrected source oracle on main:1fail/1pass; candidate2pass. Preserved initial erroneous endpoint oracle and its receipts, excluded from qualification claims.",
+    "grid_baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 9.428310406859964,
+      "sampled_peak_summed_rss_kib": 180212,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "grid_baseline_expected_failures": [
+      "2706/5000 native coordinate bits differ",
+      "degree64 initial count1562 instead of1563",
+      "degree6 refined count15458 instead of15471"
+    ],
+    "grid_candidate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 12.44313098071143,
+      "sampled_peak_summed_rss_kib": 970380,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "grid_candidate_checks": {
+      "passed": 24,
+      "native_grids": 3,
+      "existing_needle_grids": 8,
+      "initialization_controls": 13
+    },
+    "original_clauses": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 333.18853360880166,
+      "sampled_peak_summed_rss_kib": 3667332,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "original_clauses_checks": {
+      "passed": 23,
+      "controls": 13,
+      "original_rational_clauses": [
+        3,
+        4,
+        7,
+        8,
+        9,
+        11,
+        13,
+        17,
+        18,
+        19
+      ],
+      "fresh_process_per_clause": true,
+      "original_bounds_unchanged": true
+    },
+    "distinct_final_checks": 34,
+    "native_grid_fixture_scope": "14678 binary64 coordinates across three native grids using fixed captured reference inputs; does not assert full AAA/SVD/refined-reference parity.",
+    "independent_review": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aaa_refinement_verification_20261016/independent_review.json",
+      "sha256": "8c316a71081a26b507b263d86d00d11505e63fd937e28886205db15abe9ea055"
+    },
+    "static": {
+      "ruff": {
+        "exit_code": 0,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      },
+      "F821": {
+        "exit_code": 0,
+        "stdout": "All checks passed!\n",
+        "stderr": ""
+      },
+      "diff_check": {
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "policy_violations": [],
+      "head_before_commit": "d6fb8512333241be0488d1a76a913213441aa670",
+      "passed": true
+    }
+  },
+  "fresh_page": {
+    "supervisor": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 194.42284806538373,
+      "sampled_peak_summed_rss_kib": 4531560,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "environment": {
+      "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:50:00) [GCC 14.3.0]",
+      "jax": "0.11.0",
+      "numpy": "2.4.3",
+      "matplotlib": "3.10.8",
+      "jax_backend": "cpu",
+      "jax_enable_x64": true,
+      "CUDA_VISIBLE_DEVICES": "",
+      "JAX_PLATFORMS": "cpu",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONPATH": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_aaa_source_qualification_20261016/worktree/src:/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any:/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64:/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/ml-dtypes/0.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64"
+    },
+    "all_four_fits_successful": true,
+    "source_hashes_stable": true,
+    "reference_hashes_stable": true,
+    "non_timing_stdout_exact_prior_python": true,
+    "fits": [
+      {
+        "L": 10,
+        "n": 10,
+        "python_iterations": 1,
+        "native_iterations": 1,
+        "python_error": 4.459354535972221e-08,
+        "native_error": 4.4593544792899365e-08,
+        "original_grid_curve_max_difference": 6.439293542825908e-15,
+        "supplemental_grid_curve_max_difference": 6.439293542825908e-15,
+        "set_matched_pole_max_difference": 1.169333162758122e-08
+      },
+      {
+        "L": 100,
+        "n": 15,
+        "python_iterations": 12,
+        "native_iterations": 12,
+        "python_error": 3.8689256265378447e-07,
+        "native_error": 3.868927064692995e-07,
+        "original_grid_curve_max_difference": 1.9087509350868004e-13,
+        "supplemental_grid_curve_max_difference": 1.9086121572087222e-13,
+        "set_matched_pole_max_difference": 8.895527798813418e-07
+      },
+      {
+        "L": 1000,
+        "n": 20,
+        "python_iterations": 6,
+        "native_iterations": 6,
+        "python_error": 2.1361617574822134e-06,
+        "native_error": 2.136161721733032e-06,
+        "original_grid_curve_max_difference": 9.459100169806334e-14,
+        "supplemental_grid_curve_max_difference": 9.447997939560082e-14,
+        "set_matched_pole_max_difference": 3.01760030265027e-09
+      },
+      {
+        "L": 1000,
+        "n": 30,
+        "python_iterations": 6,
+        "native_iterations": 6,
+        "python_error": 6.759562909408601e-10,
+        "native_error": 6.759599546768413e-10,
+        "original_grid_curve_max_difference": 6.572520305780927e-14,
+        "supplemental_grid_curve_max_difference": 6.616929226765933e-14,
+        "set_matched_pole_max_difference": 8.143969375639826e-06
+      }
+    ],
+    "figures": [
+      {
+        "name": "FermiDirac_01.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 0.0,
+        "accepted_python_max_rgb_difference": 0,
+        "native_rgb_mae": 3.719493827160494
+      },
+      {
+        "name": "FermiDirac_02.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 0.0,
+        "accepted_python_max_rgb_difference": 0,
+        "native_rgb_mae": 3.3130740740740743
+      },
+      {
+        "name": "FermiDirac_03.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 0.0,
+        "accepted_python_max_rgb_difference": 0,
+        "native_rgb_mae": 7.467008230452675
+      },
+      {
+        "name": "FermiDirac_04.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 0.0,
+        "accepted_python_max_rgb_difference": 0,
+        "native_rgb_mae": 7.673874485596708
+      },
+      {
+        "name": "FermiDirac_05.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 6.790123456790123e-05,
+        "accepted_python_max_rgb_difference": 1,
+        "native_rgb_mae": 8.333849794238683
+      },
+      {
+        "name": "FermiDirac_06.png",
+        "size": [
+          600,
+          270
+        ],
+        "accepted_python_rgb_mae": 0.0003251028806584362,
+        "accepted_python_max_rgb_difference": 1,
+        "native_rgb_mae": 8.298269547325102
+      }
+    ],
+    "prior_python_scope": "First two fits have six bitwise-identical representation arrays. Last two change. Separate direct prior_python_output_comparison.json excludes historical-baseline ambiguity.",
+    "timing_scope": "194.42s current vs173.61s prior are separate observations; not matched CPU performance qualification or a speedup claim.",
+    "page_generation": {
+      "generator": "scripts/gen_example_pages.py",
+      "cached_html": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx_FermiDirac.html",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_aaa_source_qualification_20261016/output/approx_fermi_dirac.txt",
+      "result": "approx/FermiDirac: ok script=examples/approx/fermi_dirac.py figures=6; 1/1 pages written",
+      "payload_hashes": {
+        "docs/examples/approx/FermiDirac.md": "23ae351c33158f967db550615236ece6db5656b2a49c36d91d2d52e09f0e644e",
+        "docs/images/approx/FermiDirac_01.png": "554211c59aedf386bb818f531677c328923dfb0d6ace2f40576c186657dc8474",
+        "docs/images/approx/FermiDirac_02.png": "d452dc7af5532faac5bb47b0f7286698e9b347dd9536393d36fd73b4d48a18c9",
+        "docs/images/approx/FermiDirac_03.png": "76d86b312ac85d78bada4f9562de981f77c005e057d0117868ef6244afe96753",
+        "docs/images/approx/FermiDirac_04.png": "49bc7dbee082b3a39febfe680084a8937b6d70cccc4d338aad289856c72fcb30",
+        "docs/images/approx/FermiDirac_05.png": "48df1a58d95903bdae74d9c675036bbf7fdb174f61da009496019e4d14944f9f",
+        "docs/images/approx/FermiDirac_06.png": "27018ffc336b3a55213e79b3814f7c96449b370705509da9794ac317eb198911"
+      }
+    }
+  },
+  "saved_array_audits": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_aaa_source_qualification_20261016/output/native_fit_comparison.json",
+      "sha256": "d2a3d989e3a3779698ffe84ed3b55c3ebd0441a4398977fc19790b31d1573bce"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_aaa_source_qualification_20261016/output/prior_python_output_comparison.json",
+      "sha256": "b9edfb76cf9b095fde37d29899ae7f02101cba797cab583ec61a80eb19b23bbe"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_aaa_source_qualification_20261016/output/comparison_report_v2.json",
+      "sha256": "0e6f8d4ca4212dc9c508ace89a52c444862786b2102d0b9021e4b56b2b384712"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aaa_refinement_verification_20261016/aaa_sampling_comparison.json",
+      "sha256": "90e8b3c32341aee4a81b714c149300582c78f738b455ca4429d4287cadec7f9e"
+    }
+  ],
+  "remaining": [
+    "Native pole/reference and scalar/curve differences persist; no new acceptance tolerance is supplied or inferred.",
+    "Full native fplot sampling and pixel-exact rendering remain open.",
+    "Minimax retains existing host NumPy/SciPy numerical paths, which remain incompatible with the final JAX-only goal.",
+    "Other initialization branches and rational numerical parity remain open.",
+    "Latest-main green CI and full322-page/library/test/performance parity remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/minimax_aaa_source_qualified_20261016.zip",
+    "sha256": "9956f8f60396390f6c0db76e946e430dbe02acff4e2dd587fb8e7d7f3aa7972b",
+    "bytes": 9369695,
+    "entries": 341,
+    "all_entries_hash_verified": true,
+    "archive_testzip_passed": true,
+    "excluded": [
+      "worktree",
+      "runtime preferences",
+      "matplotlib cache",
+      "bytecode cache"
+    ],
+    "manifest_member": "ARCHIVE_MANIFEST.json"
+  }
+}

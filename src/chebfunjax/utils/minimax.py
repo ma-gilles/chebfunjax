@@ -44,6 +44,7 @@ from scipy.linalg import eig
 if TYPE_CHECKING:
     from chebfunjax.chebfun1d.chebfun import Chebfun
 
+from chebfunjax.utils._matlab_linspace import source_grid
 from chebfunjax.utils.interpolation import bary, bary_weights
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts_ab
@@ -1735,22 +1736,30 @@ def _find_reference_rat(
     return xk
 
 
-def _aaa_lawson_init(f: Callable, m: int, n: int, a: float, b: float) -> np.ndarray:
+def _aaa_lawson_init(
+    f: Callable, m: int, n: int, a: float, b: float,
+    refinement_source: Callable | None = None,
+) -> np.ndarray:
     """AAA-Lawson-based initial reference (the robust default init).
 
     Provenance
     ----------
     MATLAB source : AAALawsonInit (sub-function of minimax.m), Chebfun commit 7574c77
     """
-    NN = int(max(10 * max(m, n), round(1e5 / max(m, n))))
-    Z = np.linspace(a, b, NN)
+    degree = max(m, n)
+    # MATLAB round uses half-away rounding for these positive shape counts.
+    NN = max(10 * degree, (200000 + degree) // (2 * degree))
+    Z = source_grid(a, b, NN)
     rh, z = _aaamn_lawson(f, Z, m, n)
     xk = _find_reference_rat(f, rh, m, n, z, a, b)
+    # Native sweep1 uses the original handle; refinements sample its
+    # constructed Chebfun. Extrema still use the original handle below.
+    refined = f if refinement_source is None else refinement_source
     for _ in range(2):
-        num = max(2, int(round(NN / len(xk))))
-        parts = [np.linspace(xk[ii], xk[ii + 1], num) for ii in range(len(xk) - 1)]
+        num = max(2, (2 * NN + len(xk)) // (2 * len(xk)))
+        parts = [source_grid(xk[ii], xk[ii + 1], num) for ii in range(len(xk) - 1)]
         Z = np.unique(np.concatenate(parts))
-        rh, z = _aaamn_lawson(f, Z, m, n)
+        rh, z = _aaamn_lawson(refined, Z, m, n)
         xk = _find_reference_rat(f, rh, m, n, z, a, b)
     return xk
 
@@ -1929,7 +1938,12 @@ def _rational_kernel(
     if init_xk is not None:
         xk = np.asarray(init_xk, dtype=np.float64).ravel()
     else:
-        xk = _aaa_lawson_init(fs, m, n, a, b)
+        def refinement_source(x):
+            # The kernel's direct samples are normalized by scale; keep
+            # constructed-source samples in those same units.
+            return fs(x) if source_f is None else source_f(x) / scale
+
+        xk = _aaa_lawson_init(fs, m, n, a, b, refinement_source)
 
     xk = np.asarray(xk, dtype=np.float64)
     xo = xk.copy()
