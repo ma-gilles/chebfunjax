@@ -5,7 +5,9 @@ Provenance
 MATLAB source : @chebtech/clenshaw.m
 Chebfun commit: 7574c77 (7574c77680d7e82b79626300bf255498271a72df).
 The paired recurrence and final half-times-doubled argument follow that source.
-Each binary operation uses the existing CPU ordering primitive; no host numerical
+Each recurrence operation occupies its own loop iteration, preventing contraction
+without a finite-array reduction and nested loop for every arithmetic operation.
+Setup and epilogue retain the existing CPU ordering primitive. No host numerical
 provider, degree padding, or input-specific coefficients are used. Native rounding
 qualification covers finite ordinary inputs; exceptional/subnormal behavior is
 not claimed bitwise native from that corpus.
@@ -29,9 +31,31 @@ def source_clenshaw(coeffs, x):
     def step(i, state):
         b1, b2 = state
         k = degree - 2 * i
-        next2 = binary(binary(coeffs[k], binary(x2, b1, 0), 1), b2, 2)
-        next1 = binary(binary(coeffs[k - 1], binary(x2, next2, 0), 1), b1, 2)
-        return next1, next2
+
+        def instruction(registers, opcode):
+            first, second, temporary = registers
+            # A dynamic instruction selects exactly one source operation per
+            # iteration. The loop carry separates multiply/add/subtract even
+            # after compilation; an optimization barrier alone does not suffice.
+            operations = (
+                lambda: (first, second, x2 * first),
+                lambda: (first, second, coeffs[k] + temporary),
+                lambda: (first, temporary - second, temporary),
+                lambda: (first, second, x2 * second),
+                lambda: (first, second, coeffs[k - 1] + temporary),
+                lambda: (temporary - first, second, temporary),
+            )
+            return jax.lax.switch(opcode, operations), None
+
+        # The prior binary helper performed the operation followed by multiply
+        # by one for finite operands, or the same operation for nonfinite ones.
+        # The instruction boundary makes that identity step unnecessary here.
+        # No finiteness assumption is made about inputs or intermediate values.
+        (b1, b2, _), _ = jax.lax.scan(
+            instruction, (b1, b2, zero), jnp.arange(6, dtype=jnp.int32),
+            unroll=False,
+        )
+        return b1, b2
 
     b1, b2 = jax.lax.fori_loop(0, degree // 2, step, (zero, zero))
     if degree % 2:

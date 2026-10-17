@@ -1,0 +1,208 @@
+{
+  "schema": "clenshaw-instruction-inverse-cpu-v1",
+  "date": "2026-10-17",
+  "base_commit": "9888b5d5e4a46b64daba98d24f10dfd3834c271d",
+  "matlab_chebfun_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "cause": "Six ordered binary operations per coefficient pair each used an array-global finite reduction, conditional and nested two-step scan. Retained-input warm profile attributed 11.49 s to inverse callback/Brent and only 0.267 s to domain/minmax.",
+  "change": "Six dynamic instructions preserve source multiply/add/subtract boundaries and recurrence register dependencies. Setup, odd-degree remainder and epilogue retain the previous ordered helper. No finite-input assumption, host numerical provider, padding, cache, tolerance or inverse algorithm change.",
+  "ieee_scope": "The old helper executed operation followed by multiplication by one for finite operands, or the same operation for nonfinite operands. Loop-carried instruction results replace the identity stage. Finite-only and nonfinite argument arrays each exercise five coefficient cases: signed zeros, finite overflow, nonfinite coefficients, subnormals and odd/even degrees. Compare non-NaN raw bits and NaN classifications against prior implementation. Native exceptional-value payload parity is not claimed.",
+  "source_sha256": "bb204f9e8f317e8eb2b9d5c871d75dbc3bbcfb972f83e57799c275e0cc1b9281",
+  "test_sha256": "c04da61dcee8dc462d18808bf0d82e588500fc7c43474f921f823ca26947ef76",
+  "source_before_sha256": "4d276f96dc19b9d2d36cbfe502dabeae9ce9a4f7f9e4ced5c94addd07fd6f520",
+  "qualification": {
+    "final_distinct_ids": 79,
+    "final_inventory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/final_test_inventory.json",
+    "final_inventory_sha256": "c581f300748ea64a1702fd4bd5d3a363919d0cc3ca4c8ffd52baed56444b05a0",
+    "inventory_origin": "69 collected unchanged IDs plus 10 explicit Cartesian parameter IDs replacing five earlier IEEE IDs. 45 + 29 original passes include superseded five IEEE cases; final fresh IEEE gate passed all 10. No full gate repeat.",
+    "native_real_cases": 26,
+    "native_real_constant_cases": 2,
+    "native_complex_cases": 5,
+    "native_chemical_case": 1,
+    "owned_jax_polynomial_ad_jit_vmap_empty_constant_cases": 8,
+    "source_loop_contract_cases": 15,
+    "original_matlab_clenshaw_cases": 5,
+    "inverse_contract_cases": 9,
+    "final_ieee_cases": 10
+  },
+  "retained_input_baseline": {
+    "calls": [
+      {
+        "phase": "cold",
+        "seconds": 53.860660914797336,
+        "length": 9052,
+        "hashes": [
+          "397cf9ef7be0631343e55af7f8f5fcfc68065716147c2f4aad978a78287d63bb"
+        ]
+      },
+      {
+        "phase": "warm",
+        "seconds": 11.790891044773161,
+        "length": 9052,
+        "hashes": [
+          "397cf9ef7be0631343e55af7f8f5fcfc68065716147c2f4aad978a78287d63bb"
+        ]
+      }
+    ],
+    "forward_length": 2092,
+    "roundtrip_error": 9.992007221626409e-16,
+    "roundtrip_bound": 1e-10,
+    "origins": {
+      "jax": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "chebfunjax": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_cpu_20261017/src/chebfunjax/__init__.py"
+    },
+    "affinity": [
+      24,
+      25,
+      26,
+      27
+    ],
+    "scope": "Instrumented cold/warm retainedinput; not native comparison or timing qualification."
+  },
+  "retained_input_integrated": {
+    "calls": [
+      {
+        "phase": "cold",
+        "seconds": 20.30205417610705,
+        "length": 9052,
+        "hashes": [
+          "397cf9ef7be0631343e55af7f8f5fcfc68065716147c2f4aad978a78287d63bb"
+        ]
+      },
+      {
+        "phase": "warm",
+        "seconds": 6.892254278063774,
+        "length": 9052,
+        "hashes": [
+          "397cf9ef7be0631343e55af7f8f5fcfc68065716147c2f4aad978a78287d63bb"
+        ]
+      }
+    ],
+    "forward_length": 2092,
+    "roundtrip_error": 9.992007221626409e-16,
+    "roundtrip_bound": 1e-10,
+    "origins": {
+      "jax": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "chebfunjax": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_cpu_20261017/src/chebfunjax/__init__.py"
+    },
+    "affinity": [
+      24,
+      25,
+      26,
+      27
+    ],
+    "scope": "Instrumented cold/warm retainedinput; not native comparison or timing qualification."
+  },
+  "output_identity": "All coefficient, domain and point-value arrays compared byte-for-byte against baseline cold output; integrated cold and warm coefficient hashes identical. Actual production source trace wrapper recorded calls before inverse tracing in a fresh process.",
+  "trace_calls_sha256": "f73e05d98e4fdec880c186417f7bc6dd78fe68bcad60bfb788dd6d0406c3f4a8",
+  "performance_scope": "Descriptive single serial shared-host matched retained-input comparison with identical cProfile/compiler instrumentation and synchronization. Not a timing confidence interval, pristine cold start, or comparison to native execution. Current 9052-term inverse representation gap remains open.",
+  "historical_correction": {
+    "public_20261013": "Python setup 18.786 s, first 13.2855 s, warm median 0.606527 s; native setup 0.838974 s, first 0.747594 s, warm median 0.639917 s. Independently constructed Python forward/inverse lengths 2092/8878 and native 2016/8706 are not identical inputs. This supersedes stale 800x/bisection claims. Native default inv algorithm 6 is Brent.",
+    "leaf_20261014": "Retained-input cold 14.1417 -> 11.9004 s, warm 0.6144 -> 0.6519 s, inverse 8878. These older measurements predate present source-ordered evaluation; no attribution to current changes."
+  },
+  "prior_evidence": {
+    "inverse_public_cpu_benchmark_20261013.json": "adfd51b6206e852fd33eb68262edef1d8b2cf1e16d229c0015a148b1900b1fd8",
+    "inverse_leaf_compile_cpu_20261014.json": "eb769582d50d77a39f387679dd9e80ef894c97f4669d082e6173811c12fd4859"
+  },
+  "receipts": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_profile_20261017/run",
+      "receipt_sha256": "a8abf43fbc8652a94ba6388b1347b3bf84f1b4ea256133b9830a2fd7a17e792c",
+      "supervisor_exit_code": 1,
+      "command_exit_code": 1,
+      "wall_seconds": 8.555841974914074,
+      "sampled_peak_summed_rss_kib": 411888,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_profile_20261017/run_v2",
+      "receipt_sha256": "3e2a5f57828373ea4a1cca494bde9b41a43f7ad1dac7040ccec5117a5b907c38",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 72.02618959499523,
+      "sampled_peak_summed_rss_kib": 1015332,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/run",
+      "receipt_sha256": "435831cabe87f4bd58645a982207dfb8379ac8d08bbc87904c3dbc517512021b",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 20.738375436048955,
+      "sampled_peak_summed_rss_kib": 974668,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/whole_run",
+      "receipt_sha256": "e86d7d3fe86338f3f0d1a0de51e70102309121231c9ce7107367596a2c065d05",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 31.377392364200205,
+      "sampled_peak_summed_rss_kib": 991604,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/integrated_gate1",
+      "receipt_sha256": "6a4854ebb1445d012b3baf5add7bc282425fe190f0019ba936491ebfc56fff3e",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 19.414312642998993,
+      "sampled_peak_summed_rss_kib": 967300,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/integrated_gate2",
+      "receipt_sha256": "40fc860a5f310c84d083d618fc06d372fbf11cba4f338d349789607668008c07",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 13.062699780799448,
+      "sampled_peak_summed_rss_kib": 815468,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/integrated_whole_run",
+      "receipt_sha256": "0e2d5ba947d5bffc0f1685c47472e5ea9421be514d55bd699587659f3cf85140",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 31.871209748089314,
+      "sampled_peak_summed_rss_kib": 994580,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_instruction_20261017/ieee_run",
+      "receipt_sha256": "6e7a6b3796b9e114aa02610231eb9dd03b937a6da1cf6c13bbde1b15479162cd",
+      "supervisor_exit_code": 0,
+      "command_exit_code": 0,
+      "wall_seconds": 4.848043250851333,
+      "sampled_peak_summed_rss_kib": 525636,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "guard_error": null
+    }
+  ],
+  "failed_attempt": "Baseline run initial driver named profile.py shadowed Python stdlib profile and exited before inverse execution. Preserved as run; no scientific or timing credit. Renamed driver completed run_v2.",
+  "resource_scope": "CPU24-27, <=120 s and <=2 GiB each numerical run; pinned JAX/jaxlib0.11.0 CPU/x64 asserted, GPU visibility empty, compilation cache disabled. All source/tests and retained input hashes frozen during guarded jobs. All jobs terminal with stable guards and no owned survivors."
+}

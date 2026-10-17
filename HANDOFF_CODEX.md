@@ -1,3 +1,26 @@
+## Ordered Clenshaw CPU instruction checkpoint — 2026-10-17
+
+The paired real CPU recurrence now executes one source arithmetic operation
+per instruction-loop iteration. This removes six repeated finite-array
+reductions/conditionals and nested ordering loops per coefficient pair;
+setup, odd remainder and epilogue are unchanged. All79distinct final tests
+pass across completed guarded groups:26native real/5complex cases, chemical
+control, original Clenshaw assertions, JIT/AD/inverse contracts and10IEEE
+cases including finite-only overflow transitions. No source bound changed.
+
+On one instrumented shared-host retained-input comparison, cold inverse time
+53.86->20.30s and warm11.79->6.89s; all9052coefficient/domain/point-value bytes
+are unchanged and roundtrip error9.99e-16 remains below1e-10. These measurements
+do not establish native speed parity or close the representation-length gap.
+Evidence:`docs/clenshaw_instruction_inverse_cpu_20261017.json`.
+
+CI remains unresolved. Older352ad369 now has actual numerical failures in
+original coupled-system clause02 (right boundary residual above1e-10) and
+a Python advection PDE control (early tolerance failure, repeated initial
+outputs), separately from runner shutdowns. Both reproduce locally and are
+under source/native investigation. Do not weaken assertions or assume the
+CI batching/performance fixes resolve these correctness gaps.
+
 ## Current DDE CPU execution checkpoint — 2026-10-17
 
 The unchanged DDE script completed against library9888b5d5 and pinned
