@@ -150,3 +150,8 @@ scopes attached; broad API/item statuses remain unverified.
 The [paired exporter report](chebgui_paired_originals_cpu_20261017.json)
 adds four native/Python smoke scopes to the original Chebgui exporter rows.
 These qualify successful export, not full API or generated-text equality.
+
+[Legendre coefficient evidence](legcoeffs_original_cpu_20261017.json) adds
+all six literal Python original predicates. Native JSON records six true
+results, with no retained terminal receipt; the scope explicitly distinguishes
+that result-only observation from supervised native qualification.

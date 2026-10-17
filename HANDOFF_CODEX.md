@@ -1,3 +1,12 @@
+# Latest Legendre coefficient scope — 2026-10-17
+
+Simple piecewise legcoeffs and all-column padding now pass all six literal
+original Python predicates plus five supplemental controls. Native JSON records
+six true results, but no native terminal receipt was retained; do not promote
+that into supervised native qualification. Non-simple projection remains open.
+See `docs/legcoeffs_original_cpu_20261017.json`. Full parity and latest-main CI
+remain incomplete.
+
 # Latest scoped update — 2026-10-17
 
 Quasimatrix factory/conversion, row/empty-column metadata and Chebfun2 rectangle

@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Simple piecewise Legendre projection and all-column padding; all six literal original legcoeffs predicates plus five supplemental controls pass. Native JSON records six true results; original native terminal receipt is unavailable, so that scope remains result-only. [Evidence](legcoeffs_original_cpu_20261017.json).
+- [ ] Non-simple piecewise legcoeffs projection and full API/native invocation qualification.
+
 - [x] Four original MATLAB exporter smoke tests pass, paired to four Python cohorts plus a fixture checksum control. All 64 demo fixtures match native bytes. [Evidence](chebgui_paired_originals_cpu_20261017.json). Generated-text equality and full API parity remain open.
 
 - [x] Public quasimatrix/cheb2quasi and native row/empty-column metadata; rectangle integral2/quad2d and empty integration. Joint 39 Python nodes pass, 17 factory comparisons pass, original cell2quasi predicate and three original integral2 predicates paired. [Evidence](quasimatrix_integral2_cpu_20261017.json).

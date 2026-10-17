@@ -4606,8 +4606,13 @@ class Chebfun(eqx.Module):
         return jnp.flip(c, axis=0).T
 
     def legcoeffs(self, n: int | None = None) -> jax.Array:
-        """Legendre expansion coefficients of a single-piece chebfun
-        (MATLAB legcoeffs), via the cheb2leg transform.
+        """Legendre expansion coefficients of a chebfun (MATLAB legcoeffs).
+
+        Single-piece Chebfuns use the native Chebyshev-to-Legendre transform.
+        Piecewise Chebfuns project each smooth piece against Legendre
+        polynomials on the full physical domain, matching
+        ``@chebfun/legcoeffs.m``. Array-valued pieces retain one coefficient
+        column per component.
 
         Provenance
         ----------
@@ -4615,16 +4620,62 @@ class Chebfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.utils.transforms import cheb2leg
-        if len(self.funs) != 1:
-            raise ValueError("legcoeffs requires a single-piece chebfun")
-        c = cheb2leg(self.funs[0].tech.coeffs)
+
+        if len(self.funs) == 1:
+            c = cheb2leg(self.funs[0].tech.coeffs)
+        else:
+            if n is None:
+                raise ValueError(
+                    "Input is piecewise, so legcoeffs expects n.")
+            from chebfunjax.tech.chebtech import Chebtech1
+
+            if not all(isinstance(piece.tech, (Chebtech1, Chebtech2))
+                       for piece in self.funs):
+                raise NotImplementedError(
+                    "piecewise legcoeffs requires Chebtech pieces")
+            from chebfunjax.utils.quadrature import legpts
+
+            a, b = self.domain.breakpoints[0], self.domain.breakpoints[-1]
+            n = int(n)
+            # Native legcoeffsPiecewise integrates in the global Legendre
+            # coordinate z = 2*(x-a)/(b-a)-1. Each piece's Gauss rule is
+            # placed on that piece's subinterval in z, then mapped back to x.
+            out = None
+            for piece in self.funs:
+                left, right = piece.interval
+                zdom = (2 * (left - a) / (b - a) - 1,
+                        2 * (right - a) / (b - a) - 1)
+                z, w = legpts(max(piece.tech.coeffs.shape[0], n), zdom)
+                x = (z + 1) * (b - a) / 2 + a
+                values = piece(x)
+                if values.ndim == 1:
+                    values = values[:, None]
+                if out is None:
+                    out = jnp.zeros((n, values.shape[1]), dtype=values.dtype)
+                out = out.at[0].add(jnp.sum(w[:, None] * values, axis=0))
+                if n > 1:
+                    out = out.at[1].add(
+                        jnp.sum((w * z)[:, None] * values, axis=0))
+                pm2 = jnp.ones_like(z)
+                pm1 = z
+                for kk in range(1, n - 1):
+                    p = (2.0 - 1.0 / (kk + 1)) * pm1 * z \
+                        - (1.0 - 1.0 / (kk + 1)) * pm2
+                    out = out.at[kk + 1].add(
+                        jnp.sum((w * p)[:, None] * values, axis=0))
+                    pm2, pm1 = pm1, p
+            scale = (2 * jnp.arange(n, dtype=jnp.float64) + 1) / 2
+            out = out * scale[:, None]
+            c = out[:, 0] if self.funs[0].tech.coeffs.ndim == 1 else out
         if n is not None:
-            m = len(jnp.asarray(c))
+            c = jnp.asarray(c)
+            m = c.shape[0]
             if n <= m:
                 c = c[:n]
             else:
+                pad_shape = (n - m,) + c.shape[1:]
                 c = jnp.concatenate(
-                    [c, jnp.zeros(n - m, dtype=c.dtype)])
+                    [c, jnp.zeros(pad_shape, dtype=c.dtype)], axis=0)
         return c
 
     def jaccoeffs(self, n: int | None = None, alpha: float = 0.0,

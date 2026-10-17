@@ -110,6 +110,12 @@
       "sha256": "a19309513dc8b31448e78f569e662a2c62a792cff528653b96149c07d88a9fa2",
       "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731"
     },
+    "legcoeffs_original_cpu_20261017": {
+      "native_evidence_limit": "Result JSON and harness retained; no native terminal receipt/log found. This is result-only evidence, not a source-guarded supervised native qualification.",
+      "path": "docs/legcoeffs_original_cpu_20261017.json",
+      "scope": "Chebfun legcoeffs simple piecewise global-coordinate projection and all-column padding; literal original predicates1-6",
+      "sha256": "fe07adee58c2b892cbabfcb08b94e5f3a65cc12384f3e0b2a3b0c459df9a4cd2"
+    },
     "official_example_archive_20261017": {
       "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
       "archive_sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
@@ -52214,7 +52220,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "legcoeffs_original_cpu_20261017",
+          "scope": "All6literal Python predicates pass; native result JSON records6true, terminal/sourceguard unavailable; broader API remains open"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -102536,7 +102547,12 @@
         "tests/test_matlab_port/chebfun/test_legcoeffs_matlab.py",
         "tests/test_matlab_port/chebtech/test_legcoeffs_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "legcoeffs_original_cpu_20261017",
+          "scope": "All6literal Python predicates pass; native result JSON records6true, terminal/sourceguard unavailable; broader API remains open"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -102551,7 +102567,21 @@
       "sha256": "96b601f7f01cdd488efad02c46069bf768f5796859564b58bda186bc461b0d3f",
       "source": "tests/chebfun/test_legcoeffs.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "legcoeffs_original_cpu_20261017",
+          "native_result_predicates_true": 6,
+          "original_ids": "1-6",
+          "predicates_python_mapped": 6,
+          "python_source": "tests/test_matlab_port/chebfun/test_legcoeffs_original_remaining.py",
+          "python_source_sha256": "baf5ed035e33006fa1a574d544a154f72d1776080621bf8b476eb60ba878474c",
+          "qualification_limit": "Result JSON and harness retained; no native terminal receipt/log found. This is result-only evidence, not a source-guarded supervised native qualification. Broader API remains open.",
+          "scope_id": "legcoeffs_literal_original_1_6",
+          "source_base": "e7d09bdb27f18254d26d715a3d52fe78cf306835",
+          "status": "python_pass_native_result_recorded"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

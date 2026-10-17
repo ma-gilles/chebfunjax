@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-17",
+  "source_base": "e7d09bdb27f18254d26d715a3d52fe78cf306835",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Chebfun legcoeffs simple piecewise global-coordinate projection and all-column padding; literal original predicates1-6",
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "6173eea93d83a9686a094e2c25ab70a84163821f7cbb250078d324df06483796",
+    "tests/test_matlab_port/chebfun/test_legcoeffs_original_remaining.py": "baf5ed035e33006fa1a574d544a154f72d1776080621bf8b476eb60ba878474c"
+  },
+  "root_gate": {
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_root_gate_v2_20261017_run001/receipt.json",
+    "receipt_sha256": "c8468c121944c920b695837e120b2a61dffd896b9968722b908e2c24d516e407",
+    "python_nodes": 11,
+    "original_predicates": 6,
+    "junit_sha256": "b3c3e796d755d31727f99b25ada0b27741237d8f801b51eaf50c2b2e51ba2e26",
+    "inputs_stable": true,
+    "exit_code": 0,
+    "remaining_owned_pids": [],
+    "peak_summed_rss_kib": 1618848,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_root_20261017/src/chebfunjax/__init__.py",
+      "cpu": true,
+      "x64": true,
+      "external_runtime": "Versions/origin observed, not exhaustively preguarded"
+    }
+  },
+  "native": {
+    "result": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_original_20261017/native/result.json",
+    "result_sha256": "268af86aa7ed69c386d4e7db69ee3f6eb974d1a56e4bc04247ad37bd13df53ce",
+    "default_invocation_true_predicates": 6,
+    "evidence_limit": "Result JSON and harness retained; no native terminal receipt/log found. This is result-only evidence, not a source-guarded supervised native qualification."
+  },
+  "component_report": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_original_20261017/REPORT.json",
+    "sha256": "d570e8cf728bc21ca0a212cce5cc3f02ffd9ba8ab2823b47ee78a6e760953dc8",
+    "python_nodes": 9,
+    "review": "All component report artifact hashes verified; root additionally restores literal original predicates1-2."
+  },
+  "limitations": [
+    "Non-simple piecewise singular/nonlinear-map projection remains unsupported",
+    "No full legcoeffs API, all-test, performance, figure or latest-main CI closure",
+    "Native invocation has result-only evidence as stated; external Python runtime not exhaustively preguarded"
+  ],
+  "failed_attempts": [
+    "Root run001:10 passed and literal predicate2 failed due to test port using rank-one vector against native column-vector result. Corrected v=(1:10).transpose shape in separate finalrun; unchanged source bound. Initial test preimage and failed receipt retained.",
+    "First root supervisor invocation rejected CRYOEM output directory before process launch. Adapter changes allowed-output parent only to accommodate full GILLES fileset; process/resource/guard logic unchanged."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_selected_evidence_20261017.zip",
+    "sha256": "8432017882944c91b56e7d578e826f69e872d91e186ed9bf48ae068bf649dae2",
+    "payloads": 69,
+    "bytes": 379887,
+    "readback_verified": true
+  }
+}
