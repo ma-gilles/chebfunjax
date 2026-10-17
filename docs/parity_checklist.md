@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Localize retained complex-fit assembly difference: native/JAX matched product and mirroring are bit-identical; same-input normalized IFFT differs1.11e-16. Independent native public call proves capture neutrality. [Diagnosis](ratinterp_preifft_cpu_20261017.json); correctness remains open.
+
 - [x] Genuine first-kind Chebfun2 callable preference/grid/refinement/factor path; three original technology predicates pass. Restore all seven no-dots predicates, including exact inner-dimension marker and meaningful operator adapters. Joint15 focused nodes pass. [Evidence](c1_nodots_cpu_20261017.json).
 - [ ] Full Chebfun2 C1 algebra/preference grammar and source sample-test order, broader raw division/power/string grammar and global JAX conversion; latest-main CI/coverage.
 

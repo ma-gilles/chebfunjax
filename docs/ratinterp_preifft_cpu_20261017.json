@@ -1,0 +1,189 @@
+{
+  "source_head": "7feb97de1219b62c23cdf9f6296daef60b628be1",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "case": "Retained first complex ThreeBody ratinterp415coeff,m151,n150,tol1e-12; no ODE or page rerun.",
+  "source_changes": [],
+  "neutrality": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "public_seconds": 0.217151,
+    "observed_seconds": 0.262816,
+    "neutrality_bits": {
+      "pc": true,
+      "qc": true,
+      "mu": true,
+      "nu": true,
+      "poles": true,
+      "rv": true
+    },
+    "prior_capture_bits": {
+      "pc": true,
+      "qc": true,
+      "mu": true,
+      "nu": true,
+      "poles": true
+    },
+    "input_bits_unchanged": true,
+    "ratinterp_which": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/ratinterp.m",
+    "construction": "Public coefficient constructor plus retained pointValues adapter, exact415coeffs; no ODE reconstruction."
+  },
+  "bridge": {
+    "src/chebfunjax/utils/ratapprox.py": {
+      "current_sha": "5fb36f6ab49095a61316c63d2d65cceced78fb05547edfdd8272d2bae530296a",
+      "equal_prior_d365": true
+    },
+    "src/chebfunjax/utils/transforms.py": {
+      "current_sha": "9529f96e6ef88799eb4d9762f212e5401acc85ce621f7fe3da27d3a3a7c75eae",
+      "equal_prior_d365": true
+    },
+    "input_hex_equal_prior": true,
+    "native_samples_equal_prior": {
+      "f": true,
+      "xi": true
+    },
+    "current_Z_equal_prior_python": true
+  },
+  "comparison": {
+    "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_preifft_7feb_20261017/src/chebfunjax/utils/ratapprox.py",
+    "versions": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py"
+    },
+    "cpu_affinity": [
+      32,
+      33,
+      34,
+      35
+    ],
+    "backend": "cpu",
+    "x64": true,
+    "D_current": {
+      "shape": [
+        302,
+        302
+      ],
+      "max_abs": 4.440892098500626e-16,
+      "bit_equal": false,
+      "equal_values": 36396,
+      "elements": 91204
+    },
+    "product_current_D": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 4.577566798522237e-16,
+      "bit_equal": false,
+      "equal_values": 18785,
+      "elements": 45602
+    },
+    "product_native_D": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 0.0,
+      "bit_equal": true,
+      "equal_values": 45602,
+      "elements": 45602
+    },
+    "mirror_native_product": {
+      "shape": [
+        602,
+        151
+      ],
+      "max_abs": 0.0,
+      "bit_equal": true,
+      "equal_values": 90902,
+      "elements": 90902
+    },
+    "raw_ifft_same_native_tmp": {
+      "shape": [
+        602,
+        151
+      ],
+      "max_abs": 1.1138085469421078e-16,
+      "bit_equal": false,
+      "equal_values": 0,
+      "elements": 90902
+    },
+    "Z_same_native_product_current_adapter": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 1.6756531357041713e-16,
+      "bit_equal": false,
+      "equal_values": 0,
+      "elements": 45602
+    },
+    "Z_same_native_product_literal_source": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 1.6707197001897236e-16,
+      "bit_equal": false,
+      "equal_values": 0,
+      "elements": 45602
+    },
+    "Z_current_production": {
+      "shape": [
+        302,
+        151
+      ],
+      "max_abs": 1.6905735323061084e-16,
+      "bit_equal": false,
+      "equal_values": 0,
+      "elements": 45602
+    },
+    "svd_aligned_b": {
+      "native_Z": 5.738966033237563e-12,
+      "native_product_current_adapter": 1.6298927745385027e-05,
+      "native_product_literal_source": 1.8304613015871076e-05
+    }
+  },
+  "causal_conclusion": [
+    "Public uninstrumented native six-output call is independently bit-neutral with diagnostic source copy for p/q coefficient arrays,mu,nu,poles,and129 rational-handle values. Prior captured native final outputs also match bitwise.",
+    "First overall assembly difference remains D=coeffs2vals(eye302), max4.44e-16. Product difference using currentD is4.58e-16.",
+    "With exact nativeD and exact sampled f, current JAX diag(f)@D product matches all45602 complex elements bitwise. Mirroring exact nativeproduct matches all90902 complex elements bitwise. Product arithmetic and mirror ordering are excluded as causes on this retained case.",
+    "Identical602x151 general-complex FFT input yields raw normalized inverse-FFT discrepancy1.1138e-16. This establishes transform/provider arithmetic (including normalization) discrepancy independently of D and product arithmetic.",
+    "Literal native complex route does not restore finalZ or denominator. Current conjugacy adapter is not the sole cause. Exact nativeZ\u2192JAX SVD has5.74e-12 aligned-denominator difference, versus1.63e-5 from nativeproduct through current transform."
+  ],
+  "decision": "No production correction justified. Preserve strict source tests and provider gap; no matrix-product rewrite, conjugacy removal, native intermediate substitution, rounding or tolerance workaround.",
+  "next_decision": "A source-compatible transform correction would require independently justified general602-point FFT/provider operation-order facts and independent-input validation. This diagnostic does not establish such an algorithm; no further route sweep or full-page rerun is warranted from these data alone.",
+  "limits": [
+    "Single retained fit. No qualification of seven-output residues, ODE trajectory, otherdegrees or input classes.",
+    "Raw IFFT discrepancy includes FFT execution and normalization; does not isolate a vendor codelet or planner.",
+    "Nativecopy adds saved product/temp and raw-output checkpoints; neutrality proven for this exact input only.",
+    "Current JAX gate evaluates source matrix assembly and small final SVD crossfeeds, not a repeated full public ratinterp trajectory; exact source/assembly bridge to earlier capture retained.",
+    "Allnative intermediate crossfeeds are diagnostic only. SciPy is used only for MAT artifact reading, never as production numerical provider.",
+    "Selected native source/input and JAX source/harness frozen; all licensed/runtime dependencies not preguarded."
+  ],
+  "receipts": {
+    "native": {
+      "wall_seconds": 82.45454772282392,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1312976,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "python": {
+      "wall_seconds": 4.8882024409249425,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 553404,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "parent_review": {
+    "current_head": "fcfa2b66a7f78e11772e58c966fc577c9b168ede",
+    "manifest_payloads_verified": 52,
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_preifft_cpu_20261017.tar.gz",
+    "archive_sha256": "217c0fc72dca6204a1342607f4385b339936848544a34c224e11591649a1a5ce",
+    "current_ratapprox_transforms_source_hashes_match": true,
+    "observer_review": "Native probe compares public and save-only clone with num2hex real/imag for all fields; comparator explicitly asserts matched matrix dimensions and general-complex branch, compares matched product/mirror bytes and sameinput raw normalized IFFT. No new source algorithm inferred."
+  }
+}

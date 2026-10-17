@@ -174,3 +174,7 @@ near-rank quantitative subspace parity remain open.
 [First-kind Chebfun2 and string operators](c1_nodots_cpu_20261017.json)
 attaches three technology predicates and seven no-dots predicates, with
 component and current-source integration evidence. Full API remains open.
+
+[Complex-fit pre-IFFT follow-up](ratinterp_preifft_cpu_20261017.json)
+localizes same-input differences to transform/normalization arithmetic and
+proves public native capture neutrality for this input; no parity credit.

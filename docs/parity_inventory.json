@@ -176,6 +176,11 @@
       "scope": "Same-input first-fit diagnosis only; no algorithm fix/whole-page or residue parity",
       "sha256": "99b61f25789a0da93f9af8dab38d10db1023d2821308c921d07e0b9129413d80"
     },
+    "ratinterp_preifft_cpu_20261017": {
+      "path": "docs/ratinterp_preifft_cpu_20261017.json",
+      "scope": "Retained same-input assembly diagnosis only: product/mirror exact, normalized IFFT nonexact and observer public-output neutrality. No parity completion.",
+      "sha256": "844b069cee3b72d40ed4ec9944fbed0ce96e5ef7ff37c99fdd2e114900f1b8d3"
+    },
     "reference_figure_dimensions_43e5_20261017": {
       "captured_audit_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/all_reference_figure_dimensions_43e5_20261017.json",
       "dimensions_match": 1305,

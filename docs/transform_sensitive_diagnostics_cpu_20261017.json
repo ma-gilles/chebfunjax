@@ -21,7 +21,7 @@
     "report": "docs/ratinterp_complex_stages_cpu_20261017.json",
     "report_sha256": "99b61f25789a0da93f9af8dab38d10db1023d2821308c921d07e0b9129413d80",
     "finding": "Exact same302nodes/samples; D differs\u22644.44e-16, assembledZ\u22641.69e-16, final pole delta\u22481.04e-4. Native-Z\u2192JAX SVD reduces aligned denominator delta1.37e-5\u21925.74e-12. Literal general-complex IFFT is not an improvement.",
-    "next_required_evidence": "If pursuing finer attribution, capture native diag(f)*D before IFFT; no current basis to rewrite fitting/roots or remove conjugacy handling.",
+    "next_required_evidence": "Independently justified general602point transform/provider execution and normalization arithmetic, with independent-input validation. No product rewrite, conjugacy removal or tolerance workaround justified.",
     "limits": [
       "Native uses an external exact pinned ratinterp copy with save-only checkpoints, not an independently repeated uninstrumented neutrality run.",
       "Same native D does not certify full diag(f)*D product bit equality: native intermediate product was not captured. Next localization, if pursued, requires saved native product before IFFT, not a provider sweep.",
@@ -29,6 +29,12 @@
       "Crossfeed uses native intermediates diagnostically only, never as production fallback.",
       "Only first six-output fit studied. Seven-output high-degree residues and actual forward ODE accuracy remain open.",
       "Whole-matrix ts differs2e-28 despite exact complex samples; all robustification degree decisions agree."
-    ]
+    ],
+    "preifft_followup": {
+      "path": "docs/ratinterp_preifft_cpu_20261017.json",
+      "sha256": "844b069cee3b72d40ed4ec9944fbed0ce96e5ef7ff37c99fdd2e114900f1b8d3",
+      "finding": "Matched nativeD/f product45602complex elements and602x151mirrored input are bit-identical to JAX; sameinput normalizedIFFT differs1.1138e-16. Independent public native output neutrality established.",
+      "qualification": "Retained firstfit only; no seven-output residue, ODE or full page qualification."
+    }
   }
 }
