@@ -3569,6 +3569,10 @@ class Chebfun(eqx.Module):
         """
         if not self.funs:
             return self
+        from chebfunjax.tech.chebtech import Chebtech1
+        if all(isinstance(piece.tech, (Chebtech1, Chebtech2)) for piece in self.funs):
+            from chebfunjax.chebpref import ChebfunPref
+            return self.compose(op, pref=ChebfunPref())
         # @chebfun/compose.m transforms stored pointValues separately from
         # smooth one-sided limits, and forces extrapolation for numInts > 1.
         point_values = op(self.point_values)
@@ -4247,6 +4251,7 @@ class Chebfun(eqx.Module):
         from chebfunjax.chebfun1d.linalg import Quasimatrix
         from chebfunjax.chebpref import ChebfunPref
         from chebfunjax.fun.singfun import Singfun
+        from chebfunjax.tech.chebtech import Chebtech1
         from chebfunjax.tech.trigtech import Trigtech
 
         from ._composition import compose_object
@@ -4295,10 +4300,25 @@ class Chebfun(eqx.Module):
                 pref.extrapolate = True
             pref.tech = type(f.funs[0].tech)
             trig_pref = dict(pref.techPrefs)
+        polynomial_pref = None
+        if all(isinstance(p.tech, (Chebtech1, Chebtech2)) for p in f.funs):
+            if pref.splitting:
+                pref.maxLength = pref.splitPrefs.splitLength
+            if len(f.funs) > 1:
+                pref.extrapolate = True
+            pref.tech = type(f.funs[0].tech)
+            polynomial_pref = dict(pref.techPrefs)
         maxpow2 = (int(math.floor(math.log2(max(int(pref.splitPrefs.splitLength)-1, 2))))
                    if pref.splitting else 16)
         for k, piece in enumerate(f.funs):
-            if isinstance(piece.tech, Chebtech2):
+            if (polynomial_pref is not None
+                    and isinstance(piece.tech, (Chebtech1, Chebtech2))
+                    and (g is None or type(g.funs[k].tech) is type(piece.tech))):
+                tech = piece.tech.compose(
+                    op, None if g is None else g.funs[k].tech,
+                    pref=polynomial_pref)
+                pieces.append(piece.with_tech(tech))
+            elif isinstance(piece.tech, Chebtech2):
                 tech = piece.tech.compose(
                     op, None if g is None else g.funs[k].tech,
                     extrapolate=len(f.funs) > 1 or pref.extrapolate,
@@ -4333,11 +4353,14 @@ class Chebfun(eqx.Module):
                         right = right[..., None]
                     return op(left, right)
                 a, b = piece.interval
-                sub = chebfun(evaluate, domain=(a, b), splitting=True,
-                              split_length=pref.splitPrefs.splitLength,
-                              split_max_length=pref.splitPrefs.splitMaxLength,
-                              eps=pref.chebfuneps, extrapolate=bool(pref.extrapolate),
-                              sample_test=bool(pref.sampleTest))
+                if polynomial_pref is not None:
+                    sub = chebfun(evaluate, domain=(a, b), pref=pref)
+                else:
+                    sub = chebfun(evaluate, domain=(a, b), splitting=True,
+                                  split_length=pref.splitPrefs.splitLength,
+                                  split_max_length=pref.splitPrefs.splitMaxLength,
+                                  eps=pref.chebfuneps, extrapolate=bool(pref.extrapolate),
+                                  sample_test=bool(pref.sampleTest))
                 pieces.pop()
                 pieces.extend(sub.funs)
                 new_breaks.extend(sub.domain.breakpoints[1:-1])

@@ -2379,6 +2379,57 @@ def _compose_scalar_column(tech, values):
     return values
 
 
+def _source_compose_preferences(tech, op, other, pref):
+    """Copy effective source Tech prefs, then apply @chebtech/compose overrides."""
+    from chebfunjax.chebpref import _factory_tech_prefs
+    resolved = _factory_tech_prefs(type(tech))
+    resolved.update(dict(getattr(pref, "techPrefs", pref)))
+    lengths = [tech.n]
+    if other is not None:
+        lengths.append(other.n)
+    elif isinstance(op, type(tech)):
+        lengths.append(op.n)
+    resolved["minSamples"] = max(resolved["minSamples"], *lengths)
+    resolved["chebfuneps"] = max(_EPS, resolved["chebfuneps"])
+    resolved["sampleTest"] = False
+    return resolved
+
+
+def _source_compose_construct(cls, raw_op, refiner, pref):
+    """Native make/populate protocol; fixed and Turbo branches retain raw OP.
+
+    @chebtech{1,2}/chebtech{1,2}.m fixedLength dispatch precedes populate.
+    ConstructorTurbo also receives the original OP, not a composed callback.
+    """
+    from chebfunjax.chebfun1d._construction_context import fixed_length
+    fixed = fixed_length(pref)
+    turbo = bool(pref["useTurbo"])
+    if fixed is not None and not turbo:
+        # Native evaluates raw OP on all fixed nodes before numeric populate;
+        # extrapolate does not suppress the initial fixed endpoint calls.
+        return cls._fixed_construct(raw_op, fixed)
+    chosen = pref["refinementFunction"]
+    if callable(chosen):
+        def refiner(function, values, _constructor_pref):
+            # Native passes the complete effective pref to a user refiner.
+            # The shared constructor callback adapter exposes a smaller view.
+            forwarded = dict(pref)
+            if forwarded["fixedLength"] is None:
+                forwarded["fixedLength"] = math.nan
+            return chosen(function, values, forwarded)
+    plain = cls._adaptive_construct(
+        raw_op, tol=pref["chebfuneps"], check=pref["happinessCheck"],
+        sample_test=False, refinement_function=refiner,
+        max_length=pref["maxLength"], min_samples=pref["minSamples"],
+        extrapolate=bool(pref["extrapolate"]), use_turbo=turbo,
+        fixed_length=fixed)
+    if turbo and plain.ishappy:
+        length = fixed if fixed is not None else 2 * len(plain)
+        return cls(coeffs=_turbo_coeffs(raw_op, plain.coeffs, length),
+                   ishappy=plain.ishappy)
+    return plain
+
+
 def _numeric_array(value):
     """Convert Python numeric literals as MATLAB doubles, preserving typed arrays."""
     try:
@@ -3478,6 +3529,7 @@ class Chebtech2(eqx.Module):
         extrapolate: bool = False,
         tol: float | None = None,
         refinement_function: str = "nested",
+        pref=None,
     ) -> "Chebtech2":
         """Compose an operator with this Chebtech2.
 
@@ -3504,7 +3556,7 @@ class Chebtech2(eqx.Module):
 
         refinement_function : {"nested", "resampling"}, optional
             Native coefficient-grid nested insertion or full-grid resampling.
-            User-defined refinement callbacks are not exposed by this adapter.
+            Use ``pref`` to supply a custom refinement callback.
 
         Returns
         -------
@@ -3537,7 +3589,17 @@ class Chebtech2(eqx.Module):
         See Also
         --------
         from_function, restrict
+        ``pref`` supplies the source Tech preference mapping. When present,
+        it owns construction settings; the legacy standalone keyword options
+        apply when ``pref`` is omitted. Fixed/Turbo construction retains the
+        source raw operator, including its native nonidentity-operand behavior.
+
         """
+        if pref is not None:
+            pref = _source_compose_preferences(self, op, g, pref)
+            selected = pref["refinementFunction"]
+            refinement_function = selected if isinstance(selected, str) else "nested"
+
         if refinement_function not in ("nested", "resampling"):
             raise ValueError("compose refinement_function must be nested or resampling")
 
@@ -3610,6 +3672,9 @@ class Chebtech2(eqx.Module):
         # Match MATLAB: minSamples = max(pref.minSamples, length(f))
         # Start from a power of 2 grid large enough to hold min_n points.
         import math
+
+        if pref is not None:
+            return _source_compose_construct(Chebtech2, op, refine_values, pref)
 
         start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
         return Chebtech2._adaptive_construct(
@@ -6294,6 +6359,7 @@ class Chebtech1(eqx.Module):
         *,
         maxpow2: int = 16,
         extrapolate: bool = False,
+        pref=None,
     ) -> "Chebtech1":
         """Compose an operator with this Chebtech1.
 
@@ -6310,7 +6376,15 @@ class Chebtech1(eqx.Module):
         Chebfun commit: 7574c77
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
+        ``pref`` supplies the source Tech preference mapping. When present,
+        it owns construction settings; the legacy standalone keyword options
+        apply when ``pref`` is omitted. Fixed/Turbo construction retains the
+        source raw operator, including its native nonidentity-operand behavior.
+
         """
+        if pref is not None:
+            pref = _source_compose_preferences(self, op, g, pref)
+
         import math
 
         def grid_values(tech, n):
@@ -6361,6 +6435,9 @@ class Chebtech1(eqx.Module):
             if not initial and n <= values.shape[0]:
                 return values, True
             return sample_n(n), False
+
+        if pref is not None:
+            return _source_compose_construct(Chebtech1, op, refine_values, pref)
 
         start_pow2 = max(4, math.ceil(math.log2(max(min_n - 1, 1))))
         return Chebtech1._adaptive_construct(

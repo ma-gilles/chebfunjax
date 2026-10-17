@@ -26,12 +26,20 @@ remaining-page count.
 - [x] CI timeout repartition preserves test membership and existing gates;
   actual latest-head runtime and success remain unverified.
 
+- [x] Public C1/C2 nonperiodic composition preference propagation: 52 scoped
+  controls across preserved runs; source first-piece fallback, raw-operator
+  fixed/Turbo behavior and custom refiners retained. See
+  [preference evidence](nonperiodic_compose_preferences_cpu_20261017.json).
+- [x] Exactly-real complex negative-axis Airy correction: 39 first-candidate
+  controls, final affected-control repeats and current public integration.
+  See [joint integration](compose_airy_joint_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted
   assertions, skips, strict xfails and host NumPy/SciPy numerical routes.
-- [ ] Public nonperiodic composition preference forwarding and missing
-  Bndfun.compose API; full Tech preference/custom-refiner support.
+- [ ] Missing public Bndfun.compose API; nonempty constructor DATA,
+  Singfun/Unbndfun/heterogeneous composition and native warning/API gaps.
 - [ ] Authored fixed-48 advection control and chemical PDE accuracy.
 - [ ] Small explicit Hermite ASY, nonlinear parameter/backend cases,
   interpolation norms/grids, remaining Subsref clauses and Chebfun3T predicate.

@@ -1,0 +1,173 @@
+{
+  "status": "Scoped public nonperiodic composition preference routing qualified",
+  "base_checkout": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "qualified_original44_overlay_sha256": "0392c75000a6f452566b727e1ee139b200752a6dbb56625e84e2c09ef6b5412b",
+  "published_numerical_base": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "distinct_controls": 52,
+  "new_controls": 32,
+  "existing_piece_and_endpoint_controls": 9,
+  "existing_public_regressions": 11,
+  "qualification": "Production source bytes exactly match successful earlier40 controls and11public regressions. Separate final2 controls confirm native homogeneous and mixed fallback preference routing.52distinct controls across these runs, no single52-case run claimed.",
+  "source_contracts": [
+    "Explicit flat/nested/materialized and session preferences reach same-kind C1/C2 public composition, while actual technology, domains, orientation and separately transformed stored pointValues remain intact.",
+    "Source minSamples includes operand lengths; chebfuneps is clamped at machine epsilon; sampleTest is forced false; splitting maxLength uses splitLength; multipiece extrapolate true; retry retains complete preferences.",
+    "Canonical coefficient-grid source refiners or explicit callable are passed through existing constructors. Default pref-omitted Tech method ASTs unchanged; original44 not repeated or added to counts.",
+    "Native fixedLength nonTurbo and Turbo constructor semantics use raw OP, even for a nonidentity inner operand. Four analytic controls distinguish raw OP from composed OP; stored pointValues still transform separately.",
+    "Splitting fallback reuses first-piece technology exactly as native columnCompose. Successful direct composition still retains each existing piece technology."
+  ],
+  "preserved_failed_preimages": [
+    "Initial baseline22fail/2pass; initial spy incorrectly expected sampleTest forcing before Tech entry and was corrected to verify raw preference arrival.",
+    "Candidate1 custom-refiner2fail/27pass: authored test assumed old=None on every refinement and returned9nodes despite source minSamples17; corrected to source schedule without a bound change.",
+    "Rejected per-piece fallback experiment and its authored mixed expectation remain immutable in superseded archive; its failure is not a native bug. Corrected mixed expectation is source-derived."
+  ],
+  "scope_limits": [
+    "Bndfun public compose API remains absent. Singfun/Unbndfun and heterogeneous same-interval C1/C2 binary operands retain their previous paths.",
+    "No full native positional/data API claim; optional Tech pref owns supplied settings while legacy keyword behavior remains when pref omitted.",
+    "Unhappy-composition warning parity remains open. No native capture, whole-library/page, representation or performance parity claim.",
+    "Pytest import-rewrite warnings remain actual output."
+  ],
+  "runs": {
+    "baseline": {
+      "cases": 24,
+      "failures": [
+        "test_source_pref_routing[flat-False-Chebtech1-1]",
+        "test_source_pref_routing[flat-False-Chebtech2-2]",
+        "test_source_pref_routing[flat-True-Chebtech1-1]",
+        "test_source_pref_routing[flat-True-Chebtech2-2]",
+        "test_source_pref_routing[nested-False-Chebtech1-1]",
+        "test_source_pref_routing[nested-False-Chebtech2-2]",
+        "test_source_pref_routing[nested-True-Chebtech1-1]",
+        "test_source_pref_routing[nested-True-Chebtech2-2]",
+        "test_source_pref_routing[materialized-False-Chebtech1-1]",
+        "test_source_pref_routing[materialized-False-Chebtech2-2]",
+        "test_source_pref_routing[materialized-True-Chebtech1-1]",
+        "test_source_pref_routing[materialized-True-Chebtech2-2]",
+        "test_source_pref_routing[session-False-Chebtech1-1]",
+        "test_source_pref_routing[session-False-Chebtech2-2]",
+        "test_source_pref_routing[session-True-Chebtech1-1]",
+        "test_source_pref_routing[session-True-Chebtech2-2]",
+        "test_source_split_and_piece_overrides",
+        "test_source_fixed_and_turbo_raw_operator[False-1]",
+        "test_source_fixed_and_turbo_raw_operator[False-2]",
+        "test_source_fixed_and_turbo_raw_operator[True-1]",
+        "test_source_fixed_and_turbo_raw_operator[True-2]",
+        "test_actual_binary_preserves_kind_and_default_unary_coefficients[1]"
+      ],
+      "pytest_summary": "=================== 22 failed, 2 passed, 1 warning in 8.20s ====================",
+      "guarded_inputs": 7870,
+      "runtime_imports": 1402,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 14.112332385964692,
+      "sampled_peak_summed_rss_kib": 912316,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "candidate1": {
+      "cases": 29,
+      "failures": [
+        "test_custom_refiner_receives_raw_operator[1]",
+        "test_custom_refiner_receives_raw_operator[2]"
+      ],
+      "pytest_summary": "=================== 2 failed, 27 passed, 1 warning in 12.25s ===================",
+      "guarded_inputs": 7870,
+      "runtime_imports": 1402,
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 18.655168523080647,
+      "sampled_peak_summed_rss_kib": 1120548,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "candidate2": {
+      "cases": 38,
+      "failures": [],
+      "pytest_summary": "======================== 38 passed, 1 warning in 36.43s ========================",
+      "guarded_inputs": 7871,
+      "runtime_imports": 1405,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 47.70330587076023,
+      "sampled_peak_summed_rss_kib": 1612856,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "final": {
+      "cases": 40,
+      "failures": [],
+      "pytest_summary": "======================== 40 passed, 1 warning in 22.55s ========================",
+      "guarded_inputs": 7871,
+      "runtime_imports": 1405,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 29.82433055108413,
+      "sampled_peak_summed_rss_kib": 1620580,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "public_regression": {
+      "cases": 11,
+      "failures": [],
+      "pytest_summary": "======================== 11 passed, 1 warning in 57.25s ========================",
+      "guarded_inputs": 7871,
+      "runtime_imports": 1406,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 66.63110939506441,
+      "sampled_peak_summed_rss_kib": 2914688,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "source_fallback_gate": {
+      "cases": 2,
+      "failures": [],
+      "pytest_summary": "========================= 2 passed, 1 warning in 2.99s =========================",
+      "guarded_inputs": 7873,
+      "runtime_imports": 1395,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 9.125930201727897,
+      "sampled_peak_summed_rss_kib": 677632,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    }
+  },
+  "source_files": [
+    "src/chebfunjax/tech/chebtech.py",
+    "src/chebfunjax/chebfun1d/chebfun.py",
+    "tests/test_nonperiodic_compose_preferences_source.py"
+  ],
+  "bridges": [
+    "AST_BRIDGE.json",
+    "SOURCE_BRIDGE.json"
+  ],
+  "static": "ruff check selected source/test and git diff --check pass",
+  "prior_qualification_base": "78f2aab1ec568d6d6dac0c6456755472824a0174 plus byte-identical original44 overlay",
+  "source_contract_correction": "Native selects first FUN technology once and reuses it for every splitting fallback, including mixed internal C1/C2 pieces. Previous per-piece override rejected; authored mixed expectation corrected to native source. No original bound changed.",
+  "native_source_lines": {
+    "@chebfun/compose.m": "283 selects firsttech;330\u2013333 reuse pref in binary/unary fallback",
+    "@chebfun/chebfun.m": "739\u2013744 merges passed pref with keywordPrefs; no current-piece technology available",
+    "@bndfun/bndfun.m": "74\u201378 copies pref;103 calls onefun.constructor",
+    "@onefun/onefun.m": "52\u201356 copies pref;71 calls smoothfun.constructor",
+    "@smoothfun/smoothfun.m": "45\u201348 copies pref;57 directly feval(pref.tech,op,data,pref.techPrefs)",
+    "@chebfunpref/chebfunpref.m": "532\u2013563 mergeTechPrefs merges only technology preference structs/defaults; does not select current-piece technology"
+  },
+  "rejected_packet": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/compose_public_prefs_packet_20261017/qualified_evidence.zip",
+    "sha256": "f7facb91eb3c66475b85fcfdc495ab0827eb7e043d07a749e5c6d98c2f7f84a3",
+    "status": "Rejected/superseded per-piece fallback source and authored expectation. Its1fail/1pass is not evidence of a native bug; final2pass followed an unsupported rule. Retained immutable, excluded from acceptance evidence."
+  }
+}

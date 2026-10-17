@@ -149,17 +149,21 @@ def _airy_all_impl(x):
     values = (jnp.where(large, fai, ai), jnp.where(large, faip, aip),
               jnp.where(large, fbi, bi), jnp.where(large, fbip, bip))
     values = tuple(jnp.where(finite, v, complex(float("nan"), float("nan"))) for v in values)
+    # Exactly real complex arguments are on the same oscillatory axis as
+    # real inputs. Reuse its compensated phase without projecting nearby
+    # nonreal arguments. Keep complex output dtype and the analytic JVP.
+    # Preserve existing overflow and nonfinite results in either dtype.
+    real_x = jnp.real(x)
+    t = jnp.maximum(-real_x, 24.)
+    finite_values = jnp.all(jnp.stack([
+        jnp.isfinite(jnp.real(v) if real_input else v) for v in values]), axis=0)
+    oscillatory = (jnp.isfinite(x) & (jnp.imag(x) == 0) & (real_x < -24.)
+                   & finite_values & jnp.isfinite(t*jnp.sqrt(t)))
+    real_values = _real_oscillatory(jnp.where(oscillatory, t, 24.))
+    values = tuple(jnp.where(oscillatory, a, b)
+                   for a, b in zip(real_values, values))
     if real_input:
         values = tuple(jnp.real(v) for v in values)
-        # Preserve existing overflow/nonfinite results. Real negative values
-        # otherwise avoid the complex rotations and their phase roundoff.
-        t = jnp.maximum(-x, 24.)
-        finite_values = jnp.all(jnp.stack([jnp.isfinite(v) for v in values]), axis=0)
-        oscillatory = (jnp.isfinite(x) & (x < -24.) & finite_values
-                       & jnp.isfinite(t*jnp.sqrt(t)))
-        real_values = _real_oscillatory(jnp.where(oscillatory, t, 24.))
-        values = tuple(jnp.where(oscillatory, a, b)
-                       for a, b in zip(real_values, values))
     return values
 
 

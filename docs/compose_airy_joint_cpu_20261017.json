@@ -1,0 +1,156 @@
+{
+  "base": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "scope": "Joint Airy negative-axis and public nonperiodic preference integration.12 publicAiry/Tricky controls and8 minimax/power/endpoint controls, all existing tests. Repeats are not new unique tests.",
+  "guarded_inputs": 8091,
+  "runs": {
+    "public_airy": {
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-0]",
+          "time": "14.715"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-1]",
+          "time": "0.264"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-0]",
+          "time": "0.251"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-1]",
+          "time": "0.023"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-0]",
+          "time": "0.250"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-1]",
+          "time": "0.275"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-0]",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-1]",
+          "time": "0.016"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_product_and_tangent_on_finite_source_domain",
+          "time": "2.244"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_native_finite_underflow_and_nonfinite_endpoints",
+          "time": "1.989"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_actual_exponential_underflow_neighbors",
+          "time": "1.731"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_empty_shape",
+          "time": "0.027"
+        }
+      ],
+      "runtime_imports": 1433,
+      "uncovered_imports": {},
+      "pytest_summary": "======================== 12 passed, 1 warning in 22.10s ========================",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 27.511193132027984,
+        "sampled_peak_summed_rss_kib": 1148188,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "minimax_power": {
+      "cases": [
+        {
+          "classname": "tests.test_utils.test_minimax.TestMinimaxRational",
+          "name": "test_scale_invariance_tiny_amplitude",
+          "time": "23.281"
+        },
+        {
+          "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+          "name": "test_matlab_clause[native_14]",
+          "time": "5.970"
+        },
+        {
+          "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+          "name": "test_matlab_clause[native_15]",
+          "time": "2.556"
+        },
+        {
+          "classname": "tests.test_matlab_port.misc.test_minimax_matlab.TestMiscMinimax",
+          "name": "test_matlab_clause[native_20]",
+          "time": "0.313"
+        },
+        {
+          "classname": "tests.test_chebfun1d.test_quasimatrix_power_source.TestQuasimatrixPowerSourceCases",
+          "name": "test_source_pass12_quasimatrix_cube",
+          "time": "6.507"
+        },
+        {
+          "classname": "tests.test_tech.test_integer_power_source_coefficients",
+          "name": "test_nonvanishing_dyadic_chebyshev_power[False-3-Chebtech1]",
+          "time": "4.003"
+        },
+        {
+          "classname": "tests.test_tech.test_power_near_endpoint_branch_controls",
+          "name": "test_one_sided_endpoint_principal_sqrt[1.0-Chebtech2]",
+          "time": "10.906"
+        },
+        {
+          "classname": "tests.test_tech.test_power_near_endpoint_branch_controls",
+          "name": "test_one_sided_endpoint_principal_sqrt[-1.0-Chebtech2]",
+          "time": "0.047"
+        }
+      ],
+      "runtime_imports": 1432,
+      "uncovered_imports": {},
+      "pytest_summary": "======================== 8 passed, 2 warnings in 53.87s ========================",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 61.59839052287862,
+        "sampled_peak_summed_rss_kib": 2935472,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    }
+  },
+  "source_bridge": {
+    "src/chebfunjax/utils/airy_general.py": "c459157cfdd5bf8222f3e3189ba4ce0046d87c5d24f634038b67c22b37c1bb20",
+    "tests/test_utils/test_airy_zero_imaginary_axis_source.py": "5bf62a33bdcab625d1693bd81b8a63e69ead4b755e695b83542e8ec519d5a6a2",
+    "docs/airy_complex_negative_axis_cpu_20261017.json": "67642bc05dbd50ff1d017acb941113197e9d7bf0f882c362f6627786facbe31d",
+    "docs/airy_complex_axis_integration_cpu_20261017.json": "719508f980b0a6f4db2821f54b1f2c5d3a135924f34002f39b5b7742a5cc690c",
+    "src/chebfunjax/tech/chebtech.py": "3e75f1690dc4da0412af96c38e0bdbe73a6141a9bb274330db9d86c3893c0de5",
+    "src/chebfunjax/chebfun1d/chebfun.py": "6fde5fe63e6e434b3c14801b69162499c172dcbfef15d0fbbf5f3652fac2afa5",
+    "tests/test_nonperiodic_compose_preferences_source.py": "3bdbdbd53cbdc00f9f5e50c13988fc1a3e09c9e4d52c1e5bcb423de20c051ff9",
+    "docs/nonperiodic_compose_preferences_cpu_20261017.json": "350b82b81228c1b38d435d4d0a504c383d97d11c0be49e5604c34f3692847854"
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/compose_airy_joint_cpu_20261017.zip",
+  "archive_sha256": "67cee24f1497aba7c5232de576cb9762bb524d88f77b6b22a004397290ba7516",
+  "verified_payloads": 7995,
+  "limitations": [
+    "No full page/figure/performance/CI or small Hermite closure.",
+    "Component original44 pref-omitted Tech algorithm AST bridge is unchanged; no44 rerun/count inflation."
+  ]
+}

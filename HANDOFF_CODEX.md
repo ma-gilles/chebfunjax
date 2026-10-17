@@ -1,3 +1,39 @@
+## Public composition preferences and complex-axis Airy — 2026-10-17
+
+Public C1/C2 unary/binary composition now forwards effective explicit,
+materialized and session preferences through canonical coefficient-grid
+refiners. Source min/max lengths, multipiece extrapolation, sampleTest=false,
+separately transformed pointValues, raw-OP fixed/Turbo semantics and callable
+refiners are retained.52distinct scoped controls across preserved runs, not a
+single52-case execution. Final production bytes match successful40+11runs;
+two affected fallback controls confirm first-piece technology reuse, exactly
+as native columnCompose. A proposed per-piece technology change was rejected
+in parent review and is preserved outside acceptance evidence.
+
+Exactly-real complex negative-axis Airy now shares the existing compensated
+real kernel, retaining complex dtype/JVP/nonfinite behavior and the original
+real-input finite predicate.39first-candidate controls pass; final affected
+5/7subsets are repeats. Existing8eps/120digit mathematical controls are
+unchanged; this is not native builtin bit parity or small Hermite ASY closure.
+
+Joint source qualification:12publicAiry/Tricky controls and8minimax/power/
+endpoint controls pass in separate frozen processes,8091stableinputs, all
+observed imports preguarded, no survivors. Full lint/F821/provenance pass.
+Original44pref-omitted Tech algorithm AST remains unchanged. Publication
+clarifies one method docstring only, with executable-AST identity verified.
+
+Evidence:docs/nonperiodic_compose_preferences_cpu_20261017.json,
+docs/airy_complex_negative_axis_cpu_20261017.json,
+docs/airy_complex_axis_integration_cpu_20261017.json and
+docs/compose_airy_joint_cpu_20261017.json. Checklist:docs/parity_status.md.
+Bndfun.compose/DATA, warnings/singular/mixed binary APIs, small Hermite,
+full pages/figures/performance and latest green CI remain open.
+
+GILLES fileset hit quota during preparation. Owned duplicate caches were
+relocated byte-for-byte to shared CRYOEM with original-path symlinks; no
+source or immutable evidence lost. Prefer CRYOEM for new caches/outputs and
+short native TMP/PREF. New guard caches reuse immutable SHA256 hardlinks.
+
 ## Original Tech composition predicates and current checklist — 2026-10-17
 
 All 44 literal tests/chebtech/test_compose.m predicates pass across C1,

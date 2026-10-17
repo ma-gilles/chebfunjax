@@ -1,0 +1,204 @@
+{
+  "base": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "scope": "12 unchanged integration controls:8 original public Chebfun Airy clauses and4 Tricky callback controls; repeat is not additional unique tests. No full modified Tricky page or small Hermite closure.",
+  "runs": {
+    "initial": {
+      "guarded_inputs": 8060,
+      "runtime_imports": 1417,
+      "uncovered_imports": {
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/__init__.py": "31c74ccca8f9f6d8dce1960d50b9df7eb3acab2e6a5f69327a9823b92200fe56",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_basic.py": "8ee1ad832a11c7ece028c1f4d3315ba2fe7bfb56507590c7d356d1e46996255f",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_comb.cpython-312-x86_64-linux-gnu.so": "1b805327ce1b95ccd11be838e843ae2b12c79ba14ee11b4df816dfcbcf3ff547",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_ellip_harm.py": "51cdac510083858924260f5ae27668cdc4c34d28f2ffa4e84c241a25d22c30f7",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_ellip_harm_2.cpython-312-x86_64-linux-gnu.so": "b2b9cf339152862237629304193b599f9f614c28430d52b878b204dd42e9fd02",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_gufuncs.cpython-312-x86_64-linux-gnu.so": "0a508e084ba7e1aeb762e9a33ab2ce97ce542efad685f9e88f9367d16c33fee1",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_input_validation.py": "644c20fec65a7ac6aacda540fdbb594008bfb8f5ed21588bfeedd99ace949f24",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_lambertw.py": "fa84849c715059989465731a9b13d68df9ed5aae6db74af31e6235dc3c461c16",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_logsumexp.py": "39563dd5655d9bed1f2fe91a2d84d84e9dda817fb1ea4ba8699410c1e70ee3e1",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_multiufuncs.py": "647b9bcc94e059f5ab7bf05908c89a7384f5d577bdf7d07b43c0efde6912270d",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_orthogonal.py": "620bf24f330e19b7f8aaefb2bf076e3a0e34e2e44d74c97b3642170e983f143b",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_sf_error.py": "abf45b7e4c2cd6db604d02982edeb3153758e83157d876a325efe55e23560b47",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_specfun.cpython-312-x86_64-linux-gnu.so": "c21a2594301a59ac53c640b0a664fb9b13d2abd7864973574b13a9af56fd7785",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_special_ufuncs.cpython-312-x86_64-linux-gnu.so": "6dfa3fcabac8d89d15df4f005b667741841dd9054713bbca93267f5249d2fb57",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_spfun_stats.py": "7f77093b93b1c8955a0bafd713670228b548dad42038c056f20964e8e41176be",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_spherical_bessel.py": "421f2286f7d865f73246e939e2d191efba3bf209308551d62a01b610046e1f98",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_support_alternative_backends.py": "97680bc2df5d447baf6fd2abeb436dce70b4e557abe7eab681115d8d19e133dc",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_ufuncs.cpython-312-x86_64-linux-gnu.so": "3013f3e2797e50dd415c37e517ff803d651b88633e797895585bd6dd8a9c5da7",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/_ufuncs_cxx.cpython-312-x86_64-linux-gnu.so": "00961fe529ec3f656db4c373b37cf3df2ff640c70b463a5458ed3d2bc0c7af6a",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/add_newdocs.py": "5a777ee51d304005714a8943e1063609a99349b7b5938f0089edd768159128a7",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/basic.py": "fd7266e18d6502b8d2418d786d9f770de7a9ea5a0dfa460c009bc649fe5ecc59",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/orthogonal.py": "68bcefecfcc982c74ba724eb57a0aefaba473475a550012a3889a25b87eecee1",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/sf_error.py": "c0e66acd7ee28a9907dfd84e1ea065926adeb4945b632f8aecfb2764fc9a2455",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/specfun.py": "bc49f88e224cbca8825d68b0fc3754aa6c856d8e8efe26021414cf69ae9c2ec8",
+        "/home/mg6942/.local/lib/python3.12/site-packages/scipy/special/spfun_stats.py": "112257194c07ee28a3524e9a5d9415235a6769689567afe5d215690b86c1488c"
+      },
+      "pytest_summary": "======================== 12 passed, 1 warning in 19.31s ========================",
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-0]",
+          "time": "12.348"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-1]",
+          "time": "0.253"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-0]",
+          "time": "0.228"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-1]",
+          "time": "0.018"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-0]",
+          "time": "0.227"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-1]",
+          "time": "0.247"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-0]",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-1]",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_product_and_tangent_on_finite_source_domain",
+          "time": "2.152"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_native_finite_underflow_and_nonfinite_endpoints",
+          "time": "1.748"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_actual_exponential_underflow_neighbors",
+          "time": "1.737"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_empty_shape",
+          "time": "0.026"
+        }
+      ],
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 24.393813950940967,
+        "sampled_peak_summed_rss_kib": 1139912,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "strict": {
+      "guarded_inputs": 8086,
+      "runtime_imports": 1417,
+      "uncovered_imports": {},
+      "pytest_summary": "======================== 12 passed, 1 warning in 19.16s ========================",
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-0]",
+          "time": "12.419"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[0-1]",
+          "time": "0.257"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-0]",
+          "time": "0.225"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[1-1]",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-0]",
+          "time": "0.223"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[2-1]",
+          "time": "0.242"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-0]",
+          "time": "0.016"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_airy_matlab",
+          "name": "test_original_source_clause[3-1]",
+          "time": "0.015"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_product_and_tangent_on_finite_source_domain",
+          "time": "2.040"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_native_finite_underflow_and_nonfinite_endpoints",
+          "time": "1.680"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_actual_exponential_underflow_neighbors",
+          "time": "1.719"
+        },
+        {
+          "classname": "tests.test_tricky_airy_source",
+          "name": "test_empty_shape",
+          "time": "0.025"
+        }
+      ],
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 24.22946239821613,
+        "sampled_peak_summed_rss_kib": 1131752,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    }
+  },
+  "limitations": [
+    "Initial run did not preguard25 SciPy special oracle imports; preserved explicitly, strict same12 repeat closes that gap.",
+    "New test import whitespace corrected after initial run; AST identical. Final source/test assertions/data unchanged.",
+    "Strict preparation failed from GILLES quota before guard/child launch; partial duplicate blob repaired after byte-preserving cache relocation. Scientific repeat uses fresh supervisor run002."
+  ],
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/airy_axis_integration_cpu_20261017.zip",
+  "archive_sha256": "4f5c8af8a73dd2435e65d603f5211c31825bb19674f7ed087476d6eaf26c3b01",
+  "verified_payloads": 7997,
+  "component_archive": {
+    "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/airy_complex_negative_axis_cpu_20261017.tar.gz",
+    "sha256": "cba3a3bf8b9eb924c74701d937c48e666f561dac79bcd0f00d23f62f3ea32497",
+    "bytes": 73345186,
+    "verified_payloads": 4714,
+    "patch_sha256": "0dd73b35933b92528fd3b8490f468f1ed5dc64c60be33b160dea4aa51555e19a",
+    "report_sha256": "d4a1d503884379f6ec9086dd3aa0400fcda3486871b2ea0012f41c5674e93081",
+    "source_base": "78f2aab1ec568d6d6dac0c6456755472824a0174",
+    "scope": "Airy complex zero-imag negative-axis dispatch only; Hermite small ASY still open"
+  }
+}

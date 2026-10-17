@@ -1,0 +1,14 @@
+{
+  "base_commit": "78f2aab1ec568d6d6dac0c6456755472824a0174",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "General Airy exactly-real complex negative-axis dispatch fix discovered during small Hermite diagnosis. Hermite source and unsupported n2/4 public ASY are unchanged.",
+  "change": "airy_all used compensated negative-real phase only when input dtype was real. Exactly real complex128 values instead used complex rotations; dtype alone changed values and failed the existing120-digit eight-epsilon amplitude gate. Use the existing compensated phase for finite, exactly-zero-imaginary negative inputs below-24 when original branch outputs and phase remain finite; preserve dtype, nonzero-imaginary route, nonfinite/overflow results and analytic custom JVP.",
+  "qualification": "Prior dispatch candidate39 distinct focused cases pass; baseline3 new cases fail; final7 repeated subset preguards all imports/new tests. Final finite-predicate-preservation adjustment passes5 affected phase/axis controls with all actual imports preguarded. Bounds/reference data unchanged.",
+  "evidence": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/hermite_small_asy_source_20261017/REPORT.json",
+  "limitations": [
+    "Small explicit ASY n2/n4 remains unsupported; all native captured small orders use20 nonconverged steps. Native n3 seed concatenation exception remains separate.",
+    "Reordering derivative prefactor alone does not recover native trajectories. Native Ai/Ai-prime injection is DIAGNOSTIC ONLY, never production.",
+    "Compensated real vs complex routing improves mathematical consistency, not uniformly native n10 agreement; retained native mismatches are preserved.",
+    "Prior draft is an instrumented diagnostic artifact, not adopted as final small-ASY implementation. No REC substitution, fitted values, degree/tolerance changes, fresh native job, full-library or performance claim."
+  ]
+}
