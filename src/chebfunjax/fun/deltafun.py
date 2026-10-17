@@ -92,6 +92,11 @@ class Deltafun(eqx.Module):
             Magnitudes.  If 1-D, it is treated as a single row (order 0).
         """
         self.funPart = funPart
+        # Native constructor ignores delta data when its smooth operand is empty.
+        if funPart.isempty():
+            self.delta_locs = jnp.zeros((0,), dtype=jnp.float64)
+            self.delta_mags = jnp.zeros((0, 0), dtype=jnp.float64)
+            return
         locs = jnp.asarray(delta_locs).ravel().astype(jnp.float64)
         mags = jnp.asarray(delta_mags)
         # Preserve complex magnitudes (needed by real()/imag()); otherwise
@@ -407,38 +412,86 @@ class Deltafun(eqx.Module):
     def innerProduct(self, other) -> jax.Array:
         """Distributional pairing <f, g>.
 
-        <funPart_f + sum m_k delta_{x_k}, g> = <funPart_f, g_smooth>
-        + sum m_k g(x_k) (+ the symmetric delta terms of g when g is a
-        Deltafun; delta*delta pairings are ill-defined and rejected).
+        Smooth operands are promoted to Deltafun. Empty operands produce an
+        empty array. Coincident deltas produce the signed infinity prescribed
+        by MATLAB; otherwise each delta derivative acts on the opposite
+        smooth part.
+
+        Supported operands are Deltafun and smooth Bndfun instances. Other
+        operand types are outside this method's current API grammar.
 
         Provenance
         ----------
         MATLAB source : @deltafun/innerProduct.m
         Chebfun commit: 7574c77
         """
-        import numpy as _np
-        g_fun = other.funPart if isinstance(other, Deltafun) else other
-        out = self.funPart.inner(g_fun)
-        a, b = float(self.domain.a), float(self.domain.b)
+        if self.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        if not isinstance(other, (Deltafun, Bndfun)):
+            raise TypeError(
+                "Deltafun.innerProduct expects a Deltafun or smooth Bndfun")
+        if other.isempty():
+            return jnp.zeros((0,), dtype=jnp.float64)
+        g = other if isinstance(other, Deltafun) else Deltafun.from_fun(other)
+        f = self
 
-        def _eval(fun, locs):
-            t = (2.0 * jnp.asarray(locs) - (a + b)) / (b - a)
-            return fun(t)
+        # sameDeltaLocs uses a strict relative proximity comparison, with an
+        # explicit match for two zero locations. Accumulate both marked
+        # columns before selecting their first entries, as the MATLAB helper
+        # does.
+        f_marked = [False] * f.n_deltas
+        g_marked = [False] * g.n_deltas
+        for i in range(f.n_deltas):
+            xi = f.delta_locs[i]
+            for j in range(g.n_deltas):
+                xj = g.delta_locs[j]
+                coincident = bool((xi == 0.0) & (xj == 0.0))
+                scale = jnp.maximum(jnp.abs(xi), jnp.abs(xj))
+                close = bool((scale != 0.0) &
+                             (jnp.abs(xi - xj) / scale
+                              < _PROXIMITY_TOL))
+                if coincident or close:
+                    f_marked[i] = True
+                    g_marked[j] = True
+        if any(f_marked):
+            fi = f_marked.index(True)
+            gi = g_marked.index(True)
 
-        if self.n_deltas:
-            out = out + jnp.sum(self.delta_mags[0]
-                                * _eval(g_fun, self.delta_locs))
-        if isinstance(other, Deltafun) and other.n_deltas:
-            if self.n_deltas:
-                locs_f = _np.asarray(self.delta_locs)
-                locs_g = _np.asarray(other.delta_locs)
-                if _np.min(_np.abs(locs_f[:, None]
-                                   - locs_g[None, :])) < 1e-12:
-                    raise ValueError(
-                        "innerProduct of overlapping deltas is "
-                        "ill-defined")
-            out = out + jnp.sum(other.delta_mags[0]
-                                * _eval(self.funPart, other.delta_locs))
+            def first_significant(column):
+                for row in range(column.shape[0]):
+                    value = column[row]
+                    if float(jnp.abs(value)) > self.DELTA_TOL:
+                        return value
+                return jnp.asarray(0.0, dtype=column.dtype)
+
+            df = first_significant(f.delta_mags[:, fi])
+            dg = first_significant(g.delta_mags[:, gi])
+            return jnp.inf * jnp.sign(df * dg)
+
+        out = f.funPart.inner(g.funPart)
+
+        def delta_inner_product(fun, mags, locs):
+            if locs.shape[0] == 0:
+                return jnp.float64(0.0)
+            derivative = fun
+            values = []
+            for order in range(mags.shape[0]):
+                values.append(derivative(locs))
+                if order + 1 < mags.shape[0]:
+                    derivative = derivative.diff()
+            G = jnp.stack(values, axis=0)
+            signs = jnp.where(jnp.arange(mags.shape[0]) % 2 == 0,
+                              1.0, -1.0)
+            total = jnp.asarray(0.0)
+            for column in range(locs.shape[0]):
+                total = total + jnp.dot(
+                    signs * mags[:, column], G[:, column])
+            return total
+
+        out = out + delta_inner_product(
+            g.funPart, f.delta_mags, f.delta_locs)
+        out = out + delta_inner_product(
+            f.funPart, g.delta_mags, g.delta_locs)
         return out
 
     inner = innerProduct

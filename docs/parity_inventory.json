@@ -76,6 +76,11 @@
       "sha256": "48e1f415f354f8da9e35b86ae93da1270af0b5c24769392c2bb26b62137205ff",
       "source_base": "92ac25e5b2603b60add753e48f65545d2f10b8e5"
     },
+    "fro_delta_cpu_20261017": {
+      "path": "docs/fro_delta_cpu_20261017.json",
+      "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged",
+      "sha256": "e9e7ef41a46631f97d878d95addb60b9a3b557cf59402a37e2b3456fe591aa93"
+    },
     "get_remaining_predicates_20261017": {
       "additional_singleton_control": 1,
       "all_runtime_imports_preguarded": true,
@@ -54753,6 +54758,13 @@
         {
           "artifact": "subspace_empty_rank0_cpu_20261017",
           "scope": "Empty and rankzero clauses only, broader API/near-rank quantitative fidelity still open"
+        },
+        {
+          "artifacts": [
+            "fro_delta_cpu_20261017"
+          ],
+          "kind": "reviewed_scoped_cpu_evidence",
+          "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged"
         }
       ],
       "functions": [
@@ -72521,7 +72533,15 @@
       "candidate_port_paths": [
         "src/chebfunjax/fun/deltafun.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "fro_delta_cpu_20261017"
+          ],
+          "kind": "reviewed_scoped_cpu_evidence",
+          "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -72701,7 +72721,15 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "fro_delta_cpu_20261017"
+          ],
+          "kind": "reviewed_scoped_cpu_evidence",
+          "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -117747,7 +117775,15 @@
         "tests/test_matlab_port/trigtech/test_innerProduct_matlab.py",
         "tests/test_matlab_port/unbndfun/test_innerProduct_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "fro_delta_cpu_20261017"
+          ],
+          "kind": "reviewed_scoped_cpu_evidence",
+          "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -127488,6 +127524,7 @@
   "schema_version": 1,
   "tracking_documents": {
     "completed_scopes_and_remaining_work": "docs/parity_checklist.md",
+    "current_goal_status": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/CURRENT_GOAL_STATUS.md",
     "current_status_and_evidence": "docs/parity_status.md",
     "scope": "Inventory statuses describe unverified full-item parity; attached historical scoped evidence does not imply all predicates/API/page dimensions pass."
   }

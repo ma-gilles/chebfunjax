@@ -1,0 +1,76 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "4f719c235e1951f881cea67edd6d573746637f07",
+  "cpu_only": true,
+  "scope": {
+    "subspace": "Native default Frobenius norm for multi-column residuals; four native-backed authored controls correct published spectral-norm error. Original six predicates, breakpoints, rank-zero and domain controls retained.",
+    "deltafun": "All seven original default innerProduct predicates with exact MATLAB rng(1,twister) fixture and unchanged deltaTol; derivative rows, physical locations, signed overlap infinity and empty constructor semantics. Constructor/isempty modules are existing regressions, not newly literal original qualification."
+  },
+  "python": {
+    "groups": [
+      27,
+      20
+    ],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fro_delta_final_run001/receipt.json",
+    "wall_seconds": 156.9451676881872,
+    "sampled_peak_summed_rss_kib": 3905572,
+    "inputs_stable": true,
+    "survivors": []
+  },
+  "baseline": "Four new subspace controls fail proper value assertions before fix; baseline source guards stable.",
+  "native_delta": {
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/deltafun_innerproduct_20261017/native/run006/receipt.json",
+    "which": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/deltafun/test_innerProduct.m",
+    "predicates": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "native_fro": {
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_fro_source_20261017/native_run005/receipt.json",
+    "scope": "Four authored analytic probes only; coexecuted wrong-folder Delta original excluded. Selected native source/input bindings preserved."
+  },
+  "review_rework": [
+    "Replace wrong spectral residual claim with native default Frobenius",
+    "Original Delta pass2 uses sum(f*f), not inner primitive",
+    "Original Delta pass5 uses smooth g",
+    "Empty smooth constructor discards data before parsing, removing invented empty-as-zero pairing"
+  ],
+  "final_literal_adapter": {
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fro_delta_literal_run001/receipt.json",
+    "scope": "Original seven-predicate node rerun after replacing manually constructed negative impulse by native unary -d operand; production source unchanged from combined47-node gate."
+  },
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "fdf2d9f9fe5c9546529102fe703a623e47348858dfd49c11b0d21525922608a6",
+    "src/chebfunjax/fun/deltafun.py": "250e944a1f9d469ac280a5c29b237d71c88421f1f50656b40e04b088f8057314",
+    "tests/test_matlab_port/chebfun/test_subspace_fro_source.py": "2d7205ff951c43c3bcfd52e048a65ec20b20a3f93229a18dd4460517e3f637d9",
+    "tests/test_matlab_port/deltafun/test_innerProduct_matlab.py": "b9bb2512e95f25292ef684c816af5251b78ce678af638fb5b15ee1e82da2b035",
+    "tests/test_matlab_port/deltafun/fixtures/innerProduct_rng1.json": "af55334d4a47b4b4330c871ed13834587570ac29257a079a1e7f771148b777ef"
+  },
+  "native_source_sha256": {
+    "@chebfun/subspace.m": "89b675f704411fe7830377b19f5d57976a378c43aa928f5bb766c08f77437882",
+    "@chebfun/norm.m": "309733622d875e0de7c13b3fdf77531efe95033cc8293e821a122bf9f8d841cd",
+    "@deltafun/deltafun.m": "56f3009616c7a5448be0beeffa2c22579df25f47c5bf3e37a9bc6b566c91ad3b",
+    "@deltafun/innerProduct.m": "98aba93f46974a5fe60b2dd5dc6905197ade40bb93061a9d2f07a4206bb00c7b",
+    "@deltafun/sameDeltaLocs.m": "854e64353cfdb018728986e3956427731a83429d83abaafb1c80bd28a711dac3",
+    "tests/deltafun/test_innerProduct.m": "ed042333d1ddd31b267756cb0348f056b44fe153491f9591fe71203d7c6eb234"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fro_delta_cpu_20261017.tar.gz",
+    "sha256": "e3c1e2b84f8e6bc8bfd16e99403341497a5a0e31dbdc700a4ed4f25a112f7763",
+    "verified_payloads": 74
+  },
+  "limitations": [
+    "No full function/API or goal completion",
+    "Subspace near-rank fidelity and broader orientation grammar remain open",
+    "Delta complex magnitude, broader FUN types and full constructor grammar remain open",
+    "Earlier failed/superseded child attempts are described in child report, not credited as passing evidence",
+    "External runtime versions observed, not exhaustively frozen",
+    "Latest-main CI and coverage remain required"
+  ]
+}

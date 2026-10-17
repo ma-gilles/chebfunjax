@@ -53,7 +53,7 @@ is an evidence ledger, not a finished parity audit.
 
 See the [repository parity status](parity_status.md), the
 [current goal checklist](/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/GOAL_CHECKLIST.md),
-and [current goal status](/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/CURRENT_GOAL_STATUS.md).
+and [current goal status](/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/CURRENT_GOAL_STATUS.md).
 These documents record specific completed scopes and explicit open work; this
 inventory does not promote those scopes into file-wide or goal-wide completion.
 For example, the status links to scoped

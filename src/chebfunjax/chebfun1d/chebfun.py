@@ -13234,8 +13234,8 @@ def subspace(
 ) -> jax.Array:
     """Principal angle between two quasimatrix subspaces.
 
-    Computes the largest principal angle (in radians) between the subspaces
-    spanned by the columns of ``A`` and ``B``. Inputs may be array-valued
+    Follows the native angle estimate (in radians), including its default
+    Frobenius residual norm in the small-angle branch. Inputs may be array-valued
     Chebfuns, Quasimatrices, or lists of scalar Chebfuns on the same domain.
 
     Parameters
@@ -13247,7 +13247,7 @@ def subspace(
     Returns
     -------
     theta : jax.Array
-        Largest principal angle in radians.
+        Native subspace angle estimate in radians.
 
     Raises
     ------
@@ -13500,16 +13500,15 @@ def subspace(
     if bool(cos_theta < 0.8):
         return jnp.arccos(cos_theta)
 
-    # Native small-angle branch uses the spectral norm of the direct residual
-    # quasimatrix, not the largest norm of any one residual column.
+    # Native norm(residual) uses the default Frobenius norm. For multiple
+    # residual columns this differs from the largest singular value.
     if pA < pB:
         residual = [a - sum((qB[j] * jnp.conj(C[i, j]) for j in range(pB)),
                             0 * a) for i, a in enumerate(qA)]
     else:
         residual = [b - sum((qA[i] * C[i, j] for i in range(pA)),
                             0 * b) for j, b in enumerate(qB)]
-    _ru, rsv = source_svd(residual)
-    return jnp.arcsin(jnp.max(rsv))
+    return jnp.arcsin(Quasimatrix(residual, residual[0].domain).norm())
 
 
 # ============================================================================

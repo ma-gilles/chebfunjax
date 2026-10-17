@@ -1,3 +1,19 @@
+## Latest source correction — 2026-10-17
+
+Subspace now uses MATLAB's default Frobenius residual norm; the earlier
+spectral-norm description below was incorrect for multiple residual columns.
+Four new native-backed controls failed before this correction and now pass.
+The serial CPU gate passes 27 subspace controls and 20 Deltafun controls.
+Deltafun restores all seven original default innerProduct predicates with exact
+MATLAB RNG fixture and unchanged bound, plus derivative/location/overlap handling.
+Empty constructor operands discard supplied data as the native source does.
+Full API, near-rank fidelity and latest-main CI/coverage remain open.
+[Evidence](docs/fro_delta_cpu_20261017.json).
+Current publication checkout and status now live under shared CRYOEM scratch:
+`/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017`
+and `/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/CURRENT_GOAL_STATUS.md`.
+The previous checkout is retained for historical worktree metadata.
+
 # Latest subspace empty/rank-zero scope — 2026-10-17
 
 Subspace now matches captured empty/rank-zero outcomes and preserves four

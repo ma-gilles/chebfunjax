@@ -1,0 +1,31 @@
+{
+  "seed": 1,
+  "generator": "twister",
+  "mag": [
+    0.417022004702574,
+    0.7203244934421581,
+    0.00011437481734488664,
+    0.30233257263183977,
+    0.14675589081711304
+  ],
+  "loc": [
+    0.0923385947687978,
+    0.1862602113776709,
+    0.34556072704304774,
+    0.39676747423066994,
+    0.538816734003357
+  ],
+  "deltaTol": 1e-09,
+  "proximityTol": 1e-11,
+  "original_test_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/deltafun/test_innerProduct.m",
+  "original_predicate_count": 7,
+  "original_predicates": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ]
+}
