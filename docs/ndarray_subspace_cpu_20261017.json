@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-17",
+  "source_base": "267ec71476e72541a4b6160b013cd69a5c9be05f",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Public Chebfun rank>2 array-valued query adapter; restore literal subspace original domains/row predicates1-6",
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "5ee8950326884934aa5a83a4bac4ae358bf2f2adb4b9d46eb4834cc79b2c29dd",
+    "tests/test_matlab_port/chebfun/test_subsref_ndarray_adapter_source.py": "41d986a5d29668eb4dc0d407324f2f284f4c3ac1db1e70345c6886c973bf4e1a",
+    "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py": "501f9a278e2ad2f01418b125998814eb075d33309e07d1be0700e79e70b55d0a"
+  },
+  "changes": [
+    "Flatten only at public Chebfun multi-column ND evaluation boundary, restore query axes and trailing component axis before existing packing",
+    "Keep strict raw Chebtech rank guard unchanged",
+    "Restore source distinct breakpoints and row case for all six subspace original predicates"
+  ],
+  "joint_gate": {
+    "python_nodes": 30,
+    "pytest_seconds": 50.07,
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ndarray_subspace_joint_gate_20261017_run001/receipt.json",
+    "receipt_sha256": "c2e194ded4aae793580fcddeebfaba98178dce9ffc37cdb5e2d60158e7274cec",
+    "inputs_stable": true,
+    "exit_code": 0,
+    "remaining_owned_pids": [],
+    "peak_summed_rss_kib": 2033188,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legcoeffs_root_20261017/src/chebfunjax/__init__.py",
+      "cpu": true,
+      "x64": true,
+      "external_runtime": "Versions/origin observed, not exhaustively preguarded"
+    }
+  },
+  "ci_failure": {
+    "run": 39052459304,
+    "job": 117454842141,
+    "source_base": "22bbe4",
+    "six_failed_selectors": "test_subsref_numeric_columns_source.py rank3/4 and slices/JIT",
+    "component_gate_passes": 28,
+    "root_gate_passes": 30,
+    "latest_main_ci": "Still required"
+  },
+  "native_feval_observer": {
+    "report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subsref_ndarray_adapter_20261017/REPORT.json",
+    "report_sha256": "637c6aa8aedc035a8bb02b6247915fefd06755425f96bc837199498aba1a626e",
+    "exit_code": 0,
+    "observation": "Native rank3 output shapes2x9x4,column blocks equal scalar evaluations,row output9x2x4 and first-two-axis permutation; selected columns2x6x4",
+    "limit": "Different polynomial/query logical ordering from Python control; shape/order observation, no same-input bitwise numerical claim"
+  },
+  "native_subspace": {
+    "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_original_breaks_20261017/native/stdout_all6.log",
+    "stdout_sha256": "de9f53572ae365780e3cee90633792c7995b7f55deb0c3613d22a7c5c90b55a2",
+    "script": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_original_breaks_20261017/native/run_original_all6.m",
+    "script_sha256": "b2660762f4b524ec5285171c5e2839f42fe307a91e8eda45b3782e7faf673cad",
+    "exit_code": 0,
+    "default_predicates_true": 6,
+    "limit": "Native terminal stdout/exit/script retained, without exhaustive pre-run source/runtime guard"
+  },
+  "source_bridge": "Root worktree HEAD is e7d09bdb with exact267 source overlay plus reviewed adapter helper; all other production source bytes matched267 before candidate change. Parent verifies helper is the only production diff from267.",
+  "limitations": [
+    "Subspace tests use existing list-of-column Python adapter; full native array-valued API remains open",
+    "Subspace existing NumPy implementation, complex inner products and residual operator norm remain separate open source-port work",
+    "Focused adapter/original predicates only; no full API,all-test,figure,performance or latest-main green CI claim",
+    "External runtime source files not exhaustively preguarded"
+  ],
+  "retained_attempts": [
+    "Component run001 interpreter ABI mismatch before collection; run002 auxiliary component-axis oracle failure with27pass; reconstructed preimage matches guard",
+    "Earlier root subspace gate3pass included two equivalent row tests; its preimage retained, final joint gate deduplicates row predicate and credits six originals only"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ndarray_subspace_selected_evidence_20261017.zip",
+    "sha256": "02c027fe7e62a53a5bdfc5ba5d8744a1cb2f9c69d4f6ace1c296f47fe438ca0f",
+    "bytes": 746515,
+    "payloads": 47,
+    "readback_verified": true
+  }
+}

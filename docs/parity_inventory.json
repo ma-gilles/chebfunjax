@@ -116,6 +116,11 @@
       "scope": "Chebfun legcoeffs simple piecewise global-coordinate projection and all-column padding; literal original predicates1-6",
       "sha256": "fe07adee58c2b892cbabfcb08b94e5f3a65cc12384f3e0b2a3b0c459df9a4cd2"
     },
+    "ndarray_subspace_cpu_20261017": {
+      "path": "docs/ndarray_subspace_cpu_20261017.json",
+      "scope": "Public Chebfun rank>2 array-valued query adapter; restore literal subspace original domains/row predicates1-6",
+      "sha256": "f76c51e773bf1f3937ae15af8b59a2c677eb0e6ed661bab4f4cf570ac59304d0"
+    },
     "official_example_archive_20261017": {
       "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
       "archive_sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
@@ -50974,7 +50979,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ndarray_subspace_cpu_20261017",
+          "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -54696,7 +54706,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ndarray_subspace_cpu_20261017",
+          "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -54714,7 +54729,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ndarray_subspace_cpu_20261017",
+          "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -104007,7 +104027,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_subspace_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ndarray_subspace_cpu_20261017",
+          "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -104022,7 +104047,22 @@
       "sha256": "582415f66ef8ae756272fee04280a0cfefa87f98fd16ed7cfaeb141c77cc3c3e",
       "source": "tests/chebfun/test_subspace.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "ndarray_subspace_cpu_20261017",
+          "invocation": "test_subspace()",
+          "original_ids": "1-6",
+          "predicates_native": 6,
+          "predicates_python_mapped": 6,
+          "python_source": "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py",
+          "python_source_sha256": "501f9a278e2ad2f01418b125998814eb075d33309e07d1be0700e79e70b55d0a",
+          "qualification_limit": "Literal functions/domains/bounds; Python list-of-column adapter; native terminal evidence retained without exhaustive pre-run guard. Full array API/JAX implementation open.",
+          "scope_id": "subspace_original_default_1_6",
+          "source_base": "267ec71476e72541a4b6160b013cd69a5c9be05f",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

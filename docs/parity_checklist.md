@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Public Chebfun tensor-query adapter fixes six CI indexing failures while preserving raw Chebtech dimensional errors; combined30 controls pass. Original subspace distinct-breakpoint and row predicates1–6 now pass with native terminal evidence. [Evidence](ndarray_subspace_cpu_20261017.json).
+- [ ] Full subspace JAX/source algorithm and array-valued API, broader ND evaluation, latest-main CI/coverage.
+
 - [x] Simple piecewise Legendre projection and all-column padding; all six literal original legcoeffs predicates plus five supplemental controls pass. Native JSON records six true results; original native terminal receipt is unavailable, so that scope remains result-only. [Evidence](legcoeffs_original_cpu_20261017.json).
 - [ ] Non-simple piecewise legcoeffs projection and full API/native invocation qualification.
 

@@ -1,3 +1,11 @@
+# Latest CPU indexing/source-test scope — 2026-10-17
+
+Public Chebfun ND evaluation now flattens before strict raw-tech evaluation.
+Six CI indexing failures pass; the raw Chebtech guard remains unchanged.
+Combined30 controls include all six literal subspace original predicates with
+source breakpoints and row case. Full subspace JAX/API work remains open.
+See `docs/ndarray_subspace_cpu_20261017.json`; latest-main CI is still required.
+
 # Latest Legendre coefficient scope — 2026-10-17
 
 Simple piecewise legcoeffs and all-column padding now pass all six literal

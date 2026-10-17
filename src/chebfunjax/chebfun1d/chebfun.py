@@ -285,6 +285,18 @@ def _evaluate_tech_component_last(tech, x):
     """
     from chebfunjax.tech.trigtech import Trigtech
 
+    x = jnp.asarray(x)
+    coeffs = getattr(tech, "coeffs", None)
+    # @chebfun/feval.m flattens X before evaluating each FUN, then restores
+    # X's shape after collecting all component columns. Raw CHEBTECH feval
+    # keeps its stricter rank<=2 contract; this flattening belongs only at
+    # the public Chebfun adapter boundary.
+    if (x.ndim > 2 and coeffs is not None and coeffs.ndim == 2
+            and coeffs.shape[1] > 1):
+        query_shape = x.shape
+        flat = x.reshape((-1,))
+        values = tech._call_traced(flat) if isinstance(tech, Trigtech) else tech(flat)
+        return values.reshape(query_shape + (coeffs.shape[1],))
     return tech._call_traced(x) if isinstance(tech, Trigtech) else tech(x)
 
 

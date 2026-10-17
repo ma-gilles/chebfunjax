@@ -155,3 +155,8 @@ These qualify successful export, not full API or generated-text equality.
 all six literal Python original predicates. Native JSON records six true
 results, with no retained terminal receipt; the scope explicitly distinguishes
 that result-only observation from supervised native qualification.
+
+[ND evaluation and subspace evidence](ndarray_subspace_cpu_20261017.json)
+records the public adapter fix and six original subspace predicates with the
+source distinct breakpoints and row case. The broader subspace API and its
+existing host numerical implementation remain open.
