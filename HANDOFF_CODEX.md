@@ -1,3 +1,37 @@
+## Native inverse endpoints and real CDR output dtype — 2026-10-17
+
+Inverse callbacks now return each algorithm's raw result, as all six native
+exits do. The nonnative generic endpoint override is removed; optional final
+rangeCheck remains. All four actual constructor target/result vectors match
+native bits for a retained2092-coefficient input, including right pointValue
+0.9999999999999998. No inverse degree is prescribed or tolerance changed.
+
+Completed endpoint gates:24 unchanged mapped-file nodes,27 adjacent controls
+and1 supplemental retained-input endpoint regression. The24 include21source-
+oriented and3supplemental nodes, covering30per-algorithm and3common native
+assertions;52 is a pytest-node count. The combined51attempt hit3GiB and is
+retained without completed-gate credit; fresh serial gates passed.
+
+Real-valued Fourier CDR output now derives dtype from evaluated slice/pivot
+products, retaining zero+term and serial rank order. Complex Fourier storage
+can evaluate real, so coefficient dtype alone was wrong.20distinct controls
+pass including all3historical CI nodes and genuine complex/JIT/AD cases. The
+unchanged random12aggregate passes standalone85.13s/3.24GiB under4GiB cap.
+No RNG, constructor, grid helper or real() coercion change.
+
+Root latest-source integration:12dtype controls21.34s and7inverse controls
+52.77s in separate frozen processes; all observed runtime imports preguarded,
+inputs stable/no survivors. Repeats add no distinct component credit. Full
+lint/F821/provenance pass. Evidence:docs/inverse_raw_endpoint_source_cpu_20261017.json,
+docs/cdr_evaluation_dtype_cpu_20261017.json and
+docs/inverse_cdr_joint_cpu_20261017.json.
+
+Inverse9030vsnative8630 remains. A separate exact-stage diagnosis finds all
+actual sample values equal; first divergence is vals2coeffs. Python chop on
+native final coefficients at the identical final tolerance returns8630,
+whereas Python coefficients return9030. No transform/performance closure.
+Poisson900s, full tests/APIs/pages/figures and latest greenCI remain open.
+
 ## Smooth Bndfun and cross-kind composition — 2026-10-17
 
 Public Bndfun.compose now follows native argument-count branches, canonical

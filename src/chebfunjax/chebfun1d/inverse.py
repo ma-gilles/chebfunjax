@@ -21,7 +21,7 @@ _ALGORITHMS = ("roots", "newton", "bisection", "regulafalsi", "illinois", "brent
 
 @jax.jit
 def _restore_inverse_endpoints(y, result, fa, fb, a, b):
-    """Preserve callback endpoint equality and the existing fa-first priority."""
+    """Legacy selection primitive retained for diagnostic bit-identity controls."""
     return jnp.where(y == fa, a, jnp.where(y == fb, b, result))
 
 
@@ -504,7 +504,8 @@ def _inverse(f, pref=None, *, algorithm="brent", eps=None,
             result = _false_position(f, y, a, b, algorithm == "illinois")
         else:
             result = _brent(f, y, a, b)
-        return _restore_inverse_endpoints(y, result, fa, fb, a, b)
+        # Native algorithms return their raw trial; rangeCheck is applied below.
+        return result
 
     # MATLAB parseInputs sets these on a local preference copy: every inverse
     # disables the off-grid sample test and Newton uses resampling refinement.

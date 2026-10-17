@@ -40,6 +40,14 @@ remaining-page count.
   checks. Combined qualification: 81 controls, including the nine originals.
   See [combined evidence](bndfun_crosskind_integration_cpu_20261017.json).
 
+- [x] Source inverse callbacks return raw algorithm results; optional final
+  rangeCheck remains. 52 test nodes pass across separate frozen processes;
+  this is not 52 literal MATLAB predicates. All actual callback samples match
+  native for the retained input; transform length/speed parity remains open.
+- [x] Real-valued Fourier CDR outputs retain the dtype of evaluated products;
+  20 distinct controls include all three prior CI failures and complex/JIT/AD
+  controls. See [joint integration](inverse_cdr_joint_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted

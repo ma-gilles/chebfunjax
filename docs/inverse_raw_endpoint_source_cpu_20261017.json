@@ -1,0 +1,45 @@
+{
+  "source_base": "66bb7dea939a6250689d2a60c9cf801df6ce87a4",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Remove generic inverse callback endpoint override absent from all six pinned native algorithm exits. Retain optional final rangeCheck and input pointValue contracts.",
+  "causal_bridge": "All4 actual candidate constructor target/result vectors bit-identical to native (Python1D vs native column shape adapter explicit); public vs observed returned objects bit-identical.",
+  "supplemental_regression": "Exact native inverse pointValue bytes for retained2092-coefficient Python forward polynomial replayed in native; not literal native flower construction; no prescribed inverse degree.",
+  "gates": {
+    "original_24": {
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "pytest_seconds": 68.837,
+      "peak_summed_rss_kib": 2733924
+    },
+    "adjacent_27": {
+      "tests": 27,
+      "failures": 0,
+      "errors": 0,
+      "pytest_seconds": 33.507,
+      "peak_summed_rss_kib": 1744872
+    },
+    "endpoint_regression": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "pytest_seconds": 20.579,
+      "peak_summed_rss_kib": 1017072
+    }
+  },
+  "distinct_passing_tests": 52,
+  "preserved_failure": "Combined51 test process exit137 at3,146,820KiB sampled summed RSS cap. No complete gate claim; serial replacement gates passed.",
+  "remaining": "Candidate9030 coefficients vs native8630 persists despite exact callback samples. Downstream transform/chop/scale diagnosis and matched performance remain open.",
+  "runtime_scope": "Candidate and completed pytest gates actual imports all preguarded; baseline1stdlib encoding module postimport-only, payload preserved and honestly labeled in archive.",
+  "evidence_archives": [
+    {
+      "name": "inverse_identical_forward_cpu_20261017.tar.gz",
+      "sha256": "48be3c654d1b1a5673c5f966f967a1a16427df063307ed7d2c73f76321a751f9"
+    },
+    {
+      "name": "inverse_brent_initial_sample_trace_cpu_20261017.tar.gz",
+      "sha256": "68dd60f6c77786a11be11324b8bd3057b83ba8625db350ef4420c432027e458b"
+    }
+  ],
+  "static": "ruff check --no-cache selected inverse.py and supplemental test passed; no scientific bound changes."
+}

@@ -1149,13 +1149,15 @@ class SeparableApprox(eqx.Module):
         ty = _phys_to_ref(y, ya, yb)
 
         # Accumulate: result = Σ_j  d_j * c_j(ty) * r_j(tx)
-        dtype = jnp.result_type(x, y, self.pivots,
-                                *[f.coeffs for f in (*self.cols, *self.rows)])
+        # Native CDR multiplies evaluated slices, whose dtype can differ from
+        # Fourier coefficient storage. Keep zero+term and serial rank order.
+        terms = [self.pivots[j] * self.cols[j](ty) * self.rows[j](tx)
+                 for j in range(len(self.cols))]
+        dtype = (jnp.result_type(*terms) if terms
+                 else jnp.result_type(x, y, self.pivots))
         result = jnp.zeros(jnp.broadcast_shapes(x.shape, y.shape), dtype=dtype)
-        for j in range(len(self.cols)):
-            cj_val = self.cols[j](ty)
-            rj_val = self.rows[j](tx)
-            result = result + self.pivots[j] * cj_val * rj_val
+        for term in terms:
+            result = result + term
 
         return result
 

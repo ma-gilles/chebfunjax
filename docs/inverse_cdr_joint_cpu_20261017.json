@@ -1,0 +1,164 @@
+{
+  "base": "9a22b85111d43b8fd4fed19b7165cfe15bdcf940",
+  "scope": "Root joint integration19 repeated controls on latest composition source plus exact qualified inverse/dtype patches. Inverse6 unchanged sine/roundtrip nodes plus supplemental native-input endpoint1; dtype10 authored metadata/JIT/AD plus2 unchanged CI nodes. No extra distinct component counts.",
+  "runs": {
+    "dtype": {
+      "guarded_inputs": 8101,
+      "observed_runtime_imports": 1388,
+      "all_runtime_preguarded": true,
+      "cases": [
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[real_trig]",
+          "time": "4.403"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[complex_trig]",
+          "time": "0.887"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[complex_cheb]",
+          "time": "1.957"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[complex_coord]",
+          "time": "1.529"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[mixed_real]",
+          "time": "1.026"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[late_complex]",
+          "time": "1.373"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[complex_pivot]",
+          "time": "0.347"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_actual_slice_product_dtype[empty]",
+          "time": "0.208"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_public_real_constructor_metadata[callback]",
+          "time": "1.587"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_evaluation_dtype_source",
+          "name": "test_public_real_constructor_metadata[randnfun2]",
+          "time": "5.983"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun2.test_techs_matlab.TestChebfun2Techs",
+          "name": "test_trigtech",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun2.test_isPeriodicTech_matlab.TestChebfun2IsPeriodicTech",
+          "name": "test_trig_periodic_pi_domain",
+          "time": "1.834"
+        }
+      ],
+      "pytest_summary": "======================= 12 passed, 11 warnings in 21.34s =======================",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 30.06237145513296,
+        "sampled_peak_summed_rss_kib": 1536044,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "inverse": {
+      "guarded_inputs": 8101,
+      "observed_runtime_imports": 1412,
+      "all_runtime_preguarded": true,
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[roots]",
+          "time": "12.822"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[newton]",
+          "time": "4.047"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[bisection]",
+          "time": "5.411"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[regulafalsi]",
+          "time": "3.784"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[illinois]",
+          "time": "3.829"
+        },
+        {
+          "classname": "tests.test_matlab_port.chebfun.test_inv_matlab.TestChebfunInvAlgorithms",
+          "name": "test_sine_and_inverse_roundtrip[brent]",
+          "time": "3.736"
+        },
+        {
+          "classname": "tests.test_chebfun1d.test_inverse_raw_endpoint_source",
+          "name": "test_retained_polynomial_native_inverse_endpoint_bits",
+          "time": "18.930"
+        }
+      ],
+      "pytest_summary": "======================== 7 passed, 1 warning in 52.77s =========================",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 65.81778402999043,
+        "sampled_peak_summed_rss_kib": 1902116,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    }
+  },
+  "components": [
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/cdr_evaluation_dtype_packet_20261017/qualified_evidence.zip",
+      "sha256": "498239d7a547d13b78e3a383769f900ef204a3a57c467339ef79d7fd3970ff88"
+    },
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_raw_endpoint_source_cpu_20261017.tar.gz",
+      "sha256": "8f502b1be34a136c8ef9904fd462fce76cee8aea71dab008c43aa740bec09e0e"
+    }
+  ],
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_cdr_joint_cpu_20261017.zip",
+  "archive_sha256": "906656a0d7e18288c541ae237ad310bba5154ac02801f1e9f75f4697efa54712",
+  "verified_payloads": 8009,
+  "source_hashes": {
+    "src/chebfunjax/chebfun1d/inverse.py": "69b0d0abdcce4d6cf53e3178705410084e6a7877a8f9712cda0d802c31d07c56",
+    "src/chebfunjax/chebfun2d/separable_approx.py": "a8beb7ddccbaf5aa3283695a198b18ebe8524795059f69c320cf462f11e6796c",
+    "docs/cdr_evaluation_dtype_cpu_20261017.json": "961a3b99745d8f71c72a32451b5f9d4f0b3344f557472c2a6fc0a787631004ae",
+    "docs/inverse_raw_endpoint_source_cpu_20261017.json": "2a0aa146430e1ca00c2398a63aa27805be33bbde6238280121ed97b8c0e5df0a",
+    "tests/test_chebfun1d/fixtures/inverse_retained_flower_native_endpoints.json": "da62b7ded195b9f60d68062599877e0cdb3e53727744ae08b5c43ce98aac1c3a",
+    "tests/test_chebfun1d/test_inverse_raw_endpoint_source.py": "6cb0a783927e060f9ac51a540f5f8c9413fe8a578371e58b497f516164861ffd",
+    "tests/test_chebfun2d/test_cdr_evaluation_dtype_source.py": "54ec17e5bf210ee96712a4e2fc9e07fc269af09f6d48554786d0ae6093e6463f"
+  },
+  "limitations": [
+    "Inverse52 is pytest node count: unchanged mapped file has21 source-oriented and3 supplemental nodes, covering30 algorithm and3 common source assertions; not52 literal MATLAB predicates.",
+    "Inverse raw callback endpoint parity fixed; natural9030vs8630 transform-coefficient difference and matched speed unresolved. Both exact stage arrays and traces are separate evidence.",
+    "Dtype20 distinct controls include the unchanged random12 aggregate node in a separate completed4GiB process; that node is not repeated in root integration.",
+    "Native inverse trace runtime940preguarded/54immutablepostobserved/1mutableNSS; baseline1encodingpostobserved and memory-capped attempts explicitly excluded from final gate claims.",
+    "No full322page/figure, allAPI, remaining numerical/performance or latest greenCI closure."
+  ]
+}

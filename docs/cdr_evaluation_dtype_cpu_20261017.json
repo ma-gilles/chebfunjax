@@ -1,0 +1,161 @@
+{
+  "status": "Three CI nodes pass after source-faithful CDR evaluation dtype correction",
+  "base": "717f057f48056ccb11c68aed90d3bfcef7c74823",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualified_distinct_tests": 20,
+  "ci_nodes": 3,
+  "new_controls": 10,
+  "existing_native_complex_rectangle_controls": 4,
+  "existing_cdr_controls": 3,
+  "random_native_assertions": 12,
+  "random_assertions_counted_as_one_test_node": true,
+  "native_source": {
+    "@separableApprox/cdr.m:24": "D reciprocates raw pivot values",
+    "@separableApprox/feval.m:103,108": "Multiply evaluated C(y), D, R(x), with nonconjugating transpose",
+    "@trigtech/feval.m:34 and @trigtech/horner.m:55\u201363": "isReal flags select real/complex evaluation independently of complex Fourier coefficient storage"
+  },
+  "cause": "Real-valued Fourier slices may store complex coefficients. The old fallback seeded its zero from coefficient dtypes, promoting otherwise real evaluated slice/pivot products to complex128. New dtype follows actual products; genuine complex values remain complex.",
+  "actual_before_fix": {
+    "callback": "rank1, coeff dtypes(float64,complex128), both slices float64, real pivot/raw pivot, final complex128",
+    "seeded_small_randnfun2": "rank4, all8 Fourier arrays complex128/is_real true, all8 slice outputs float64, real pivots/raw pivots, final complex128"
+  },
+  "controls": "Scalar/vector/tensor grid and JIT; direct fallback JVP; real trig, genuine complex trig/Cheb coefficients, complex coordinates/pivots, late complex rank, mixed representations, empty-rank adapter; actual callback and seeded random constructors.",
+  "baseline_limits": [
+    "Initial3-node baseline censored at3GiB after first2progress failures; random node did not finish and no terminal3-node baseline assertion report/JUnit or runtime-import review exists. Originale95CI logs supplied independent historical failure provenance.",
+    "Metadata8 cleanly reproduced1real-dtype failure/7passes (mixed_real stored float64 coefficients in this realization); actual public callback/randnfun2 metadata2 reproduced2failures, all their actual runtime imports preguarded.",
+    "First candidate19 passed but imported additional scipy.io/sparse runtime files outside its upfront inventory; retained as partial runtime evidence. Final identical19 repeats with observed inventory unioned upfront, all imports covered and unchanged."
+  ],
+  "final_qualification": "19tests pass in a fresh180s/3GiB process; unchanged randnfun2 all12-native-assertions node passes alone85.13s under180s/4GiB, observed3.24GiB, all runtime imports preguarded/stable. Combined20distinct tests; no larger unbounded process or heavy PDE solve.",
+  "randn_observer": "Coarse public cj.randnfun2 entry/return metadata only: arguments, rank/domain/technology, coefficient shapes/dtypes/real flags and pivot dtypes. No additional scientific evaluation or global tracing; not a performance qualification.",
+  "runs": {
+    "ci_baseline": {
+      "cases": 0,
+      "failures": [],
+      "pytest_last_line": "tests/test_matlab_port/misc/test_randnfun2_matlab.py ",
+      "guarded_inputs": 7916,
+      "runtime_imports": null,
+      "unguarded_runtime_count": null,
+      "runtime_changed": null,
+      "command_exit_code": -15,
+      "supervisor_exit_code": 137,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 74.39731218433008,
+      "sampled_peak_summed_rss_kib": 3155320,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "metadata_baseline": {
+      "cases": 8,
+      "failures": [
+        "test_actual_slice_product_dtype[real_trig]"
+      ],
+      "pytest_last_line": "=================== 1 failed, 7 passed, 9 warnings in 11.21s ===================",
+      "guarded_inputs": 7916,
+      "runtime_imports": 1379,
+      "unguarded_runtime_count": 0,
+      "runtime_changed": {},
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 17.79034106899053,
+      "sampled_peak_summed_rss_kib": 968512,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "actual_baseline": {
+      "cases": 2,
+      "failures": [
+        "test_public_real_constructor_metadata[callback]",
+        "test_public_real_constructor_metadata[randnfun2]"
+      ],
+      "pytest_last_line": "======================== 2 failed, 3 warnings in 8.26s =========================",
+      "guarded_inputs": 7916,
+      "runtime_imports": 1381,
+      "unguarded_runtime_count": 0,
+      "runtime_changed": {},
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 14.16162952966988,
+      "sampled_peak_summed_rss_kib": 978072,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "candidate": {
+      "cases": 19,
+      "failures": [],
+      "pytest_last_line": "======================= 19 passed, 11 warnings in 47.33s =======================",
+      "guarded_inputs": 7916,
+      "runtime_imports": 1469,
+      "unguarded_runtime_count": 71,
+      "runtime_changed": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 56.71134862303734,
+      "sampled_peak_summed_rss_kib": 2805204,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "randn12": {
+      "cases": 1,
+      "failures": [],
+      "pytest_last_line": "=================== 1 passed, 1 warning in 85.13s (0:01:25) ====================",
+      "guarded_inputs": 7916,
+      "runtime_imports": 1402,
+      "unguarded_runtime_count": 0,
+      "runtime_changed": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 98.27013751911,
+      "sampled_peak_summed_rss_kib": 3398940,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    },
+    "final": {
+      "cases": 19,
+      "failures": [],
+      "pytest_last_line": "======================= 19 passed, 11 warnings in 46.68s =======================",
+      "guarded_inputs": 7988,
+      "runtime_imports": 1469,
+      "unguarded_runtime_count": 0,
+      "runtime_changed": {},
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 58.387611403129995,
+      "sampled_peak_summed_rss_kib": 2799084,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "write_errors": []
+    }
+  },
+  "source_bridge": {
+    "base": "717f057f48056ccb11c68aed90d3bfcef7c74823",
+    "only_production_change": "Actual evaluated CDR product dtypes determine zero dtype; same empty-rank coordinate/pivot dtype fallback and zero+term serial rank order retained.",
+    "exact_single_block_replacement_verified": true,
+    "source_sha256": "a8beb7ddccbaf5aa3283695a198b18ebe8524795059f69c320cf462f11e6796c",
+    "no_real_projection_added": true,
+    "preexisting_tests_byte_identical": true,
+    "constructors_RNG_and_shared_array_kernels_unchanged": true,
+    "final_test_AST_comment_bridge": "POSTQUAL_TEST_COMMENT_BRIDGE.json"
+  },
+  "assertion_bounds_or_constructor_rng_changed": false,
+  "scope_limits": [
+    "No MATLAB RNG stream or new native capture; existing4native complex rectangle fixtures reused at original bounds.",
+    "Empty-rank zero shape/dtype behavior preserves existing Python adapter; no new literal native empty-output parity claim.",
+    "No whole-library/CI/page/performance parity claim. Original capped/partial evidence retained and explicitly excluded from final acceptance.",
+    "Pytest import/JUnitwarnings retained; inline lint comments do not change test AST."
+  ],
+  "static": "Selected source/test ruff and git diff --check pass",
+  "source_files": [
+    "src/chebfunjax/chebfun2d/separable_approx.py",
+    "tests/test_chebfun2d/test_cdr_evaluation_dtype_source.py"
+  ]
+}
