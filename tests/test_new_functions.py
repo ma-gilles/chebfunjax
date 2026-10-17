@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import warnings
 
+import jax
 import jax.numpy as jnp
 import matplotlib
 import numpy as np
@@ -807,3 +808,87 @@ class TestTopLevelExports:
     def test_randnfun_exported(self):
         import chebfunjax as cj
         assert hasattr(cj, "randnfun")
+
+
+@pytest.mark.parametrize("kind", ["clenshawlord", "maehly"])
+class TestLegacyChebpadeJax:
+    """Source @chebfun/chebpade.m7574c77 with legacy raw-coefficient API.
+
+    Zero-denominator polynomial controls expose complex loss and constant
+    normalization independently of SVD/FFT matching. K retains truncation
+    semantics of the Python extension, rather than native fixed-grid M.
+    """
+
+    def test_complex_polynomial_and_explicit_truncation(self, kind):
+        from chebfunjax.utils.ratapprox import chebpade
+
+        c = jnp.array([1+2j, .5-.25j])
+        p, q, evaluate = chebpade(c, 1, 0, kind=kind)
+        npt.assert_allclose(p, c, rtol=1e-13, atol=0)
+        npt.assert_allclose(q, [1.0], rtol=1e-13, atol=0)
+        npt.assert_allclose(evaluate(.25), 1.125+1.9375j, rtol=1e-13)
+        p, q, truncated = chebpade(c, 1, 0, kind=kind, K=0)
+        npt.assert_allclose(p, [1+2j, 0], rtol=1e-13, atol=1e-15)
+        npt.assert_allclose(truncated(.25), 1+2j, rtol=1e-13)
+
+    def test_complex_rational_formula_with_nonconstant_denominator(self, kind):
+        from chebfunjax.utils.ratapprox import chebpade
+
+        def f(x):
+            return (1+.25j*x)/(1-.2*x)
+        p, q, evaluate = chebpade(f, 1, 1, kind=kind)
+        npt.assert_allclose(p, [1., .25j], rtol=1e-12, atol=1e-14)
+        npt.assert_allclose(q, [1., -.2], rtol=1e-12, atol=1e-14)
+        x = jnp.linspace(-1., 1., 31)
+        npt.assert_allclose(evaluate(x), f(x), rtol=1e-12)
+
+    def test_evaluator_jit_and_complex_jvp(self, kind):
+        from chebfunjax.utils.ratapprox import chebpade
+
+        _, _, evaluate = chebpade(jnp.array([1., .5, -.125]), 2, 0, kind=kind)
+        z = jnp.array([.125+.25j, -.5j])
+        direction = jnp.array([.5j, .25-.5j])
+        value, tangent = jax.jvp(jax.jit(evaluate), (z,), (direction,))
+        npt.assert_allclose(value, 1+.5*z-.125*(2*z*z-1), rtol=1e-13)
+        npt.assert_allclose(tangent, (.5-.5*z)*direction, rtol=1e-13)
+
+    def test_numpy_free_fit_and_no_new_padding_stream(self, kind, monkeypatch):
+        from chebfunjax.utils import _cf_padding, ratapprox
+
+        class NoNumpy:
+            def __getattr__(self, name):
+                raise AssertionError(f"Legacy chebpade called NumPy.{name}")
+
+        def unexpected_draw(*args):
+            raise AssertionError("Legacy zero padding consumed a new random stream")
+
+        monkeypatch.setattr(ratapprox, "np", NoNumpy())
+        monkeypatch.setattr(_cf_padding, "_normal_draw", unexpected_draw)
+        p, q, evaluate = ratapprox.chebpade(jnp.exp, 2, 1, kind=kind)
+        assert isinstance(p, jax.Array) and isinstance(q, jax.Array)
+        assert jnp.all(jnp.isfinite(evaluate(jnp.array([0., .25]))))
+
+    def test_complex_chebfun_retains_physical_domain(self, kind):
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.utils.ratapprox import chebpade
+
+        f = chebfun(lambda x: 1+.5j*x, domain=(-2., 3.))
+        _, _, evaluate = chebpade(f, 1, 0, kind=kind)
+        x = jnp.array([-2., -.25, 1., 3.])
+        npt.assert_allclose(evaluate(x), 1+.5j*x, rtol=1e-13)
+
+
+def test_legacy_maehly_rank_reduction_matches_rational_formula():
+    from chebfunjax.utils.ratapprox import chebpade
+
+    def f(x):
+        return (1+.25j*x)/(1-.2*x)
+    with pytest.warns(RuntimeWarning, match="Singular matrix encountered"):
+        p, q, evaluate = chebpade(f, 3, 2, kind="maehly")
+    # Native capture returns a degree-two denominator with a negligible
+    # final coefficient; rational equivalence does not imply degree one.
+    assert p.shape == (2,)
+    assert q.shape == (3,)
+    npt.assert_allclose(p, [1., .25j], rtol=1e-12, atol=1e-14)
+    npt.assert_allclose(q, [1., -.2, 0.], rtol=1e-12, atol=1e-14)
+    npt.assert_allclose(evaluate(.5), (1+.125j)/.9, rtol=1e-12)

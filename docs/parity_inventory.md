@@ -267,3 +267,10 @@ resource receipt retains an independently diagnosed root-only exit race;
 no bare uncensored claim is made. The cached warning, native trajectory and
 existing SciPy highorder provider remain open. Page/figure files and full-item
 statuses are unchanged.
+
+## Legacy ChebPadé scoped JAX conversion — 2026-10-17
+
+[Evidence](legacy_chebpade_cpu_20261017.json) attaches15authored Python checks
+and7fresh pinned-native numerical controls to the ChebPadé library row.
+This is not an original MATLAB test-file qualification. Exact rank-warning,
+full API and performance gaps remain. All full-item statuses are unchanged.

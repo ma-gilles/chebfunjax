@@ -1611,15 +1611,16 @@ def chebpade(
     kind : {'clenshawlord', 'maehly'}
         Algorithm variant.  Default ``'clenshawlord'``.
     K : int, optional
-        Truncate the Chebyshev expansion of *f* to *K* terms before
-        computing the approximant.  ``K < 0`` means use all available
+        Truncate the Chebyshev expansion of *f* through degree *K*
+        before computing the approximant. This legacy option differs from
+        native fixed-grid M resampling. ``K < 0`` means use all available
         coefficients (default).
 
     Returns
     -------
-    p_coeffs : np.ndarray, shape (m+1,)
+    p_coeffs : jax.Array, shape (m+1,)
         Chebyshev coefficients of the numerator polynomial, ascending degree.
-    q_coeffs : np.ndarray, shape (n+1,)
+    q_coeffs : jax.Array, shape (n+1,)
         Chebyshev coefficients of the denominator polynomial, ascending degree.
         Normalised so ``q_coeffs[0] = 1``.
     r_handle : callable
@@ -1653,39 +1654,34 @@ def chebpade(
     --------
     Chebyshev-Padé (4, 4) approximant to exp(x) on [-1, 1]:
 
-    >>> import numpy as np
+    >>> import jax.numpy as jnp
     >>> from chebfunjax.utils.ratapprox import chebpade
-    >>> p, q, r = chebpade(np.exp, 4, 4)
-    >>> abs(r(0.5) - np.exp(0.5)) < 1e-10
+    >>> p, q, r = chebpade(jnp.exp, 4, 4)
+    >>> abs(r(0.5) - jnp.exp(0.5)) < 1e-10
     True
     """
-    # ---- 1. Extract Chebyshev coefficients ----
-    # Minimum number of coefficients needed:
+    # Raw coefficients and callable sampling are the legacy Python extension.
+    # Keep its K coefficient truncation/zero padding; native fixed-grid M
+    # resampling and epsilon-normal padding belong to the canonical front door.
     n_needed = m + 2 * n + 1
-
+    domain = (-1.0, 1.0)
     if hasattr(f, "coeffs"):
-        # Chebfun-like object
-        c_raw = np.asarray(f.coeffs, dtype=np.float64).ravel()
+        c_raw = jnp.asarray(f.coeffs).ravel()
+        if hasattr(f, "domain"):
+            domain = (float(f.domain.a), float(f.domain.b))
     elif callable(f):
-        # Callable: sample on a Chebyshev grid and compute DCT
         n_pts = max(n_needed + 10, 128)
-        from chebfunjax.utils.quadrature import chebpts
-        t = np.array(chebpts(n_pts, kind=2), dtype=np.float64)
-        vals = np.asarray(f(t), dtype=np.float64).ravel()
-        import jax.numpy as _jnp
-
-        from chebfunjax.utils.transforms import vals2coeffs
-        c_raw = np.array(vals2coeffs(_jnp.array(vals)), dtype=np.float64)
+        t = chebpts(n_pts, kind=2)
+        values = jnp.asarray(f(t)).ravel()
+        values = values.astype(jnp.result_type(values, jnp.float64))
+        c_raw = vals2coeffs(values)
     else:
-        c_raw = np.asarray(f, dtype=np.float64).ravel()
-
-    # Optionally truncate to K terms
+        c_raw = jnp.asarray(f).ravel()
+    c_raw = c_raw.astype(jnp.result_type(c_raw, jnp.float64))
     if K >= 0:
         c_raw = c_raw[: K + 1]
-
-    # Zero-pad if necessary
     if len(c_raw) < n_needed:
-        c_raw = np.concatenate([c_raw, np.zeros(n_needed - len(c_raw))])
+        c_raw = jnp.concatenate((c_raw, jnp.zeros(n_needed-len(c_raw), c_raw.dtype)))
 
     if kind.lower() == "clenshawlord":
         p_coeffs, q_coeffs = _chebpade_clenshawlord(c_raw, m, n)
@@ -1696,155 +1692,67 @@ def chebpade(
             f"chebpade: unknown kind '{kind}'.  Use 'clenshawlord' or 'maehly'."
         )
 
-    # ---- 3. Build evaluator ----
-    # Evaluate Chebyshev sums via Clenshaw algorithm (NumPy)
-    def _eval_cheb(c, x):
-        x = np.asarray(x)
-        if len(c) == 0:
-            return np.zeros_like(x, dtype=float)
-        if len(c) == 1:
-            return np.full_like(x, c[0], dtype=float)
-        b1 = np.zeros_like(x, dtype=float)
-        b2 = np.zeros_like(x, dtype=float)
-        for k in range(len(c) - 1, 0, -1):
-            b0 = c[k] + 2.0 * x * b1 - b2
-            b2 = b1
-            b1 = b0
-        return c[0] + x * b1 - b2
+    from chebfunjax.tech.chebtech import _clenshaw
 
     def r_handle(x):
-        x = np.asarray(x, dtype=float)
-        return _eval_cheb(p_coeffs, x) / _eval_cheb(q_coeffs, x)
+        x = jnp.asarray(x)
+        if domain != (-1.0, 1.0):
+            x = (2*x-(domain[0]+domain[1]))/(domain[1]-domain[0])
+        return _clenshaw(p_coeffs, x) / _clenshaw(q_coeffs, x)
 
     return p_coeffs, q_coeffs, r_handle
 
 
-def _chebpade_clenshawlord(
-    c: np.ndarray, m: int, n: int
-) -> tuple[np.ndarray, np.ndarray]:
-    """Clenshaw-Lord Chebyshev-Padé (internal implementation).
+def _chebpade_clenshawlord(c, m: int, n: int):
+    """JAX Clenshaw-Lord coefficients, using the shared source kernel.
 
-    Provenance
-    ----------
-    MATLAB source : chebpadeClenshawLord (private sub-function of chebpade.m)
-    Chebfun commit: 7574c77
+    Provenance: @chebfun/chebpade.m, Chebfun7574c77. The caller supplies
+    its complete zero-padded legacy coefficient vector, so this route
+    does not consume the canonical epsilon-normal padding stream.
     """
-    l = max(m, n)
+    from chebfunjax.utils._cf_kernel import _chebpade_clenshaw_lord_jax
 
-    # Scale c[0] (two-sided Chebyshev series convention)
-    c2 = c.copy()
-    c2[0] = 2.0 * c2[0]
-
-    # Build Hankel system for denominator coefficients
-    if n > 0:
-        # top row: c[|m-n+1|], ..., c[m]
-        idx_top = np.abs(np.arange(m - n + 1, m + 1))
-        top = c2[idx_top]
-        # bottom row: c[m], ..., c[m+n-1]
-        bot = c2[m : m + n]
-        # RHS: c[m+1], ..., c[m+n]
-        rhs = c2[m + 1 : m + n + 1]
-
-        from scipy.linalg import hankel
-        H = hankel(top, bot)
-        try:
-            beta = np.concatenate([np.linalg.solve(-H, rhs), [1.0]])
-        except np.linalg.LinAlgError:
-            # Singular — fall back to denominator = 1
-            beta = np.array([1.0])
-        beta = beta[::-1]  # flip to ascending
-    else:
-        beta = np.array([1.0])
-
-    # Undo the c[0] scaling for convolution
-    c2[0] = c2[0] / 2.0
-
-    # Compute numerator via convolution: alpha = conv(c[1:l+2], beta)[:l+1]
-    alpha = np.convolve(c2[: l + 1], beta)[: l + 1]
-
-    # Numerator Chebyshev-Padé coefficients using product formula
-    l2 = l + 1
-    n2 = len(beta)
-    pk = np.zeros(m + 1)
-    # Build product matrix D[i, j] = alpha[i] * beta[j]
-    alpha_mat = np.outer(alpha[:l2], np.ones(n2))
-    beta_mat = np.outer(np.ones(l2), beta[:n2])
-    D = alpha_mat * beta_mat  # (l2, n2)
-
-    for k in range(m + 1):
-        # Sum diagonals at offset k and -k
-        d_upper = np.diag(D, k) if k < D.shape[1] else np.array([])
-        d_lower = np.diag(D, -k) if k < D.shape[0] else np.array([])
-        pk[k] = np.sum(d_upper) + (np.sum(d_lower) if k > 0 else 0.0)
-
-    # Denominator coefficients
-    n3 = len(beta)
-    qk = np.zeros(n + 1)
-    for k in range(n + 1):
-        u = beta[: n3 - k]
-        v = beta[k:n3]
-        qk[k] = np.dot(u, v)
-
-    # Normalize
-    pk = pk / qk[0]
-    qk = 2.0 * qk / qk[0]
-    qk[0] = 1.0
-
-    return pk, qk
+    return _chebpade_clenshaw_lord_jax(c, m, n)
 
 
-def _chebpade_maehly(
-    c: np.ndarray, m: int, n: int
-) -> tuple[np.ndarray, np.ndarray]:
-    """Maehly Chebyshev-Padé (internal implementation).
+def _chebpade_maehly(c, m: int, n: int):
+    """JAX Maehly coefficients with native rank reduction and normalization.
 
-    Provenance
-    ----------
-    MATLAB source : chebpadeMaehly (private sub-function of chebpade.m)
-    Chebfun commit: 7574c77
+    Provenance: @chebfun/chebpade.m, Chebfun7574c77, chebpadeMaehly.
+    Coefficients are in the ordinary T0 convention throughout; the source
+    does not halve/double the constant numerator coefficient.
     """
-    a = c.copy()
-
-    # Denominator system
-    rows = np.arange(m + 1, m + n + 1, dtype=int)
-    cols = np.arange(1, n + 1, dtype=int)
-    R, C = np.meshgrid(rows, cols, indexing="ij")
-    D = a[R + C] + a[np.abs(R - C)]
-    if n > m:
-        for k in range(min(n - m, n)):
-            D[k + m, k + m] += a[0]
-
+    a = jnp.asarray(c)
     if n == 0:
-        qk = np.array([1.0])
-        pk = a[: m + 1].copy()
-        pk[0] = 0.5 * pk[0] if len(pk) > 1 else pk[0]
-        return pk, qk
-
-    # Solve for denominator
-    rhs = -2.0 * a[m + 1 : m + n + 1]
-    try:
-        q_inner = np.linalg.solve(D, rhs)
-    except np.linalg.LinAlgError:
-        q_inner = np.zeros(n)
-    qk = np.concatenate([[1.0], q_inner])
-
-    # Numerator
-    rows2 = np.arange(1, m + 1, dtype=int)
-    cols2 = np.arange(1, n + 1, dtype=int)
-    R2, C2 = np.meshgrid(rows2, cols2, indexing="ij")
-    B = a[R2 + C2] + a[np.abs(R2 - C2)]
-    mask = (R2 == C2) & (R2 <= m) & (C2 <= m)
-    B[mask] = B[mask] + a[0]
-
-    top_row = a[1 : n + 1][None, :]  # (1, n)
-    B_full = np.vstack([top_row, B])  # (m+1, n)
-
-    pk = 0.5 * B_full @ q_inner + qk[0] * a[: m + 1]
-    pk[0] = 2.0 * pk[0]  # back-undo the 1/2 convention for T_0
-
-    # Normalize
-    pk = pk / qk[0]
-    return pk, qk
+        return a[:m+1], jnp.ones(1, dtype=a.dtype)
+    row = jnp.arange(1, n+1)
+    col = jnp.arange(m+1, m+n+1)[:, None]
+    D = a[col+row[None, :]] + a[jnp.abs(col-row[None, :])]
+    if n > m:
+        D = D + a[0]*jnp.diag(jnp.ones(n-m), m)[:n, :n]
+    rank = int(jnp.sum(jnp.linalg.svd(D, compute_uv=False) > 1e-10))
+    if rank < min(D.shape):
+        if m > 1:
+            p, q = _chebpade_maehly(a, m-1, n)
+            warnings.warn(f"Singular matrix encountered. Computing [{m-1}/{n}] approximant.",
+                          RuntimeWarning, stacklevel=2)
+            return p, q
+        if n > 1:
+            p, q = _chebpade_maehly(a, m, n-1)
+            warnings.warn(f"Singular matrix encountered. Computing [{m}/{n-1}] approximant.",
+                          RuntimeWarning, stacklevel=2)
+            return p, q
+        raise ValueError("CHEBFUN:CHEBFUN:chebpade:chepadeMaehly:singularFail -- "
+                         "Singular matrix encountered. Cannot compute [1/1] approximation.")
+    q = jnp.concatenate((jnp.ones(1, dtype=a.dtype),
+                         -jnp.linalg.solve(D, 2*a[m+1:m+n+1])))
+    col = jnp.arange(1, m+1)[:, None]
+    B = a[col+row[None, :]] + a[jnp.abs(col-row[None, :])]
+    diagonal = jnp.arange(min(m, n))
+    B = B.at[diagonal, diagonal].add(a[0])
+    B = jnp.concatenate((a[1:n+1][None, :], B), axis=0)
+    p = .5*(B @ q[1:]) + q[0]*a[:m+1]
+    return p, q
 
 
 # ===========================================================================

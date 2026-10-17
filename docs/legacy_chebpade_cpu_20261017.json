@@ -1,0 +1,186 @@
+{
+  "scope": "Legacy utils.ratapprox.chebpade JAX array numerics, complex data and physical-domain evaluation; not full ChebPad\u00e9 API parity",
+  "base_commit": "e73982e3b3752da8f3d86f46fd0895cce5900136",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "native": {
+    "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "cases": [
+      {
+        "kind": "clenshawlord",
+        "mode": 1,
+        "ok": true,
+        "max_error": 0,
+        "p_re": [
+          1,
+          0.5
+        ],
+        "p_im": [
+          2,
+          -0.25
+        ],
+        "q_re": 1,
+        "q_im": 0
+      },
+      {
+        "kind": "clenshawlord",
+        "mode": 2,
+        "ok": true,
+        "max_error": 2.2247786310271853e-16,
+        "p_re": [
+          1,
+          8.324629610859451e-17
+        ],
+        "p_im": [
+          1.5146234102263091e-19,
+          0.25
+        ],
+        "q_re": [
+          1,
+          -0.19999999999999998
+        ],
+        "q_im": [
+          0,
+          -3.184112968596685e-17
+        ]
+      },
+      {
+        "kind": "clenshawlord",
+        "mode": 3,
+        "ok": true,
+        "max_error": 5.551115123125783e-17,
+        "p_re": [
+          1,
+          0
+        ],
+        "p_im": [
+          0.25,
+          1.25
+        ],
+        "q_re": 1,
+        "q_im": 0
+      },
+      {
+        "kind": "maehly",
+        "mode": 1,
+        "ok": true,
+        "max_error": 0,
+        "p_re": [
+          1,
+          0.5
+        ],
+        "p_im": [
+          2,
+          -0.25
+        ],
+        "q_re": 1,
+        "q_im": 0
+      },
+      {
+        "kind": "maehly",
+        "mode": 2,
+        "ok": true,
+        "max_error": 2.2887833992611187e-16,
+        "p_re": [
+          0.9999999999999999,
+          1.1102230246251565e-16
+        ],
+        "p_im": [
+          -3.469446951953614e-18,
+          0.25
+        ],
+        "q_re": [
+          1,
+          -0.19999999999999993
+        ],
+        "q_im": [
+          0,
+          -6.499543380367062e-17
+        ]
+      },
+      {
+        "kind": "maehly",
+        "mode": 3,
+        "ok": true,
+        "max_error": 5.551115123125783e-17,
+        "p_re": [
+          1,
+          0
+        ],
+        "p_im": [
+          0.25,
+          1.25
+        ],
+        "q_re": 1,
+        "q_im": 0
+      },
+      {
+        "kind": "maehly",
+        "mode": 4,
+        "ok": true,
+        "warning": "Singular matrix encountered. Computing [2/2] approximant.",
+        "warning_identifier": "CHEBFUN:CHEBFUN:chebpade:chebpadeMaehly:singularGoingLeft",
+        "p_re": [
+          0.9999999999999998,
+          -1.5265566588595902e-15
+        ],
+        "p_im": [
+          -3.2959746043559335e-16,
+          0.24999999999999875
+        ],
+        "q_re": [
+          1,
+          -0.20000000000000154,
+          2.0606390522189595e-17
+        ],
+        "q_im": [
+          0,
+          -1.2349132422697417e-15,
+          3.2283345151430586e-16
+        ],
+        "max_error": 4.47545209131181e-16
+      }
+    ],
+    "which": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m"
+  },
+  "baseline": {
+    "contract_failures": 8,
+    "scope": "Initial four parameterized contracts, before adding rational and rank controls"
+  },
+  "candidate": {
+    "checks": 15,
+    "result": "15 passed",
+    "original_authored_checks": 4,
+    "new_checks": 11,
+    "stdout_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legacy_chebpade_final2_run001/stdout",
+    "stable_declared_inputs": true,
+    "no_survivors": true
+  },
+  "corrected_test_assumption": "Initial candidate:14pass/1fail. New rank test incorrectly expected denominator length2; pinned native returns length3. Corrected to native-observed shape and retained exact rational formula bound1e-12. Initial raw failure and intermediate incomplete expected-vector correction preserved.",
+  "source_bridge": {
+    "library_files": 362,
+    "other_library_files_identical": 361,
+    "other_module_functions_AST_equal": true,
+    "existing_test_bodies_AST_equal": true,
+    "new_core_selectors": 0
+  },
+  "implementation": [
+    "Preserve complex128 coefficients and inputs, reuse canonical pure CL coefficient kernel without its frontdoor host RNG",
+    "Use JAX Maehly matrices/SVD/solve and ordinary T0 constant convention",
+    "Use shared JAX Clenshaw evaluator and map physical Chebfun domain",
+    "Retain legacy raw-coefficient/callable sampling, degree-K truncation and zero padding extensions"
+  ],
+  "limits": [
+    "Public cj.chebpade uses separate canonical frontdoor; not qualified by these legacy checks",
+    "Native and legacy callable sampling/coefficient noise differ; rank-reduction warning sequence differs on rational control (native last warning2/2, JAX also visits1/2). Exact rank/warning parity unresolved",
+    "Legacy zero padding is retained extension, not native eps*randn parity",
+    "No original MATLAB test-file, full API/preferences, piecewise/quasimatrix/singular-function or bitwise coefficient qualification",
+    "No matched native CPU speed or full runtime-import qualification from this scoped pytest gate",
+    "Existing unrelated host numerical paths remain; complete goal and latest-main CI/coverage remain required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/legacy_chebpade_cpu_20261017.tar.gz",
+    "sha256": "7fa9871f7f5dfa76fd9b13633efa74327bad05979ad9800bad649b1a69bb84d6",
+    "verified_payloads": 423
+  }
+}

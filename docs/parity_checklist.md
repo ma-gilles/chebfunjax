@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Legacy ChebPadé JAX fitting/evaluation, complex data and physical domain:8initial failures repaired,15finalchecks pass,7fresh native numerical controls. [Evidence](legacy_chebpade_cpu_20261017.json).
+- [ ] Full ChebPadé API/original tests, exact rank-warning semantics, canonical host RNG branch and matched performance remain open.
+
+
 - [x] ThreePlanets actual warning visibility: globalignore removed, fullapplication219.22s/4unchangedframes/0warnings/all1582runtimefiles preguarded. Parent reconciles preserved root-only resource-observation race without changing rawreceipt. [Evidence](threeplanets_parent_cpu_20261017.json).
 - [ ] ThreePlanets cached65537warning/nativechaotictrajectory/raster and existing complex highorder SciPy LSODA provider remain unqualified; original page slot retained.
 

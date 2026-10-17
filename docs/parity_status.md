@@ -1,3 +1,16 @@
+# Legacy ChebPadé JAX port — 2026-10-17
+
+The direct utils.ratapprox.chebpade wrapper now preserves complex data,
+uses JAX fitting/evaluation and maps physical Chebfun domains. Eight initial
+contract failures repaired; final15CPUchecks pass, including four unchanged
+authored tests. Seven fresh pinned-MATLAB controls meet their numerical bounds.
+The first candidate's denominator-length assertion was wrong; native confirms
+three coefficients. Raw failure retained. Rank-warning sequence still differs;
+legacy sampling/zero-padding/K extensions and full APIs remain unqualified.
+Other361library files and other module/test ASTs unchanged. Public cj.chebpade
+uses a separate frontdoor; no full original-test or CPU speed closure claimed.
+Evidence: docs/legacy_chebpade_cpu_20261017.json.
+
 # Latest ThreePlanets actual warning visibility — 2026-10-17
 
 Blanket warning suppression removed; only actual solve warnings captured/printed

@@ -155,6 +155,11 @@
       "scope": "Full current CPU LaplaceBall execution with captured-input limitation, actual stdout and three reference-sized unchanged PNGs; no full page status promotion",
       "sha256": "31ccd91772338c640e88552d3018a436670f564a45946ab3d5333d31bb6cf2b5"
     },
+    "legacy_chebpade_cpu_20261017": {
+      "path": "docs/legacy_chebpade_cpu_20261017.json",
+      "scope": "Legacy utils.ratapprox.chebpade JAX array numerics, complex data and physical-domain evaluation; not full ChebPad\u00e9 API parity",
+      "sha256": "990f518a6c2f065fd5ca8fe5c71f61688460f75cb4d3df5e4548e7e81d69f2ec"
+    },
     "legcoeffs_original_cpu_20261017": {
       "native_evidence_limit": "Result JSON and harness retained; no native terminal receipt/log found. This is result-only evidence, not a source-guarded supervised native qualification.",
       "path": "docs/legcoeffs_original_cpu_20261017.json",
@@ -49937,7 +49942,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "legacy_chebpade_cpu_20261017",
+          "scope": "Legacy JAX/complex/domain subset;15authored checks and7native numerical controls; no whole-function or original-test qualification"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
