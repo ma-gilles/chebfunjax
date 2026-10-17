@@ -1,0 +1,291 @@
+{
+  "base": "10bc8a1e7129ce752ad2f7fee73b86031434b013",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Chebfun LU source arithmetic and bounded public adapters",
+  "changes": [
+    "JAX U/p/extrema decisions; preserve complex values without float casts",
+    "source GE order A - (Acol*Arow)/mx",
+    "Chebfun/array-valued/Quasimatrix/list adapters, empty Chebfun output, orientation checks",
+    "Chebfun.lu and Quasimatrix.lu methods",
+    "length1 real FUN extrema delegate source tech midpoint, restoring rank-deficient divisionByZero behavior"
+  ],
+  "native": {
+    "test_path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_chebfun_lu.m",
+    "original": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "cases": [
+      {
+        "p": [
+          -1,
+          1,
+          0
+        ],
+        "Ureal": [
+          [
+            1,
+            -1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "Uimag": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "Lpreal": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            0.5,
+            1
+          ]
+        ],
+        "Lpimag": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "residual": 0
+      },
+      {
+        "p": [
+          1,
+          -1,
+          0
+        ],
+        "Ureal": [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            0,
+            -3,
+            2
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "Uimag": [
+          [
+            1,
+            2,
+            -1
+          ],
+          [
+            0,
+            3,
+            2
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "Lpreal": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0
+          ],
+          [
+            0.5,
+            0.5,
+            1
+          ]
+        ],
+        "Lpimag": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            -1,
+            0,
+            0
+          ],
+          [
+            -0.5,
+            0,
+            0
+          ]
+        ],
+        "residual": 0
+      },
+      {
+        "p": [
+          -1,
+          1,
+          0
+        ],
+        "Ureal": [
+          [
+            1,
+            -1,
+            1
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            -1
+          ]
+        ],
+        "Uimag": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "Lpreal": [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            0.5,
+            1
+          ]
+        ],
+        "Lpimag": [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        "residual": 0
+      }
+    ],
+    "empty": [
+      true,
+      true,
+      true
+    ],
+    "transpose": "CHEBFUN:CHEBFUN:lu:sizes",
+    "duplicate": "CHEBFUN:CHEBFUN:rdivide:columnRdivide:divisionByZero"
+  },
+  "child_final_python": "20 passed in41.21s:1 unchanged original LU node containing8strict predicates,12supplemental LU controls,7 minandmax regressions",
+  "parent_gate": {
+    "nodes": 34,
+    "wall_seconds": 102.45735410274938,
+    "sampled_peak_summed_rss_kib": 3830032,
+    "inputs_stable": true,
+    "survivors": [],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/lu_parent_run001/receipt.json",
+    "scope": "Original eight LU predicates,12 authored LU controls,7 existing minandmax regressions,4 native-backed subspace Frobenius controls, original subspace predicates1\u20135 node and9 empty/rank-zero controls on combined current source."
+  },
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "44c90f0005f1679226352f1d03fcdec05c80008fa4b48ba55eddcd9714c988fc",
+    "src/chebfunjax/chebfun1d/linalg.py": "9809caf40ca0964add649fc4088dd2d718ff5e90bac014672a6bb3bd5165a2e1",
+    "tests/test_matlab_port/chebfun/test_chebfun_lu_contracts.py": "1df690a91af3457fd1bfafd348dfa6650d261588f32599d154c52cfa1f22f66f"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/lu_source_cpu_20261017.tar.gz",
+    "sha256": "3ef1e82d1d825be1271402ee44559eff3adbf6da845c9f7f4e74a2efa15bcdbd",
+    "verified_payloads": 62
+  },
+  "limitations": [
+    "No complete full-public-LU parity claim: source scalar/collated storage can retain different lengths, and constant minandmax depends on actual stored tech length; exact cross-adapter pivot-vector matching is not established.",
+    "Complex global Chebfun minandmax still does not reproduce native modulus-square simplification plus isolated breakpoint left/right value correction; complex isolated point-value and jump pivots remain a dependent library gap.",
+    "Native guard binds3target source/test files and script plus pinned nativeHEAD; not every native runtime dependency was pregarded.",
+    "Final Python guard binds all src Python files and LU tests plus W/nativeHEAD. Auxiliary minandmax test was not individually pregarded; its frozen bytes equal W base git blob. Full external Python runtime dependency freeze is not claimed.",
+    "Earlier python_run includes an implementation duplicate-pivot control, superseded by final source-native divisionByZero and duplicate constant-pivot controls.",
+    "Root parent guard adds config/conftest and all selected test files; no exhaustive external runtime freeze.",
+    "Full API/JAX parity, latest-main CI and coverage remain open."
+  ]
+}

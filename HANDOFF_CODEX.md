@@ -1,3 +1,13 @@
+# Latest LU source scope — 2026-10-17
+
+LU now uses JAX numerical arrays, retains complex values and follows native
+Gaussian-elimination order. Public Chebfun/Quasimatrix adapters and native
+length-one constant midpoint extrema are restored. All eight default original
+native predicates are true; child20 and combined current-source34 CPU controls
+pass. Complex breakpoint extrema, exact cross-adapter pivot fidelity, broader
+API and matched native performance remain open. Evidence:
+`docs/lu_source_cpu_20261017.json`. Full parity and latest-main CI/coverage remain required.
+
 ## Latest source correction — 2026-10-17
 
 Subspace now uses MATLAB's default Frobenius residual norm; the earlier

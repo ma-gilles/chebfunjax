@@ -921,7 +921,8 @@ class _Piece(eqx.Module):
         (x_min, f_min), (x_max, f_max)
         """
         a, b = self.interval
-        if self.tech.coeffs.ndim == 2 or (
+        if (self.tech.coeffs.shape[0] == 1
+                or self.tech.coeffs.ndim == 2) or (
                 jnp.iscomplexobj(self.tech.coeffs)
                 and not getattr(self.tech, "is_real", False)):
             # Array-valued and/or complex: delegate to the tech (which
@@ -6921,6 +6922,17 @@ class Chebfun(eqx.Module):
             else:
                 out = out + tech.normest()
         return out
+
+    def lu(self):
+        """Factor this column Chebfun, including its array-valued columns.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/lu.m
+        Chebfun commit: 7574c77
+        """
+        from .linalg import lu
+        return lu(self)
 
     def qr(self, other_cols: list | None = None):
         """QR factorization of this Chebfun as a single column, or a quasimatrix.

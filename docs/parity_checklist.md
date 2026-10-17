@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] JAX LU preserves complex values and source Gaussian-elimination order; public column adapters and length-one constant extrema correction. Native original8true, child20 and combined parent34 controls pass. [Evidence](lu_source_cpu_20261017.json).
+- [ ] Full LU pivot/complex breakpoint fidelity, remaining API and matched native CPU performance.
+
 - [x] Correct subspace default Frobenius residual norm (supersedes earlier spectral claim); 27 controls pass, including four native-backed multi-column cases. Deltafun restores seven original predicates and derivative/location/overlap/empty semantics; 20 controls pass. [Evidence](fro_delta_cpu_20261017.json).
 
 - [x] Subspace empty/rank-zero handling and four rank-deficient orderings: final nine controls pass; earlier16-node gate includes original predicates. Native values/errors source-bound, with unrelated moving-main HEAD guard failure preserved and reconciled. [Evidence](subspace_empty_rank0_cpu_20261017.json).

@@ -56,42 +56,47 @@ def lu(A):
     MATLAB source : @chebfun/lu.m
     Chebfun commit: 7574c77
     """
-    import numpy as _np
+    from .mtimes import _columns
 
-    cols = list(A.cols) if isinstance(A, Quasimatrix) else list(A)
+    operands = list(A) if isinstance(A, (list, tuple)) else [A]
+    cols = []
+    for operand in operands:
+        if isinstance(operand, Chebfun) and operand.isempty():
+            continue
+        if getattr(operand, "is_transposed", False):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:lu:sizes: CHEBFUN LU works only for column "
+                "CHEBFUN objects.")
+        cols.extend(_columns(operand))
     if not cols:
-        return [], jnp.zeros((0, 0)), jnp.zeros((0,))
-    if getattr(cols[0], "is_transposed", False):
-        raise ValueError(
-            "CHEBFUN:CHEBFUN:lu:sizes: CHEBFUN LU works only for column "
-            "CHEBFUN objects.")
+        return Chebfun.empty(), jnp.zeros((0, 0)), jnp.zeros((0,))
     dom = cols[0].domain
     n = len(cols)
-    U = _np.zeros((n, n))
-    p = _np.full(n, _np.nan)
+    dtype = jnp.result_type(*[piece.tech.coeffs.dtype
+                              for col in cols for piece in col.funs])
+    U = jnp.zeros((n, n), dtype=dtype)
+    p = jnp.full(n, jnp.nan)
     L: list = []
     cur = cols
     for j in range(n):
         Acol = cur[j]
         (xmin, fmin), (xmax, fmax) = Acol.minandmax()
-        vals = _np.asarray([float(fmin), float(fmax)])
-        poss = _np.asarray([float(xmin), float(xmax)])
-        pos = float(poss[int(_np.argmax(_np.abs(vals)))])
-        mx = float(Acol(jnp.asarray(pos)))
-        Arow = _np.asarray([float(c(jnp.asarray(pos))) for c in cur])
-        if _np.any(p[:j] == pos):
+        vals = jnp.stack([jnp.asarray(fmin), jnp.asarray(fmax)])
+        poss = jnp.stack([jnp.asarray(xmin), jnp.asarray(xmax)])
+        pos = poss[int(jnp.argmax(jnp.abs(vals)))]
+        mx = jnp.reshape(Acol(pos), ())
+        Arow = jnp.stack([jnp.reshape(c(pos), ()) for c in cur])
+        if bool(jnp.any(p[:j] == pos)):
             raise ValueError(
                 "CHEBFUN:CHEBFUN:lu:pivot: Duplicated pivot location, "
                 "likely due to ill-conditioning.")
-        U[j, :] = Arow
-        # MATLAB: L = Acol / mx;  A = A - Acol * Arow / mx  (this exact
-        # operation order keeps the stored point values at the pivots
-        # cancelling to rounding).
+        U = U.at[j, :].set(Arow)
+        # Keep the source GE order: A - (Acol * Arow) / mx.
         L.append(Acol / mx)
-        cur = [c - (Acol * float(Arow[k])) / mx for k, c in enumerate(cur)]
-        p[j] = pos
-    U = _np.triu(U)
-    return Quasimatrix(L, dom), jnp.asarray(U), jnp.asarray(p)
+        cur = [c - (Acol * Arow[k]) / mx for k, c in enumerate(cur)]
+        p = p.at[j].set(pos)
+    return Quasimatrix(L, dom), jnp.triu(U), p
+
 
 
 class Quasimatrix:
@@ -1093,6 +1098,16 @@ class Quasimatrix:
         if self.is_transposed:
             return self._map(lambda column: column.fliplr())
         return Quasimatrix(list(self.cols[::-1]), self.domain)
+
+    def lu(self):
+        """Factor the columns by continuous Gaussian elimination.
+
+        Provenance
+        ----------
+        MATLAB source : @chebfun/lu.m
+        Chebfun commit: 7574c77
+        """
+        return lu(self)
 
     def qr(self):
         from chebfunjax.chebfun1d.linalg import chebfun_qr
