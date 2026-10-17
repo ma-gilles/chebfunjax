@@ -141,3 +141,50 @@ def test_explicit_randomness_and_sufficient_padding_do_not_advance(monkeypatch, 
         repeated = random_engine.randnfun(float("inf"), **options)
     assert jnp.array_equal(first(0.), repeated(0.))
     assert jnp.array_equal(jax.random.key_data(random_engine._DEFAULT_KEY), jax.random.key_data(start))
+
+
+@pytest.mark.parametrize("kind", ["clenshawlord", "maehly"])
+@pytest.mark.parametrize("disabled", [False, True])
+def test_public_frontdoor_uses_source_padding(monkeypatch, kind, disabled):
+    """Public adapter must consume the same normal provider as its kernel."""
+    import chebfunjax as cj
+    from chebfunjax.utils import cfpade
+
+    class NoHostNumpy:
+        integer = int
+
+        def __getattr__(self, name):
+            raise AssertionError(f"Public ChebPade called NumPy.{name}")
+
+    f = cj.chebfun(jnp.asarray([1., .25]), coeffs=True)
+    counts = []
+
+    def draw(count):
+        counts.append(count)
+        assert count == 2
+        return jnp.asarray([1., -2.])
+
+    monkeypatch.setattr(padding, "_normal_draw", draw)
+    monkeypatch.setattr(cfpade, "np", NoHostNumpy())
+    with jax.disable_jit(disabled):
+        p, q, evaluate = cj.chebpade(f, 3, 0, kind)
+    assert counts == [2]
+    assert jnp.array_equal(p.chebcoeffs(4), jnp.asarray([1., .25, 2.**-52, -2.**-51]))
+    assert jnp.array_equal(q.chebcoeffs(1), jnp.asarray([1.]))
+    assert bool(jnp.isfinite(evaluate(.25)))
+
+
+@pytest.mark.parametrize("kind", ["clenshawlord", "maehly"])
+@pytest.mark.parametrize("disabled", [False, True])
+def test_public_sufficient_coefficients_do_not_draw(monkeypatch, kind, disabled):
+    import chebfunjax as cj
+
+    def forbidden(count):
+        raise AssertionError("Sufficient public coefficients consumed randomness")
+
+    monkeypatch.setattr(padding, "_normal_draw", forbidden)
+    f = cj.chebfun(jnp.asarray([1., .25]), coeffs=True)
+    with jax.disable_jit(disabled):
+        p, q, _ = cj.chebpade(f, 1, 0, kind)
+    assert jnp.array_equal(p.chebcoeffs(2), jnp.asarray([1., .25]))
+    assert jnp.array_equal(q.chebcoeffs(1), jnp.asarray([1.]))

@@ -252,6 +252,11 @@
       "scope": "Source-backed exactzero preflight for boundedC1/C2/Singfun fractional powers; removes unnecessary norm warning and tiny-complex falsezero faults.",
       "sha256": "bd2b8f35f9ff7bc7e9ae88971d78c482c72d2a7a03be69809bfb690fef043d23"
     },
+    "public_chebpade_padding_cpu_20261017": {
+      "path": "docs/public_chebpade_padding_cpu_20261017.json",
+      "scope": "Public ChebPad\u00e9 epsilon-normal padding now consumes existing shared JAX normal provider instead of resetting NumPy RNG per call; exact MATLAB RNG bits remain unresolved",
+      "sha256": "c9db3b2b8fdb1e3871656b3cf3f5b0454f081a509153b1c654eac002cadaa22e"
+    },
     "quantum_periodic_column_cpu_20261017": {
       "path": "docs/quantum_periodic_column_cpu_20261017.json",
       "scope": "JAX scalar Fourier coefficient diagonal scaling preserves flat/column/row sample layouts and complex values; repair actual CI quantumstates shape failure.",
@@ -49946,6 +49951,10 @@
         {
           "artifact": "legacy_chebpade_cpu_20261017",
           "scope": "Legacy JAX/complex/domain subset;15authored checks and7native numerical controls; no whole-function or original-test qualification"
+        },
+        {
+          "artifact": "public_chebpade_padding_cpu_20261017",
+          "scope": "Public padding JAX/source-call-order and matched-draw subset; full-item status unchanged"
         }
       ],
       "functions": [

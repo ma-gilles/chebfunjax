@@ -1,0 +1,45 @@
+{
+  "scope": "Public ChebPad\u00e9 epsilon-normal padding now consumes existing shared JAX normal provider instead of resetting NumPy RNG per call; exact MATLAB RNG bits remain unresolved",
+  "base_commit": "0ae3b7112e8893be95a48c4fddce802fbda5e76d",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline": {
+    "failed": 4,
+    "passed": 4,
+    "pytest_seconds": 5.9
+  },
+  "final_regression": {
+    "passed": 51,
+    "pytest_seconds": 43.08,
+    "includes": "existing padding/stream tests, retained matched-native kernel fixtures, public API and six literal original predicates, plus8new public contracts"
+  },
+  "additional_public_native_fixture_checks": {
+    "passed": 6,
+    "pytest_seconds": 8.64,
+    "scope": "Three retained native Clenshaw-Lord cases, JIT enabled/disabled; supplied exact captured normal draws, not native RNG equivalence",
+    "bounds": "cases1/3 exact; case2 componentwise16eps relative, unchanged from existing kernel fixture tests"
+  },
+  "source_bridge": {
+    "library_files": 362,
+    "other_library_files_identical": 361,
+    "other_module_AST_equal": true,
+    "existing_test_AST_equal": true,
+    "51check_source_and_test_bodies_unchanged_for_final6": true,
+    "new_core_selectors": 0
+  },
+  "semantics": [
+    "Only insufficient coefficients consume randomness",
+    "Both public CL and Maehly use existing _epsilon_pad; recursive Maehly calls consume their own draws, as source calls randn on each recursion",
+    "Existing warning behavior retained; no new host provider or waiver"
+  ],
+  "limits": [
+    "JAX random stream is not MATLAB RNG bitstream; matched draws isolate downstream arithmetic only",
+    "No fresh MATLAB invocation for this package; existing pinned-native fixture bytes retained and guarded",
+    "Full ChebPad\u00e9/CF API, host CF numerics, rank-warning differences, numerical extremes and matched CPU performance remain open",
+    "Latest-main CI/coverage and complete goal remain required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/public_chebpade_padding_cpu_20261017.tar.gz",
+    "sha256": "c98adb3bca3813a19e3dd0801185d8215f27a3054c3bf2de411c4cae0336d7fd",
+    "verified_payloads": 405
+  }
+}

@@ -27,8 +27,12 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Public ChebPadé padding uses existing JAX normal provider:4baseline failures repaired,51regression and6additional matched-native-draw checks pass. [Evidence](public_chebpade_padding_cpu_20261017.json).
+- [ ] Exact MATLAB RNG bitstream, full CF/ChebPadé APIs, rank warnings and matched performance remain open.
+
+
 - [x] Legacy ChebPadé JAX fitting/evaluation, complex data and physical domain:8initial failures repaired,15finalchecks pass,7fresh native numerical controls. [Evidence](legacy_chebpade_cpu_20261017.json).
-- [ ] Full ChebPadé API/original tests, exact rank-warning semantics, canonical host RNG branch and matched performance remain open.
+- [ ] Full ChebPadé API/original tests, exact rank-warning semantics, MATLAB RNG bits and matched performance remain open.
 
 
 - [x] ThreePlanets actual warning visibility: globalignore removed, fullapplication219.22s/4unchangedframes/0warnings/all1582runtimefiles preguarded. Parent reconciles preserved root-only resource-observation race without changing rawreceipt. [Evidence](threeplanets_parent_cpu_20261017.json).

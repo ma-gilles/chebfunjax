@@ -1,3 +1,14 @@
+# Public ChebPadé JAX padding — 2026-10-17
+
+Both public padding branches now use the existing shared JAX normal provider
+instead of resetting a NumPy RNG. Four baseline failures repaired;51regression
+checks pass, including the six literal original predicates. Six additional
+public-adapter checks reproduce retained native padding fixtures with supplied
+normal draws. All bounds unchanged. This does not establish MATLAB RNG bits.
+Other361library files and existing test bodies unchanged; public warning,
+full API, remaining host CF numerics and matched CPU speed remain open.
+Evidence: docs/public_chebpade_padding_cpu_20261017.json.
+
 # Legacy ChebPadé JAX port — 2026-10-17
 
 The direct utils.ratapprox.chebpade wrapper now preserves complex data,

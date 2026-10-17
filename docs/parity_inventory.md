@@ -274,3 +274,10 @@ statuses are unchanged.
 and7fresh pinned-native numerical controls to the ChebPadé library row.
 This is not an original MATLAB test-file qualification. Exact rank-warning,
 full API and performance gaps remain. All full-item statuses are unchanged.
+
+## Public ChebPadé source padding — 2026-10-17
+
+[Evidence](public_chebpade_padding_cpu_20261017.json) records51regression
+checks and6additional public matched-native-draw controls. Exact MATLAB random
+bits, full API and performance remain unqualified. All full-item statuses stay
+unchanged; existing fixture tests do not constitute a fresh native run.

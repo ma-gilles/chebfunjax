@@ -348,10 +348,11 @@ def _chebpade_clenshaw_lord(f, m, n, M):
              else f.funs[0].tech.coeffs)
     ell = max(m, n)
     if len(c) < m + 2 * n + 1:
-        rng = np.random.default_rng(0)
-        pad = np.finfo(float).eps * rng.standard_normal(
-            m + 2 * n + 1 - len(c))
-        c = jnp.concatenate([jnp.asarray(c), jnp.asarray(pad, dtype=c.dtype)])
+        from chebfunjax.utils._cf_padding import _epsilon_pad
+
+        # Source eps*randn consumes the shared normal stream only when short.
+        # The JAX stream preserves call ordering, not MATLAB random bits.
+        c = _epsilon_pad(c, m + 2 * n + 1)
     c = jnp.asarray(c)
     c = c.at[0].multiply(2)
 
@@ -412,9 +413,10 @@ def _chebpade_maehly(f, m, n):
             f"chebpade: not enough coefficients for [{m}/{n}]; "
             "assuming the remainder are noise",
             RuntimeWarning, stacklevel=2)
-        rng = np.random.default_rng(0)
-        pad = np.finfo(float).eps * rng.standard_normal(m + 2 * n + 1 - len(a))
-        a = jnp.concatenate([a, jnp.asarray(pad, dtype=a.dtype)])
+        from chebfunjax.utils._cf_padding import _epsilon_pad
+
+        # Reuse source padding; each recursive call consumes its own draws.
+        a = _epsilon_pad(a, m + 2 * n + 1)
 
     # MATLAB rank(D, tol) counts singular values strictly greater than the
     # explicit absolute 1e-10 cutoff; construction and degree selection are eager.

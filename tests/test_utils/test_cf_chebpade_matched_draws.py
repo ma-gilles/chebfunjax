@@ -56,3 +56,41 @@ def test_public_source_matched_normal_draws(monkeypatch, disabled, case):
             # nonsingular 2x2 solve. No unit floor hides near-zero q coefficients.
             assert bool(jnp.all(jnp.abs(actual - expected) <=
                                 16 * jnp.finfo(jnp.float64).eps * jnp.abs(expected)))
+
+
+@pytest.mark.parametrize("disabled", [False, True])
+@pytest.mark.parametrize("case", [1, 2, 3])
+def test_public_frontdoor_matches_native_padding_fixture(monkeypatch, disabled, case):
+    """Exercise source normal padding through the public adapter, including n>0."""
+    import chebfunjax as cj
+
+    record = json.loads((Path(__file__).parent / "data" / "cf_padding" /
+                         f"case{case}.json").read_text())
+
+    def decode(name):
+        packed = record[name]
+        return jnp.asarray([complex(struct.unpack(">d", bytes.fromhex(r))[0],
+                                    struct.unpack(">d", bytes.fromhex(i))[0])
+                            for r, i in zip(packed["real_hex"], packed["imag_hex"])])
+
+    calls = []
+
+    def draw(count):
+        calls.append(count)
+        assert count == record["missing"]
+        return decode("normals").real
+
+    monkeypatch.setattr(padding, "_normal_draw", draw)
+    f = cj.chebfun(decode("c").real, coeffs=True)
+    with jax.disable_jit(disabled):
+        p, q, _ = cj.chebpade(f, record["m"], record["n"])
+    assert calls == [record["missing"]]
+    for f_out, name in [(p, "pk"), (q, "qk")]:
+        expected = decode(name).real
+        actual = f_out.chebcoeffs(len(expected))
+        assert actual.shape == expected.shape
+        if case in (1, 3):
+            assert jnp.array_equal(actual, expected)
+        else:
+            assert bool(jnp.all(jnp.abs(actual-expected) <=
+                                16*jnp.finfo(jnp.float64).eps*jnp.abs(expected)))
