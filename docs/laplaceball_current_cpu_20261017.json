@@ -1,0 +1,211 @@
+{
+  "head": "5ab31fb411fbb240b0a279400f8581af04f0fb8c",
+  "scope": "Unchanged complete LaplaceBall public script, computation and renderer on current CPU source with one captured native input vector. Current execution verification, not full page parity.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "receipt": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/laplaceball_current_full_run001/receipt.json",
+    "sha256": "3cfffc71c6686b7ef5ed88cc9e7eee8265d7678173cf4eec8be12ad131ebbac4",
+    "wall_seconds": 34.993769840803,
+    "sampled_peak_summed_rss_kib": 2002300,
+    "inputs_stable": true,
+    "survivors": []
+  },
+  "analysis": {
+    "printed": [
+      {
+        "slot": 1,
+        "actual": -0.761180229121337,
+        "reference": -0.761180229121337,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 2,
+        "actual": -0.761180229121337,
+        "reference": -0.761180229121337,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 3,
+        "actual": -0.020281680162226,
+        "reference": -0.020281680162226,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 4,
+        "actual": -0.761180229121337,
+        "reference": -0.761180229121337,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 5,
+        "actual": -0.761180229121336,
+        "reference": -0.761180229121336,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 6,
+        "actual": -1.847977702024473,
+        "reference": -1.847977702024471,
+        "absolute_difference": 1.9984014443252818e-15
+      },
+      {
+        "slot": 7,
+        "actual": -1.847977702024466,
+        "reference": -1.847977702024464,
+        "absolute_difference": 1.9984014443252818e-15
+      },
+      {
+        "slot": 8,
+        "actual": -0.020281680162226,
+        "reference": -0.020281680162226,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 9,
+        "actual": -0.020281680162227,
+        "reference": -0.020281680162149,
+        "absolute_difference": 7.800010637382115e-14
+      },
+      {
+        "slot": 10,
+        "actual": -0.020281680162226,
+        "reference": -0.020281680162226,
+        "absolute_difference": 0.0
+      },
+      {
+        "slot": 11,
+        "actual": -0.020281680162227,
+        "reference": -0.020281680162215,
+        "absolute_difference": 1.1997347559855598e-14
+      }
+    ],
+    "images": [
+      {
+        "slot": 1,
+        "pixels": [
+          600,
+          253
+        ],
+        "sha256": "b961ebec7c3cc16fd3d19d9694ff0f8c06afe5d51f407680c8038adec75496f8",
+        "published_sha256": "b961ebec7c3cc16fd3d19d9694ff0f8c06afe5d51f407680c8038adec75496f8",
+        "published_same_bytes": true,
+        "reference_sha256": "c86a2c4e9ab20583e0f001c7669d9cc157d9376528763e0285dc4d32f3ea542e",
+        "decoded_rgba_equal": false,
+        "mean_channel_absolute_difference": 2.1984041501976286,
+        "different_pixel_fraction": 0.1153030303030303
+      },
+      {
+        "slot": 2,
+        "pixels": [
+          600,
+          253
+        ],
+        "sha256": "d275d99f370ae0b95f4812aef65163cfb7033173085549cf643ae082ee08b19f",
+        "published_sha256": "d275d99f370ae0b95f4812aef65163cfb7033173085549cf643ae082ee08b19f",
+        "published_same_bytes": true,
+        "reference_sha256": "1cc8179f76b3b8e3ebc5f12ed4780129d3aa73f251062357407fe7404285fec2",
+        "decoded_rgba_equal": false,
+        "mean_channel_absolute_difference": 4.688302042160738,
+        "different_pixel_fraction": 0.1781159420289855
+      },
+      {
+        "slot": 3,
+        "pixels": [
+          600,
+          253
+        ],
+        "sha256": "424042ef82b47d45a82976f76b78540ea62b634ab4dd8a178d75a049073387f8",
+        "published_sha256": "424042ef82b47d45a82976f76b78540ea62b634ab4dd8a178d75a049073387f8",
+        "published_same_bytes": true,
+        "reference_sha256": "b773b1563e72a6065c31f0b867f9ab9f23796971bab1ec2d596bc5bb4529f73d",
+        "decoded_rgba_equal": false,
+        "mean_channel_absolute_difference": 3.075856389986825,
+        "different_pixel_fraction": 0.23755599472990777
+      }
+    ],
+    "visual_review": "All three actual and reference images viewed. Boundary sphere framing/pattern closely agrees; ball slice lighting/geometry/axis panes and inner-sphere colorbar ticks/labels/fonts/raster still differ. No global figure parity claim."
+  },
+  "source_script_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+  "fixture_sha256": "eba1d7ef321fc672e9b1b591adf26ddbb6345d13586a9594aace672ba9da4b54",
+  "twelve_bindings": {
+    "head": "5ab31fb411fbb240b0a279400f8581af04f0fb8c",
+    "scripts": [
+      {
+        "script": "examples/approx/best_approx.py",
+        "current_sha256": "08af4919fea63ff04f159fe183de3f22b03cba7cc4c441cb74d8fc0336281d13",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/approx/fermi_dirac.py",
+        "current_sha256": "7ad4985a10e584f2c72708983b39ed04742c18c20775e7effbc0e7c249058012",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/approx2/localization.py",
+        "current_sha256": "91ad3afce704fe721ae5dad931e0d0a96aaf31fdc18271e8fd471124e460343c",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/fourier/fourier_based_chebfuns.py",
+        "current_sha256": "b0f6bb037974306a349332387d9c38890418f1fc51e76072c0465ac1b95c4bfc",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/linalg/vandermonde_arnoldi.py",
+        "current_sha256": "e0ca9709a7549a5011529fde0e5d372fa1fff6010cbbf822d0d8240569cc338d",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/ode-nonlin/delay_differential_equations.py",
+        "current_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/ode-random/randomswitching.py",
+        "current_sha256": "8dde1c9a53837e73c1da1ab1265c38af6159af9a5f0a119f83cd75eaf9158e39",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/pde/trapezoideigs.py",
+        "current_sha256": "ab8ea8978cd03cf3fbf60a2e14c6e118a78d47a0cfbbfd67a84a40bb6dff7c03",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/roots/marching_squares.py",
+        "current_sha256": "80534b3ddf1482092e08e44dc7bfc0de6a5f900af5b5100d26a3139dad53ae7a",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/sphere/atmospherictemperature.py",
+        "current_sha256": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/sphere/laplaceball.py",
+        "current_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+        "matches_retained_binding": true
+      },
+      {
+        "script": "examples/stats/resampling_random_variables.py",
+        "current_sha256": "02e8c9397139bf970c6be341b6dbc13d0121ac994dec315b7e06cc95f11a2d0b",
+        "matches_retained_binding": true
+      }
+    ],
+    "scope": "Source identity only; no new page/runtime credit."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/laplaceball_current_full_cpu_20261017.tar.gz",
+    "sha256": "e53049985ba64315e162475b144b9964b24593883326e7eceb6c4a3c0c8259dd",
+    "verified_payloads": 404
+  },
+  "limits": [
+    "Boundary representation remains65x65 versus native65x63.",
+    "One native random-input fixture does not implement general MATLAB RNG parity.",
+    "All11printed observations retained; maximum difference from cached page is7.80e-14.",
+    "Three images are byte-identical to previously published images and600x253; none is reference pixel-identical.",
+    "Source Cartesian Spherefun overload still absent; page uses equivalent angular boundary point.",
+    "Slice lighting/geometry/panes, inner colorbar ticks, fonts and raster remain open.",
+    "Actual incompatible plugin warning retained; CPU backend asserted. Runtime imports observed/hashed after execution, not exhaustively preguarded.",
+    "Latest-main CI/coverage and full goal remain required."
+  ]
+}

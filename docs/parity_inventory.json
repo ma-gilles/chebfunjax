@@ -130,6 +130,11 @@
       "sha256": "a19309513dc8b31448e78f569e662a2c62a792cff528653b96149c07d88a9fa2",
       "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731"
     },
+    "laplaceball_current_cpu_20261017": {
+      "path": "docs/laplaceball_current_cpu_20261017.json",
+      "scope": "Full current CPU LaplaceBall execution with captured-input limitation, actual stdout and three reference-sized unchanged PNGs; no full page status promotion",
+      "sha256": "31ccd91772338c640e88552d3018a436670f564a45946ab3d5333d31bb6cf2b5"
+    },
     "legcoeffs_original_cpu_20261017": {
       "native_evidence_limit": "Result JSON and harness retained; no native terminal receipt/log found. This is result-only evidence, not a source-guarded supervised native qualification.",
       "path": "docs/legcoeffs_original_cpu_20261017.json",
@@ -38944,6 +38949,13 @@
             "url": "https://www.chebfun.org/examples/sphere/LaplaceBall.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifacts": [
+            "laplaceball_current_cpu_20261017"
+          ],
+          "kind": "current_full_cpu_execution",
+          "scope": "Full current CPU LaplaceBall execution with captured-input limitation, actual stdout and three reference-sized unchanged PNGs; no full page status promotion"
         }
       ],
       "figure_content_status": "unverified",

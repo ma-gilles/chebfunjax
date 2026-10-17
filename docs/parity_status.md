@@ -1,3 +1,21 @@
+# Latest LaplaceBall whole-script scope — 2026-10-17
+
+The complete unchanged script now runs on current CPU source, including its
+renderer, in34.994s with stable guards and no survivors. Eleven actual outputs
+are retained and the page reflects the current Oxford boundary value. All three
+600x253 PNGs equal previously published bytes; none equals reference pixels.
+All12interrupted script hashes still match the latest retained source bindings.
+Boundary65x65vsnative65x63, general RNG, final digits, Cartesian Spherefun API,
+slice lighting/colorbar/fonts/raster and latest-main CI remain open.
+Evidence: `laplaceball_current_cpu_20261017.json`.
+
+## Current numerical packages
+
+Latest source has corrected the earlier subspace spectral-norm claim: native
+default residual norm is Frobenius. Subspace/Deltafun, JAX LU, scalar CPU FFT/PDE
+and complex extrema scopes are tracked in parity_checklist.md and their reports.
+Earlier entries below retain historical scope and do not imply current full parity.
+
 # Latest subspace empty/rank-zero scope — 2026-10-17
 
 Subspace now matches captured empty/rank-zero outcomes and preserves four
