@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx/minimax_sqrt.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/minimax_sqrt.py)
 
-> **Execution qualification:** Seven public source constructors and all 116 approximation calls completed on frozen commit `288e3ddf`, using a fresh serial worker for each fit. The plots retain actual errors and all 11 nonconvergence warnings; no cumulative minimum or fallback approximation replaces them. The 6/6 and 7/7 matched-input native errors differ slightly, and no full native error table or pixel parity is established. This qualifies the recorded source calls, not one completed monolithic script process or the newer current-head roots implementation. Native matrix-conditioning warnings are not emitted by this backend.
+
 
 Rational functions outperform polynomials for approximating functions with (near-)singularities. The absolute value function is a typical example, for which polynomials converge only algebraically $O(1/n)$ whereas rationals root-exponentially $O(\exp(-\pi\sqrt{n}))$.
 

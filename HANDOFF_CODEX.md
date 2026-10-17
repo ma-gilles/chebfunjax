@@ -1,3 +1,15 @@
+# Latest reference prose/structure cleanup — 2026-10-17
+
+Moved27implementation qualification-note blocks from21example pages to
+parallel docs/example_evidence documents, preserving exact historical note
+bytes/provenance and original licenses. Fresh parent offlineaudit oncurrent
+EA source: all322parser-normalizedprose/math/headings agree;2408MATLABinput
+blocks and1305figure-reference/interleaving slots match,0missingassetpaths.
+This is structural verification, not full runtime/output/figure parity. Seven
+blankoutputslots and3historicalwarning-count differences remain. No scientific
+source/examples/tests/images changed by this note-only package.
+Evidence: docs/page_structure_prose_parent_cpu_20261017.json.
+
 # Latest fresh ThreeBody execution — 2026-10-17
 
 After FFT602integration, full unchanged script104.57s;1380actual imports all

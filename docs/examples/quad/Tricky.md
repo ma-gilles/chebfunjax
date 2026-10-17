@@ -6,7 +6,7 @@
 
 Python translation: [`examples/quad/tricky.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/quad/tricky.py)
 
-> Execution qualification (2026-10-17): Airy output blocks 6 and 7 and figure 4 come from a separate completed CPU execution of those current source cells using the JAX Airy primitive. The unbounded integral is now finite; both displayed integrals match the historical native displays. The ten other output blocks and eight other figures retain the earlier completed full-script capture; their scientific source statements are unchanged. Pinned JAX/JAXlib 0.11.0 was used for both runs. The intentional unresolved approximation and its `Function not resolved using 6091 pts.` warning remain. Axis limits, ticks, fonts and raster differences remain; pixel parity is not claimed. See [`tricky_airy_jax_cpu_20261017.json`](../../tricky_airy_jax_cpu_20261017.json) and the [earlier full-run receipt](../../tricky_full_current_cpu_20261017.json).
+
 
 ## 0. Introduction
 

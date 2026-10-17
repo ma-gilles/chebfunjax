@@ -18,7 +18,7 @@ Warning: The syntax 'splitting on' is deprecated.
 Please see CHEBFUNPREF documentation for further details.
 ```
 
-> Warning capture qualification: The warning above was emitted by the actual Python `splitting("off")` call in a focused check of the source `off`/`on` sequence. It is emitted once per process. The numeric output and figures are retained from the prior qualified run; the complete example was not rerun for this warning check.
+
 
 ## von Mises distribution
 

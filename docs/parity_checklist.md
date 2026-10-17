@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Restore reference prose after moving27implementation notes from21pages into preserved evidence documents. Fresh current-tree offlineaudit:322pages,0parser-normalizedprose/equation/header mismatches;2408exact MATLABinputblocks and1305figure-reference positions/interleaving agree. [Evidence](page_structure_prose_parent_cpu_20261017.json). Runtime/stdout/pixel/content qualification remains separate;7blank outputslots and3historicalwarning-count differences remain.
+
+
 - [x] Fresh full ThreeBody after FFT602 integration:104.57s,1380actual imports preguarded, stable/no survivors. Fresh415coefficients match retained input words; bothfits and allfour600x270figures complete. Five actual stdout blocks and two changed PNGs regenerated. [Evidence](threebody_fft602_current_cpu_20261017.json). Full nativeODE/second-fit/renderer/performance parity remains open.
 
 

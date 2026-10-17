@@ -1,3 +1,13 @@
+# Latest reference prose/structure audit — 2026-10-17
+
+All322pages now match cached reference parser-normalized visible prose,
+equations and headings after27implementation notes moved out of21example
+pages. Exact2408MATLABinputs and1305figure-reference/interleaving positions
+agree. Historical notes/provenance remain in docs/example_evidence. This
+closes the measured structural discrepancies only;7blank outputslots,
+3historicalwarning-count differences, computations and figure science/raster
+remain open. [Evidence](page_structure_prose_parent_cpu_20261017.json).
+
 # Latest ThreeBody after FFT602 integration — 2026-10-17
 
 The complete unchanged CPU script runs in104.57s with all1380observed imports

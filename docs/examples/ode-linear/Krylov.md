@@ -6,7 +6,7 @@
 
 Python translation: [`examples/ode-linear/krylov.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-linear/krylov.py)
 
-> **Execution scope (2026-10-17):** Only the final piecewise-coefficient block and figure 03 were refreshed on the current CPU implementation. Earlier printed outputs and figures remain historical; this is not a full-page rerun or a new native MATLAB comparison. See the [scoped qualification](../../krylov_final_source_cpu_20261017.json).
+
 
 ## Krylov subspace methods
 

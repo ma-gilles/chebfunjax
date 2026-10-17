@@ -6,7 +6,7 @@
 
 Python translation: [`examples/linalg/eig_landscapes.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/linalg/eig_landscapes.py)
 
-> **Python execution qualification.** The adaptive Hermitian constructions and full 512×512 real-symmetric constructions execute the source eigenvalue and gap computations. NumPy RandomState draws differ from MATLAB rng(1)/rng(8), and JAX eigvalsh differs from the native eig/sort backend. The plotted minima and crossing location belong to these Python draws. Matplotlib sampling, palette, and lighting differ from native rendering; exact pixel and RNG parity are unverified.
+
 
 ## 1. Complex hermitian
 

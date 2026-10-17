@@ -157,7 +157,7 @@ plot(xvec(1),yval,'.k',MS,12), grid on
 end
 ```
 
-**Qualification.** Source grid coordinates match the captured MATLAB R2025b coordinates bit for bit. Python fminsearch used 128 iterations / 266 evaluations, versus native 136 / 289; final coordinates differ by at most 1.472753891e-9. The palette and layout approximate the reference; historical rendering and pixel parity are unverified. Printed timers include observers on a shared host and are not comparative benchmarks.
+
 
 ---
 

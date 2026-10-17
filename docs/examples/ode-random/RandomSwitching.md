@@ -6,7 +6,7 @@
 
 Python translation: [`examples/ode-random/randomswitching.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-random/randomswitching.py)
 
-> **Qualification of the Python results.** The prose and MATLAB code below are preserved from the native example. The figures and printed outputs come from the tested Python translation, using JAX key 1 as an explicit adapter without reproducing the MATLAB random stream. The cached published webpage starts with `rng(0)`; the checked-out `.m` source instead uses `rng(1)`. The realizations differ: the first Python figure peaks near 75 (the native reference stays below 10), and the second Python figure does not show the decay described in the source illustration. The original data and axis limits are retained. The four solves use the native defaults and `maxnorm` setting; the third stops at about 18.27595224 and its continuous solution and squared norm retain a NaN tail. Execution checks passed, but numerical accuracy differences remain unresolved. Rendering also differs in apparent stroke thickness, major and minor grids, and inward top/right ticks; source line widths are retained. These results do not establish MATLAB RNG, numerical, or visual parity.
+
 
 ## 1. The simplest scalar example
 

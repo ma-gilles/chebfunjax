@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx/eight_shades.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/eight_shades.py)
 
-Current execution retains the warnings emitted by the pinned Chebfun source. The source calls and figures are restored; numerical comparison still records a near-pole rational interpolation residual and a trigonometric minimax residual. See [`EightShades.qualification.json`](EightShades.qualification.json).
+
 
 ## 1. Introduction
 

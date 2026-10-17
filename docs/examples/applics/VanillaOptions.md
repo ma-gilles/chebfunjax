@@ -6,7 +6,7 @@
 
 Python translation: [`examples/applics/vanillaoptions.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/applics/vanillaoptions.py)
 
-> **Python execution qualification.** All source price, hedge, surface and six boundary computations run through public Chebfun operations on the original domains. Pinned MATLAB also returns an out-of-domain, nonzero-residual boundary at rate 0.0405; the source iteration is preserved. Exact curve coordinates, native rendering and pixel parity remain unverified.
+
 
 ## Introduction
 

@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx/pushnitski.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/pushnitski.py)
 
-> **Execution qualification.** All four polynomial, four rational and four CF fits completed on the literal fixed-1000-per-piece input in guarded CPU stages. A monolithic attempt hit the 4 GiB limit; the figures replay actual captured outputs. The polynomial timer is historical measured execution; continuous rational/CF cell timers were not recorded. Large CF matrices use dense JAX `eigh`; matched native-input comparisons are recorded in [execution evidence](../../pushnitski_source_cpu_20261011.json). Whole-example numerical, historical figure and pixel parity remain unverified; the native oracle has explicitly incomplete prebound Symbolic provider coverage. Timings on the shared host are not benchmarks.
+
 
 The function $|x|$ can be approximated with accuracy $O(1/n)$ by degree $n$ polynomials on $[-1,1]$ but accuracy $O(\exp-C\sqrt n)$ by type $(n,n)$ rationals. In a lecture at Oxford on 8 November, Alexander Pushnitski presented some striking theorems concerning much more difficult functions involving $1/\log x$. Roughly speaking polynomials can achieve accuracy $1/\log n$ whereas rationals are closer to $1/n$.
 
@@ -30,7 +30,6 @@ plotcoeffs(f1000,'loglog'), xlim([0 500]), grid on
 ```
 
 
-Plotting emitted the following actual warnings (file paths omitted):
 
 ```text
 UserWarning: Attempt to set non-positive xlim on a log-scaled axis will be ignored.
@@ -78,7 +77,7 @@ Trial interpolant too far from optimal...
 Trying AAA-Lawson-based initialization...
 ```
 
-*The rational type (3,3) fit completed separately after the memory-capped attempt; the two initializer messages above are retained from that original attempt. No continuous rational cell timer was captured.*
+
 
 ![Pushnitski figure 04](../../images/approx/Pushnitski_04.png)
 
@@ -94,7 +93,7 @@ end
 toc
 ```
 
-*The four CF calls completed in a separate guarded process; a continuous cell elapsed time was not recorded.*
+
 
 ![Pushnitski figure 05](../../images/approx/Pushnitski_05.png)
 

@@ -6,7 +6,7 @@
 
 Python translation: [`examples/ode-eig/randfuneig.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/ode-eig/randfuneig.py)
 
-> **Execution qualification.** The figures and printed counts below come from one complete CPU execution of the literal source computations with chebfunjax. Sections 1–3 retain `n=1000`, section 2 uses `m=10000`, and section 5 retains the 401×401 complex coefficient array. The Python script uses explicit NumPy and JAX RNG adapters seeded with 2017; these are not MATLAB RNG streams, so counts and individual spectrum points need not match the published MATLAB sample. Native eigenfunction normalization remains unverified. All five canvases are 600×269 pixels; Matplotlib dots are visibly larger than the reference, and framing and line style can differ. The MATLAB code and original discussion remain below; output blocks contain the actual Python stdout.
+
 
 ## 1. Eigenvalues of random matrices
 

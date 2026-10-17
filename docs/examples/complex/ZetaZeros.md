@@ -114,11 +114,11 @@ Reference:
 
 1. L. N. Trefethen, *Approximation Theory and Approximation Practice, Extended Edition*, SIAM, 2019.
 
-## Execution qualification
 
-The full 100000-term construction, eight complex roots with recursion disabled, and public Chebfun composition were executed with JAX 0.11.0 on CPU. The computed function has length 75. The eight printed computed rows differ from cached native rows by at most 1.000000082740371e-10; the full computed roots differ from the source ten-decimal comparison constants by at most 2.3169648471547077e-9. JAX reduction and complex-power rounding can differ from MATLAB. Exact coefficient, root-bit and pixel parity remain unverified. Both figures were visually reviewed for readable content. The 7.322813-second source timer is a shared-host observation, not a benchmark.
 
-The actual public composition emitted this warning:
+
+
+
 
 ```text
 UserWarning: CHEBFUN:CHEBFUN:compose:composeTwoChebfuns:complex: F should be real valued to construct G(F). Results may be inaccurate if G is not a polynomial.

@@ -6,7 +6,7 @@
 
 Python translation: [`examples/roots/random_polys.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/roots/random_polys.py)
 
-> Execution qualification: The full degree-30 and ten degree-1000 computations use exact captured MATLAB R2025b `rng('default')` inputs through public chebfunjax transforms, constructors and roots. All ten printed fractions and the mean agree with the cached native output. This is a fixed input replay, not general RNG implementation parity. Figures were repaired from the saved degree-30 state; exact pixel parity and coefficient/root bit parity remain unverified. The final script is qualified against source baseline `b08fbe16`, including the endpoint-mapping correction; its saved numerical arrays and figures are unchanged from the earlier replay.
+
 
 Recently I heard a talk by Igor Pritsker of Oklahoma State University at which he discussed a theorem of Das in 1971 about the roots of random real polynomials [1,3]. This can be very nicely illustrated in Chebfun.
 

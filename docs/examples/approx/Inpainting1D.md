@@ -6,7 +6,7 @@
 
 Python translation: [`examples/approx/inpainting1d.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/approx/inpainting1d.py)
 
-> **Qualification:** This source computation uses public nonperiodic `cj.randnfun(.1, key=PRNGKey(1))`; its normal draws do not reproduce MATLAB `rng(1)`. All three public fits receive the same captured nine-piece corrupted function. The source Watson L1 iteration reached its unchanged 100-iteration limit and emitted the warning below; its actual recovery error is `2.166633346778370e-05`, so the native prose’s near-zero recovery is not established. L2 and minimax values use this different noise realization. Native prose/code are retained for comparison. All five figures are captured at the reference 600×270 sizes; curves, limits, ticks, grid and line styling differ. A MATLAB replay using the saved piece coefficients also reaches 100 iterations, with recovery error `7.061517343020836e-06`. The initial polynomial coefficients differ by at most `1.12e-16`; damping/root-count choices first diverge at iteration 27. This does not establish numerical or visual parity.
+
 
 Here is a smooth function corrupted in three regions:
 
