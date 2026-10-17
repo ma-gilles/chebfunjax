@@ -61,8 +61,8 @@ def plot_iteration(old, new, error, domain, *, ax=None, hold=False):
     if not hold:
         ax.clear()
         ax.set_prop_cycle(color=MATLAB_COLOR_ORDER)
-    # Native builtin plot advances ColorOrderIndex even with explicit colors.
-    # The current supplied axes cycle is preserved when held.
+    # The native first marker line consumes a color-order slot; matlab_plot
+    # does not advance for its explicit LineSpec color. Preserve the held cycle.
     ax._get_lines.get_next_color()
     a, b = domain
 
@@ -80,7 +80,8 @@ def plot_iteration(old, new, error, domain, *, ax=None, hold=False):
         markerfacecolor="none",
         markeredgewidth=0.5,
     )
-    ax._get_lines.get_next_color()
+    # The black reference uses a named Color property here, so matlab_plot
+    # performs its native color-order advance internally.
     diagonal = float(0.5 / jnp.sqrt(2.0))
     star = Path(
         [

@@ -71,6 +71,16 @@
       "unique_full_byte_preimages": 8012,
       "verified_payloads": 19285
     },
+    "inverse_packed_color_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_color_cpu_20261017.zip",
+        "sha256": "3e085a88ee3dea87c4ae82e789f7e6751c149140704ac2c268ec5d38addf52f8"
+      },
+      "path": "docs/inverse_packed_color_cpu_20261017.json",
+      "scope": "Scoped CPU optimization and color correction only. No full library/test/page/figure/performance/CI completion claim.",
+      "sha256": "a19309513dc8b31448e78f569e662a2c62a792cff528653b96149c07d88a9fa2",
+      "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731"
+    },
     "official_example_archive_20261017": {
       "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
       "archive_sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
@@ -13838,6 +13848,97 @@
             "url": "https://www.chebfun.org/examples/complex/ComplexArcLength.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "inverse_packed_color_cpu_20261017",
+          "figures": [
+            {
+              "different_channel_values": 29869,
+              "dimensions_match": true,
+              "max_abs_channel_delta": 255,
+              "mean_abs_channel_delta": 5.088489197530865,
+              "name": "ComplexArcLength_01.png",
+              "official_dimensions_px": [
+                600,
+                270
+              ],
+              "official_reference_sha256": "0502a358f451cfa5c5a547bb6f771c0522ec39848744e1434255bf8a623d386b",
+              "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_01.png",
+              "pixel_identical": false,
+              "python_dimensions_px": [
+                600,
+                270
+              ],
+              "python_sha256": "b889b341e452978b6e75a94201ff07511865a94f8571e1618fee28326567b5a4",
+              "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_01.png",
+              "total_channel_values": 648000
+            },
+            {
+              "different_channel_values": 34754,
+              "dimensions_match": true,
+              "max_abs_channel_delta": 255,
+              "mean_abs_channel_delta": 5.793587962962963,
+              "name": "ComplexArcLength_02.png",
+              "official_dimensions_px": [
+                600,
+                270
+              ],
+              "official_reference_sha256": "7e7ba0e082270fb44b4441ef3bcd404bdd2ec10cf53a13a050776929c64b2810",
+              "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_02.png",
+              "pixel_identical": false,
+              "python_dimensions_px": [
+                600,
+                270
+              ],
+              "python_sha256": "80571d86af634fe1a9a7e0875b911032e620e4752f4e6329d72b074cf5c534a0",
+              "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_02.png",
+              "total_channel_values": 648000
+            },
+            {
+              "different_channel_values": 40416,
+              "dimensions_match": true,
+              "max_abs_channel_delta": 255,
+              "mean_abs_channel_delta": 8.655930555555555,
+              "name": "ComplexArcLength_03.png",
+              "official_dimensions_px": [
+                600,
+                270
+              ],
+              "official_reference_sha256": "efc54cb43d6c34c11ee9a0c031a66c17d15ca2b31cbb202ba3f270736bc2dabf",
+              "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_03.png",
+              "pixel_identical": false,
+              "python_dimensions_px": [
+                600,
+                270
+              ],
+              "python_sha256": "a87fb02f614b3eb89ef8d1c0ba422ba37b4cff57b42494c91412e8847bd5ade3",
+              "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_03.png",
+              "total_channel_values": 648000
+            },
+            {
+              "different_channel_values": 53830,
+              "dimensions_match": true,
+              "max_abs_channel_delta": 255,
+              "mean_abs_channel_delta": 12.359805555555555,
+              "name": "ComplexArcLength_04.png",
+              "official_dimensions_px": [
+                600,
+                270
+              ],
+              "official_reference_sha256": "ada72358c6aaf4dd4c7aa8984593b1c7d1959245cf89b428985d883585a4ed47",
+              "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_04.png",
+              "pixel_identical": false,
+              "python_dimensions_px": [
+                600,
+                270
+              ],
+              "python_sha256": "9063e2e5e3acfb442c1c50e58d6556a5422620cf87ec7bea3f916397c83ca261",
+              "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_04.png",
+              "total_channel_values": 648000
+            }
+          ],
+          "generated_page_sha256": "587c72ce840beca2fa62f0470c19604dd9d0d4ee05338fa774f656b6d4c57fb1",
+          "observation": "Whole execution succeeds; four dimensions match; scalar, representation, layout and raster differences remain."
         }
       ],
       "figure_content_status": "unverified",
@@ -51495,7 +51596,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_packed_color_cpu_20261017",
+          "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -54806,7 +54912,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_packed_color_cpu_20261017",
+          "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -68395,7 +68506,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_packed_color_cpu_20261017",
+          "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

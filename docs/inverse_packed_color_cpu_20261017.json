@@ -1,0 +1,361 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731",
+  "source_sha256": {
+    "src/chebfunjax/tech/_source_clenshaw.py": "ca89fa27a090e6acf41ce70e0de8a1bccae1eb19090daba5b69dec00b67368ea",
+    "src/chebfunjax/utils/_trigremez_iteration_options.py": "2a57fed339cf0b62f4e4c74ac94d919d7753a32466b9d3c331f998427c951065"
+  },
+  "tests": {
+    "inverse_clenshaw_candidate_gate_20261017": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_clenshaw_candidate_gate_20261017/junit.xml",
+      "sha256": "6d4eaa939e395fac22ddf61da482d3ed065c57c4568dfcdb45daef09a53175a6",
+      "passed": 93
+    },
+    "inverse_clenshaw_ad_gate_20261017": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_clenshaw_ad_gate_20261017/junit.xml",
+      "sha256": "79a6ececcc613c4513e2788f5ddb68d4425f6fb4befb4aba86f0d899c907d0a2",
+      "passed": 2
+    }
+  },
+  "format_bridge": {
+    "same_nonimport_AST": true,
+    "same_import_multiset": true,
+    "preformat_sha256": "91c555acd858a32e09755b6fff1629ba9a7b4f240281c5e3ce051335df1afce7",
+    "final_sha256": "0d0fa2fca42bd7f29dcf64e0a9de6195ed294ce973c518217cf47dc976cfb88c",
+    "scope": "Whitespace, import ordering and semicolon splitting only; no scientific rerun needed."
+  },
+  "inverse_call_count": 4,
+  "output_identity": "All twelve coefficient/domain/point-value artifacts from four candidate calls match the corresponding baseline bytes. Baseline has a separate fifth profiled call; it was not a fifth candidate call.",
+  "performance": {
+    "warm_median_seconds": 2.2687141220085323,
+    "baseline_warm_median_seconds": 6.931199957150966,
+    "baseline_over_candidate_warm_ratio_descriptive": 3.055122674960322,
+    "native_warm_median_seconds": 0.653588,
+    "candidate_over_native_warm_ratio_descriptive": 3.471168567979419,
+    "performance_limit": "Serialsharedhost observations, sameCPU32-35, native singlethreadvsJAXbackend; nofullpage orperformanceparity claim."
+  },
+  "trace": {
+    "native_and_python_iterations": 59,
+    "differing_state_fields": 0,
+    "raw_output_bit_identity": true,
+    "broadcast_adapters": [
+      {
+        "iteration": 0,
+        "field": "fs",
+        "native_shape": [
+          1,
+          1
+        ],
+        "python_shape": [
+          4097
+        ],
+        "scope": "Native initial scalarInf vs broadcast Python Inf; norm-equivalent value identity, not shape/byte identity"
+      }
+    ]
+  },
+  "trace_scope": "Retainednative4097targetvector and59rawstates, notactualPythonconstructorgrid; unchangedinstrumentedbody/rawcurrentBrent outputs exact.",
+  "runtime_limit": "Corepytest MATreader/stdlib imports observed afterexecution, notallpreguarded. Source/tests/inputsstable. Separatetrace/inverse importsfullypreguarded. No repeatssolelyforincidentalimportclosure.",
+  "receipts": {
+    "inverse_clenshaw_candidate_gate_20261017_run001/supervision": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_clenshaw_candidate_gate_20261017_run001/supervision/receipt.json",
+      "sha256": "89a2f318d062b2e61d0569c8f411fa52b64fafe78de95889133acb31f830858c",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 69.06515842210501,
+      "sampled_peak_summed_rss_kib": 1305320
+    },
+    "inverse_clenshaw_ad_gate_20261017_run001/supervision": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_clenshaw_ad_gate_20261017_run001/supervision/receipt.json",
+      "sha256": "8d3860234c0d326e855ad5e3ef3fb51e0e1a3b504084bce82e9f52d351a691e5",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 10.959529248997569,
+      "sampled_peak_summed_rss_kib": 652724
+    },
+    "complex_arc_packed_whole_20261017_run001": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/receipt.json",
+      "sha256": "3fc5fdebe47ee89fcefe366650c19d9e453d765826729227ea001f05d3931c85",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 66.11197397997603,
+      "sampled_peak_summed_rss_kib": 2341740
+    },
+    "inverse_current_ndct_gate_20261017_run001/supervision": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_ndct_gate_20261017_run001/supervision/receipt.json",
+      "sha256": "cd3cf995ece08611e577bfa7b36e3a5491e0f03dc9eb04873c0f5fad90a85133",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 59.1510549117811,
+      "sampled_peak_summed_rss_kib": 1105596
+    },
+    "inverse_current_ndct_native_20261017_run001": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_current_ndct_native_20261017_run001/receipt.json",
+      "sha256": "24d6911c049991ba51f94eebac8f6b406d3bdfcd3262d3c53d8539f000db906d",
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "wall_seconds": 82.82267245510593,
+      "sampled_peak_summed_rss_kib": 1332828
+    }
+  },
+  "color_gate": {
+    "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017",
+    "head": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731",
+    "selectors": [
+      "tests/test_matlab_color_order_state.py",
+      "tests/test_plotregion_native_rendering.py",
+      "tests/test_plotregion_source_controls.py",
+      "tests/test_trig_plotregion_source.py",
+      "tests/test_trigremez_iteration_options_native_source.py::test_saved_native_plot_artists_and_hold_policy (cases 1,2,3)"
+    ],
+    "selector_count": 24,
+    "final_gate": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_color_plot_run002_final",
+      "guard_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_color_plot_run002_final/guard.json",
+      "guard_sha256": "14adee90f5c7e2b4d4016fb258e44480f0e07b224873ede4e6740dc6ce1f15c3",
+      "stdout_sha256": "d3cda58360435b97448b51ae1b26a1586f00051bc752dcb9d9ce092592156ec0",
+      "runtime_imports_sha256": "32bed64f45889760aa1921ce648635d42f82c7062776a6fac78b3f7af8591b98",
+      "result": "24 passed, 3 warnings, 9.91 seconds",
+      "python": "3.12",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "backend": "cpu",
+      "x64": true,
+      "source_origins_asserted": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/src/chebfunjax/tech/_source_clenshaw.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/src/chebfunjax/utils/_trigremez_iteration_options.py"
+      ],
+      "supervisor": "v2; 120 seconds; 4096 MiB; terminal exit 0; 1066484 KiB sampled peak; stable scoped guard; no survivors",
+      "guarded_source_test_config_files": 386,
+      "worktree_runtime_imports": 133,
+      "worktree_runtime_imports_with_matching_preguard": 132,
+      "unmatched_runtime_import": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/tests/__init__.py (empty file)",
+      "full_external_dependency_freeze": false
+    },
+    "earlier_run_preserved": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/inverse_color_plot_run001_final",
+      "pytest_stdout_sha256": "e20748cca2c84c197c1928ccc492902644e12e4c9f58d778cd4fe3e83c71913b",
+      "pytest_result": "24 passed, 3 warnings, 10.01 seconds",
+      "supervisor_exit_code": 1,
+      "supervisor_inputs_stable": false,
+      "supervisor_reason": "full tracked-worktree guard caught concurrent generated ComplexArcLength PNG writes; no test source/fixture/config input changed",
+      "reconciliation": {
+        "source_test_fixture_config_preimages_compared": 379,
+        "source_test_fixture_config_hash_mismatches": 0,
+        "at supervisor end, parent-observed unrelated output mismatches": [
+          "docs/images/complex/ComplexArcLength_01.png",
+          "docs/images/complex/ComplexArcLength_02.png"
+        ],
+        "later_current_tree_note": "ComplexArcLength_03/04 PNGs were regenerated after this supervisor run; helper guard script was also updated after run1."
+      }
+    },
+    "candidate_hashes": {
+      "src/chebfunjax/tech/_source_clenshaw.py": "ca89fa27a090e6acf41ce70e0de8a1bccae1eb19090daba5b69dec00b67368ea",
+      "src/chebfunjax/utils/_trigremez_iteration_options.py": "2a57fed339cf0b62f4e4c74ac94d919d7753a32466b9d3c331f998427c951065",
+      "tests/test_tech/test_clenshaw_packed_chunks.py": "new combined-worktree test; unchanged for this plotting gate"
+    }
+  },
+  "whole_page": {
+    "run": {
+      "supervisor_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/receipt.json",
+      "supervisor_stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/stdout",
+      "supervisor_stderr": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/stderr",
+      "guard": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/guard.json",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 66.11197397997603,
+      "sampled_peak_summed_rss_kib": 2341740,
+      "samples": 230,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guarded_input_count": 3816,
+      "actual_import_origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/src/chebfunjax/__init__.py",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "cpu_only": true,
+      "x64": true,
+      "runtime_full_external_dependency_freeze": false
+    },
+    "figures": [
+      {
+        "name": "ComplexArcLength_01.png",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_01.png",
+        "python_sha256": "b889b341e452978b6e75a94201ff07511865a94f8571e1618fee28326567b5a4",
+        "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_01.png",
+        "official_reference_sha256": "0502a358f451cfa5c5a547bb6f771c0522ec39848744e1434255bf8a623d386b",
+        "python_dimensions_px": [
+          600,
+          270
+        ],
+        "official_dimensions_px": [
+          600,
+          270
+        ],
+        "dimensions_match": true,
+        "pixel_identical": false,
+        "different_channel_values": 29869,
+        "total_channel_values": 648000,
+        "max_abs_channel_delta": 255,
+        "mean_abs_channel_delta": 5.088489197530865
+      },
+      {
+        "name": "ComplexArcLength_02.png",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_02.png",
+        "python_sha256": "80571d86af634fe1a9a7e0875b911032e620e4752f4e6329d72b074cf5c534a0",
+        "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_02.png",
+        "official_reference_sha256": "7e7ba0e082270fb44b4441ef3bcd404bdd2ec10cf53a13a050776929c64b2810",
+        "python_dimensions_px": [
+          600,
+          270
+        ],
+        "official_dimensions_px": [
+          600,
+          270
+        ],
+        "dimensions_match": true,
+        "pixel_identical": false,
+        "different_channel_values": 34754,
+        "total_channel_values": 648000,
+        "max_abs_channel_delta": 255,
+        "mean_abs_channel_delta": 5.793587962962963
+      },
+      {
+        "name": "ComplexArcLength_03.png",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_03.png",
+        "python_sha256": "a87fb02f614b3eb89ef8d1c0ba422ba37b4cff57b42494c91412e8847bd5ade3",
+        "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_03.png",
+        "official_reference_sha256": "efc54cb43d6c34c11ee9a0c031a66c17d15ca2b31cbb202ba3f270736bc2dabf",
+        "python_dimensions_px": [
+          600,
+          270
+        ],
+        "official_dimensions_px": [
+          600,
+          270
+        ],
+        "dimensions_match": true,
+        "pixel_identical": false,
+        "different_channel_values": 40416,
+        "total_channel_values": 648000,
+        "max_abs_channel_delta": 255,
+        "mean_abs_channel_delta": 8.655930555555555
+      },
+      {
+        "name": "ComplexArcLength_04.png",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/images/complex/ComplexArcLength_04.png",
+        "python_sha256": "9063e2e5e3acfb442c1c50e58d6556a5422620cf87ec7bea3f916397c83ca261",
+        "reference_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/figures/complex/ComplexArcLength_04.png",
+        "official_reference_sha256": "ada72358c6aaf4dd4c7aa8984593b1c7d1959245cf89b428985d883585a4ed47",
+        "python_dimensions_px": [
+          600,
+          270
+        ],
+        "official_dimensions_px": [
+          600,
+          270
+        ],
+        "dimensions_match": true,
+        "pixel_identical": false,
+        "different_channel_values": 53830,
+        "total_channel_values": 648000,
+        "max_abs_channel_delta": 255,
+        "mean_abs_channel_delta": 12.359805555555555
+      }
+    ],
+    "stdout_comparison": {
+      "python_stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/stdout",
+      "python_stdout_sha256": "fd88a9563fe53eb0750b2c0efffd3cd229ec2628bd428daf46daffcebcdb19f5",
+      "official_page_reference": "Official HTML mcode-output blocks; embedded values extracted as seen during audit.",
+      "python_values": {
+        "keyhole_total_length": "17.179598985403501",
+        "keyhole_segment_lengths": [
+          "1.800000000000000",
+          "1.197613431941935",
+          "1.800000000000000",
+          "12.381985553461565"
+        ],
+        "flower_length": "9.634012138198042",
+        "reported_forward_length": 2092,
+        "inverse_reported_elapsed_seconds": 12.21817
+      },
+      "native_reference_values": {
+        "keyhole_total_length": "17.179598985403512",
+        "keyhole_segment_lengths": [
+          "1.800000000000000",
+          "1.197613431941939",
+          "1.800000000000000",
+          "12.381985553461572"
+        ],
+        "flower_length": "9.634012138198036",
+        "reported_forward_length": 2762,
+        "native_root_loop_elapsed_seconds": 85.348594,
+        "native_inverse_elapsed_seconds": 2018.385789
+      },
+      "summary": "Three arc-length scalar outputs differ by only 1.1e-14, 6e-15 and 6e-15 respectively; the segment vector differs by at most 7e-15. Forward representation length differs (2092 vs 2762). Recorded wall times are run observations, not matched warm benchmarks or performance acceptance."
+    },
+    "generated_page": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/docs/examples/complex/ComplexArcLength.md",
+      "sha256": "587c72ce840beca2fa62f0470c19604dd9d0d4ee05338fa774f656b6d4c57fb1",
+      "previous_sha256": "fd2cc8e101888e8f21d19cef87167ddf63aef82721661233844b37a1de06e093",
+      "generator": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_integration_20261017/scripts/gen_example_pages.py",
+      "generator_sha256": "d7c44d6095960e006ad3eaf3ff92880cf521cf3b8d5c199b4ecadfe0e09e39fb",
+      "stdout_input": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_arc_packed_whole_gate_20261017/page_stdout/complex_complex_arc_length.txt",
+      "stdout_input_sha256": "fd88a9563fe53eb0750b2c0efffd3cd229ec2628bd428daf46daffcebcdb19f5",
+      "official_html_cache": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/html",
+      "command": "python scripts/gen_example_pages.py --stdout-dir <cached run stdout dir> --html-cache <official archive html dir> complex/ComplexArcLength",
+      "wrote_only_page": "docs/examples/complex/ComplexArcLength.md",
+      "note": "Generator consumed captured official HTML and run stdout; it did not import or rerun the example."
+    },
+    "limits": [
+      "Pixel output for all four figures is nonidentical to the official reference.",
+      "This audit does not certify scientific equivalence from small printed scalar agreement.",
+      "Whole-run timing is descriptive only; no matched warm-bench claim.",
+      "The captured inverse input is exact to the retained forward fixture, but the candidate/native inverse coefficient-count discrepancy remains.",
+      "No source or mathematical script was changed; only the generated Markdown page was refreshed."
+    ]
+  },
+  "whole_inverse_input_matches_retained_bytes": true,
+  "whole_inverse_coefficient_count": 9030,
+  "retained_native_inverse_coefficient_count": 8630,
+  "archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_color_cpu_20261017.zip",
+    "sha256": "3e085a88ee3dea87c4ae82e789f7e6751c149140704ac2c268ec5d38addf52f8",
+    "payloads": 1112,
+    "bytes": 94568651,
+    "scope": "Selected source/tests, exact retained inputs and outputs, native captures, images, guards and receipts. Full repository and external runtime are not embedded; historical source/guard paths remain source-bound."
+  },
+  "parent_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_parent_review_20261017/REVIEW.json",
+    "sha256": "ca63ea4cffbc1562cc491fcb827ddce104c3b6cc02482e533af818c88c3958f1",
+    "note": "Parent review received page-audit metadata after archive sealing; archive contains its prior version plus the independently complete page audit and unchanged scientific evidence."
+  },
+  "page_audit": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_arc_packed_whole_gate_20261017/REPORT.json",
+    "sha256": "34b75cc12c0791e351b2950519cc04c03f0f9426859d0517e6a234933f738682"
+  },
+  "color_report": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_plot_and_pde_ci_review_20261017.fixed.json",
+    "sha256": "56c6d2a22d9c5ed0544f3d61c5ed0a41c017178c422668776529b3e456474271",
+    "repair": {
+      "original_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_color_plot_and_pde_ci_review_20261017.json",
+      "original_sha256": "ca1b900cb82d88103383fac15d9653297c581b549287867d957d06f3bf564e39",
+      "repair": "Replaced malformed bare string member in earlier_run_preserved.reconciliation with a valid later_current_tree_note key; all other parsed content retained.",
+      "whole_example_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/receipt.json",
+      "whole_example_supervisor_stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_packed_whole_20261017_run001/stdout"
+    }
+  },
+  "static": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_parent_review_20261017/STATIC.json",
+    "sha256": "38aa96d7ee96d24b2be60ac84ed8dfc748fd5f2fd0bb87147459e7ef140c4201"
+  },
+  "remaining": [
+    "Native inverse coefficient length8630 vs9030; raw FFT rounding divergence remains.",
+    "Whole page completes; reference scalar outputs differ <=1.1e-14, forward length2092 vs official2762; four images600x270 but visible axes/marker/layout differences remain. Official historical timing is not current native benchmark.",
+    "Small Hermite, complex poles, PDE, full original API/tests/pages/figures and latest-main CI/coverage remain incomplete."
+  ],
+  "qualification": "Scoped CPU optimization and color correction only. No full library/test/page/figure/performance/CI completion claim."
+}

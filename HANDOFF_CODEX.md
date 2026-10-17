@@ -1,3 +1,38 @@
+## Packed Clenshaw CPU optimization and iteration colors — 2026-10-17
+
+Packed registers and branch-local reads remove redundant vector copies while
+preserving each native Clenshaw arithmetic operation. Independent points use
+1024-point chunks without padding; global finiteness decisions remain global.
+All 95 component controls pass, including cross-chunk AD; 59 retained native
+Brent states retain exact raw bits. Four actual retained-input inverse calls
+have byte-identical outputs to the current-main baseline. The baseline alone
+also has a fifth profiled call; earlier summaries conflated those counts.
+
+Warm inverse median falls from 6.9312s to 2.2687s (3.055x). The same-core,
+serialized native median is 0.6536s, so a 3.47x gap remains. These shared-host
+measurements use native single-thread execution versus JAX backend threading;
+they are not a full performance acceptance result. Native inverse length
+8630 versus Python 9030 remains unresolved despite near-roundoff value gaps.
+
+The unchanged full ComplexArcLength script completes in 66.112s with stable
+inputs and no survivors. Its inverse input matches retained bytes exactly.
+Printed arc lengths differ from official HTML by at most 1.1e-14; forward
+length is 2092 versus the historical page's 2762. All four refreshed figures
+are 600x270, with visible axes/marker/layout and raster differences remaining.
+The generated page now records actual Python stdout, including timings.
+
+Trigremez iteration plotting no longer double-advances the color cycle for
+the black named-Color line. All 24 combined plotting controls pass. An earlier
+24-pass run's broad guard failed on concurrent generated PNG writes; both
+receipts and scoped reconciliation are retained. A malformed review JSON is
+preserved beside its validated serialization repair. Test formatting has an
+AST/import-multiset bridge; original operands and bounds are unchanged.
+Incidental test/stdlib imports are observed rather than all preguarded; no
+full external-runtime freeze is claimed. PDE tolerance failure, broader API,
+original tests, pages/figures and latest-main CI/coverage remain open.
+
+[Source-bound review](docs/inverse_packed_color_cpu_20261017.json).
+
 ## Source NDCT dispatch and exact-seeded evaluation — 2026-10-17
 
 Both Chebtech kinds now use native NDCT when coefficient AND query counts

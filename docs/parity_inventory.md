@@ -137,3 +137,5 @@ match 600×269 reference sizes and all still differ in pixels. The rational8
 curve discrepancy remains 8.86e-8. Per-page observations are appended without
 promoting full computation, graphics, API or matched-performance statuses.
 [Integrated evidence](chebtech_ndct_cpu_20261017.json).
+
+The packed Clenshaw and iteration-color package adds scoped source/performance evidence and a whole ComplexArcLength observation. Four dimensions match; axes/markers/raster and representation differences remain. See [review](inverse_packed_color_cpu_20261017.json). Full-item statuses are unchanged.
