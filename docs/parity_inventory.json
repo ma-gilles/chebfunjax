@@ -211,6 +211,11 @@
       "sha256": "b4aecd023a82a43b6a86df1571d355965f30753168d45d5114847e2eb517c877",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
     },
+    "power_original41_cpu_20261017": {
+      "path": "docs/power_original41_cpu_20261017.json",
+      "scope": "All41 literal default original Chebfun power predicates with verified native seed6178 draw operands. Test-only coverage restoration; no library fix.",
+      "sha256": "00abf51eabaf23a045fb4d7866707bc794f81381435215e3d47821e4566745db"
+    },
     "quantum_periodic_column_cpu_20261017": {
       "path": "docs/quantum_periodic_column_cpu_20261017.json",
       "scope": "JAX scalar Fourier coefficient diagonal scaling preserves flat/column/row sample layouts and complex values; repair actual CI quantumstates shape failure.",
@@ -54048,7 +54053,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "power_original41_cpu_20261017",
+          "scope": "All41default original numerical predicates,27actual source draw events verified; extra predicate33warning/fullAPI/preferences unqualified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -103835,7 +103845,12 @@
         "tests/test_matlab_port/diskfun/test_power_matlab.py",
         "tests/test_matlab_port/spherefun/test_power_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "power_original41_cpu_20261017",
+          "scope": "All41default original numerical predicates,27actual source draw events verified; extra predicate33warning/fullAPI/preferences unqualified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

@@ -1,3 +1,15 @@
+# Latest literal power original41 audit — 2026-10-17
+
+Test-only restoration preserves all41default formulas, actualquasimatrix/string
+operands, original bounds and full100x100vector sample. Two native invocations
+return41true; capture-only original copy verifies27actual draw events and
+reconstructs exact original source after recorder removal. Python final24rerun
+plus17unchanged-node source/AST bridge pass;360production source files match
+publication across all6cohorts. No duplicate parent scientific run is claimed.
+Predicate33extra complex-extrema warning remains open despite numerical pass;
+fullAPI/preferences/RNG/performance/latestCI remain required.
+Evidence: docs/power_original41_cpu_20261017.json.
+
 # Latest singleton scalar division repair — 2026-10-17
 
 Actual scalar string-denominator roots had shape(5,1)but helper returned[].

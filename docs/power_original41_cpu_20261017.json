@@ -1,0 +1,45 @@
+{
+  "scope": "All41 literal default original Chebfun power predicates with verified native seed6178 draw operands. Test-only coverage restoration; no library fix.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native": {
+    "unchanged_default_true": 41,
+    "instrumented_default_true": 41,
+    "actual_draw_events_verified": 27,
+    "source_copy_reconstruction": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_evidence_20261017/native_trace_source_bridge.json",
+    "actual_operand_bridge": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_evidence_20261017/native_actual_operand_bridge.json"
+  },
+  "python": {
+    "distinct_passing_predicates": 41,
+    "final_affected_nodes_rerun": 24,
+    "unchanged_nodes_bridged": 17,
+    "skips": 0,
+    "xfails": 0,
+    "cohorts": [
+      "regular_final",
+      "singular22_24",
+      "smooth25_30",
+      "singular31_33",
+      "unbounded",
+      "vector_final"
+    ],
+    "final_bridge": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_evidence_20261017/final_byte_bridge.json",
+    "not_claimed": "Not a single fresh final41 invocation and not new parent scientific executions."
+  },
+  "root_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_root_review_20261017.json",
+    "sha256": "bdf8640fa5cebef521c99eca557cab11bb6972354fb2772b1b5685ffe63171c7",
+    "source_files_identical_per_cohort": 360,
+    "verified_archive_payloads": 118,
+    "source_bridge_scope": "All production source bytes equal currentb29d636e for each of6qualified cohorts; original tests/fixtures retained unchanged."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_package_20261017.tar.gz",
+    "sha256": "ee0308c03d42391e7219e5c4b2a0258cd366287276ef88a3798c295f6fd349e6"
+  },
+  "predicate_mapping": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_original41_evidence_20261017/predicate_mapping.json",
+  "limits": [
+    "Predicate33 passes its original1000eps numerical bound but emits complex-extrema warning absent from unchanged native run; warning parity remains open.",
+    "FullPOWER API/preferences, representation parity, generalRNG, adjacentMPOWER, host numerical paths and matched nativeCPU performance remain open.",
+    "Latest-main CI and coverage>=79% remain required."
+  ]
+}
