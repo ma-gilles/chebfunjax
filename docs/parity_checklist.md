@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** This update adds the packed Clenshaw optimization, actual ComplexArcLength run and iteration-color correction; scoped evidence is recorded below. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest updates cover subspace JAX/source behavior and complex unbounded inner products; scoped evidence is recorded below. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -15,7 +15,7 @@ Checked items certify only their stated scope.
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
 | Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
-| Final acceptance | Published packages linked below; prior documentation deployment passed | Pre-update CI run39052459304 is in progress; this publication also requires CI; coverage ≥79%, final provenance/lint and full objective audit |
+| Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
 ### Active work, not yet credited as complete
 
@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] JAX subspace QR/SVD, complex inner products and spectral residual norm; six original predicates and affected API/fallback controls pass. Unbounded inner product conjugates its first operand; three originals and two complex controls pass. Joint19 nodes pass, plus final domain-check selector. [Evidence](subspace_unbnd_inner_cpu_20261017.json).
+- [ ] Remaining subspace rank-zero/orientation/noncollatable API cases and near-rank quantitative fidelity; broader unbounded input grammar.
+
 - [x] Pair all ten original sphere optimization predicates; four Python nodes include two bounded even-polynomial controls. Same maximum antipode in both captures, no code/tolerance change. [Evidence](sphere_extrema_tie_cpu_20261017.json). Historical unspecified operand remains unqualified.
 - [ ] Resolve transform-sensitive PDE, Hermite and complex-rational paths; [source-bound diagnosis](numerical_parity_gaps_20261017.md) records what is known and which evidence is missing.
 
@@ -37,7 +40,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [ ] Latest-main CI/coverage and separate fixed48 PDE FFT/coefficient fidelity; parser checks do not qualify solver trajectories.
 
 - [x] Public Chebfun tensor-query adapter fixes six CI indexing failures while preserving raw Chebtech dimensional errors; combined30 controls pass. Original subspace distinct-breakpoint and row predicates1–6 now pass with native terminal evidence. [Evidence](ndarray_subspace_cpu_20261017.json).
-- [ ] Full subspace JAX/source algorithm and array-valued API, broader ND evaluation, latest-main CI/coverage.
+- [ ] Remaining subspace edge cases and near-rank quantitative fidelity; broader ND evaluation and latest-main CI/coverage.
 
 - [x] Simple piecewise Legendre projection and all-column padding; all six literal original legcoeffs predicates plus five supplemental controls pass. Native JSON records six true results; original native terminal receipt is unavailable, so that scope remains result-only. [Evidence](legcoeffs_original_cpu_20261017.json).
 - [ ] Non-simple piecewise legcoeffs projection and full API/native invocation qualification.
@@ -94,7 +97,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
 - [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
 - [x] Review/publish authored Spinop2 bound repair45c04b29; fresh actual-process1500imports preguarded, focused test passes. Native incidental prior-guard preimage gap explicitly scoped.
-- [ ] Green latest implementation CI (`c0a1bca9`) and coverage acceptance. Historical runs remain evidence for their own source only.
+- [ ] Green latest-main CI and coverage acceptance. Historical runs remain evidence for their own source only.
 
 ## Next integration
 

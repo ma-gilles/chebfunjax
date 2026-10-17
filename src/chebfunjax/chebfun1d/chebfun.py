@@ -13226,26 +13226,25 @@ def lagrange(
 
 
 def subspace(
-    A: "list[Chebfun]",
-    B: "list[Chebfun]",
-) -> float:
+    A: "Chebfun | Quasimatrix | list[Chebfun]",
+    B: "Chebfun | Quasimatrix | list[Chebfun]",
+) -> jax.Array:
     """Principal angle between two quasimatrix subspaces.
 
-    Computes the smallest principal angle (in radians) between the subspaces
-    spanned by the columns of quasimatrix ``A`` and quasimatrix ``B``.  Both
-    inputs are lists of Chebfuns on the same domain.
+    Computes the largest principal angle (in radians) between the subspaces
+    spanned by the columns of ``A`` and ``B``. Inputs may be array-valued
+    Chebfuns, Quasimatrices, or lists of scalar Chebfuns on the same domain.
 
     Parameters
     ----------
-    A : list of Chebfun
-        Columns of the first quasimatrix.
-    B : list of Chebfun
-        Columns of the second quasimatrix.
+    A, B : Chebfun, Quasimatrix, or list of Chebfuns
+        Column quasimatrices on the same domain. Transposed Chebfuns may be
+        supplied in both arguments, matching the native row-subspace case.
 
     Returns
     -------
-    theta : float
-        Smallest principal angle in radians.
+    theta : jax.Array
+        Largest principal angle in radians.
 
     Raises
     ------
@@ -13266,12 +13265,13 @@ def subspace(
     -----
     Algorithm (Bjorck & Golub 1973, Knyazev & Argentati 2002):
 
-    1. Orthonormalise each collection via the continuous QR factorisation.
+    1. Orthonormalise each collection using native continuous SVD (QR then
+       a dense SVD of the R factor).
     2. Compute the Gram matrix :math:`C = Q_A^T Q_B` (inner-product matrix).
     3. The smallest singular value of C gives :math:`\\cos\\theta`.
     4. For small angles recompute via the sine formulation for accuracy.
 
-    NOT JIT-safe (QR uses adaptive construction).
+    Not JIT-safe (the continuous QR factorization constructs Chebfun objects).
 
     Provenance
     ----------
@@ -13287,79 +13287,193 @@ def subspace(
     [2] A. V. Knyazev and M. E. Argentati, *Principal Angles between Subspaces
         in an A-Based Scalar Product*, SIAM J. Sci. Comput., 23 (2002), 2009–2041.
     """
-    # uses-numpy: QR / SVD use NumPy internally
-    import numpy as _np
-
-    from chebfunjax.chebfun1d.linalg import Quasimatrix, qr_quasimatrix
+    from chebfunjax.chebfun1d.linalg import (
+        Quasimatrix,
+        _legendre_basis,
+        qr_quasimatrix,
+    )
     from chebfunjax.chebfun1d.mtimes import _columns
 
-    if not A or not B:
-        raise ValueError("subspace: A and B must be non-empty lists of Chebfun.")
+    def operand_columns(value):
+        if isinstance(value, Chebfun):
+            return list(value.mat2cell())
+        if isinstance(value, Quasimatrix):
+            return list(value.cols)
+        if isinstance(value, (list, tuple)):
+            return list(value)
+        raise TypeError("Both A and B must be Chebfun or quasimatrix operands.")
 
-    # Row chebfuns (MATLAB A.'): the principal angles between row spans
-    # equal those between the transposed column spans, so un-transpose.
-    A = [f.transpose() if getattr(f, "is_transposed", False) else f
-         for f in A]
-    B = [f.transpose() if getattr(f, "is_transposed", False) else f
-         for f in B]
+    acols, bcols = operand_columns(A), operand_columns(B)
+    a_was_row = (bool(getattr(A, "is_transposed", False)) or
+                 (isinstance(A, (list, tuple)) and bool(acols) and
+                  all(c.is_transposed for c in acols)))
+    b_was_row = (bool(getattr(B, "is_transposed", False)) or
+                 (isinstance(B, (list, tuple)) and bool(bcols) and
+                  all(c.is_transposed for c in bcols)))
+    if not acols or not bcols:
+        raise ValueError("CHEBFUN:CHEBFUN:subspace:argin: inputs must be non-empty.")
 
-    # Orthonormalise via continuous QR
-    # Quasimatrix requires a Domain argument — extract from the first column
-    domA = A[0].domain
-    domB = B[0].domain
-    qA = Quasimatrix(A, domA)
-    qB = Quasimatrix(B, domB)
-    QA, _ = qr_quasimatrix(qA)
-    QB, _ = qr_quasimatrix(qB)
+    def same_domain(left, right):
+        a0, a1 = left.domain.a, left.domain.b
+        b0, b1 = right.domain.a, right.domain.b
+        left_scale = max(abs(a0), abs(a1))
+        right_scale = max(abs(b0), abs(b1))
+        if math.isinf(left_scale):
+            left_scale = 1.0
+        if math.isinf(right_scale):
+            right_scale = 1.0
+        hscale = max(left_scale, right_scale)
+        err = jnp.asarray((a0 - b0, a1 - b1), dtype=jnp.float64)
+        return bool(jnp.all((jnp.abs(err) < 1e-15 * hscale) | jnp.isnan(err)))
 
-    acols, bcols = _columns(QA), _columns(QB)
-    pA = len(acols)
-    pB = len(bcols)
+    # Native SUBSPACE performs domainCheck before checking row/column orientation.
+    if not same_domain(acols[0], bcols[0]):
+        raise ValueError("CHEBFUN:CHEBFUN:subspace:domain: Domain mismatch.")
+    if any(not same_domain(acols[0], col) for col in acols[1:] + bcols[1:]):
+        raise ValueError("CHEBFUN:CHEBFUN:subspace:domain: Domain mismatch.")
 
-    # Build Gram matrix C_ij = <QA_i, QB_j>
-    C = _np.zeros((pA, pB), dtype=_np.float64)
-    for i, colA in enumerate(acols):
-        for j, colB in enumerate(bcols):
-            C[i, j] = float(colA.inner(colB))
+    if a_was_row and not b_was_row:
+        raise ValueError("CHEBFUN:CHEBFUN:subspace:trans: Dimension mismatch (transpose).")
+    if a_was_row and b_was_row:
+        acols = [c.T for c in acols]
+        bcols = [c.T for c in bcols]
+    elif any(c.is_transposed for c in acols + bcols):
+        # The native ORTH call rejects row operands when the first operand is
+        # a column Chebfun (including the asymmetric A-column/B-row case).
+        raise ValueError("CHEBFUN:CHEBFUN:orth:row: ORTH() only defined for column CHEBFUN objects.")
 
-    # Singular values of C
-    sv = _np.linalg.svd(C, compute_uv=False)
-    cos_theta = float(_np.clip(sv.min(), 0.0, 1.0))
+    a_array = (A.T if a_was_row and isinstance(A, Chebfun) else
+               A if isinstance(A, Chebfun) else None)
+    b_array = (B.T if b_was_row and isinstance(B, Chebfun) else
+               B if isinstance(B, Chebfun) else None)
 
-    if cos_theta < 0.8:
-        return float(_np.arccos(cos_theta))
+    def source_qr(columns, array_input=None):
+        qm = Quasimatrix(columns, columns[0].domain)
+        if not all(math.isfinite(float(x)) for x in qm.domain.breakpoints):
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:qr:infdomain: "
+                "CHEBFUN QR does not support unbounded domains.")
+        from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+        from chebfunjax.tech.trigtech import Trigtech
+        # @chebfun/qr.m takes its one-column normalization shortcut before
+        # quasi2cheb, including for singular/noncollatable FUNs.
+        if len(columns) == 1:
+            return qr_quasimatrix(qm, array_input=array_input)
+
+        collatable = all(
+            c.funs and not getattr(c, "deltas", ()) and all(
+                isinstance(p.tech, (Chebtech1, Chebtech2, Trigtech)) and
+                p.tech.coeffs.ndim == 1 for p in c.funs)
+            for c in columns
+        )
+        if collatable:
+            # This is the same technology-panel QR branch used by the public
+            # source SVD adapter and contains only JAX numerical kernels.
+            return qr_quasimatrix(qm, array_input=array_input)
+
+        # Faithful JAX translation of @chebfun/abstractQR.m for singular or
+        # otherwise noncollatable FUN representations. The loop and scalar
+        # branch decisions are Python control flow; every arithmetic value is
+        # still a JAX array.
+        n = len(columns)
+        Awork = list(columns)
+        E = _legendre_basis(n, qm.domain)
+        V = [None] * n
+        is_complex = any(
+            bool(jnp.iscomplexobj(piece.tech.coeffs))
+            for col in columns for piece in col.funs
+        )
+        dtype = jnp.complex128 if is_complex else jnp.float64
+        R = jnp.zeros((n, n), dtype=dtype)
+
+        def inner(f, g):
+            return f.inner(g)
+
+        def norm(f):
+            return jnp.sqrt(jnp.real(inner(f, f)))
+
+        tol = jnp.finfo(jnp.float64).eps
+        for k in range(n):
+            scale = jnp.maximum(norm(E[k]), norm(Awork[k]))
+            ex = inner(E[k], Awork[k])
+            aex = jnp.abs(ex)
+            phase = jnp.where(aex < tol * scale, 1.0,
+                              -jnp.sign(ex / aex))
+            E[k] = E[k] * phase
+            rkk = norm(Awork[k])
+            R = R.at[k, k].set(rkk)
+            v = E[k] * rkk - Awork[k]
+            for i in range(k):
+                v = v - E[i] * inner(E[i], v)
+            nv = norm(v)
+            if bool(nv < tol * scale):
+                v = E[k]
+            else:
+                v = v / nv
+            V[k] = v
+            for j in range(k + 1, n):
+                Awork[j] = Awork[j] - v * (2.0 * inner(v, Awork[j]))
+                rr = inner(E[k], Awork[j])
+                R = R.at[k, j].set(rr)
+                Awork[j] = Awork[j] - E[k] * rr
+
+        Q = list(E)
+        for k in range(n - 1, -1, -1):
+            for j in range(k, n):
+                Q[j] = Q[j] - V[k] * (2.0 * inner(V[k], Q[j]))
+
+        # @chebfun/qr.m makes the diagonal of R nonnegative, flipping Q with it.
+        for k in range(n):
+            diagonal = jnp.real(R[k, k])
+            sign = jnp.where(diagonal < 0.0, -1.0, 1.0)
+            Q[k] = Q[k] * sign
+            R = R.at[k, :].set(R[k, :] * sign)
+        return Quasimatrix(Q, qm.domain), R
+
+    def source_svd(columns, array_input=None):
+        # Native @chebfun/svd.m is QR followed by a dense SVD of R. Use the
+        # existing polynomial-panel QR and JAX's dense SVD, keeping the same
+        # factorization order and avoiding NumPy numerical routines.
+        q, r = source_qr(columns, array_input=array_input)
+        qcols = _columns(q)
+        u, singular, _vh = jnp.linalg.svd(r, full_matrices=False)
+        left = [sum((qcols[k] * u[k, j] for k in range(len(qcols))),
+                    0 * qcols[0]) for j in range(u.shape[1])]
+        return left, singular
+
+    def orth(columns, array_input=None):
+        left, singular = source_svd(columns, array_input=array_input)
+        # @chebfun/orth.m uses tol=max(length(A)*eps(max(s)),vscale(A)*eps).
+        smax = jnp.max(singular)
+        eps_s = jnp.nextafter(smax, jnp.asarray(jnp.inf, dtype=smax.dtype)) - smax
+        eps0 = jnp.finfo(jnp.float64).eps
+        vscale = max(jnp.asarray(c.vscale, dtype=jnp.float64) for c in columns)
+        # Native length(A) is the maximum sum of FUN-piece lengths over its
+        # columns, not the number of columns.
+        source_length = max(sum(piece.n for piece in col.funs)
+                            for col in columns)
+        tol = jnp.maximum(source_length * eps_s, vscale * eps0)
+        rank = int(jnp.sum(singular > tol))
+        return left[:rank]
+
+    qA, qB = orth(acols, array_input=a_array), orth(bcols, array_input=b_array)
+    pA, pB = len(qA), len(qB)
+    C = jnp.stack([jnp.stack([a.inner(b) for b in qB]) for a in qA])
+    singular = jnp.linalg.svd(C, compute_uv=False)
+    cos_theta = jnp.min(singular)
+    if bool(cos_theta < 0.8):
+        return jnp.arccos(cos_theta)
+
+    # Native small-angle branch uses the spectral norm of the direct residual
+    # quasimatrix, not the largest norm of any one residual column.
+    if pA < pB:
+        residual = [a - sum((qB[j] * jnp.conj(C[i, j]) for j in range(pB)),
+                            0 * a) for i, a in enumerate(qA)]
     else:
-        # Sine formulation for small angles
-        if pA <= pB:
-            # sin_theta = ||QA - QB * C.T||
-            # Compute QA - projection of QA onto QB
-            # recontruct vector norms
-            diff_cols = []
-            for i, colA in enumerate(acols):
-                proj = None
-                for j, colB in enumerate(bcols):
-                    c_ij = C[i, j]
-                    if proj is None:
-                        proj = colB * c_ij
-                    else:
-                        proj = proj + colB * c_ij
-                if proj is not None:
-                    diff_cols.append(colA - proj)
-            sin_theta = max(float(col.norm()) for col in diff_cols) if diff_cols else 0.0
-        else:
-            diff_cols = []
-            for j, colB in enumerate(bcols):
-                proj = None
-                for i, colA in enumerate(acols):
-                    c_ij = C[i, j]
-                    if proj is None:
-                        proj = colA * c_ij
-                    else:
-                        proj = proj + colA * c_ij
-                if proj is not None:
-                    diff_cols.append(colB - proj)
-            sin_theta = max(float(col.norm()) for col in diff_cols) if diff_cols else 0.0
-        return float(_np.arcsin(_np.clip(sin_theta, 0.0, 1.0)))
+        residual = [b - sum((qA[i] * C[i, j] for i in range(pA)),
+                            0 * b) for j, b in enumerate(qB)]
+    _ru, rsv = source_svd(residual)
+    return jnp.arcsin(jnp.max(rsv))
 
 
 # ============================================================================

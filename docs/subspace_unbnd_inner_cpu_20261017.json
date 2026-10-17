@@ -1,0 +1,190 @@
+{
+  "source_base": "2cdab63fcf83900f666f550747746c633adf64c4",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "status": "Scoped source correction; full parity incomplete",
+  "files": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "098153fe1b535d1dbb9bfa6fa88a01a60182a06ef12d3a65600c69abd76192bb",
+    "src/chebfunjax/chebfun1d/linalg.py": "ba6c77a63db9f0635231900bd9c921c03a3c8a65557f4de9df7f39f40cea7e48",
+    "src/chebfunjax/fun/unbndfun.py": "5ac467ce9aebbc1ec1c0299383c47dbae29fec421d22f621c22ef2824f66d59c",
+    "tests/test_matlab_port/chebfun/test_subspace_matlab.py": "f9748fbe2dd29cb5a9091a4d52d7f6632468f35c90db436d5598e13c3ac2dee5",
+    "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py": "b5000470590cdb46eed36e67405e48bdf203b01f0514bb598040acaad09ba776",
+    "tests/test_matlab_port/unbndfun/test_innerProduct_matlab.py": "90bd57c5af319b717e2bc26d4d5c39b2c17765f85d5868e9914ebfc3a0abbf4d",
+    "tests/test_matlab_port/unbndfun/test_innerProduct_complex_source.py": "055ed00847a441a3e56419b5297e57eab4ecf809cb17d0dc2d73c686c8a6bdae"
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_unbnd_joint_20261017/src/chebfunjax/__init__.py",
+    "devices": "[CpuDevice(id=0)]"
+  },
+  "joint_junit": {
+    "group0.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "14",
+      "time": "120.553",
+      "timestamp": "2026-10-17T15:14:21.251809-04:00",
+      "hostname": "della-mol.princeton.edu"
+    },
+    "group1.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "5",
+      "time": "29.473",
+      "timestamp": "2026-10-17T15:16:29.998014-04:00",
+      "hostname": "della-mol.princeton.edu"
+    },
+    "domain.xml": {
+      "name": "pytest",
+      "errors": "0",
+      "failures": "0",
+      "skipped": "0",
+      "tests": "1",
+      "time": "5.654",
+      "timestamp": "2026-10-17T15:17:11.073900-04:00",
+      "hostname": "della-mol.princeton.edu"
+    }
+  },
+  "receipts": {
+    "subspace_unbnd_joint_gate_20261017_run001": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 164.5058835176751,
+      "sampled_peak_summed_rss_kib": 3484984,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "subspace_unbnd_domain_gate_20261017_run001": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 7.748041294049472,
+      "sampled_peak_summed_rss_kib": 742860,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_guard_scope": "All production Python files and selected tests; observed pinned runtime versions/origin, no comprehensive external runtime freeze",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_unbnd_joint_cpu_20261017.tar.gz",
+    "sha256": "d233158b19ff7ae2e4c71efa578f7240c30d7f21d6ea0b7a95908d3db76e22d4",
+    "manifest_payloads_verified": 224
+  },
+  "subspace": {
+    "finding": "Host NumPy/real-only individual-column residual implementation replaced by JAX native QR-SVD orthogonalization, Hermitian inner products and residual spectral norm",
+    "original_scope": "All six original predicates preserve source operands/bounds; paired native invocation retained",
+    "root_refinement": "domainCheck uses max(hscale(A),hscale(B)); joint gate precedes this helper-only correction, final affected domain/orientation selector passes after it. Source-domain values in joint scientific cases identical, so computed hscale unchanged. Comment-only rank-oracle wording corrected.",
+    "agent_report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_jax_port_20261017/REPORT.json",
+    "agent_report_sha256": "ccae2f3a2df3e4aea81146c641fb0ff2687c17682827ecec945f18d4e6c73626",
+    "limitations": [
+      "rank-zero/empty orthogonal basis output grammar",
+      "mixed orientation within one list",
+      "complex noncollatable abstractQR fallback",
+      "broader Singfun/Deltafun/other noncollatable input grammar",
+      "all publicAPI error/shape behavior",
+      "performance",
+      "Near-rank above-cutoff quantitative angle differs about8.74e-5; categorical rank control passes, no numerical closure claim."
+    ]
+  },
+  "unbndfun": {
+    "source_head": "ca97ff24c73a6acf8f5f5cd721ff96720d30b110",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "finding": "Current port already had3 original innerProduct methods; clause2 omitted explicit exps=(0,1). Restored that operand. Source fault: inner omitted first-operand conjugation.",
+    "fix": "Conjugate the existing onefun using its JAX Chebtech/Singfun conj method, wrap the same domain/mapping_type, then existing multiplication and source sum. No alternate quadrature or host numerical production additions.",
+    "scope": "Three original predicates unchanged bounds/operands apart from restoration of native explicit exponent. Two authored complex controls cover smooth/self/Hermitian/norm and explicit-singular first operand.",
+    "native": {
+      "original": [
+        true,
+        true,
+        true
+      ],
+      "self": {
+        "real": 0.13533528323661168,
+        "imag": 0,
+        "real_hex": "3fc152aaa3bf81a7",
+        "imag_hex": "0000000000000000"
+      },
+      "forward": {
+        "real": 0.06766764161830596,
+        "imag": -0.20300292485491797,
+        "real_hex": "3fb152aaa3bf81b0",
+        "imag_hex": "bfc9fbfff59f428b"
+      },
+      "reverse": {
+        "real": 0.06766764161830614,
+        "imag": 0.20300292485491778,
+        "real_hex": "3fb152aaa3bf81bd",
+        "imag_hex": "3fc9fbfff59f4284"
+      },
+      "scales": [
+        0.5202600950228892,
+        0.8226034379839802
+      ],
+      "expected_self": 0.1353352832366127,
+      "expected_forward": {
+        "real": 0.06766764161830635,
+        "imag": -0.20300292485491905,
+        "real_hex": "3fb152aaa3bf81cc",
+        "imag_hex": "bfc9fbfff59f42b2"
+      },
+      "version": "25.2.0.3055257 (R2025b) Update 2",
+      "pin": "7574c77680d7e82b79626300bf255498271a72df"
+    },
+    "gates": {
+      "native": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 78.813687433023,
+        "sampled_peak_summed_rss_kib": 1315044,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "baseline": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 32.22162501141429,
+        "sampled_peak_summed_rss_kib": 1830372,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "pytest": {
+          "tests": "5",
+          "failures": "2",
+          "errors": "0",
+          "skipped": "0",
+          "time": "28.751"
+        }
+      },
+      "candidate": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 32.016686983872205,
+        "sampled_peak_summed_rss_kib": 1847456,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "pytest": {
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0",
+          "time": "28.413"
+        }
+      }
+    },
+    "files": {
+      "src/chebfunjax/fun/unbndfun.py": "5ac467ce9aebbc1ec1c0299383c47dbae29fec421d22f621c22ef2824f66d59c",
+      "tests/test_matlab_port/unbndfun/test_innerProduct_matlab.py": "90bd57c5af319b717e2bc26d4d5c39b2c17765f85d5868e9914ebfc3a0abbf4d",
+      "tests/test_matlab_port/unbndfun/test_innerProduct_complex_source.py": "055ed00847a441a3e56419b5297e57eab4ecf809cb17d0dc2d73c686c8a6bdae"
+    },
+    "limitations": [
+      "Native complex observations construct smooth operands independently; no coefficient-bit matching claim. Singular complex control uses its analytic integral rather than a separate native runtime capture.",
+      "Empty/invalid input and array-valued inner-product grammar are not changed or newly qualified. Native explicitly says array-valued unsupported.",
+      "Selected source/input files frozen; incidental pytest/runtime dependencies not claimed comprehensively preguarded.",
+      "No full repository/API/CI/performance claim."
+    ],
+    "static": "ruff check --no-cache all3changed files passed",
+    "baseline_source_preimage_verified": true
+  },
+  "limitations": [
+    "Not full API/test-suite/page/figure/performance parity; latest-main CI/coverage required.",
+    "Agent historical failed attempts and invalid authored rank oracles preserved; no original assertion relaxed."
+  ]
+}

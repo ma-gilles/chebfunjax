@@ -1417,7 +1417,7 @@ def _legendre_basis(n_cols: int, domain: Domain) -> list[Chebfun]:
 
         # L2 normalise: ||P_k||_2 on [a, b] = sqrt(L / (2k + 1))
         norm_sq = L / (2.0 * k + 1.0)
-        scale = 1.0 / np.sqrt(norm_sq)
+        scale = 1.0 / jnp.sqrt(norm_sq)
         col = col * scale
         basis.append(col)
 

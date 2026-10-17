@@ -1,3 +1,14 @@
+# Latest subspace and unbounded inner-product scope — 2026-10-17
+
+The joint CPU gate passes19 nodes: six original subspace predicates plus
+API/numerical controls and three original unbounded inner-product predicates
+plus two complex controls. Subspace now follows native QR/SVD with JAX numerics,
+Hermitian products and residual spectral norm. Unbounded inner products now
+conjugate their first operand. A final domain-check correction follows native
+max(hscale(A),hscale(B)); the affected domain/orientation control passes.
+Near-rank quantitative angle fidelity, remaining API cases, full parity and
+latest-main CI/coverage remain open. Evidence: subspace_unbnd_inner_cpu_20261017.json.
+
 ## ComplexArcLength graphics adapters and tracking repair — 2026-10-17
 
 The example now applies existing MATLAB layout/equal-axis adapters at its final

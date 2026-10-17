@@ -1045,7 +1045,7 @@ class Unbndfun(eqx.Module):
         return integrand.sum()
 
     def inner(self, other: "Unbndfun") -> jax.Array:
-        """L2 inner product ⟨f, g⟩ = ∫_{domain} f(x) g(x) dx.
+        """L2 inner product ⟨f, g⟩ = ∫_{domain} conj(f(x)) g(x) dx.
 
         Parameters
         ----------
@@ -1062,12 +1062,14 @@ class Unbndfun(eqx.Module):
         Construction is NOT JIT-safe.
         """
         self._check_domain(other)
-        # Multiply the onefuns (dealiased; works for smooth and singular
-        # representations alike) and reuse the divergence-aware sum.
+        # @unbndfun/innerProduct.m and inherited @classicfun/conj.m,
+        # Chebfun 7574c77: conjugate the first onefun, retaining its map
+        # and singular exponents, then use the source product and sum.
         # The former direct quadrature of f*g*(dx/dy) lost ~11 digits on
         # slowly-decaying reciprocals (1/x . 2/x on (-inf, b]: 2e-4 vs
         # 2e-14 through the product path).
-        return (self * other).sum()
+        conjugated = Unbndfun(self.onefun.conj(), self.domain, self.mapping_type)
+        return (conjugated * other).sum()
 
     def _inner_quadrature_unused(self, other) -> jax.Array:
         """Retired direct-quadrature inner product (see inner())."""
@@ -1083,7 +1085,7 @@ class Unbndfun(eqx.Module):
     def norm(self, p: float = 2.0) -> jax.Array:
         """L-p norm on the unbounded domain.
 
-        For p=2, computes ``sqrt(∫_{domain} f(x)² dx)``.
+        For p=2, computes ``sqrt(∫_{domain} |f(x)|² dx)``.
 
         Parameters
         ----------

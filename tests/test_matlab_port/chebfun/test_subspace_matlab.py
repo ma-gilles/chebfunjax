@@ -6,12 +6,9 @@ spaces of two array-valued chebfuns.  chebfunjax exposes the equivalent
 (quasimatrix form) -- so the array-valued support unblocks a direct port
 (FIXED, Fable 5, Big-Three array-valued epic).
 
-chebfunjax's Quasimatrix layer only supports SINGLE-interval domains, so we port
-the test on ``[0, 2*pi]`` instead of MATLAB's piecewise ``[0 1 2*pi]``/``[0 2
-2*pi]`` breakpoints -- the breakpoints are incidental (the basis
-``{1/sqrt(2), cos t, sin 2t, sin 3t}/sqrt(pi)`` is orthonormal on ``[0, 2*pi]``
-either way).  The row-chebfun case (MATLAB pass 6) needs a transpose, which
-chebfunjax lacks, so it stays skipped.
+The original piecewise-breakpoint and row-chebfun predicates are tested
+literally in ``test_subspace_original_breaks.py``. This file keeps
+the earlier single-interval controls as supplemental coverage.
 
 Provenance
 ----------

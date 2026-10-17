@@ -219,6 +219,11 @@
       "scope": "Scoped spincomp/JAX spin/checkpoint and complex default C2 Chebfun3 controls; seven complex scientific tests pass but wrapper runtime auditor exits4; no whole-file/function/API status promotion.",
       "sha256": "4863087e1ad61f2521afb10e25815f6ba2ced9f715163f93201f3a1681d6b0bd",
       "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea"
+    },
+    "subspace_unbnd_inner_cpu_20261017": {
+      "path": "docs/subspace_unbnd_inner_cpu_20261017.json",
+      "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
+      "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
     }
   },
   "example_pages": [
@@ -54720,6 +54725,10 @@
         {
           "artifact": "ndarray_subspace_cpu_20261017",
           "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        },
+        {
+          "artifact": "subspace_unbnd_inner_cpu_20261017",
+          "scope": "Source-bound originals and stated authored controls only; full-item status unverified"
         }
       ],
       "functions": [
@@ -91451,7 +91460,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "subspace_unbnd_inner_cpu_20261017",
+          "scope": "Source-bound originals and stated authored controls only; full-item status unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -104056,6 +104070,10 @@
         {
           "artifact": "ndarray_subspace_cpu_20261017",
           "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        },
+        {
+          "artifact": "subspace_unbnd_inner_cpu_20261017",
+          "scope": "Source-bound originals and stated authored controls only; full-item status unverified"
         }
       ],
       "functions": [
@@ -104085,6 +104103,18 @@
           "qualification_limit": "Literal functions/domains/bounds; Python list-of-column adapter; native terminal evidence retained without exhaustive pre-run guard. Full array API/JAX implementation open.",
           "scope_id": "subspace_original_default_1_6",
           "source_base": "267ec71476e72541a4b6160b013cd69a5c9be05f",
+          "status": "paired_native_python_pass"
+        },
+        {
+          "evidence": "subspace_unbnd_inner_cpu_20261017",
+          "invocation": "test_subspace()",
+          "predicates_native": 6,
+          "predicates_python_mapped": 6,
+          "python_source": "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py",
+          "python_source_sha256": "b5000470590cdb46eed36e67405e48bdf203b01f0514bb598040acaad09ba776",
+          "qualification_limit": "Default original predicates only, unchanged source operands and tolerances; Python syntax adapters. Full API/preferences/edge cases unverified.",
+          "scope_id": "original_default_predicates_6_subspace_unbnd_20261017",
+          "source_base": "2cdab63fcf83900f666f550747746c633adf64c4",
           "status": "paired_native_python_pass"
         }
       ]
@@ -127221,7 +127251,12 @@
         "tests/test_matlab_port/trigtech/test_innerProduct_matlab.py",
         "tests/test_matlab_port/unbndfun/test_innerProduct_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "subspace_unbnd_inner_cpu_20261017",
+          "scope": "Source-bound originals and stated authored controls only; full-item status unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -127236,7 +127271,21 @@
       "sha256": "f72dc7a0d32df25d631817adf712a8a96911d9acf2a4754541f62cf6ece28dbe",
       "source": "tests/unbndfun/test_innerProduct.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "subspace_unbnd_inner_cpu_20261017",
+          "invocation": "test_innerProduct()",
+          "predicates_native": 3,
+          "predicates_python_mapped": 3,
+          "python_source": "tests/test_matlab_port/unbndfun/test_innerProduct_matlab.py",
+          "python_source_sha256": "90bd57c5af319b717e2bc26d4d5c39b2c17765f85d5868e9914ebfc3a0abbf4d",
+          "qualification_limit": "Default original predicates only, unchanged source operands and tolerances; Python syntax adapters. Full API/preferences/edge cases unverified.",
+          "scope_id": "original_default_predicates_3_subspace_unbnd_20261017",
+          "source_base": "2cdab63fcf83900f666f550747746c633adf64c4",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

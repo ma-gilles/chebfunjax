@@ -21,8 +21,8 @@ EPS = float(np.finfo(np.float64).eps)
 INF = np.inf
 
 
-def _U(op, dom):
-    return Unbndfun.from_function(op, Domain(dom))
+def _U(op, dom, *, exps=None):
+    return Unbndfun.from_function(op, Domain(dom), exps=exps)
 
 
 class TestUnbndfunInnerProduct:
@@ -34,7 +34,7 @@ class TestUnbndfunInnerProduct:
         assert abs(float(f.inner(g)) - iexact) < tol
 
     def test_right_inf_blowup_factor(self):
-        f = _U(lambda x: x, (1.0, INF))
+        f = _U(lambda x: x, (1.0, INF), exps=(0, 1))
         g = _U(lambda x: jnp.exp(-x), (1.0, INF))
         iexact = 2 * np.exp(-1)
         tol = 2e8 * max(EPS * f.vscale, EPS * g.vscale)

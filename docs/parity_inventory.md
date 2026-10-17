@@ -166,3 +166,7 @@ ten original default predicates with a byte-identical forward source bridge.
 [Open numerical investigations](numerical_parity_gaps_20261017.md) separately
 record unresolved transform-sensitive PDE/Hermite/rational paths without
 promoting diagnostic observations into parity completion.
+
+[Subspace and unbounded inner product](subspace_unbnd_inner_cpu_20261017.json)
+attaches the six and three original predicates, respectively. Full API and
+near-rank quantitative subspace parity remain open.
