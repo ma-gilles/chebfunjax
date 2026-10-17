@@ -445,6 +445,7 @@ def _eval_tensor(
     *,
     source_sizes: tuple[int, int, int] | None = None,
     source_domain: tuple[float, ...] | None = None,
+    value_dtype=None,
 ) -> np.ndarray:
     """Evaluate f at the tensor product of selected physical points.
 
@@ -480,10 +481,12 @@ def _eval_tensor(
     # Native evalTensor skips the callback for an empty Cartesian product.
     # Preserve its downstream tensor shape in the Python representation.
     if len(I) == 0 or len(J) == 0 or len(K) == 0:
-        return jnp.empty((len(I), len(J), len(K)), dtype=jnp.float64)
+        dtype = jnp.float64 if value_dtype is None else value_dtype
+        return jnp.empty((len(I), len(J), len(K)), dtype=dtype)
     if source_sizes is not None:
         coordinates = jnp.meshgrid(xi, yj, zk, indexing="ij")
-        return jnp.asarray(f(*coordinates), dtype=jnp.float64)
+        dtype = jnp.float64 if value_dtype is None else value_dtype
+        return jnp.asarray(f(*coordinates), dtype=dtype)
     xx, yy, zz = np.meshgrid(xi, yj, zk, indexing='ij')
     xx_j = jnp.asarray(xx, dtype=jnp.float64)
     yy_j = jnp.asarray(yy, dtype=jnp.float64)
@@ -724,14 +727,18 @@ class Chebfun3(eqx.Module):
         za, zb = float(domain[4]), float(domain[5])
         dom = (xa, xb, ya, yb, za, zb)
 
-        # Complex-valued functions: the Tucker constructor real-casts,
-        # so build re/im separately and recombine exactly (Fable 5 audit
-        # -- the imaginary part was previously silently dropped, same
-        # bug as Chebfun2).
+        # Inspect callback dtype before selecting the native complex C2 path
+        # or the existing real/imaginary adapters for other technologies.
         xp_ = jnp.asarray([0.5 * (xa + xb) + 0.25 * (xb - xa)])
         yp_ = jnp.asarray([0.5 * (ya + yb) + 0.25 * (yb - ya)])
         zp_ = jnp.asarray([0.5 * (za + zb) + 0.25 * (zb - za)])
-        if jnp.iscomplexobj(jnp.asarray(f(xp_, yp_, zp_))):
+        from chebfunjax.chebfun3d import _chebfun3f_source as source3f
+        source_order = _first_kind or not _periodic
+        complex_values = jnp.iscomplexobj(jnp.asarray(f(xp_, yp_, zp_)))
+        # The nonperiodic C2 source-order constructor carries complex values
+        # through ACA, QR, DEIM, and Tucker assembly. The C1 and periodic
+        # adapters retain their established real/imaginary construction path.
+        if complex_values and (_periodic or _first_kind):
             kw = dict(domain=domain, tol=tol, max_rank=max_rank,
                       min_samples=min_samples, _periodic=_periodic, _first_kind=_first_kind,
                       _sample_test=_sample_test, _session_tol=_session_tol,
@@ -745,8 +752,7 @@ class Chebfun3(eqx.Module):
 
             return _assemble_components(fre, fim * 1j)
 
-        from chebfunjax.chebfun3d import _chebfun3f_source as source3f
-        source_order = _first_kind or not _periodic
+        value_dtype = jnp.complex128 if complex_values else jnp.float64
         from chebfunjax.chebfun3d._chebfun3f_tech import (
             envelope_happiness,
             periodic_factors,
@@ -775,7 +781,11 @@ class Chebfun3(eqx.Module):
             yp = grid_points(n2, ya, yb)
             zp = grid_points(n3, za, zb)
             T = _eval_tensor(f, xp, yp, zp,
-                             np.arange(n1), np.arange(n2), np.arange(n3))
+                             np.arange(n1), np.arange(n2), np.arange(n3),
+                             **(dict(source_sizes=(n1, n2, n3),
+                                     source_domain=dom,
+                                     value_dtype=value_dtype)
+                                if source_order else {}))
             return xp, yp, zp, T
 
         # ----------------------------------------------------------------
@@ -855,7 +865,8 @@ class Chebfun3(eqx.Module):
                 # ---- ACA on mode-1 unfolding ----
                 T1 = _eval_tensor(f, xp, yp, zp,
                                   np.arange(n[0]), J, K,
-                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                  **(dict(source_sizes=tuple(n), source_domain=dom,
+                                          value_dtype=value_dtype)
                                      if source_order else {}))
                 vscale_T1 = float(np.max(np.abs(T1))) if T1.size > 0 else 0.0
                 if not np.isfinite(vscale_T1):
@@ -880,7 +891,8 @@ class Chebfun3(eqx.Module):
                 # ---- ACA on mode-2 unfolding ----
                 T2 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, np.arange(n[1]), K,
-                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                  **(dict(source_sizes=tuple(n), source_domain=dom,
+                                          value_dtype=value_dtype)
                                      if source_order else {}))
                 # mode-2 unfolding: permute to (n2, n1*n3)
                 M2 = source3f.unfold(T2, 1) if source_order else T2.transpose(1, 0, 2).reshape(n[1], len(I_idx) * len(K))
@@ -898,7 +910,8 @@ class Chebfun3(eqx.Module):
                 # ---- ACA on mode-3 unfolding ----
                 T3 = _eval_tensor(f, xp, yp, zp,
                                   I_idx, J_idx, np.arange(n[2]),
-                                  **(dict(source_sizes=tuple(n), source_domain=dom)
+                                  **(dict(source_sizes=tuple(n), source_domain=dom,
+                                          value_dtype=value_dtype)
                                      if source_order else {}))
                 # mode-3 unfolding: permute to (n3, n1*n2)
                 M3 = source3f.unfold(T3, 2) if source_order else T3.transpose(2, 0, 1).reshape(n[2], len(I_idx) * len(J_idx))
@@ -1191,7 +1204,7 @@ class Chebfun3(eqx.Module):
         xx_j = jnp.asarray(xx, dtype=jnp.float64)
         yy_j = jnp.asarray(yy, dtype=jnp.float64)
         zz_j = jnp.asarray(zz, dtype=jnp.float64)
-        T_deim = (jnp.asarray(f(xx_j, yy_j, zz_j), dtype=jnp.float64) if source_order
+        T_deim = (jnp.asarray(f(xx_j, yy_j, zz_j), dtype=value_dtype) if source_order
                   else np.array(f(xx_j, yy_j, zz_j), dtype=np.float64))
 
         # Tucker core: core = T_deim x_1 inv(QUI) x_2 inv(QVJ) x_3 inv(QWK)

@@ -107,6 +107,7 @@ from chebfunjax.utils.trigutils import trigBary, trigpoly  # noqa: E402
 
 # The top-level `plot` is the universal dispatcher (like MATLAB's plot(f))
 plot = plot_dispatch
+from chebfunjax.operators.spincomp import spincomp  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Top-level special functions: cj.sin(f) is equivalent to f.sin()
@@ -384,6 +385,8 @@ __all__ = [
     "ode89",
     # PDE solver
     "pdeSolve",
+    # Spin scheme comparison
+    "spincomp",
     # Random functions
     "randnfun",
     "randnfun2",

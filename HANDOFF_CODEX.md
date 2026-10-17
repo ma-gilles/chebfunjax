@@ -1,3 +1,36 @@
+## JAX spin comparison and complex C2 construction — 2026-10-17
+
+Public `spincomp` now compares 1D/2D/3D schemes with source sampling,
+normalization, fresh preferences and internal stepping times. Public 1D spin
+uses the JAX integration engine. Source checkpoint behavior is preserved:
+one-output short/nonaligned solves retain the initial output; timed calls
+reproduce the missing-third-output error when no endpoint was saved. The
+loop stops immediately on the native checkpoint tolerance. Final gates pass
+39 1D/fixture checks, four affected 2D/3D checks and six root adapter/render
+checks. Six native N=8 cases confirm the output distinction, including a
+nonzero initial tspan entry. NaN plot reductions now follow native omission.
+Full spin API, long examples, graphics and matched performance remain open.
+
+The default nonperiodic C2 Chebfun3 constructor now carries complex callback
+values through native ACA/QR/DEIM/Tucker construction rather than reconstructing
+real/imaginary parts separately. All five existing std3-file controls and two
+new real/complex constructor controls pass (59.09s, sampled peak 3,008,872 KiB).
+These include one literal original MATLAB constant predicate; they are not
+seven original MATLAB predicates. Native complex polynomial/conjugate/product
+controls have matching core sizes and analytic errors below 1.6e-14. C1 and
+periodic complex construction retain their existing paths.
+
+The Chebfun3 wrapper exits 4 because its final runtime auditor found one
+unpreguarded dynamic JAX dialect source, despite seven passing tests and
+stable source inputs. Post-run inspection proves it is the same file as the
+pinned wheel alias; this does not establish a prelaunch freeze. No full runtime
+closure, complete Chebfun3 parity, earlier CI shutdown cause, whole-suite green,
+CPU performance parity or coverage acceptance is claimed.
+
+Evidence: [parent review](docs/spin_complex_integration_cpu_20261017.json).
+The receipt retains failed/superseded observers and the root mock correction;
+external dependency preimages remain referenced rather than all embedded.
+
 ## PDE option consumers and source color cycle — 2026-10-17
 
 Basic pdeset options now reach polynomial pde15s: Eps, N, scalar/vector AbsTol,

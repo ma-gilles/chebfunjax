@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest verified implementation: `b85e3731`; MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Previous implementation: `b85e3731`; this update adds the scoped spin/complex-constructor package below. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -15,17 +15,21 @@ Checked items certify only their stated scope.
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
 | Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
-| Final acceptance | Latest implementation pushed as `b85e3731`; documentation deployment passed | Latest implementation CI run 39046105289 is in progress at this update; coverage ≥79%, final provenance/lint and full objective audit |
+| Final acceptance | Previous implementation `b85e3731` pushed; documentation deployment passed | Previous implementation CI run 39046105289 is in progress at this update; new publication also requires CI; coverage ≥79%, final provenance/lint and full objective audit |
 
 ### Active work, not yet credited as complete
 
-- **Spincomp / public 1D spin JAX port:** candidate gates passed 34 and 2 controls. Root review found a short-horizon startup/checkpoint mismatch in 1D; fix and affected qualification are pending. Full native API/graphics/performance remain open.
-- **Chebfun3 complex std3 memory:** isolated diagnostic exceeded its 4 GiB cap after 97.93 seconds, before the original assertion. Source-level diagnosis is underway; this is not a numerical test failure or a proven explanation for the earlier CI runner shutdown.
+- **Spin API follow-up:** scoped JAX comparison/checkpoint behavior is published below; full native API, scheme matrix, long examples, graphics and matched performance remain open.
+- **Chebfun3 follow-up:** default complex C2 construction now passes the seven-control gate below 3 GiB; C1/periodic paths, broader original tests and complete runtime audit remain open. The earlier CI shutdown cause is unproven.
 - **Evidence reconciliation:** historical passing scopes must still be attached to individual inventory rows. Candidate path mappings and passing subsets do not establish full-file parity.
 
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Public JAX spincomp and 1D spin engine; native short/nonaligned checkpoint and timed-output error behavior. Final 39 + 4 component controls and six root adapter/render controls pass; six native output cases captured. [Evidence](spin_complex_integration_cpu_20261017.json).
+- [x] Native complex default C2 Chebfun3 construction: seven scientific controls pass, with source-stable inputs. Final runtime auditor exits 4 for one dynamic JAX file outside preguard; no full runtime closure claim. [Evidence](spin_complex_integration_cpu_20261017.json).
+- [ ] Full spin API/schemes/long examples/graphics/performance; C1/periodic complex Chebfun3 and broader original tests; latest-head CI/coverage.
 
 - [x] Working pinned JAX/JAXlib0.11.0 CPU/x64 environment and shared writable checkouts.
 - [x] Explicit-path staging, ordinary direct-main pushes, source hashes and delta-bundle verification.
@@ -67,7 +71,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [ ] Broader GET cell/type behavior and empty/API cases.
 - [x] Publish pdeset factory/native metadata qualification and recursive 3D selector fixes f3285a81; combined20 checks pass.
 - [x] Integrate basic pdeset fixed-grid consumers: Eps/N/AbsTol scalar-vector/RelTol/AdjustBCs and native ODESolver override;24checks and4native comparisons pass. [Evidence](pdeset_consumer_cpu_20261017.json).
-- [ ] Complete remaining PDE options/plots, adaptive-option qualification and native output grammar; spincomp is a separate unpublished candidate.
+- [ ] Complete remaining PDE options/plots, adaptive-option qualification and native output grammar; spincomp has the scoped published qualification above; full API/graphics/performance remain open.
 - [x] Run combined ThreeBody adapter alone: exit0/94.622s,1290imports preguarded, finite6/7output poles/residues,4figures600×270; saved numerical artifacts byte-identical to prior Python observation. [Evidence](residue_render_joint_cpu_20261017.json).
 - [ ] Close ThreeBody MATLAB accuracy/stdout/figure-content and raster differences.
 

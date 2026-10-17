@@ -416,7 +416,8 @@ def _normalize_spin3_call(S, N, dt, args, kwargs):
 
 
 def spin3(S: Spinop3 | str, N: int | str | None = None,
-          dt: float | str | None = None, *args, return_times=False, **kwargs):
+          dt: float | str | None = None, *args, return_times=False,
+          return_computing_time=False, **kwargs):
     """Solve a periodic 3D PDE with source checkpoint and output semantics.
 
     Scalar two-endpoint solves return the final periodic Chebfun3. Systems
@@ -438,4 +439,6 @@ def spin3(S: Spinop3 | str, N: int | str | None = None,
     from chebfunjax.operators._spin3_public import solve_public
 
     S, N, dt, args, kwargs = _normalize_spin3_call(S, N, dt, args, kwargs)
-    return solve_public(S, N, dt, args, kwargs, return_times=return_times)
+    return solve_public(
+        S, N, dt, args, kwargs, return_times=return_times,
+        return_computing_time=return_computing_time)

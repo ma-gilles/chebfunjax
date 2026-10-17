@@ -100,3 +100,9 @@ The generator uses source trees only; it runs no MATLAB, Python package code,
 examples, or numerical tests. Native source and cached-page SHA-256 values are
 stored in the JSON. The adjacent `parity_inventory.sha256` records checksums
 for the generator, JSON, and this summary.
+
+The spin/complex-constructor package adds scoped evidence to selected native
+source rows and the std3 original predicate. Seven complex scientific controls
+pass, while the final runtime auditor reports one unpreguarded dynamic file;
+full runtime closure and full-item parity are not claimed. See
+[review](spin_complex_integration_cpu_20261017.json).

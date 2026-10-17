@@ -1,0 +1,199 @@
+{
+  "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea",
+  "native_reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "JAX spincomp and source checkpoint/output behavior in 1D\u20133D; native complex default nonperiodic C2 Chebfun3 constructor",
+  "final_source_hashes": {
+    "src/chebfunjax/__init__.py": "3cf00f6ff7dabc06cc4acaff718bdc47569586cb6320b95070e5b0de3784c205",
+    "src/chebfunjax/operators/spincomp.py": "67dc75675088343e58587489c5eb72631463e0a122b7b6944f008e37f5b9b0c1",
+    "src/chebfunjax/operators/spinop.py": "7c0ccbdc193386ba523c96881179f5af52e52cbd84f849ed24a798de870839a4",
+    "src/chebfunjax/operators/_spin2_public.py": "c671873dcec2033c76180d243662a7ee3ee7db3bc07f525942cd62355cd7ee53",
+    "src/chebfunjax/operators/_spin3_public.py": "cb151cd6f4f33e748d291a43da661f52390a9bf97514f41439fb1fab5a3c001b",
+    "src/chebfunjax/operators/spinop2.py": "53dbed30f2cb85c661bcd746ce4b2c0f1cacfab19dc1b30c7511c86acc8bcec9",
+    "src/chebfunjax/operators/spinop3.py": "3bb04f931c113213f577a74074a25e70394aa6c4417c991c94291c90cda3fc4b",
+    "tests/test_spin/test_spincomp_jax_gate.py": "37249c288e1b0012703b3f58f5dd5212a5376610c8194783f13dae3bac26b0d1",
+    "tests/test_spin/test_spincomp_source.py": "95d72026fbcd90dd84cf672fb05c57d17a3796ca7452779aad672f4e80276cf6",
+    "src/chebfunjax/chebfun3d/chebfun3.py": "1d4a917d69e4889485101e806f3d89ce6d79f5ed7a152cdecf46ad9fefb1ef60",
+    "tests/test_matlab_port/chebfun3/test_complex_constructor_source_order.py": "a023492136a282a6655a0cd60a1712745393be3292438296bc5694ef9eedf67a",
+    "tests/test_spin/test_spin_checkpoint_outputs.py": "6e40269e815125b1b8d7374eecff8c3ca728069e83b2d322da7bd1bae12aa280"
+  },
+  "spin_component": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_final_delivery_20261017/REPORT.json",
+    "sha256": "ecb9fc39051df2ed9c2fc100dda0b69b944e358635eff07c4a319a3fae9f5356"
+  },
+  "spin_qualified_gates": [
+    {
+      "name": "1D corrected source-checkpoint gate",
+      "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/WunderX/spincomp_20261017",
+      "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/guard.json",
+      "guard_sha256": "6e10c26128335d2d51c4e81249e6d202da4debc627143e854a30b585c5a0e7d5",
+      "junit": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/junit_1d_corrected.xml",
+      "junit_sha256": "45032e59b30aad5f90714bd96a47d7e5a25a3437189c68f31598b9b5800a25fa",
+      "runtime_manifest": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/runtime_imports.json",
+      "runtime_manifest_sha256": "d1c327e3cafc3ad841f796a78e8d0500b86a2f871aea4a0483efd5eb102d5ca1",
+      "supervisor_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spincomp_jax_gate_20261017/supervision_attempt8/receipt.json",
+      "supervisor_receipt_sha256": "48ba1cc4db085c11cfdfeb4de3ec0b6dc0d4b2dd91684041a1c57058889c42e6",
+      "pytest": {
+        "passed": 39,
+        "failed": 0,
+        "seconds": 11.836
+      },
+      "supervisor": {
+        "exit_code": 0,
+        "wall_seconds": 16.684433518908918,
+        "sampled_peak_rss_kib": 927760,
+        "remaining_processes": 0,
+        "inputs_stable": true
+      },
+      "runtime_imports": {
+        "count": 1529,
+        "unguarded": 0
+      },
+      "scope": "31 unchanged KdV MATLAB fixture cases plus 8 small 1D source/output, timing, spincomp, and concrete Chebfun pytree controls; CPU32-35; 120s/4096MiB cap."
+    },
+    {
+      "name": "affected 2D/3D timed-output gate",
+      "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/WunderX/spincomp_20261017",
+      "guard": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/guard.json",
+      "guard_sha256": "2d8d1d4a538436aa2f11f5e1531ddb0dc12dd03c93a65543a78d76268ff02dda",
+      "junit": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/junit_2d3d_final.xml",
+      "junit_sha256": "08fa5a4c456fee4f172f2a7a91ed110b39df63bdfa5396f0d6431528a1f8e382",
+      "runtime_manifest": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/runtime_imports.json",
+      "runtime_manifest_sha256": "255c8b764ba5bb1507490a5baaf4c98d931393fe577f058f76b88b82d732c568",
+      "supervisor_receipt": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spincomp_jax_gate_20261017/supervision_final_2d3d/receipt.json",
+      "supervisor_receipt_sha256": "3eea9d8a3f0bb120026fc92b866a2dd5c09f1fc47940c382ae29dd2fd851fa68",
+      "pytest": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 10.508
+      },
+      "supervisor": {
+        "exit_code": 0,
+        "wall_seconds": 15.23002701299265,
+        "sampled_peak_rss_kib": 1121736,
+        "remaining_processes": 0,
+        "inputs_stable": true
+      },
+      "runtime_imports": {
+        "count": 1510,
+        "unguarded": 0
+      },
+      "scope": "Two existing small 2D/3D spincomp controls, plus each dimension's one-output initial-value and timed missing-endpoint exception behavior; CPU32-35; 120s/4096MiB cap. No 31-fixture repeat."
+    }
+  ],
+  "native_spin": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_checkpoint_native_parent_review_20261017.json",
+    "sha256": "5dd5b18868a4e0f51638f6db071365ce8386d9133feb76261f073f5fdf89fc71"
+  },
+  "complex_component": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/DELIVERY_REPORT.json",
+    "sha256": "763541649ec1fcd4fc7f8703837f4bd7a472aa03bf10713c8a3125b33a1d5959"
+  },
+  "complex_python": {
+    "scientific_tests_passed": 7,
+    "junit": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/gate_v1/junit.xml",
+      "sha256": "07e61b0b4a55a32088704fee061bdfdb1b7967a3bb20166f22f600208486f124"
+    },
+    "guard": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/gate_v1/guard.json",
+      "sha256": "ffa5b9f857dab80635b668949228c2eda20b9cc84fb122ee3546d1f9b8954ea7"
+    },
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/std3_complex_constructor_candidate_20261017_run004/receipt.json",
+      "sha256": "500b5103b67640bc5165f87919cca0909cd1d27f03e7ce121a5a023d89aaaf11"
+    },
+    "command_exit": 4,
+    "source_inputs_stable": true,
+    "sampled_peak_rss_kib": 3008872,
+    "runtime_audit_limitation": {
+      "canonical_same_bytes_path": "/home/mg6942/.cache/rattler/cache/uv-cache/archive-v0/bFC7-Kn6EoC-jHK361SW4/jaxlib/mlir/dialects/_mhlo_ops_gen.py",
+      "canonical_same_bytes_sha256": "c538b5110db25abf5fd244b1ce454ca9a9232676d2af2e3c264ebdf1936b93b0",
+      "error": "RuntimeError('runtime path not preguarded: /scratch/gpfs/AMITS/mg6942/.cache/rattler/cache/uv-cache/archive-v0/bFC7-Kn6EoC-jHK361SW4/jaxlib/mlir/dialects/_mhlo_ops_gen.py')",
+      "exitstatus": 0
+    },
+    "same_file_pinned_wheel_alias": {
+      "loaded_path": "/scratch/gpfs/AMITS/mg6942/.cache/rattler/cache/uv-cache/archive-v0/bFC7-Kn6EoC-jHK361SW4/jaxlib/mlir/dialects/_mhlo_ops_gen.py",
+      "canonical_alias": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/mlir/dialects/_mhlo_ops_gen.py",
+      "samefile": true,
+      "postrun_sha256": "c538b5110db25abf5fd244b1ce454ca9a9232676d2af2e3c264ebdf1936b93b0"
+    },
+    "original_test_scope": "One literal original native constant predicate plus four existing authored std3 controls, and two new real/complex construction controls; not seven original MATLAB predicates"
+  },
+  "native_complex": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_native_parent_review_20261017.json",
+    "sha256": "dbb9bb242d9e8400607e082d3ad72d114d5f249d98b105362ee7638908c42c49"
+  },
+  "root_adapter_gate": {
+    "tests_passed": 6,
+    "junit": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_root_smoke_v2_20261017/junit.xml",
+      "sha256": "8819748c1bdfbe40f97516756484cf82fe2b0f6b899bdf04ec7a92b44ce92130"
+    },
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin_complex_root_smoke_v2_20261017_run001/receipt.json",
+      "sha256": "9c9ed8aecc78ddfebdfd7a0aca24c765669ea4135a51e1ce419720d9a94fe0f2"
+    },
+    "scope": "Top-level spincomp/quiver exports, source adapter routing and render metadata; firstparty/config guards, external imports observed but not all preguarded"
+  },
+  "parent_changes": [
+    "Narrow spincomp import/export hunk preserves newer quiver export",
+    "Import ordering/raw regex formatting preserves AST constants/import sets; Chebfun3 explanatory comment only preserves exact executable AST",
+    "Plot NaN reductions changed to nanmin/nanmax and fmin/fmax based on actual MATLAB NaN min/max; new root control passes",
+    "Mock solver now accepts timing flag and asserts one-output reference versus timing comparisons"
+  ],
+  "earlier_attempts": [
+    "Spin component report retains superseded/wrong-oracle/unstable/setup attempts",
+    "First native spin observer failed requesting absent third output; corrected observer explicitly records that native exception",
+    "Root adapter smoke initially failed stale mock timing signature; corrected six-control gate passes",
+    "Complex run003 shared final audit detail was overwritten by run004; no reconstructed audit or run003 JUnit claimed"
+  ],
+  "static": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_static_final2_20261017.json",
+    "sha256": "165023b30073cf2e3d9edfc4eb049ce67635eebd1cc61a01fc35ee648ff5b2af"
+  },
+  "limitations": [
+    "Full native spin function/API/scheme/plot/performance parity remains open; no long native AC/CH qualification",
+    "Complex C1/periodic paths retain split construction; broad Chebfun3 API and original tests remain open",
+    "Complex JUnit passes, but runtime auditor exits4 for one dynamically loaded file not preguarded; postrun identical pinned-wheel alias does not establish prelaunch freeze",
+    "Native runtime closure selected, not complete; no matched native/JAX performance claim",
+    "No whole suite/pages/figures/latest-main CI or coverage completion claim"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_cpu_20261017.zip",
+    "sha256": "553bb294e2ddfdb2c914695ca4868fa77ceac4eb9aaca80da1e57818b7f8d282"
+  },
+  "archive_scope": "Final source/test snapshots, component reports/guards/results and native packets; external runtime dependency preimages remain referenced, not all embedded",
+  "payloads": {
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_final_delivery_20261017/REPORT.json": "ecb9fc39051df2ed9c2fc100dda0b69b944e358635eff07c4a319a3fae9f5356",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/DELIVERY_REPORT.json": "763541649ec1fcd4fc7f8703837f4bd7a472aa03bf10713c8a3125b33a1d5959",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_root_smoke_v2_20261017/junit.xml": "8819748c1bdfbe40f97516756484cf82fe2b0f6b899bdf04ec7a92b44ce92130",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spin_complex_root_smoke_v2_20261017_run001/receipt.json": "9c9ed8aecc78ddfebdfd7a0aca24c765669ea4135a51e1ce419720d9a94fe0f2",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_static_final2_20261017.json": "165023b30073cf2e3d9edfc4eb049ce67635eebd1cc61a01fc35ee648ff5b2af",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_checkpoint_native_cpu_20261017.zip": "250c7af9a0fa599fa96a9caca54e9a591def8e0e1aff1edfc61bd13a88a8b46b",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_native_cpu_20261017.zip": "bd90ce78002161ab687e94b49de6b600d9cb19e1794203e85b7bb8936409a2ed",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/__init__.py": "3cf00f6ff7dabc06cc4acaff718bdc47569586cb6320b95070e5b0de3784c205",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/spincomp.py": "67dc75675088343e58587489c5eb72631463e0a122b7b6944f008e37f5b9b0c1",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/spinop.py": "7c0ccbdc193386ba523c96881179f5af52e52cbd84f849ed24a798de870839a4",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/_spin2_public.py": "c671873dcec2033c76180d243662a7ee3ee7db3bc07f525942cd62355cd7ee53",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/_spin3_public.py": "cb151cd6f4f33e748d291a43da661f52390a9bf97514f41439fb1fab5a3c001b",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/spinop2.py": "53dbed30f2cb85c661bcd746ce4b2c0f1cacfab19dc1b30c7511c86acc8bcec9",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/operators/spinop3.py": "3bb04f931c113213f577a74074a25e70394aa6c4417c991c94291c90cda3fc4b",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/tests/test_spin/test_spincomp_jax_gate.py": "37249c288e1b0012703b3f58f5dd5212a5376610c8194783f13dae3bac26b0d1",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/tests/test_spin/test_spincomp_source.py": "95d72026fbcd90dd84cf672fb05c57d17a3796ca7452779aad672f4e80276cf6",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/src/chebfunjax/chebfun3d/chebfun3.py": "1d4a917d69e4889485101e806f3d89ce6d79f5ed7a152cdecf46ad9fefb1ef60",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/tests/test_matlab_port/chebfun3/test_complex_constructor_source_order.py": "a023492136a282a6655a0cd60a1712745393be3292438296bc5694ef9eedf67a",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_20261017/tests/test_spin/test_spin_checkpoint_outputs.py": "6e40269e815125b1b8d7374eecff8c3ca728069e83b2d322da7bd1bae12aa280",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/guard.json": "6e10c26128335d2d51c4e81249e6d202da4debc627143e854a30b585c5a0e7d5",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/junit_1d_corrected.xml": "45032e59b30aad5f90714bd96a47d7e5a25a3437189c68f31598b9b5800a25fa",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_jax_gate_attempt8_20261017/runtime_imports.json": "d1c327e3cafc3ad841f796a78e8d0500b86a2f871aea4a0483efd5eb102d5ca1",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spincomp_jax_gate_20261017/supervision_attempt8/receipt.json": "48ba1cc4db085c11cfdfeb4de3ec0b6dc0d4b2dd91684041a1c57058889c42e6",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/guard.json": "2d8d1d4a538436aa2f11f5e1531ddb0dc12dd03c93a65543a78d76268ff02dda",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/junit_2d3d_final.xml": "08fa5a4c456fee4f172f2a7a91ed110b39df63bdfa5396f0d6431528a1f8e382",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spincomp_2d3d_final_20261017/runtime_imports.json": "255c8b764ba5bb1507490a5baaf4c98d931393fe577f058f76b88b82d732c568",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/spincomp_jax_gate_20261017/supervision_final_2d3d/receipt.json": "3eea9d8a3f0bb120026fc92b866a2dd5c09f1fc47940c382ae29dd2fd851fa68",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/gate_v1/guard.json": "ffa5b9f857dab80635b668949228c2eda20b9cc84fb122ee3546d1f9b8954ea7",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/gate_v1/junit.xml": "07e61b0b4a55a32088704fee061bdfdb1b7967a3bb20166f22f600208486f124",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/std3_complex_constructor_candidate_20261017/gate_v1/runtime_manifest.json": "1d948d1b65238ab1823c3bf91bcd7af46b836f0f1dca29baae8361ee839f274c",
+    "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/std3_complex_constructor_candidate_20261017_run004/receipt.json": "500b5103b67640bc5165f87919cca0909cd1d27f03e7ce121a5a023d89aaaf11"
+  }
+}

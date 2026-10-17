@@ -113,6 +113,16 @@
       "recorded_source_commit": "43e5a5b7bf3e1daa7bf9b83034789dec247f58c4",
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
+    },
+    "spin_complex_integration_cpu_20261017": {
+      "path": "docs/spin_complex_integration_cpu_20261017.json",
+      "sha256": "4863087e1ad61f2521afb10e25815f6ba2ced9f715163f93201f3a1681d6b0bd",
+      "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea",
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/spin_complex_integration_cpu_20261017.zip",
+        "sha256": "553bb294e2ddfdb2c914695ca4868fa77ceac4eb9aaca80da1e57818b7f8d282"
+      },
+      "scope": "Scoped spincomp/JAX spin/checkpoint and complex default C2 Chebfun3 controls; seven complex scientific tests pass but wrapper runtime auditor exits4; no whole-file/function/API status promotion."
     }
   },
   "example_pages": [
@@ -59131,7 +59141,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -61023,7 +61038,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -86532,7 +86552,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95524,7 +95549,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95550,7 +95580,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95576,7 +95611,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95602,7 +95642,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "Selected source behavior only; see receipt limitations. Full function/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -108928,7 +108973,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun3/test_std3_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "spin_complex_integration_cpu_20261017",
+          "scope": "One literal original constant predicate plus authored controls; not full original-test audit."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

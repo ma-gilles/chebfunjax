@@ -369,7 +369,8 @@ def _make_trig_interp(V, domain_pairs):
 # ---------------------------------------------------------------------------
 
 
-def spin2(S: Spinop2, N: int, dt: float, *args, return_times=False, **kwargs):
+def spin2(S: Spinop2, N: int, dt: float, *args, return_times=False,
+          return_computing_time=False, **kwargs):
     """Solve a source-shaped 2D periodic problem and return Chebfun2 output.
 
     Multiple requested times or variables return Spin2SolutionMatrix, whose
@@ -379,6 +380,8 @@ def spin2(S: Spinop2, N: int, dt: float, *args, return_times=False, **kwargs):
     Unmatched requested times block subsequent collection, as in the source.
     Preference objects and name/value pairs control scheme, M and dealias.
     Graphics remain unimplemented; plot options are accepted without drawing.
+    ``return_computing_time=True`` additionally returns the internal stepping
+    duration (or a third output when combined with ``return_times=True``).
     Construction and time stepping are eager host-controlled JAX operations;
     the inherited Chebfun2 numeric constructor still has NumPy internals.
 
@@ -389,7 +392,9 @@ def spin2(S: Spinop2, N: int, dt: float, *args, return_times=False, **kwargs):
     """
     from chebfunjax.operators._spin2_public import solve_public
 
-    return solve_public(S, N, dt, args, kwargs, return_times=return_times)
+    return solve_public(
+        S, N, dt, args, kwargs, return_times=return_times,
+        return_computing_time=return_computing_time)
 
 
 class _TrigInterpVector:

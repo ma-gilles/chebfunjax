@@ -10,8 +10,10 @@ Chebfun commit: 7574c77
 from __future__ import annotations
 
 import math
+import time
 from numbers import Integral
 
+import jax
 import jax.numpy as jnp
 
 from chebfunjax.operators._spin2_expinteg import (
@@ -126,7 +128,14 @@ def _output_values(coefficients, n, nvars, dealias):
     return parts
 
 
-def _record_states(S, n, dt, pref):
+def _block_until_ready(values):
+    for leaf in jax.tree_util.tree_leaves(values):
+        block = getattr(leaf, "block_until_ready", None)
+        if block is not None:
+            block()
+
+
+def _record_states(S, n, dt, pref, *, return_computing_time=False):
     domain = tuple(float(x) for x in S.domain)
     times = tuple(float(t) for t in S.tspan)
     if len(times) < 2 or not all(math.isfinite(t) for t in times):
@@ -180,6 +189,10 @@ def _record_states(S, n, dt, pref):
     step = scheme.steps - 1
     t = step * dt
     pos = 1
+    if return_computing_time:
+        # MATLAB solvepde starts tic after setup and multistep initialization.
+        _block_until_ready((states, nonlinear, coefficients, saved))
+        start = time.perf_counter()
     while t < times[-1]:
         states, nonlinear = one_step(
             scheme, coefficients, 1, nv, jnp.fft.ifft2, jnp.fft.fft2,
@@ -197,14 +210,23 @@ def _record_states(S, n, dt, pref):
             pos += 1
             if pos == len(times):
                 break
+    if return_computing_time and len(times) == 2 and len(actual_times) < 2:
+        raise IndexError("native solvepde has no saved tOut(2) checkpoint")
+    if return_computing_time:
+        _block_until_ready((states, nonlinear, saved))
+        computing_time = time.perf_counter() - start
+        return (saved, jnp.asarray(actual_times, dtype=jnp.float64), domain,
+                len(times), computing_time)
     return saved, jnp.asarray(actual_times, dtype=jnp.float64), domain, len(times)
 
 
-def solve_public(S, n, dt, args, kwargs, *, return_times=False):
+def solve_public(S, n, dt, args, kwargs, *, return_times=False,
+                 return_computing_time=False):
     """Construct source final or variable-by-time function output.
 
-    ``return_times`` expresses MATLAB public spin2's two-output call; it
-    does not expose internal solvepde's third computing-time output.
+    ``return_times`` expresses MATLAB public spin2's two-output call.
+    ``return_computing_time`` exposes solvepde's internal time-stepping duration
+    for source-shaped comparison utilities.
 
     Provenance
     ----------
@@ -221,9 +243,17 @@ def solve_public(S, n, dt, args, kwargs, *, return_times=False):
     if S._lin_coeffs is None or S._nonlin_vals is None or S.init is None:
         raise ValueError("Set linear, nonlinear and initial-condition data before solving.")
     pref = _preferences(args, kwargs)
-    saved, actual_times, domain, requested_count = _record_states(S, n, dt, pref)
+    recorded = _record_states(
+        S, n, dt, pref, return_computing_time=return_computing_time)
+    if return_computing_time:
+        saved, actual_times, domain, requested_count, computing_time = recorded
+    else:
+        saved, actual_times, domain, requested_count = recorded
     selected = saved[-1:] if requested_count == 2 else saved
     rows = [[Chebfun2.from_values(column[k], domain=domain, trig=True)
              for column in selected] for k in range(S._n_vars)]
     result = rows[0][0] if requested_count == 2 and S._n_vars == 1 else Spin2SolutionMatrix(rows)
+    if return_computing_time:
+        return ((result, actual_times, computing_time) if return_times
+                else (result, computing_time))
     return (result, actual_times) if return_times else result

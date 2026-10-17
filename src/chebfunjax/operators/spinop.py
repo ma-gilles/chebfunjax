@@ -1,4 +1,3 @@
-# uses-numpy: FFT time-stepping is one-shot numpy per solve
 """Spinop -- stiff semilinear periodic PDEs u_t = L u + N(u), solved
 by spin() with the ETDRK4 exponential integrator on a Fourier grid.
 
@@ -15,23 +14,24 @@ Original authors: Copyright 2017 by The University of Oxford and
 
 from __future__ import annotations
 
+import math
+import time
+
+import jax
 import jax.numpy as jnp
-import numpy as np
+
+from chebfunjax.operators._spin2_expinteg import (
+    Expinteg,
+    compute_coeffs,
+    one_step,
+    start_multistep,
+)
 
 __all__ = ["Spinop", "spin"]
 
-# RESOLVED (Fable 5 audit): the 'CH' preset used to blow up at t ~ 30.
-# Root cause was NOT the integrator, resolution, dealiasing, or the
-# transcription (all verified correct against @spinop/spinop.m): the
-# ETDRK4 loop propagates the full complex Fourier state, and CH's
-# linear part has a growth band (L = 1e-2 om^2 - 1e-5 om^4 > 0 for
-# small om).  Because Nhat evaluates np.real(ifft(.)), the nonlinear
-# saturation never sees the conjugate-antisymmetric part of the state
-# (the imaginary part of u); seeded at roundoff it grows as exp(2.5 t)
-# under the bare exponential propagator until it corrupts the real
-# solution near t ~ 30.  Fixed by re-Hermitianizing the state each
-# step (v = fft(real(ifft(v)))) -- a no-op in exact arithmetic.  See
-# the time-stepping loop below and the spinop port test.
+# This operator API shares the JAX scheme tables, multistep startup, and
+# stepping engine used by the 2D/3D public solvers. The named preset
+# callbacks below are JAX-compatible; custom callbacks should be too.
 
 
 # MATLAB @spinop/spinop.m preset operators (func2str form), used by
@@ -115,15 +115,15 @@ class Spinop:
         name = name.upper()
         if name == "AC":
             # Allen-Cahn: u_t = 5e-3 u_xx + u - u^3 on [0, 2 pi]
-            self.domain = (0.0, 2.0 * np.pi)
+            self.domain = (0.0, 2.0 * math.pi)
             self.tspan = (0.0, 500.0)
             self.lin_symbol = lambda om: -5e-3 * om ** 2
             self.nonlin = lambda v, om, dx: v - v ** 3
             self.init = lambda x: (
-                np.tanh(2 * np.sin(x)) / 3
-                - np.exp(-23.5 * (x - np.pi / 2) ** 2)
-                + np.exp(-27 * (x - 4.2) ** 2)
-                + np.exp(-38 * (x - 5.4) ** 2))
+                jnp.tanh(2 * jnp.sin(x)) / 3
+                - jnp.exp(-23.5 * (x - jnp.pi / 2) ** 2)
+                + jnp.exp(-27 * (x - 4.2) ** 2)
+                + jnp.exp(-38 * (x - 5.4) ** 2))
         elif name == "CH":
             # Cahn-Hilliard: u_t = -1e-2 (u_xx + 1e-3 u_xxxx)
             #                      + 1e-2 (u^3)_xx  on [-1, 1]
@@ -133,8 +133,8 @@ class Spinop:
                 -om ** 2 + 1e-3 * om ** 4)
             self.nonlin = lambda v, om, dx: 1e-2 * dx(v ** 3, 2)
             self.init = lambda x: (
-                np.sin(4 * np.pi * x) ** 5 / 5
-                - 4.0 / 5.0 * np.sin(np.pi * x))
+                jnp.sin(4 * jnp.pi * x) ** 5 / 5
+                - 4.0 / 5.0 * jnp.sin(jnp.pi * x))
         elif name == "BURG":
             # Viscous Burgers: u_t = 1e-3 u_xx - (u^2/2)_x on [-1, 1]
             self.domain = (-1.0, 1.0)
@@ -142,41 +142,41 @@ class Spinop:
             self.lin_symbol = lambda om: -1e-3 * om ** 2
             self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
             self.init = lambda x: (
-                (1 - x ** 2) * np.exp(-30 * (x + 0.5) ** 2))
+                (1 - x ** 2) * jnp.exp(-30 * (x + 0.5) ** 2))
         elif name == "KDV":
             # Korteweg-de Vries: u_t = -u_xxx - (u^2/2)_x
-            self.domain = (-np.pi, np.pi)
+            self.domain = (-math.pi, math.pi)
             self.tspan = (0.0, 0.03)
             self.lin_symbol = lambda om: 1j * om ** 3
             self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
             A = 25.0
             B = 16.0
             self.init = lambda x: (
-                3 * A ** 2 / np.cosh(0.5 * A * (x + 2)) ** 2
-                + 3 * B ** 2 / np.cosh(0.5 * B * (x + 1)) ** 2)
+                3 * A ** 2 / jnp.cosh(0.5 * A * (x + 2)) ** 2
+                + 3 * B ** 2 / jnp.cosh(0.5 * B * (x + 1)) ** 2)
         elif name == "KS":
             # Kuramoto-Sivashinsky: u_t = -u_xx - u_xxxx - (u^2/2)_x on [0, 32pi]
-            self.domain = (0.0, 32.0 * np.pi)
+            self.domain = (0.0, 32.0 * math.pi)
             self.tspan = (0.0, 300.0)
             self.lin_symbol = lambda om: om ** 2 - om ** 4
             self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
-            self.init = lambda x: np.cos(x / 16) * (1 + np.sin(x / 16))
+            self.init = lambda x: jnp.cos(x / 16) * (1 + jnp.sin(x / 16))
         elif name == "NIKO":
             # Nikolaevskiy: u_t = .1 u_xx + u_xxxx + u_xxxxxx - (u^2/2)_x
-            self.domain = (0.0, 32.0 * np.pi)
+            self.domain = (0.0, 32.0 * math.pi)
             self.tspan = (0.0, 300.0)
             self.lin_symbol = lambda om: -0.1 * om ** 2 + om ** 4 - om ** 6
             self.nonlin = lambda v, om, dx: -0.5 * dx(v ** 2, 1)
-            self.init = lambda x: np.cos(x / 16) * (1 + np.sin(x / 16))
+            self.init = lambda x: jnp.cos(x / 16) * (1 + jnp.sin(x / 16))
         elif name == "NLS":
             # Nonlinear Schroedinger: u_t = i u_xx + i |u|^2 u on [-pi, pi]
-            self.domain = (-np.pi, np.pi)
+            self.domain = (-math.pi, math.pi)
             self.tspan = (0.0, 20.0)
             self.lin_symbol = lambda om: -1j * om ** 2
-            self.nonlin = lambda v, om, dx: 1j * np.abs(v) ** 2 * v
+            self.nonlin = lambda v, om, dx: 1j * jnp.abs(v) ** 2 * v
             A = 2.0
             B = 1.0
-            self.init = lambda x: ((2 * B ** 2 / (2 + A ** 2 * np.cos(B * x)
+            self.init = lambda x: ((2 * B ** 2 / (2 + A ** 2 * jnp.cos(B * x)
                                                  / (2 * B ** 2)))
                                    * (1 + 0j) - 1.0)
         else:
@@ -200,153 +200,146 @@ def _parse_scheme(args, kwargs, scheme):
 
 
 def spin(S: Spinop, n: int, dt: float, *args, scheme: str | None = None,
-         M: int = 32, **kwargs):
+         M: int = 32, return_computing_time: bool = False, **kwargs):
     """Solve the Spinop's PDE on an n-point Fourier grid (MATLAB
     ``spin(S, N, dt, 'plot', 'off')``): returns a trig chebfun of the
     solution at ``tspan(end)``.
 
     Options (MATLAB trailing pairs or keywords): ``scheme=`` any
-    expinteg scheme name (default ETDRK4; e.g. ``'pecec736'``,
-    ``'krogstad'``, ``'abnorsett4'``, see
-    :mod:`chebfunjax.operators.expinteg_engine`), ``dealias=`` the
+    expinteg scheme name (default ETDRK4; see the JAX engine in
+    :mod:`chebfunjax.operators._spin2_expinteg`), ``dealias=`` the
     2/3-rule projection (chebfunjax default on; MATLAB's default is
-    ``'off'``), ``M`` contour points for the phi functions.
+    ``'off'``), ``M`` contour points for the phi functions, and
+    ``return_computing_time=True`` to also return the stepping-loop time.
+    Custom initial, linear-symbol and nonlinear callbacks should use
+    JAX-compatible operations.
 
     Provenance
     ----------
     MATLAB source : spin.m / @spinoperator/solvepde.m
-        (ETDRK4, Kassam & Trefethen SISC 2005 contour-integral phi
-        functions)
     Chebfun commit: 7574c77
     """
-    a, b = S.domain
-    P = b - a
-    x = a + P * np.arange(n) / n
-    k = np.fft.fftfreq(n, d=1.0 / n)          # integer wavenumbers
-    om = 2.0 * np.pi * k / P                  # angular wavenumbers
+    a, b = (float(value) for value in S.domain)
+    t0, tf = (float(value) for value in S.tspan)
+    if n < 1 or dt <= 0 or b <= a or tf <= t0:
+        raise ValueError("spin requires positive N/dt and increasing domain/tspan.")
 
-    # MATLAB trigtech convention for even n: the Nyquist mode (k = -n/2)
-    # has ZERO odd-order derivative (its sawtooth is real), so the odd
-    # part of every differential symbol vanishes there.
-    _nyq = n // 2 if n % 2 == 0 else None
+    x = a + (b - a) * jnp.arange(n, dtype=jnp.float64) / n
+    k = jnp.fft.fftfreq(n, d=1.0 / n)
+    omega = 2.0 * jnp.pi * k / (b - a)
+    initial = jnp.asarray(S.init(x) if callable(S.init) else S.init)
+    if initial.shape == ():
+        initial = jnp.broadcast_to(initial, (n,))
+    if initial.shape != (n,):
+        raise ValueError("Initial-condition callback must return shape (N,).")
 
-    def dx_op(vals, order):
-        fac = (1j * om) ** order
-        if _nyq is not None and order % 2 == 1:
-            fac = fac.copy()
-            fac[_nyq] = 0.0
-        return np.real(np.fft.ifft(fac * np.fft.fft(vals)))
+    linear = jnp.asarray(S.lin_symbol(omega), dtype=jnp.complex128)
+    if linear.shape == ():
+        linear = jnp.broadcast_to(linear, (n,))
+    if linear.shape != (n,):
+        raise ValueError("Linear-symbol callback must return shape (N,).")
+    if n % 2 == 0:
+        nyquist = n // 2
+        even_symbol = 0.5 * (linear[nyquist] +
+                             jnp.asarray(S.lin_symbol(-omega))[nyquist])
+        linear = linear.at[nyquist].set(even_symbol)
+    is_real = bool(jnp.all(jnp.imag(linear) == 0))
+    if is_real:
+        linear = jnp.real(linear)
 
-    u0 = S.init(x) if callable(S.init) else np.asarray(
-        S.init(jnp.asarray(x)))
-    v = np.fft.fft(np.asarray(u0, dtype=float))
+    def dx_op(values, order):
+        factor = (1j * omega) ** order
+        if n % 2 == 0 and order % 2:
+            factor = factor.at[n // 2].set(0.0)
+        return jnp.fft.ifft(factor * jnp.fft.fft(values))
 
-    L = np.asarray(S.lin_symbol(om)).astype(complex)
-    if _nyq is not None:
-        # even part of the symbol at the Nyquist mode (see dx_op)
-        L_even = 0.5 * (np.asarray(S.lin_symbol(om)).astype(complex)
-                        + np.asarray(S.lin_symbol(-om)).astype(complex))
-        L = L.copy()
-        L[_nyq] = L_even[_nyq]
-    E = np.exp(dt * L)
-    E2 = np.exp(dt * L / 2.0)
+    def nonlinear(values):
+        result = jnp.asarray(S.nonlin(values, omega, dx_op))
+        if result.shape == ():
+            result = jnp.broadcast_to(result, values.shape)
+        if result.shape != values.shape:
+            raise ValueError("Nonlinear callback must return shape (N,).")
+        return result
 
-    # contour-integral phi weights (Kassam-Trefethen)
-    # MATLAB @spinoperator/computeLR: upper half circle + real parts for
-    # a real operator, the FULL circle with complex coefficients for a
-    # complex one (KdV's i*om^3; the real-part shortcut of Kassam &
-    # Trefethen's kdv.m is a 1e-5 relative error at |dt L| ~ 0.2).
-    _is_real_L = bool(np.all(np.imag(L) == 0.0))
-    if _is_real_L:
-        r = np.exp(1j * np.pi * (np.arange(1, M + 1) - 0.5) / M)
-        _part = np.real
+    def c2v(coefficients):
+        return jnp.fft.ifft(coefficients)
+
+    def v2c(values):
+        return jnp.fft.fft(values)
+
+    # Preserve the Python API's historical dealias default. MATLAB's
+    # spincomp creates a fresh spinpref (dealias off) and copies only M.
+    dealias = kwargs.get("dealias", True)
+    for index in range(len(args) - 1):
+        if isinstance(args[index], str) and args[index].lower() == "dealias":
+            dealias = str(args[index + 1]).lower() in ("on", "true", "1")
+    output_mask = ((jnp.abs(k) < n / 3.0) if dealias
+                   else jnp.ones(n, dtype=bool))
+
+    def N_v(values):
+        return nonlinear(values)
+
+    selected_scheme = _parse_scheme(args, kwargs, scheme) or "etdrk4"
+    K = Expinteg(selected_scheme)
+    initial_coefficients = v2c(initial)
+    nonlinear_coefficients = v2c(N_v(initial))
+    if K.steps == 1:
+        states, nonlinear_states = [initial_coefficients], [nonlinear_coefficients]
     else:
-        r = np.exp(2j * np.pi * (np.arange(1, M + 1) - 0.5) / M)
-        _part = lambda z: z  # noqa: E731
-    LR = dt * L[:, None] + r[None, :]
-    Q = dt * _part(np.mean((np.exp(LR / 2) - 1) / LR, axis=1))
-    f1 = dt * _part(np.mean(
-        (-4 - LR + np.exp(LR) * (4 - 3 * LR + LR ** 2)) / LR ** 3,
-        axis=1))
-    f2 = dt * _part(np.mean(
-        (2 + LR + np.exp(LR) * (-2 + LR)) / LR ** 3, axis=1))
-    f3 = dt * _part(np.mean(
-        (-4 - 3 * LR - LR ** 2 + np.exp(LR) * (4 - LR)) / LR ** 3,
-        axis=1))
+        states, nonlinear_states = start_multistep(
+            K, dt, linear, M, is_real, 1, N_v, c2v, v2c, 1,
+            initial_coefficients, nonlinear_coefficients)
+    coefficients = compute_coeffs(K, dt, linear, M, is_real)
 
-    # 2/3-rule dealiasing mask (MATLAB spin dealiases the
-    # nonlinear evaluation; without it stiff nonlinearities like
-    # Cahn-Hilliard's (u^3)_xx alias and blow up)
-    # MATLAB spinpref default: dealias 'off'; chebfunjax dealiases by
-    # default (stability of the stiff presets) -- spin(..., 'dealias',
-    # 'off') / dealias=False gives MATLAB's default behaviour.
-    _da = kwargs.get("dealias", True)
-    _al = list(args)
-    for _i in range(len(_al) - 1):
-        if isinstance(_al[_i], str) and _al[_i].lower() == "dealias":
-            _da = str(_al[_i + 1]).lower() in ("on", "true", "1")
-    dealias = (np.abs(k) < n / 3.0) if _da else np.ones(n, dtype=bool)
-
-    def Nhat(vhat):
-        vals = np.real(np.fft.ifft(vhat))
-        out = np.fft.fft(S.nonlin(vals, om, dx_op))
-        return np.where(dealias, out, 0.0)
-
-    t0, t1 = S.tspan
-    nsteps = int(round((t1 - t0) / dt))
-    # MATLAB spin(S, N, dt, 'scheme', name): any expinteg scheme through
-    # the generic engine (@expinteg/{computeCoeffs,oneStep,startMultistep});
-    # the default ETDRK4 keeps the dedicated loop below.
-    _scheme = _parse_scheme(args, kwargs, scheme)
-    if _scheme is not None and _scheme != "etdrk4":
-        from chebfunjax.operators.expinteg_engine import Expinteg, integrate
-        K = Expinteg(_scheme)
-        is_real = bool(np.all(np.imag(L) == 0.0))
-        Nc = dealias.astype(float)
-
-        def _Nv(vals):
-            return S.nonlin(np.real(vals), om, dx_op)
-
-        def _c2v(c):
-            return np.real(np.fft.ifft(c))
-
-        def _v2c(vals):
-            return np.fft.fft(vals)
-
-        def _post(vh):
-            return np.fft.fft(np.real(np.fft.ifft(vh)))
-
-        v = integrate(K, dt, np.real(L) if is_real else L, M, is_real, Nc,
-                      _Nv, _c2v, _v2c, 1, v, nsteps, post=_post)
-        nsteps = 0
-    for _ in range(nsteps):
-        Nv = Nhat(v)
-        av = E2 * v + Q * Nv
-        Na = Nhat(av)
-        bv = E2 * v + Q * Na
-        Nb = Nhat(bv)
-        cv = E2 * av + Q * (2 * Nb - Nv)
-        Nc = Nhat(cv)
-        v = E * v + Nv * f1 + 2 * (Na + Nb) * f2 + Nc * f3
-        # Re-Hermitianize the Fourier state so u stays real.  This is a
-        # no-op in exact arithmetic (v is conjugate-symmetric because the
-        # symbol L and the nonlinear map are real and even), but it is
-        # ESSENTIAL for PDEs whose linear part has a growth band, e.g.
-        # Cahn-Hilliard's spinodal instability (L = 1e-2 om^2 - 1e-5 om^4
-        # is positive for |om| < ~31).  The nonlinear term evaluates
-        # np.real(ifft(.)), so it never sees the conjugate-ANTISYMMETRIC
-        # component of v (the imaginary part of u).  Seeded at roundoff,
-        # that component is therefore propagated by the bare linear
-        # operator exp(dt L) with NO nonlinear saturation and grows like
-        # exp(2.5 t) until it overflows into the real solution near t~30.
-        # Projecting onto the real subspace each step removes it and
-        # leaves the physical (already-real) solution untouched.
-        v = np.fft.fft(np.real(np.fft.ifft(v)))
-
-    u_vals = np.real(np.fft.ifft(v))
+    # Native solvepde keeps the initial values as the first output checkpoint.
+    # Multistep startup states are internal and replace this output only when
+    # the literal time loop reaches a requested tspan checkpoint.
+    u_vals = initial
+    step = K.steps - 1
+    t = step * dt
+    endpoint_saved = False
+    if return_computing_time:
+        for leaf in jax.tree_util.tree_leaves((states, nonlinear_states,
+                                               coefficients)):
+            block = getattr(leaf, "block_until_ready", None)
+            if block is not None:
+                block()
+        loop_start = time.perf_counter()
+    while t < tf:
+        states, nonlinear_states = one_step(
+            K, coefficients, 1, N_v, c2v, v2c, 1,
+            states, nonlinear_states)
+        if bool(jnp.any(jnp.isnan(states[0]))):
+            raise RuntimeError("The solution blew up. Try a smaller time-step.")
+        step += 1
+        t = step * dt
+        if abs(t - tf) < 1e-10:
+            # Native dealiasing masks only the saved output after retaining
+            # the unfiltered state for the next step.
+            u_coefficients = jnp.where(output_mask, states[0], 0.0)
+            u_vals = c2v(u_coefficients)
+            if (jnp.max(jnp.abs(jnp.imag(u_vals)))
+                    < jnp.max(jnp.abs(u_vals)) * 1e-10):
+                u_vals = jnp.real(u_vals)
+            endpoint_saved = True
+            break
+    if return_computing_time and tf > t0 and not endpoint_saved:
+        # spincomp requests solvepde's third output; native solvepde then
+        # indexes tOut(2), which is absent unless the endpoint was saved.
+        raise IndexError("native solvepde has no saved tOut(2) checkpoint")
+    if return_computing_time:
+        for leaf in jax.tree_util.tree_leaves((states, u_vals)):
+            block = getattr(leaf, "block_until_ready", None)
+            if block is not None:
+                block()
+        computing_time = time.perf_counter() - loop_start
+    if (jnp.max(jnp.abs(jnp.imag(u_vals)))
+            < jnp.max(jnp.abs(u_vals)) * 1e-10):
+        u_vals = jnp.real(u_vals)
 
     from chebfunjax.chebfun1d.chebfun import Chebfun, Domain, _Piece
     from chebfunjax.tech.trigtech import Trigtech
     tech = Trigtech.from_values(jnp.asarray(u_vals)).simplify()
     piece = _Piece(tech=tech, interval=(a, b))
-    return Chebfun(funs=[piece], domain=Domain((a, b)))
+    result = Chebfun(funs=[piece], domain=Domain((a, b)))
+    return (result, computing_time) if return_computing_time else result
