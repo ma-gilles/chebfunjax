@@ -1,0 +1,103 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Reviewable dependency-grouped production candidate; real float64 single-column33 CPU route only. Full numerical/API parity remains open.",
+  "source_base": "4f719c235e1951f881cea67edd6d573746637f07",
+  "parent_base": "78e6c4abef3e5d70d82722f4a087a85a24d000bb",
+  "correctness": {
+    "gate": "16passed,1warning; includes unchanged existing AUTHORED CI fixed48 stability/decay test, not a literal original native MATLAB PDE test.",
+    "native_words": "Six independent scalar64 transforms,12retained inner32 captures and22constructor coefficients all exact.",
+    "semantic_bridge": "Five additional finite/signed-zero/subnormal/infinite/NaN patterns exactly match sealed kernel words.",
+    "proof": "Exact algebraic Fourier proof checks65536coefficients withzero mismatches."
+  },
+  "schedule": {
+    "pair_operations": 228,
+    "groups": 22,
+    "dependency_levels": 9,
+    "preservation": "vmap of existing ordered binary helper preserves per-pair finite decisions and each dependency edge; no new helper/provider/column dispatch."
+  },
+  "provenance": "Same inspected arithmetic graph, independently evaluated80-digit mathematical half-angle constants, no production binary/native operand/oracle access.",
+  "parent_gate": {
+    "groups": [
+      16,
+      5
+    ],
+    "wall_seconds": 85.3478735871613,
+    "sampled_peak_summed_rss_kib": 2225284,
+    "inputs_stable": true,
+    "survivors": [],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_parent_run001/receipt.json",
+    "scope": "Same16FFT controls plus4 subspace Frobenius controls and unchanged original8LU predicate node."
+  },
+  "performance": {
+    "scope": "Shared-host CPU32-35, serial fresh processes, JAX/JAXlib0.11.0; descriptive timings, not native performance parity.",
+    "transform": {
+      "warm_baseline_medians_us": [
+        10.860499999999998,
+        10.61,
+        11.4065,
+        10.876000000000001,
+        10.52,
+        11.4215
+      ],
+      "warm_candidate_medians_us": [
+        125.47099999999999,
+        124.454,
+        125.902,
+        122.696,
+        124.3185,
+        122.36499999999998
+      ],
+      "samples_per_case": 40,
+      "independent_cases": 6,
+      "cold_baseline_first_call_seconds": 0.126853942,
+      "cold_candidate_first_call_seconds": 1.921257261
+    },
+    "constructor": {
+      "warm_baseline_median_ms": 5.5291305,
+      "warm_candidate_median_ms": 5.685779999999999,
+      "warm_overhead_percent": 2.8331669871058285,
+      "samples": 12,
+      "cold_baseline_first_call_seconds": 2.457689678,
+      "cold_candidate_first_call_seconds": 4.341867236
+    },
+    "limits": "Cold values are single first-call observations, not repeated cold medians. Every timed output was blocked. Shared-host interference and arm-order effects remain unqualified.",
+    "receipts": {
+      "baseline_transform": "baseline_transform_run001/receipt.json",
+      "candidate_transform": "candidate_transform_run001/receipt.json",
+      "baseline_constructor": "baseline_constructor_run001/receipt.json",
+      "candidate_constructor": "candidate_constructor_run001/receipt.json"
+    },
+    "stability": "All four supervisors exited0, guarded source/runtime hashes stable, no survivors."
+  },
+  "source_sha256": {
+    "src/chebfunjax/utils/_fft64.py": "f87844008805eed575e626b91456d45f3788245883f501eb43af822566a99d80",
+    "src/chebfunjax/utils/transforms.py": "ca5adb23452bbcbb2d0b7d5c5022d24c211ced684a97edc533147eb748de9db0",
+    "tests/test_utils/test_fft64_ordered.py": "e6e2a449ff0c67bf1a725dc72d1820cec2eea483b627a14428b3dfa10c38def2"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_parent_cpu_20261017.tar.gz",
+    "sha256": "46314133ec387ad5296161013a329bef80570970ec072f73655f11bf64b425f6",
+    "verified_payloads": 47
+  },
+  "child_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_fft64_batched_acceptance_20261017.tar.gz",
+    "sha256": "06e95c5de9bb75a444423a8d579b040bd43ebc3c4c087118d8ae9aebccb7641d",
+    "verified_manifest_bindings": 2797,
+    "payload_files": 2769
+  },
+  "prior_archive_verified": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_fft64_production_20261017.tar.gz",
+    "sha256": "65698f351ac45b82630115904da3ae557c7c20107b7b9194e9bd1fdda5b435e3",
+    "verified_manifest_payloads": 401
+  },
+  "limitations": [
+    "Native matrix batches4+andcomplex602FFT remain open.",
+    "No whole-suiteCI/coverage, literal originalPDE or native performance-parity claim.",
+    "No staging, commit or publication by this agent.",
+    "New native word captures are retained for scalar-column route; grouped nonfinite bridge compares prior kernel, not new native special-value captures.",
+    "Exact algebraic graph proof proves ideal linear identity, not binary64 rounding or source-license independence.",
+    "Descriptive same-host JAX timings show remaining ~11x warm transform overhead and +1.884s single cold constructor observation; no matched native CPU parity claim.",
+    "CPU only; no GPU qualification.",
+    "All pages, original native PDE tests, global correctness and latest-main CI/coverage remain required."
+  ]
+}

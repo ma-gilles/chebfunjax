@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Scalar33 real float64 CPU Fourier arithmetic follows observed native plan; exact-word and algebraic controls pass. Unchanged authored fixed48 PDE CI regression passes without tolerance/integrator changes; combined21 parent checks pass. [Evidence](fft64_pde_cpu_20261017.json).
+- [ ] Broader batched/complex FFT plans, inverse/Hermite/rational coefficient gaps, cold/warm overhead and matched native performance.
+
 - [x] JAX LU preserves complex values and source Gaussian-elimination order; public column adapters and length-one constant extrema correction. Native original8true, child20 and combined parent34 controls pass. [Evidence](lu_source_cpu_20261017.json).
 - [ ] Full LU pivot/complex breakpoint fidelity, remaining API and matched native CPU performance.
 

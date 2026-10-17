@@ -1,3 +1,16 @@
+# Latest scalar CPU transform / PDE scope — 2026-10-17
+
+Real float64 single-column33 transforms now use JAX butterflies following the
+observed native single-column64 plan. Exact-word controls, ideal Fourier proof
+and the unchanged authored fixed48 PDE CI regression pass. No native operands
+or outputs are injected into production; no integrator/bound changes.
+Combined parent21 controls pass on current source. Dependency grouping reduces
+warm transform latency from ~600us to ~124us, versus baseline ~11us. Warm sin
+constructor adds0.157ms(2.8%); cold first-call adds1.884s in single observations.
+Broader batched/complex plans, coefficient gaps, native performance parity,
+full original PDE tests and latest-main CI/coverage remain open.
+Evidence: `docs/fft64_pde_cpu_20261017.json`.
+
 # Latest LU source scope — 2026-10-17
 
 LU now uses JAX numerical arrays, retains complex values and follows native

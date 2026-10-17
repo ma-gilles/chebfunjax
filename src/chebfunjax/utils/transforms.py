@@ -21,6 +21,7 @@ from functools import lru_cache
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.utils._fft64 import real_even_inverse64
 from chebfunjax.utils.fasttransforms import dst as _source_dst
 from chebfunjax.utils.fasttransforms import idst as _source_idst
 
@@ -64,6 +65,14 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
         coeffs = coeffs + jax.lax.stop_gradient(correction)
         coeffs = jnp.where(pure_imaginary, 1j * coeffs, coeffs)
         coeffs = jnp.where(negative, jnp.conj(coeffs), coeffs)
+    elif (n == 33 and values.ndim in (1, 2) and values.size == 33
+          and values.dtype == jnp.float64):
+        # Native CPU single-column C2R DIF2 + inverse32 arithmetic.
+        # Batches of four use a different native plan; do not flatten them.
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=real_even_inverse64,
+            default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0)),
+        )
     else:
         coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
     coeffs = coeffs[:n]
