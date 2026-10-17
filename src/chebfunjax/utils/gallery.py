@@ -140,11 +140,10 @@ def _airy():
     # Added by Claude Opus 4.8 (missing entry flagged by Claude Fable 5
     # while translating the approx/Galleries example page).
     # MATLAB: chebfun(@airy, [-40 40]).
-    import scipy.special as ssp
-
     from chebfunjax.chebfun1d.chebfun import chebfun
-    return chebfun(lambda x: jnp.array(ssp.airy(x)[0], dtype=jnp.float64),
-                   domain=(-40.0, 40.0))
+    from chebfunjax.utils.airy_general import airy_all
+
+    return chebfun(lambda x: airy_all(x)[0], domain=(-40.0, 40.0))
 
 
 @_register("rose", "Rose curve cos(5t/4) e^{it} on [0, 8*pi] (trig)")

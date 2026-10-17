@@ -1,0 +1,177 @@
+{
+  "base": "4f45afd775f26ace8290c6abb11c69d888f7bf5b",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": [
+    "src/chebfunjax/utils/gallery.py: _airy factory callback",
+    "src/chebfunjax/utils/gallery2.py: _airyreal and _airycomplex",
+    "tests/test_utils/test_gallery_airy_jax.py: three supplemental source/JIT/AD/oracle/no-SciPy controls"
+  ],
+  "native_assertions": "Original tests/cheb/test_gallery.m and test_gallery2.m require construction/plotting without crashing; Python API plotting/returned-handle parity is not established here. Existing Python reconstruction predicates are unmodified.",
+  "unchanged": [
+    "Airy primitive",
+    "gallery domains and expression operands",
+    "existing tests and bounds",
+    "constructor degree and defaults"
+  ],
+  "limitations": [
+    "CPU numerical and construction qualification only; no performance claim or native representation equality.",
+    "Only Airy entries are scoped; other gallery entries and plotting APIs remain outside this package.",
+    "Primitive gate guards complete source/test/script/example inputs and launcher/environment script; imported dependencies are hashed after execution. Construction gate additionally guards every file imported in the primitive gate before execution.",
+    "Installed incompatible CUDA plugin emits warning; CPU-only backend and empty CUDA_VISIBLE_DEVICES are asserted."
+  ],
+  "failures": [],
+  "gates": [
+    {
+      "name": "primitive",
+      "tests": 26,
+      "testIDs": [
+        {
+          "classname": "tests.test_utils.test_gallery_airy_jax",
+          "name": "test_source_callback_jit_and_tangent[airyreal-_airyreal-domain0]"
+        },
+        {
+          "classname": "tests.test_utils.test_gallery_airy_jax",
+          "name": "test_source_callback_jit_and_tangent[airycomplex-_airycomplex-domain1]"
+        },
+        {
+          "classname": "tests.test_utils.test_gallery_airy_jax",
+          "name": "test_source_real_gallery_constructs_without_scipy"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[0.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[0.5]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[2.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[6.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[12.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[20.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[23.999999]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[24.000001]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[30.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[60.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_plane_oracle[100.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_decaying_solution_retains_relative_accuracy"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[0.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[0.55]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[-24.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[32.0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[(2+3j)]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_jit_tangent_against_independent_airy_ode[(-10+17j)]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_scaling_and_domain[0]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_scaling_and_domain[1]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_scaling_and_domain[2]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_complex_scaling_and_domain[3]"
+        },
+        {
+          "classname": "tests.test_utils.test_airy_general",
+          "name": "test_empty_nonfinite_and_parameter_errors"
+        }
+      ],
+      "owned_wall_seconds": 154.77517787227407,
+      "peak_rss_kib": 1856992,
+      "stable_input_count": 3766,
+      "runtime_file_count": 1448,
+      "runtime_manifest_reverified": true,
+      "stable_inputs": true,
+      "no_survivors": true
+    },
+    {
+      "name": "construction",
+      "tests": 3,
+      "testIDs": [
+        {
+          "classname": "tests.test_matlab_port.cheb.test_gallery2_matlab.TestChebGallery2",
+          "name": "test_entry_constructs_and_matches[airyreal]"
+        },
+        {
+          "classname": "tests.test_matlab_port.cheb.test_gallery2_matlab.TestChebGallery2",
+          "name": "test_entry_constructs_and_matches[airycomplex]"
+        },
+        {
+          "classname": "tests.test_matlab_port.cheb.test_gallery_matlab.TestChebGallery",
+          "name": "test_does_not_crash[airy]"
+        }
+      ],
+      "owned_wall_seconds": 87.61282966984436,
+      "peak_rss_kib": 1844928,
+      "stable_input_count": 5077,
+      "runtime_file_count": 1389,
+      "runtime_manifest_reverified": true,
+      "stable_inputs": true,
+      "no_survivors": true
+    }
+  ],
+  "candidate_hashes": {
+    "tests/test_utils/test_gallery_airy_jax.py": "54161f2c4faa0d518e1755a2ee2a36c0d24b3e52fd02adfc7ee02076125088a0",
+    "src/chebfunjax/utils/gallery.py": "910dbbcf94e29a0c4901f3e4ed3bf05034ee5fc1529fc242d256ac15a76fa05d",
+    "src/chebfunjax/utils/gallery2.py": "9416f87ac3a40bf2fdb2e022562a7bfd616903655cc825152ade4baf502ce859"
+  },
+  "evidence_archive": {
+    "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/gallery_jax_20261017_evidence.tar.gz",
+    "sha256": "d8eb8a63ad9b7fcd020e8bbe6faac69a5ce01a458622c2d10561695758844e4a",
+    "verified_payloads": 40
+  }
+}

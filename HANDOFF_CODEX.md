@@ -1,3 +1,18 @@
+## JAX Airy gallery callbacks — 2026-10-17
+
+The one-dimensional Airy gallery factory and gallery2 airyreal/airycomplex
+callbacks now use the existing JAX Airy primitive. Host NumPy/SciPy Airy
+numerics are removed from those callbacks. Native domains, operands,
+real/complex projection, constructor defaults and the primitive are unchanged.
+
+All 29 scoped tests pass: three new callback/JIT/AD/no-SciPy controls,
+23 existing primitive checks, and three unchanged Airy gallery construction/
+reconstruction cases. Actual 2D real/complex outputs and outer-JIT evaluation
+are checked. Both guarded groups are uncensored, stable and have no survivors.
+Original native gallery tests require construction/plotting without crashing;
+this package does not qualify native plotting/returned-handle APIs, exact
+representations or performance. Evidence:`docs/gallery_airy_jax_cpu_20261017.json`.
+
 ## Airy callback correction and matched-input PDE diagnosis — 2026-10-17
 
 Tricky's Airy callback now uses the existing JAX Airy primitive, with a

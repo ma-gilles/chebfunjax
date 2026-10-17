@@ -1,5 +1,3 @@
-# uses-numpy: the airy gallery entries use scipy.special.airy on the
-# complex plane (not JIT-safe by design).
 """Gallery of interesting bivariate functions as Chebfun2 examples.
 
 A curated collection of ``Chebfun2`` objects illustrating a range of
@@ -25,6 +23,8 @@ import random as _random
 from typing import Callable
 
 import jax.numpy as jnp
+
+from chebfunjax.utils.airy_general import airy_all
 
 __all__ = ["gallery2", "list_gallery2"]
 
@@ -52,19 +52,15 @@ def _register(name: str, description: str, domain: tuple):
 @_register("airyreal", "Real part of Airy Ai on the complex plane",
            (-10.0, 10.0, 0.0, 1.0))
 def _airyreal(x, y):
-    import numpy as _np
-    from scipy.special import airy as _airy
-    z = _np.asarray(x) + 1j * _np.asarray(y)
-    return jnp.asarray(_np.real(_airy(z)[0]))
+    z = jnp.asarray(x) + 1j * jnp.asarray(y)
+    return jnp.real(airy_all(z)[0])
 
 
 @_register("airycomplex", "Airy Ai on the complex plane (complex-valued)",
            (-10.0, 10.0, -5.0, 5.0))
 def _airycomplex(x, y):
-    import numpy as _np
-    from scipy.special import airy as _airy
-    z = _np.asarray(x) + 1j * _np.asarray(y)
-    return jnp.asarray(_airy(z)[0])
+    z = jnp.asarray(x) + 1j * jnp.asarray(y)
+    return airy_all(z)[0]
 
 
 @_register("bump", "2D C-infinity function with compact support",
