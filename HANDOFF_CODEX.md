@@ -1,3 +1,12 @@
+# Latest minimax original11 CI adapter — 2026-10-17
+
+Actualdc3chebfun-c failed float(singleton rank1 JAX array) in original11.
+Both test scalar extractions use.asarray(...).item(), accepting one element
+and rejecting genuine vectors. Operand/degrees/scaling/strict1e-3bound and
+library query shapes are unchanged. Focused candidate passes23.79s;
+all360production source files match publication. LatestCI remains required.
+Evidence: docs/minimax_scalar_ci_cpu_20261017.json.
+
 # Latest literal power original41 audit — 2026-10-17
 
 Test-only restoration preserves all41default formulas, actualquasimatrix/string

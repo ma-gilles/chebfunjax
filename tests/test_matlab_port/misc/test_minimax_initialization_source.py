@@ -128,7 +128,8 @@ def test_original_rational_clauses_at_source_bounds(clause):
         f1, f2 = chebfun('exp(x)'), chebfun('1e-100*exp(x)')
         r1 = minimax(f1, 1, rational=True, denom=3)
         r2 = minimax(f2, 1, rational=True, denom=3)
-        sample1, sample2 = float(r1.r(.3)-f1(.3)), float(r2.r(.3)-f2(.3))
+        sample1 = jnp.asarray(r1.r(.3)-f1(.3)).item()
+        sample2 = jnp.asarray(r2.r(.3)-f2(.3)).item()
         assert abs(sample1-sample2*1e100) < 1e-3
     elif clause == 13:
         result = minimax(abs(x), 30, rational=True, denom=30, silent=True)

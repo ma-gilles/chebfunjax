@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Correct minimax original11test scalar extraction exposed by actualCI; original operand/degrees/scaling/bound unchanged, focused candidate passes on identical360production files. [Evidence](minimax_scalar_ci_cpu_20261017.json). LatestCI/fullAPI remain open.
+
 - [x] Restore all41literal default original power predicates and verify27actual native draw events; final24rerun plus17unchanged-node source/AST bridge, with360production files identical to publication. [Evidence](power_original41_cpu_20261017.json). Extra predicate33warning/fullAPI/preferences remain open.
 
 - [x] Restore native scalar(n,1)denominator root insertion and lossless singleton quotient layout; actual constructors08-12/literal18 retained.68combined parent checks pass; child116pass and native26finalslots true are separately bound. [Evidence](rdivide_scalar_column_cpu_20261017.json). Overwritten native24/full API/preferences remain unqualified.

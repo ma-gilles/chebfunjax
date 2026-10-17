@@ -1,0 +1,32 @@
+{
+  "scope": "Correct scalar extraction in original minimax clause11; singleton accepts either rank0 or1, true vectors rejected.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline": {
+    "ci_run": 39065923680,
+    "job": 117493488034,
+    "raw_log": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_dc3_117493488034.log",
+    "error": "float(singleton rank1 JAX array) TypeError",
+    "source_bridge": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_scalar_ci_evidence_20261017/baseline_bridge.json"
+  },
+  "candidate": {
+    "passed": 1,
+    "pytest_seconds": 23.79,
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_scalar_ci_evidence_20261017/candidate_run/receipt.json",
+    "inputs_stable": true,
+    "survivors": [],
+    "shape_contract": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_scalar_ci_evidence_20261017/shape_contract.json"
+  },
+  "root_review": {
+    "archive_verified_payloads": 23,
+    "all_production_source_files_identical": 360,
+    "scientific_limits": "No new parent execution; identical360production files bridge focused child candidate to current publication. No numerical bound/operand/library shape changes."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_scalar_ci_package_20261017.tar.gz",
+    "sha256": "c3470a3b4bd3eec2450b15ee673a6669f80bebb385289d9107299e9275a4a99b"
+  },
+  "limits": [
+    "Latest-main CI and coverage>=79% remain required.",
+    "This test adapter correction does not establish full minimax/API/representation parity."
+  ]
+}
