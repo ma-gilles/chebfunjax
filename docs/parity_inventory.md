@@ -170,3 +170,7 @@ promoting diagnostic observations into parity completion.
 [Subspace and unbounded inner product](subspace_unbnd_inner_cpu_20261017.json)
 attaches the six and three original predicates, respectively. Full API and
 near-rank quantitative subspace parity remain open.
+
+[First-kind Chebfun2 and string operators](c1_nodots_cpu_20261017.json)
+attaches three technology predicates and seven no-dots predicates, with
+component and current-source integration evidence. Full API remains open.

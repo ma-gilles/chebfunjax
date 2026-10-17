@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Genuine first-kind Chebfun2 callable preference/grid/refinement/factor path; three original technology predicates pass. Restore all seven no-dots predicates, including exact inner-dimension marker and meaningful operator adapters. Joint15 focused nodes pass. [Evidence](c1_nodots_cpu_20261017.json).
+- [ ] Full Chebfun2 C1 algebra/preference grammar and source sample-test order, broader raw division/power/string grammar and global JAX conversion; latest-main CI/coverage.
+
 - [x] JAX subspace QR/SVD, complex inner products and spectral residual norm; six original predicates and affected API/fallback controls pass. Unbounded inner product conjugates its first operand; three originals and two complex controls pass. Joint19 nodes pass, plus final domain-check selector. [Evidence](subspace_unbnd_inner_cpu_20261017.json).
 - [ ] Remaining subspace rank-zero/orientation/noncollatable API cases and near-rank quantitative fidelity; broader unbounded input grammar.
 

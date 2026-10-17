@@ -1,10 +1,6 @@
 """Port of MATLAB Chebfun tests/chebfun2/test_techs.m (Fable 5).
 
-Alternative underlying techs for a chebfun2.  chebfunjax supports the
-Chebyshev (default) and trigonometric ('trig') slice representations;
-MATLAB's pass(1) chebtech1 preference has no counterpart (slices are
-always Chebtech2 in the Chebyshev case) and is covered by the default
-construction instead.
+Literal three preference predicates, with Python keyword preference syntax.
 
 Provenance
 ----------
@@ -17,24 +13,38 @@ from __future__ import annotations
 import jax.numpy as jnp
 import numpy as np
 
-from chebfunjax.chebfun2d.chebfun2 import Chebfun2
+from chebfunjax.chebfun2d.chebfun2 import chebfun2
+from chebfunjax.chebpref import ChebfunPref
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
+from chebfunjax.tech.trigtech import Trigtech
 
 EPS = float(np.finfo(np.float64).eps)
 TOL = 100 * EPS
 
 
 class TestChebfun2Techs:
+    def test_chebtech1(self):
+        pref = ChebfunPref()
+        pref.tech = Chebtech1
+        f = chebfun2(lambda x, y: jnp.cos(x * y), (-1, 1, -1, 1), pref=pref)
+        assert abs(float(f(0., 0.)) - 1.) < TOL
+        assert all(isinstance(t, Chebtech1) for t in f.approx.cols + f.approx.rows)
+
     def test_chebtech(self):
         # pass(2): default Chebyshev construction.
-        f = Chebfun2.from_function(lambda x, y: jnp.cos(x * y))
+        pref = ChebfunPref()
+        pref.tech = Chebtech2
+        f = chebfun2(lambda x, y: jnp.cos(x * y), (-1, 1, -1, 1), pref=pref)
         assert abs(float(f(jnp.asarray(0.0), jnp.asarray(0.0))) - 1.0) < TOL
         assert f.approx.techs == ("cheb", "cheb")
 
     def test_trigtech(self):
         # pass(3): 'trig' construction of a bi-periodic function.
-        f = Chebfun2.from_function(
+        pref = ChebfunPref()
+        pref.tech = Trigtech
+        f = chebfun2(
             lambda x, y: jnp.cos(jnp.pi * y) * jnp.sin(jnp.pi * x),
-            trig=True)
+            (-1, 1, -1, 1), pref=pref)
         assert abs(float(f(jnp.asarray(0.0), jnp.asarray(0.0)))) < 100 * TOL
         assert f.approx.techs == ("trig", "trig")
         # spot values

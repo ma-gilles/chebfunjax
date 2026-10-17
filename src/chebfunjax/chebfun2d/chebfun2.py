@@ -169,6 +169,7 @@ class Chebfun2(eqx.Module):
         trig: bool = False,
         trigx: bool = False,
         trigy: bool = False,
+        pref=None,
     ) -> "Chebfun2":
         """Construct a Chebfun2 from a callable f(x, y).
 
@@ -192,6 +193,10 @@ class Chebfun2(eqx.Module):
             MATLAB ``chebfun2(f, 'trig'/'trigx'/'trigy')``: represent the
             function periodically (Fourier/trigtech slices) in both
             directions, in x only, or in y only.
+
+        pref : ChebfunPref, optional
+            Shared axis preference for adaptive callable construction. Selects
+            genuine first-kind, second-kind or trigonometric slice factors.
 
         Returns
         -------
@@ -225,6 +230,30 @@ class Chebfun2(eqx.Module):
                 f"Chebfun2.from_function: domain must have exactly 4 elements "
                 f"(xa, xb, ya, yb), got {len(domain)}."
             )
+        # @chebfun2/constructor.m parseInputs (7574c77): one preference
+        # selects the technology and construction controls for both axes.
+        base_tech = "cheb"
+        pref_kwargs = {}
+        if pref is not None:
+            from chebfunjax.chebpref import ChebfunPref, _factory_tech_prefs
+            if not isinstance(pref, ChebfunPref):
+                raise TypeError("pref must be a ChebfunPref; paired preferences are not supported")
+            name = (pref.tech.__name__ if isinstance(pref.tech, type)
+                    else str(pref.tech)).lower().lstrip("@")
+            names = {"chebtech1": "cheb1", "chebtech2": "cheb",
+                     "chebtech": "cheb", "trigtech": "trig"}
+            if name not in names:
+                raise ValueError(f"Unsupported Chebfun2 technology {pref.tech!r}")
+            base_tech = names[name]
+            if n is not None:
+                raise NotImplementedError("Explicit preferences with fixed-size construction are not supported")
+            # Native reads tech.techPref, not pref.techPrefs overrides.
+            tech_defaults = _factory_tech_prefs(pref.tech)
+            pref_kwargs = dict(tol=float(pref.cheb2Prefs.chebfun2eps),
+                               max_rank=int(pref.cheb2Prefs.maxRank),
+                               min_samples=int(tech_defaults.minSamples),
+                               max_samples=int(tech_defaults.maxLength),
+                               sample_test=bool(pref.cheb2Prefs.sampleTest))
         if n is not None:
             # Fixed-size construction (MATLAB chebfun2(op, [m n])):
             # sample on an n-by-n 2nd-kind Chebyshev tensor grid and
@@ -242,12 +271,11 @@ class Chebfun2(eqx.Module):
             if tol is not None:
                 kwargs2["tol"] = tol
             return cls.from_values(jnp.asarray(V), **kwargs2)
-        kwargs: dict = dict(domain=domain)
+        kwargs: dict = dict(domain=domain, **pref_kwargs)
         if tol is not None:
-            kwargs["tol"] = tol
-        if trig or trigx or trigy:
-            kwargs["techs"] = ("trig" if (trig or trigx) else "cheb",
-                               "trig" if (trig or trigy) else "cheb")
+            kwargs["tol"] = max(tol, kwargs.get("tol", tol))
+        kwargs["techs"] = ("trig" if (trig or trigx) else base_tech,
+                           "trig" if (trig or trigy) else base_tech)
         # Native constructor keeps complex values in one GE construction;
         # getTol therefore uses the full function scale, including roundoff
         # in a small real or imaginary component.
@@ -3074,6 +3102,7 @@ def chebfun2(
     equiy: bool = False,
     coeffsx: bool = False,
     coeffsy: bool = False,
+    pref=None,
 ) -> Chebfun2:
     """Construct a Chebfun2 from a callable or a MATLAB expression
     string (``chebfun2('cos(x) + sin(x.*y)')``); see
@@ -3084,6 +3113,9 @@ def chebfun2(
     MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
     Chebfun commit: 7574c77
     """
+    if pref is not None and (not callable(f) or n is not None or rank is not None
+                             or coeffs or coeffsx or coeffsy or equi or equix or equiy):
+        raise NotImplementedError("Explicit preferences currently require adaptive callable construction")
     import numpy as _np
     if periodic:
         trig = True
@@ -3180,8 +3212,8 @@ def chebfun2(
     if trigx or trigy:
         return Chebfun2.from_function(f, domain=dv, tol=tol,
                                       trig=(trigx and trigy),
-                                      trigx=trigx, trigy=trigy)
-    return _chebfun2_impl(f, domain=domain, tol=tol, n=n)
+                                      trigx=trigx, trigy=trigy, pref=pref)
+    return _chebfun2_impl(f, domain=domain, tol=tol, n=n, pref=pref)
 
 
 def _chebfun2_from_matrix(A, dv, xkind: str, ykind: str):
@@ -3313,6 +3345,7 @@ def _chebfun2_impl(
     domain: tuple[float, float, float, float] = (-1.0, 1.0, -1.0, 1.0),
     tol: Optional[float] = None,
     n: Optional[int] = None,
+    pref=None,
 ) -> Chebfun2:
     """Construct a Chebfun2 representing a bivariate smooth function.
 
@@ -3377,7 +3410,7 @@ def _chebfun2_impl(
 
             def f(x, y):
                 return g(x + 1j * y)
-    return Chebfun2.from_function(f, domain=domain, tol=tol, n=n)
+    return Chebfun2.from_function(f, domain=domain, tol=tol, n=n, pref=pref)
 
 
 def _cheb2leg_mat(N: int):

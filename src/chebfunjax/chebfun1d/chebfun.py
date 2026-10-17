@@ -11609,7 +11609,7 @@ def bvp5c(odefun, bcfun, solinit, params=None, options=None):
     return _bvp_solve("bvp5c", odefun, bcfun, solinit, params, options)
 
 
-def _string_op(expr: str):
+def _string_op(expr: str, *, raw_mtimes=False):
     """MATLAB ``chebfun('sin(x)')``: compile an expression string of a
     single variable (any identifier that is not a known function name;
     ``x`` when the expression has none) into a vectorized callable."""
@@ -11621,10 +11621,13 @@ def _string_op(expr: str):
              if t not in _FUNS]
     names = [t for t in names if not re.fullmatch(r"\d.*", t)]
     var = names[0] if names else "x"
-    op = matlab_expression(expr, (var,))
+    op = matlab_expression(expr, (var,), raw_mtimes=raw_mtimes)
 
     def _f(x, _op=op):
-        return jnp.asarray(_op(x)) + jnp.zeros_like(x)
+        result = jnp.asarray(_op(x))
+        # MATLAB string constants are broadcast over constructor samples;
+        # preserve non-scalar matrix results without implicit outer expansion.
+        return result + jnp.zeros_like(x) if result.ndim == 0 else result
     return _f
 
 

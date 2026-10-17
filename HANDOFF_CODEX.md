@@ -1,3 +1,13 @@
+# Latest first-kind Chebfun2 and string-operator scope — 2026-10-17
+
+Genuine first-kind grids, transforms, factors and native tripling/pivot nesting
+now serve adaptive callable Chebfun2 preferences. All three original technology
+predicates pass with unchanged bounds. Raw string multiplication preserves
+matrix versus dotted elementwise behavior; all seven original no-dots predicates
+pass, including the exact MATLAB:innerdim marker. Joint15 CPU controls pass.
+Broader API/grammar, existing GE host numerics, sample-test ordering and full
+parity/CI/coverage remain open. Evidence: docs/c1_nodots_cpu_20261017.json.
+
 # Latest subspace and unbounded inner-product scope — 2026-10-17
 
 The joint CPU gate passes19 nodes: six original subspace predicates plus

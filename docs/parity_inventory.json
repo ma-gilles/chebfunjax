@@ -15,6 +15,11 @@
     "test_file_count_is_assertion_coverage": false
   },
   "evidence_register": {
+    "c1_nodots_cpu_20261017": {
+      "path": "docs/c1_nodots_cpu_20261017.json",
+      "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
+      "sha256": "0fa2b85937e671fa8da2b74887d3c7f94e396c18e2e842d6c409301185442aef"
+    },
     "chebgui_inventory_mapping_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parity_tracking_repair_evidence_20261017.zip",
@@ -49622,7 +49627,12 @@
       "candidate_port_paths": [
         "src/chebfunjax/chebfun1d/chebfun.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "c1_nodots_cpu_20261017",
+          "scope": "Original technology/no-dots predicates and stated controls only; full-item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -55760,7 +55770,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "c1_nodots_cpu_20261017",
+          "scope": "Original technology/no-dots predicates and stated controls only; full-item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -103089,7 +103104,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_nodots_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "c1_nodots_cpu_20261017",
+          "scope": "Original technology/no-dots predicates and stated controls only; full-item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -103104,7 +103124,21 @@
       "sha256": "e4890f34ba24f97f1b3ed48dab092841561148c86fc9ddcda9c62e3742b8779f",
       "source": "tests/chebfun/test_nodots.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "c1_nodots_cpu_20261017",
+          "invocation": "test_nodots()",
+          "predicates_native": 7,
+          "predicates_python_mapped": 7,
+          "python_source": "tests/test_matlab_port/chebfun/test_nodots_matlab.py",
+          "python_source_sha256": "a4957e04979980a8facb90177560e24c201531c3ea7e99c334558e8325d49d76",
+          "qualification_limit": "Default original predicates only; Python operator syntax adapters described in report; operands/bounds unchanged. Full grammar/API unverified.",
+          "scope_id": "original_default_c1_nodots_20261017",
+          "source_base": "7feb97de1219b62c23cdf9f6296daef60b628be1",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",
@@ -106465,7 +106499,12 @@
         "tests/test_matlab_port/chebfun2/test_techs_matlab.py",
         "tests/test_matlab_port/chebfun3/test_techs_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "c1_nodots_cpu_20261017",
+          "scope": "Original technology/no-dots predicates and stated controls only; full-item status remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -106480,7 +106519,21 @@
       "sha256": "7264ac7f8e9198faca97b10989ea83480235266df798a92493c5f55f54d1e14c",
       "source": "tests/chebfun2/test_techs.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "evidence": "c1_nodots_cpu_20261017",
+          "invocation": "test_techs()",
+          "predicates_native": 3,
+          "predicates_python_mapped": 3,
+          "python_source": "tests/test_matlab_port/chebfun2/test_techs_matlab.py",
+          "python_source_sha256": "481091fd17cee8013e5563637fbc3af99ca353b5132ee20920b21c374d7c040b",
+          "qualification_limit": "Default original predicates only; Python operator syntax adapters described in report; operands/bounds unchanged. Full grammar/API unverified.",
+          "scope_id": "original_default_c1_nodots_20261017",
+          "source_base": "7feb97de1219b62c23cdf9f6296daef60b628be1",
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

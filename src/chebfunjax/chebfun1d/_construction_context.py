@@ -98,7 +98,7 @@ def prepare_context(op, domain=OMITTED, pref=None, *, keywords=None,
 
     def normalize(value):
         if isinstance(value, str):
-            value = _string_op(value)
+            value = _string_op(value, raw_mtimes=True)
         if isinstance(value, Chebfun):
             # Native parseOp converts existing objects AFTER the handle's
             # vectorCheck branch; it does not infer output Tech from input.

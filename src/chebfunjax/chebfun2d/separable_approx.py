@@ -27,7 +27,12 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import (
+    Chebtech1,
+    Chebtech2,
+    _chebtech1_coeffs2vals,
+    _chebtech1_vals2coeffs,
+)
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
 
@@ -116,9 +121,9 @@ def _cdr_accumulate(cols, rows, pivots):
         result = result + pivots[j] * cols[..., j] * rows[..., j]
     return result
 
-def _chebpts_phys(n: int, a: float, b: float) -> jax.Array:
-    """Chebyshev-2 points on physical interval [a, b]."""
-    t = chebpts(n, kind=2)
+def _chebpts_phys(n: int, a: float, b: float, kind: int = 2) -> jax.Array:
+    """Native points2D polynomial grid (constructor.m, pin 7574c77)."""
+    t = chebpts(n, kind=kind)
     return _ref_to_phys(t, a, b)
 
 
@@ -397,8 +402,29 @@ def _trig_fold(c_abs: np.ndarray) -> np.ndarray:
     return np.concatenate(([folded[0]], np.repeat(folded[1:], 2)))
 
 
+def _tech_grid_refine(n: int, tech: str):
+    """Return refined size and old-node indices.
+
+    Provenance: @chebfun2/constructor.m gridRefine, Chebfun 7574c77.
+    """
+    if tech == "cheb1":
+        return 3 * n, slice(1, None, 3)
+    if tech == "trig":
+        return 2 * n, slice(0, None, 2)
+    return _grid_refine(n), slice(0, None, 2)
+
+
+def _initial_tech_grid(n: int, tech: str) -> int:
+    """Native minSample normalization (constructor.m, Chebfun 7574c77)."""
+    if n < 1:
+        raise ValueError("min_samples must be positive")
+    offset = int(tech != "trig")
+    size = n - offset
+    return offset if size == 0 else (1 << (size.bit_length() - 1)) + offset
+
+
 def _std_check_cheb(values: np.ndarray, rel_tol: float, hscale: float,
-                    vscale: float) -> bool:
+                    vscale: float, kind: int = 2) -> bool:
     """MATLAB @chebtech/standardCheck on one slice: ``standardChop`` with
     ``tol = relTol * max(hscale, vscale / vscale_slice)``."""
     from chebfunjax.utils.transforms import vals2coeffs
@@ -409,7 +435,7 @@ def _std_check_cheb(values: np.ndarray, rel_tol: float, hscale: float,
     if vscale_f == 0.0:
         return True
     tolk = rel_tol * max(hscale, vscale / vscale_f)
-    c = vals2coeffs(jnp.asarray(v))
+    c = (_chebtech1_vals2coeffs if kind == 1 else vals2coeffs)(jnp.asarray(v))
     return int(standard_chop(c, tolk)) < n
 
 
@@ -432,7 +458,7 @@ def _matlab_round(x: float) -> int:
     return int(np.floor(x + 0.5))
 
 
-def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float) -> list:
+def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float, kind: int = 2) -> list:
     """MATLAB ``simplify(f.cols, relTol, 'globaltol')`` for the value
     matrix ``vals`` (one slice per column): every slice is chopped to the
     same length, the largest ``standardChop`` cutoff over the slices with
@@ -441,6 +467,9 @@ def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float) -> list:
     once through values (@chebtech/simplify.m)."""
     from chebfunjax.utils.transforms import coeffs2vals, vals2coeffs
 
+    if kind == 1:
+        vals2coeffs, coeffs2vals = _chebtech1_vals2coeffs, _chebtech1_coeffs2vals
+    tech = Chebtech1 if kind == 1 else Chebtech2
     V = np.asarray(vals, dtype=np.complex128 if jnp.iscomplexobj(vals) else np.float64)
     nold, r = V.shape
     C = np.asarray(vals2coeffs(jnp.asarray(V)))
@@ -457,7 +486,7 @@ def _simplify_cheb_slices(vals: np.ndarray, rel_tol: float) -> list:
         cutoff = max(cutoff, int(standard_chop(jnp.asarray(C2[:, j]),
                                                rel_tol * vmax / float(vsc[j]))))
     cutoff = min(cutoff, nold)
-    return [Chebtech2.from_coeffs(jnp.asarray(C[:cutoff, j])) for j in range(r)]
+    return [tech.from_coeffs(jnp.asarray(C[:cutoff, j])) for j in range(r)]
 
 
 def _simplify_trig_slices(vals: np.ndarray, rel_tol: float) -> list:
@@ -597,6 +626,7 @@ class SeparableApprox(eqx.Module):
         min_samples: int = 17,
         max_samples: int = 2**14 + 1,
         techs: tuple = ("cheb", "cheb"),
+        sample_test: bool = True,
     ) -> "SeparableApprox":
         """Construct with MATLAB's sample test.
 
@@ -625,20 +655,22 @@ class SeparableApprox(eqx.Module):
         yt = ya + (yb - ya) * _halton_1d(100, 3)
         xtj = jnp.asarray(xt)[:, None]
         ytj = jnp.asarray(yt)[:, None]
-        fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel()
-        n0 = min_samples
+        fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel() if sample_test else None
+        n0 = tuple(_initial_tech_grid(int(min_samples), tech) for tech in techs)
         while True:
             approx, abs_tol = cls._construct_once(f, domain=domain, tol=tol,
                                                   max_rank=max_rank,
                                                   min_samples=n0,
                                                   max_samples=max_samples,
                                                   techs=techs)
+            if not sample_test:
+                return approx
             avals = np.asarray(approx(jnp.asarray(xt),
                                       jnp.asarray(yt))).ravel()
             if np.max(np.abs(avals - fvals)) <= 100.0 * abs_tol:
                 return approx
-            n0 = 2 * (n0 - 1) + 1
-            if n0 > max_samples // 4:
+            n0 = tuple(_tech_grid_refine(n, tech)[0] for n, tech in zip(n0, techs))
+            if max(n0) > max_samples // 4:
                 return approx
 
     @classmethod
@@ -754,23 +786,23 @@ class SeparableApprox(eqx.Module):
         factor = 4  # Ratio between grid size and number of pivots
 
         tech_x, tech_y = techs
-        if tech_x not in ("cheb", "trig") or tech_y not in ("cheb", "trig"):
+        if tech_x not in ("cheb", "cheb1", "trig") or tech_y not in ("cheb", "cheb1", "trig"):
             raise ValueError(
-                f"SeparableApprox: techs must be 'cheb' or 'trig', got {techs}.")
+                f"SeparableApprox: techs must be 'cheb', 'cheb1' or 'trig', got {techs}.")
 
         def _pts_x(n):
-            return (np.array(_chebpts_phys(n, xa, xb)) if tech_x == "cheb"
+            return (np.array(_chebpts_phys(n, xa, xb, 1 if tech_x == "cheb1" else 2)) if tech_x != "trig"
                     else _trigpts_phys(n, xa, xb))
 
         def _pts_y(n):
-            return (np.array(_chebpts_phys(n, ya, yb)) if tech_y == "cheb"
+            return (np.array(_chebpts_phys(n, ya, yb, 1 if tech_y == "cheb1" else 2)) if tech_y != "trig"
                     else _trigpts_phys(n, ya, yb))
 
         def _refine_x(n):
-            return _grid_refine(n) if tech_x == "cheb" else 2 * n
+            return _tech_grid_refine(n, tech_x)[0]
 
         def _refine_y(n):
-            return _grid_refine(n) if tech_y == "cheb" else 2 * n
+            return _tech_grid_refine(n, tech_y)[0]
 
         # MATLAB happinessCheck(colTech, [], sum(colVals, 2), colData, prefy)
         # with colData.hscale = norm(dom(3:4), inf), colData.vscale = the
@@ -779,28 +811,22 @@ class SeparableApprox(eqx.Module):
         hscale_y = max(abs(ya), abs(yb))
 
         def _happy_x(v):
-            return (_std_check_cheb(v, rel_tol, hscale_x, vscale) if tech_x == "cheb"
+            return (_std_check_cheb(v, rel_tol, hscale_x, vscale, 1 if tech_x == "cheb1" else 2) if tech_x != "trig"
                     else _std_check_trig(v, rel_tol, vscale))
 
         def _happy_y(v):
-            return (_std_check_cheb(v, rel_tol, hscale_y, vscale) if tech_y == "cheb"
+            return (_std_check_cheb(v, rel_tol, hscale_y, vscale, 1 if tech_y == "cheb1" else 2) if tech_y != "trig"
                     else _std_check_trig(v, rel_tol, vscale))
 
         # Minimum grid size must be one plus a power of 2 for nesting
         # @chebfun2/constructor.m rounds each technology's minSamples
         # down to a power of two (trig), or one plus a power of two (cheb).
         # Both native technology preferences start at 17, yielding 16/17.
-        def initial_grid(tech):
-            if int(min_samples) < 1:
-                raise ValueError("min_samples must be positive")
-            offset = int(tech == "cheb")
-            size = int(min_samples) - offset
-            if size == 0:
-                return offset
-            return (1 << (size.bit_length() - 1)) + offset
-
-        min_grid_x = initial_grid(tech_x)
-        min_grid_y = initial_grid(tech_y)
+        if isinstance(min_samples, tuple):
+            min_grid_x, min_grid_y = min_samples
+        else:
+            min_grid_x = _initial_tech_grid(int(min_samples), tech_x)
+            min_grid_y = _initial_tech_grid(int(min_samples), tech_y)
 
         # --- Helper: sample f on a tensor grid ---
         def _sample_grid(nx: int, ny: int) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -901,8 +927,8 @@ class SeparableApprox(eqx.Module):
 
         # Handle zero function
         if len(pivot_vals) == 1 and pivot_vals[0] == 0.0:
-            zero_col = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
-            zero_row = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+            zero_col = (Chebtech1 if tech_y == "cheb1" else Chebtech2).from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+            zero_row = (Chebtech1 if tech_x == "cheb1" else Chebtech2).from_coeffs(jnp.zeros(1, dtype=jnp.float64))
             return cls(
                 cols=[zero_col],
                 rows=[zero_row],
@@ -930,8 +956,11 @@ class SeparableApprox(eqx.Module):
         resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0))
         is_happy = resolved_cols and resolved_rows
 
+        nested_pivots = np.array(pivot_pos, copy=True)
         while not is_happy and not failure:
             if not resolved_cols:
+                if tech_y == "cheb1":
+                    nested_pivots[:, 0] = 3 * nested_pivots[:, 0] + 1
                 ny = _refine_y(ny)
                 if ny > max_samples:
                     warnings.warn(
@@ -952,6 +981,8 @@ class SeparableApprox(eqx.Module):
                     col_vals_new[:, j] = _sample_col(float(piv_x_phys[j]), ny)
 
             if not resolved_rows:
+                if tech_x == "cheb1":
+                    nested_pivots[:, 1] = 3 * nested_pivots[:, 1] + 1
                 nx = _refine_x(nx)
                 if nx > max_samples:
                     warnings.warn(
@@ -976,8 +1007,10 @@ class SeparableApprox(eqx.Module):
             x_pts_new = _pts_x(nx)
             for j in range(r):
                 # Find nearest grid point to the pivot location
-                pivot_pos_local[j, 0] = int(np.argmin(np.abs(y_pts_new - piv_y_phys[j])))
-                pivot_pos_local[j, 1] = int(np.argmin(np.abs(x_pts_new - piv_x_phys[j])))
+                pivot_pos_local[j, 0] = (nested_pivots[j, 0] if tech_y == "cheb1" else
+                                         int(np.argmin(np.abs(y_pts_new - piv_y_phys[j]))))
+                pivot_pos_local[j, 1] = (nested_pivots[j, 1] if tech_x == "cheb1" else
+                                         int(np.argmin(np.abs(x_pts_new - piv_x_phys[j]))))
 
             col_vals_mat, row_vals_mat = _ge_on_skeleton(
                 col_vals_new, row_vals_new, pivot_vals, pivot_pos_local
@@ -998,12 +1031,12 @@ class SeparableApprox(eqx.Module):
         # ...); g = simplify(g, mineps) with mineps = relTol ('globaltol'):
         # every slice is chopped to a common length relative to the largest
         # slice.
-        if tech_y == "cheb":
-            cols_list = _simplify_cheb_slices(col_vals_mat, rel_tol)
+        if tech_y != "trig":
+            cols_list = _simplify_cheb_slices(col_vals_mat, rel_tol, 1 if tech_y == "cheb1" else 2)
         else:
             cols_list = _simplify_trig_slices(col_vals_mat, rel_tol)
-        if tech_x == "cheb":
-            rows_list = _simplify_cheb_slices(row_vals_mat.T, rel_tol)
+        if tech_x != "trig":
+            rows_list = _simplify_cheb_slices(row_vals_mat.T, rel_tol, 1 if tech_x == "cheb1" else 2)
         else:
             rows_list = _simplify_trig_slices(row_vals_mat.T, rel_tol)
 
