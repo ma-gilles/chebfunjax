@@ -1,3 +1,15 @@
+# Latest periodic scalar coefficient repair — 2026-10-17
+
+Actualdc3Core6failed quantumstates because(n,1)coefficient samples broadcast
+operator matrices into(n,n,n). JAX scaling now normalizes singleton sample
+axes and applies the scalar diagonal action, preserving complex values.
+Eight layout controls include7baseline failures; candidate12checks pass,
+including unchanged quantumstates and periodic eigenfunction regressions.
+All367guarded source/test/config bytes match publication;20CIprotocol checks
+also pass with1075selectors and unchanged existing ownership. No fresh native
+quantumstates invocation/fullAPI/backend-JAX/performance claim. LatestCI required.
+Evidence: docs/quantum_periodic_column_cpu_20261017.json.
+
 # Latest original roots and breakpoint grammar — 2026-10-17
 
 All19default original roots predicates are ported with original operands and

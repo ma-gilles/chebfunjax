@@ -8793,20 +8793,27 @@ class _FourierProxy:
         return self._wrap(-self.mat)
 
     def _scale(self, other):
-        import numpy as _np
+        """Apply the sampled scalar coefficient as a diagonal operator.
+
+        Provenance
+        ----------
+        MATLAB source: @valsDiscretization/mult.m, @trigcolloc/toValues.m.
+        Chebfun commit: 7574c77.
+        """
         try:
-            arr = _np.asarray(other, dtype=float)
+            arr = jnp.asarray(other)
         except (TypeError, ValueError):
-            # Variable coefficient given as a chebfun (MATLAB
-            # ``a1.*diff(u)``): sample it on the collocation grid.
             if callable(other) and self.grid is not None:
-                arr = _np.asarray(other(jnp.asarray(self.grid)),
-                                  dtype=float)
+                arr = jnp.asarray(other(jnp.asarray(self.grid)))
             else:
                 raise
         if arr.ndim == 0:
-            return self._wrap(float(arr) * self.mat)
-        return self._wrap(arr[:, None] * self.mat)   # diag(coeff) @ mat
+            return self._wrap(arr * jnp.asarray(self.mat))
+        if arr.ndim == 2 and 1 in arr.shape:
+            arr = jnp.reshape(arr, (-1,))
+        if arr.ndim != 1 or arr.size != self.n:
+            raise ValueError("scalar Fourier coefficient needs one value per grid point")
+        return self._wrap(arr[:, None] * jnp.asarray(self.mat))
 
     def __mul__(self, other):
         return self._scale(other)

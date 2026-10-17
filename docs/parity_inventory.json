@@ -211,6 +211,11 @@
       "sha256": "b4aecd023a82a43b6a86df1571d355965f30753168d45d5114847e2eb517c877",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
     },
+    "quantum_periodic_column_cpu_20261017": {
+      "path": "docs/quantum_periodic_column_cpu_20261017.json",
+      "scope": "JAX scalar Fourier coefficient diagonal scaling preserves flat/column/row sample layouts and complex values; repair actual CI quantumstates shape failure.",
+      "sha256": "a9854f328772cd5c045cb252aeb0a5421ef220bd29f8fbf3cccf4c5f29e10e56"
+    },
     "quasimatrix_integral2_cpu_20261017": {
       "path": "docs/quasimatrix_integral2_cpu_20261017.json",
       "scope": "39 Python nodes; native factory ten branches/seven errors and original cell2quasi predicate; three original Chebfun2 integral2 predicates; inherited representation/API gaps open",
@@ -89098,7 +89103,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quantum_periodic_column_cpu_20261017",
+          "scope": "Source-bound scalar Fourier coefficient multiplication and unchanged quantumstates Python port; no full API/native invocation qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -91997,7 +92007,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quantum_periodic_column_cpu_20261017",
+          "scope": "Source-bound scalar Fourier coefficient multiplication and unchanged quantumstates Python port; no full API/native invocation qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -122103,7 +122118,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/misc/test_quantumstates_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "quantum_periodic_column_cpu_20261017",
+          "scope": "Source-bound scalar Fourier coefficient multiplication and unchanged quantumstates Python port; no full API/native invocation qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

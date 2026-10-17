@@ -696,7 +696,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_chebvar_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_quantumstates_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_BMCsvd_matlab]",
-      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_svd_matlab]"
+      "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_svd_matlab]",
+      "tests/test_operators/test_fourier_scalar_coefficient_layout.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1100,6 +1101,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "4b0eae9b93f5f1effe2aac8942db110c23175de3",
+  "last_update_parent": "44a1be2837a45c03bd7f58cab580ce7a3813c7fb",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }
