@@ -1,0 +1,14 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b CPU",
+  "source": "private/odenumjac.m, first actual adaptive chemical call",
+  "fixture_sha256": "b57ddbb1d82a8c3aea3cf15c3cdccda806ba9e233baeb413485d558c26ab4b10",
+  "original_mat_sha256": "2aa27c9042b96952ce2c976ea456ba6ed20578fb50ba9301c944779c3d6eca90",
+  "decoded_tape_sha256": "cbf754ec2c1cc943ff39a41590075fbd4e5d34d85a75ce69c91c6b455b27b83d",
+  "trace_manifest_sha256": "5805bb3d04a50bfdacf4a12cde8ee934f97b6b04f896569ad7fa1267d5194a10",
+  "capture_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_chemical_numjac_native_prepare_20261017",
+  "recorded_states": 303,
+  "refinements": 0,
+  "native_observation_output_rng_callback_parity": true,
+  "no_production_reference_loading": true
+}

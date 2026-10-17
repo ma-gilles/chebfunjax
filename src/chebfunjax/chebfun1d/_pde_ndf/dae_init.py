@@ -17,6 +17,7 @@ import jax.numpy as jnp
 import jax.scipy.linalg as jl
 
 from chebfunjax.utils._normest1 import condest_real
+from chebfunjax.utils._ordered_binary import binary
 
 EPS = float(jnp.finfo(jnp.float64).eps)
 
@@ -52,7 +53,9 @@ def dense_numjac(fun, y, f, thresh, fac=None):
 
     fdel = jnp.stack([evaluate(y.at[k].add(delta[k])) for k in range(n)], axis=1)
     fdiff = fdel - f[:, None]
-    jac = fdiff / delta[None, :]
+    # Native odenumjac uses individual Fdiff./del divisions. A broadcast
+    # reciprocal multiply differs by one ulp on the captured 303-state case.
+    jac = binary(fdiff, delta[None, :], 3)
     rows = jnp.argmax(jnp.abs(fdiff), axis=0)
     difmax = jnp.max(jnp.abs(fdiff), axis=0)
     for k in range(n):
@@ -71,7 +74,7 @@ def dense_numjac(fun, y, f, thresh, fac=None):
                         inc = jnp.abs(inc) if float(f[k]) >= 0 else -jnp.abs(inc)
                     fresh = evaluate(y.at[k].set(y[k] + inc))
                     diff = fresh - f
-                    tmp = diff / inc
+                    tmp = binary(diff, inc, 3)
                     rm = int(jnp.argmax(jnp.abs(diff)))
                     dm = float(jnp.max(jnp.abs(diff)))
                     nt = float(jnp.max(jnp.abs(tmp)))

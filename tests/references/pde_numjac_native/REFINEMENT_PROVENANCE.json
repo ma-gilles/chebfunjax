@@ -1,0 +1,30 @@
+{
+  "cases": [
+    {
+      "n": 1,
+      "calls": 2,
+      "refined_columns_matlab1based": [
+        1
+      ]
+    },
+    {
+      "n": 3,
+      "calls": 4,
+      "refined_columns_matlab1based": [
+        1
+      ]
+    }
+  ],
+  "native_mat_sha256": "71d8ff256f95d721c9862ec22cfb2f18cacaefbc1ddd3fe405f19b88c671e67f",
+  "fixture_sha256": "e951679c41ae5ec2c1f48290895300bf58505d0bff0baf8939c700fdf2acf64e",
+  "source": "installed R2025b private/odenumjac.m; observation insertions reverse exactly; no licensed source distributed",
+  "function": "F(t,y)=1+1e-6*y; y=(1:n), n1/3, threshold1e-6, initialfacempty",
+  "scope": "Native exact callback tape and refinement intermediates; Python test unrun",
+  "terminal": {
+    "command_exit_code": 0,
+    "wall_seconds": 88.6194816431962,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1431936
+  }
+}
