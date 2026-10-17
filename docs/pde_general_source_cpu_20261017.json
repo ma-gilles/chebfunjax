@@ -1,0 +1,130 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "56395eb17df5a428135fb05e4f43347caed40eda",
+  "scope": "real N-component full-mass polynomial pde15s; N residuals at each endpoint; total differential order 2*N; N or N+2 callback arguments",
+  "cpu_only": true,
+  "jax_version": "0.11.0",
+  "binary64": true,
+  "baseline_failures": [
+    "three-component system rejected before assembly",
+    "six algebraic rows rejected by n>4 condition-estimator restriction"
+  ],
+  "native_capture": {
+    "matlab": "R2025b Update 2",
+    "spatial_n": 9,
+    "components": 3,
+    "requested_times": [
+      0,
+      0.005,
+      0.01
+    ],
+    "replay_mesh_state_callbacks_rng_exact": true,
+    "actual_algebraic_jacobian_shape": [
+      6,
+      6
+    ],
+    "condition_estimate": 1.0476190476190474,
+    "index_test_product": 2.7914178904861074e-15
+  },
+  "tests": {
+    "pde_general_native_gate_v2_20261017": {
+      "passed": 36,
+      "wall_seconds": 33.62672453885898,
+      "peak_summed_rss_kib": 1935508,
+      "stable": true,
+      "survivors": []
+    },
+    "pde_general_integration_gate_20261017": {
+      "passed": 22,
+      "wall_seconds": 96.35479053016752,
+      "peak_summed_rss_kib": 3664348,
+      "stable": true,
+      "survivors": []
+    }
+  },
+  "total_distinct_tests": 58,
+  "acceptance_bounds_unchanged": true,
+  "lu_comparison": "Nine native packed factor arrays compare exactly; not a raw-bit signed-zero/NaN-payload claim.",
+  "initial_failed_gate": {
+    "passed": 18,
+    "failed": 9,
+    "six_assertion_type_errors": true,
+    "three_real_lu_provider_rounding_failures": true,
+    "resolution": "Existing source-derived real LU schedule; no fixture or acceptance bound changes."
+  },
+  "implementation": {
+    "numerics": "JAX arrays/arithmetic, source real LU and triangular inverse actions",
+    "small_initializer_branch": "Existing <=4 branch and source condition-check ordering retained",
+    "rng": "Lazy estimator-owned persistent uniform state; explicit state for native replay; each draw advances state even if later operations fail"
+  },
+  "remaining_scope": [
+    "N+1 callback arguments",
+    "mixed boundary residual counts/orders",
+    "complex/sparse/variable-mass systems",
+    "system shorthand syntax and full chemical example",
+    "native return representation including fixed-N tOut source behavior",
+    "library-wide RNG integration and concurrent whole-estimator ordering",
+    "existing legacy SciPy PDE routes",
+    "full library/example/figure/performance qualification and green latest-main CI"
+  ],
+  "reviews": [
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_replay_prepare_20261017/REVIEW_FINAL.json",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/condest_jax_prepare_20261017/NATIVE_GATE_V2_AUDIT.json"
+  ],
+  "archive": {
+    "full_goal_complete": false,
+    "gates": {
+      "pde_general_native_gate_v2_20261017": {
+        "passed": 36,
+        "wall_seconds": 33.62672453885898,
+        "peak_summed_rss_kib": 1935508,
+        "stable": true,
+        "survivors": []
+      },
+      "pde_general_integration_gate_20261017": {
+        "passed": 22,
+        "wall_seconds": 96.35479053016752,
+        "peak_summed_rss_kib": 3664348,
+        "stable": true,
+        "survivors": []
+      }
+    },
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/pde_general_source_qualified_20261017.zip",
+    "sha256": "2fc288718b3ed3dcca6ca0185fdf7ec710ddaede0a88f959d54b08394ed0d330",
+    "entries": 3251,
+    "bytes": 25762640,
+    "verified": true,
+    "licensed_runtime_excluded": true
+  },
+  "full_goal_complete": false,
+  "qualified_input_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/dae_init.py": "93a6534049a61ab3345c57804cc7fccfeaa1902c65cb2328d3451c1d6dbf0534",
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "7c6585b35dcf91be93b49455cc4b50e3159771b635943aad4a9c65c700b14089",
+    "src/chebfunjax/chebfun1d/pde15s.py": "4ac5d1621f002adbdfb7766d76e6d226695ea053d900ae11c02875896d7b15a1",
+    "src/chebfunjax/utils/_matlab_uniform_stream.py": "2c462db8f940763f1462c019d2c829db7b20cb9c5f9fdcb1eca117f86c6c9d0a",
+    "src/chebfunjax/utils/_normest1.py": "d6a63c4f3dab627d401e7ed9b66b89a4ef1c24c5029a2369ae210e94d6ae9dcf",
+    "tests/test_utils/test_normest1_native_source.py": "019d7797bd50819c83fa3bd8d6da95a9660571126b58c9327adb128a5d6e2286",
+    "tests/test_pde_ndf_general_native.py": "0d57ee970d29353f83aea0ab74083d6cb9a8fc70020947c443ca4c7f788a67b4",
+    "tests/test_pde_ndf_general_systems.py": "c9975d9afe57edfa22e1318b3e3d031b45c2edcb5bbff460b2e430c34170e033",
+    "tests/references/pde_general_native/FIXTURE_HASHES.json": "071aea6b6a688939e2428c498ba2af82832a49c95971d738086a0f2fb63ae1bb",
+    "tests/references/pde_general_native/metadata.json": "f0ec7c24a3fe078107c89c083256a4a34c08cc98713758bc76beea0ebbd39ae8",
+    "tests/references/pde_general_native/public_output.mat": "1db174f82b282685472ef87787398f9ab950edb834d9a1fbe18b792b2531ffbd",
+    "tests/references/pde_general_native/solver_capture.mat": "8b7d4eccd395e893823180ceded419d87a623945c9f132b18cf94d5a1f4f8cb0",
+    "tests/references/pde_general_native/solver_summary.json": "2df6db6fab93a8757e883e56f2e8d82721148dfb77b9d2f4fcffccae73b968c3",
+    "tests/references/pde_condest_native/block1.mat": "ae95391a7ec868621a9c2c76bf1b83858c76292d8260790be6c783565b380f73",
+    "tests/references/pde_condest_native/block3.mat": "3b28232f8cd62ceda17a512f28f69050561ccea4aae1cb404483b0108f7d374e",
+    "tests/references/pde_condest_native/block6.mat": "306d05b0f351b60bd390a3e81a63adeec756ca6514ed8ea295a392e333337eb9",
+    "tests/references/pde_condest_native/consecutive.mat": "762fde4b281c4f030fb8862c4739aed41ddc53a0a014dc75abf7acc9ba42cb87",
+    "tests/references/pde_condest_native/dense6.mat": "d7d80d31bcedfb7b98f9cc2f95a05aaea73a4da52f873846189222834b565fe8",
+    "tests/references/pde_condest_native/hilbert6.mat": "69bfd6768e648fcf3064284233981f90462907755dd805adc9ce2bd62bad5e02",
+    "tests/references/pde_condest_native/index_above6.mat": "6f46ad78a962e50ee7c8bb500d35ef6f06c43132f98bfbfba061b8cc9203a7d6",
+    "tests/references/pde_condest_native/index_below6.mat": "17d2276c54e08de0acbffd471cf155fbb9f51f152fa9a11661b0a79fb038b010",
+    "tests/references/pde_condest_native/positive_inverse6.mat": "922794c840e2b1e5ff60bd8ac97ac786886cbb5fd919f6ce625e350a666458a1",
+    "tests/references/pde_condest_native/reachable_pde6.mat": "9005ccbf58c58a85bafb7dde7dd24d2708e82584fef2b32d1481743940b3fe1b",
+    "tests/references/pde_condest_native/singular6.mat": "9078f55b741ceced6fab176bfbafd770270bce0ac9e7e6314b0af109400739be",
+    "tests/references/pde_condest_native/small4.mat": "255aacdc45e5e0a9ec68bbd218b14c3f6d341c4599c25da39de9f0f0f4fcf3ce",
+    "tests/references/pde_condest_native/summary.json": "afa582dcb19e134814e0cc3951f2aa4dec0eb4c2ead7cc3262f193ddd4ded273",
+    "tests/references/pde_condest_native/ties10.mat": "bc5dd824a08f927ec0b16ed0dc5be004ab0d1cdb3a166d681cb6e999f33c6ba1",
+    "tests/references/pde_condest_native/zero_operator6.mat": "2adca5958444d5c57edde87d5ec640073ac2c12529da2d6f7b5afb6479578ad6"
+  }
+}

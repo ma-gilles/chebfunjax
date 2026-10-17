@@ -2,8 +2,8 @@
 
 Source: Chebfun 7574c77 pdeSolve and MATLAB R2025b ode15s/daeic12.
 The NDF path supports a single real polynomial piece and constant full mass.
-Two real components support one handle residual per component on each boundary.
-Larger systems, Fourier PDE evolution, complex, sparse, and variable-mass NDF remain unsupported.
+Real multicomponent systems support one handle residual per component on each boundary.
+Fourier PDE evolution, complex, sparse, and variable-mass NDF remain unsupported.
 Smooth pieces are merged; trigonometric initial data uses polynomial collocation.
 
 Provenance
@@ -22,7 +22,7 @@ __all__ = ["pde15s", "_call_flexible", "_positional_arity"]
 def pde15s(
     pdefun, t, u0, *, lbc=None, rbc=None, n=None, n_default=64, method="NDF", rtol=1e-6, atol=1e-6
 ):
-    """Return scalar or two-component array-valued Chebfuns at the supplied increasing output times.
+    """Return scalar or multicomponent array-valued Chebfuns at the supplied increasing output times.
 
     The default uses native spatial adaptation; n selects native fixed-N
     coefficient prolongation and outputs. Omitting both boundary conditions
@@ -31,10 +31,11 @@ def pde15s(
 
     method='NDF' uses JAX only and native default tolerances (1e-6 for both).
     Explicit historical methods retain the existing SciPy compatibility path;
-    those paths remain outstanding non-JAX work. Two-component callbacks accept
-    (u,v) or (t,x,u,v) and return two expressions; both boundary handles
-    must return two residuals. Larger systems, Fourier PDE evolution, complex,
-    sparse and variable-mass equations remain unsupported by the NDF path.
+    those paths remain outstanding non-JAX work. N-component callbacks accept
+    the N dependent components, optionally preceded by (t,x), and return N
+    expressions. Both boundary handles must return N residuals; the total
+    differential order must be 2*N. Fourier PDE evolution, complex, sparse
+    and variable-mass equations remain unsupported by the NDF path.
 
     Provenance
     ----------

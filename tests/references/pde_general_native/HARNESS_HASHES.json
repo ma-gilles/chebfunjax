@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_prepare_v4_20261017/SOURCE_MANIFEST.json",
+      "sha256": "4de294c29d1df761ba15b3235e6d698cced244fa63ac4053bdedb9942d62f6b4"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_prepare_v4_20261017/STATIC_CHECK.json",
+      "sha256": "2223651ef154161cc71bf8c468695121ef034a3c6ad5b13b8523922be71641e0"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_prepare_v4_20261017/capture_pde_general.m",
+      "sha256": "7f9d37c166ae74ae10cc1bb360ae5ac582af1cf6d45eb75843a66730feffcc16"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_prepare_v4_20261017/capture_condest.m",
+      "sha256": "8b1947b856bf0778a219473ebf41d90e2393eccdae926a3f1cf37a0951a0de17"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_prepare_v4_20261017/capture_note.m",
+      "sha256": "497ec75b491a63e58c5ef7ba3eeb5299708670d3f48c02a2e55dab8d0f39d6db"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/condest_native_prepare_v4_20261017/capture_normest_cases.m",
+      "sha256": "12eff0543016540f2fce5c900d4d4613f90869e27d14bd12c798f700fef5c395"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_general_native_run_v4_20261017/entry.m",
+      "sha256": "a85e4720e71b038f79157c17d64c4ee95e07db84caceb711c606f224796f51de"
+    }
+  ],
+  "licensed_source_excluded": true
+}

@@ -1,7 +1,7 @@
 """Polynomial pdeSolve spatial restart driver, JAX arithmetic.
 Chebfun 7574c77 pdeSolve/chebdouble, MATLAB R2025b ode15s/daeic12.
-Constant full mass, increasing time, scalar or two-component handle BCs.
-Fixed N follows pdeset. Larger systems and numeric system BCs are unsupported.
+Constant full mass, increasing time, scalar or real multicomponent handle BCs.
+Fixed N follows pdeset. Numeric system BCs are unsupported.
 No-BC unconstrained evolution is a Python compatibility extension.
 
 Provenance
@@ -102,7 +102,7 @@ def _invoke_system(fun, t, x, columns):
     elif arity == len(columns) + 2:
         result = fun(t, x, *columns)
     else:
-        raise NotImplementedError("System callbacks require (u,v) or (t,x,u,v)")
+        raise NotImplementedError("System callbacks require N or N+2 positional inputs")
     if not isinstance(result, (tuple, list)) or len(result) != len(columns):
         raise ValueError("System callbacks must return one expression per component")
     return result
@@ -128,10 +128,10 @@ def solve(
     coefficients = u0.funs[0].tech.coeffs
     system = coefficients.ndim == 2
     size = coefficients.shape[1] if system else 1
-    if system and (size != 2 or jnp.iscomplexobj(coefficients)):
-        raise NotImplementedError("System NDF currently supports two real components")
+    if system and jnp.iscomplexobj(coefficients):
+        raise NotImplementedError("System NDF currently requires real components")
     if system and (not callable(lbc) or not callable(rbc)):
-        raise NotImplementedError("Systems require a two-residual handle on each boundary")
+        raise NotImplementedError("Systems require one residual per component on each boundary")
     if len(u0.funs) != 1:
         # pdeSolve first attempts merge(all, 1025, tol), then rejects pieces.
         u0 = u0.merge("all", max_length=1025, tol=spatial_tol)

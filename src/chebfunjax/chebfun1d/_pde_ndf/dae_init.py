@@ -2,7 +2,8 @@
 
 Source: MathWorks R2025b ode15s/odenumjac/daeic12/condest/normest1,
 Copyright 1984-2024 The MathWorks, Inc. Chebfun caller is pinned7574c77.
-Sparse/vectorized/complex Jacobians and >4 algebraic variables are unsupported.
+Sparse/vectorized/complex Jacobians are unsupported. Larger algebraic systems
+use the source block condition estimator and its persistent uniform stream.
 
 Provenance
 ----------
@@ -14,6 +15,8 @@ Native ODE runtime/source release: MATLAB R2025b.
 
 import jax.numpy as jnp
 import jax.scipy.linalg as jl
+
+from chebfunjax.utils._normest1 import condest_real
 
 EPS = float(jnp.finfo(jnp.float64).eps)
 
@@ -109,7 +112,7 @@ def small_condest(a):
     )
 
 
-def initialize_full_mass(fun, mass, y, *, reltol=1e-6, abstol=1e-6):
+def initialize_full_mass(fun, mass, y, *, reltol=1e-6, abstol=1e-6, uniform_stream=None):
     """Source ICtype2, default zero InitialSlope, numerical dense Jacobian."""
     f = fun(y)
     jac, fac, calls = dense_numjac(fun, y, f, abstol)
@@ -146,7 +149,11 @@ def initialize_full_mass(fun, mass, y, *, reltol=1e-6, abstol=1e-6):
         return finish(y, f, transformed, "nonsingular")
     J = dfdy[jnp.ix_(alg, alg)]
     nonzero = int(jnp.count_nonzero(J))
-    if nonzero == 0 or EPS * nonzero * small_condest(J) > 1:
+    if nonzero == 0:
+        raise ValueError("Source IndexGTOne")
+    condition = (small_condest(J) if J.shape[0] <= 4
+                 else condest_real(J, stream=uniform_stream))
+    if EPS * nonzero * condition > 1:
         raise ValueError("Source IndexGTOne")
     norm = jnp.linalg.norm
     if float(norm(transformed[alg])) <= 1000 * EPS * float(norm(transformed)):
