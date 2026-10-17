@@ -6,7 +6,7 @@
 
 Python translation: [`examples/quad/tricky.py`](https://github.com/ma-gilles/chebfunjax/blob/main/examples/quad/tricky.py)
 
-> Current execution qualification (2026-10-17): all 12 output blocks and nine figures below come from a completed CPU run of the current Python script with pinned JAX/JAXlib 0.11.0. The source warning `Function not resolved using 6091 pts.` is emitted and its unresolved approximation is preserved. Plot sampling follows the pinned MATLAB source, including the Airy window [0, 10]. The unbounded Airy integral remains `+Inf`, a scientific gap relative to the native result; the finite [0, 40] counterpart is finite. Axis limits, ticks, fonts and raster differences remain; the images do not claim pixel parity. See [`tricky_full_current_cpu_20261017.json`](../../tricky_full_current_cpu_20261017.json) for measurements and independent checks.
+> Execution qualification (2026-10-17): Airy output blocks 6 and 7 and figure 4 come from a separate completed CPU execution of those current source cells using the JAX Airy primitive. The unbounded integral is now finite; both displayed integrals match the historical native displays. The ten other output blocks and eight other figures retain the earlier completed full-script capture; their scientific source statements are unchanged. Pinned JAX/JAXlib 0.11.0 was used for both runs. The intentional unresolved approximation and its `Function not resolved using 6091 pts.` warning remain. Axis limits, ticks, fonts and raster differences remain; pixel parity is not claimed. See [`tricky_airy_jax_cpu_20261017.json`](../../tricky_airy_jax_cpu_20261017.json) and the [earlier full-run receipt](../../tricky_full_current_cpu_20261017.json).
 
 ## 0. Introduction
 
@@ -152,11 +152,11 @@ Iexact =
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,     Inf]      261      0.36  5.6e-11
+[       0,     Inf]      415      0.36  8.8e-16
 vertical scale = 0.36
 I =
-  inf
-Elapsed time is 5.295050 seconds.
+   0.378751605379086
+Elapsed time is 21.250295 seconds.
 ```
 
 ![Tricky figure 04](../../images/quad/Tricky_04.png)
@@ -171,11 +171,11 @@ tic, f = chebfun(ff,[0 40]), I = sum(f), toc
 f =
    chebfun column (1 smooth piece)
        interval       length     endpoint values
-[       0,      40]      121      0.36   -1e-17
+[       0,      40]      121      0.36 -6.9e-18
 vertical scale = 0.36
 I =
    0.378751605379087
-Elapsed time is 0.685647 seconds.
+Elapsed time is 1.378714 seconds.
 ```
 
 ## 6. Absolute value of polynomial

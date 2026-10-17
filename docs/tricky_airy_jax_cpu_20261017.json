@@ -1,0 +1,213 @@
+{
+  "status": "Airy callback scientific gap corrected; current Airy cells qualified separately",
+  "base_commit": "bc0849e67c0fd49993b1de4a1444a988547fd796",
+  "source_sha256": {
+    "examples/quad/tricky.py": "4dd7148b6c69fc95c3282f88ad2543d83b78d1010b7ae2d30ff8c0e1b1916ad8",
+    "tests/test_tricky_airy_source.py": "b227236991c40deba7acf9a875b431c11597efbf50dfbe976cdb084eb7e4a240"
+  },
+  "execution": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 31.84319584676996,
+    "sampled_peak_summed_rss_kib": 1584392,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "backend": "cpu",
+    "x64": true
+  },
+  "selected_current_source_cells": [
+    6,
+    7
+  ],
+  "actual_current_figure": 4,
+  "scientific_overrides": [],
+  "source_guard_files": 6532,
+  "source_selection": {
+    "source_slots": [
+      6,
+      7
+    ],
+    "figure_labels": [
+      4
+    ],
+    "statements": 14,
+    "source_statement_AST_sha256": "35537861858d6926ac3adcfe1b831e40fd8475e0ec612c2d86646c4ce1ed3de4",
+    "scope": "Exact current run() statements from ff=_damped_airy through finite Airy toc; only those source cells executed."
+  },
+  "helper_changes": "Replace NumPy/SciPy Airy adapter with existing JAX airy_all. For finite real source inputs whose JAX exp(-x) is exactlyzero, mask Airy argument before evaluation and return zero product. Inf/NaN endpoint product semantics retained. No fixed coordinate cutoff, degree, tolerance, endpoint value or sum policy.",
+  "tests": {
+    "passed": 4,
+    "coverage": [
+      "Independent finite-domain product and analytic JIT/AD derivative",
+      "Recorded native finite underflow point and huge finite values",
+      "Actual backend underflow transition and neighboring floats",
+      "Empty shape"
+    ],
+    "numerical_gate": "Existing JAX Airy numerical replacement1e-12 gate, not original example accuracy bound",
+    "ruff": "passed",
+    "git_diff_check": "passed"
+  },
+  "audit": {
+    "execution": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 31.84319584676996,
+      "sampled_peak_summed_rss_kib": 1584392,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "source_slots": [
+      {
+        "slot": 6,
+        "length": 415,
+        "happy": true,
+        "public_integral": 0.3787516053790858,
+        "public_integral_finite": true,
+        "coefficients_finite": true,
+        "source_analytic_reference": 0.37875160537908653,
+        "analytic_abs_difference": 7.216449660063518e-16,
+        "printed_I": "0.378751605379086",
+        "independent_finite_prefix": {
+          "interval": [
+            0,
+            40
+          ],
+          "orders": [
+            256,
+            512
+          ],
+          "integrals": [
+            0.3787516053790973,
+            0.378751605379117
+          ],
+          "order_difference": 1.970645868709653e-14,
+          "scope": "Stored mapped polynomial integrated over finite prefix; does not establish improper tail."
+        }
+      },
+      {
+        "slot": 7,
+        "length": 121,
+        "happy": true,
+        "public_integral": 0.3787516053790866,
+        "public_integral_finite": true,
+        "coefficients_finite": true,
+        "source_analytic_reference": 0.37875160537908653,
+        "analytic_abs_difference": 5.551115123125783e-17,
+        "printed_I": "0.378751605379087",
+        "independent_coefficient_integral_longdouble": "0.37875160537908649563",
+        "difference_from_public": "9.1018772380158097235e-17"
+      }
+    ],
+    "figure": {
+      "figure": 4,
+      "independent_physical_nodes_map_max_relative_difference": 2.2992174494073324e-14,
+      "independent_physical_nodes_map_window_abs_difference": 3.552713678800501e-15,
+      "map_difference_scope": "Independent NumPy cosine nodes differ by ulps from source Chebyshev nodes; rational physical mapping amplifies these near infinity. Direct parameter polynomial error is reported separately.",
+      "source_slot": 6,
+      "source_node_count": 5215,
+      "direct_parametric_polynomial_abs_difference": 1.1102230246251565e-16,
+      "physical_map_abs_difference": 1.4279066817834973e-10,
+      "xlim": [
+        0.0,
+        10.0
+      ],
+      "ylim": [
+        -0.03762997698540718,
+        0.37372605535797077
+      ],
+      "size": [
+        600,
+        270
+      ],
+      "reference_RGB_MAE": 3.2425987654320987,
+      "png_sha256": "5f21be9face5e1821225f37197202e11a9036532f80753f1648deabd9abe6ac0",
+      "scope": "Independent sampled vertices/physical map and descriptive image comparison; no pixel-parity assertion."
+    },
+    "other_10_source_scientific_cells_AST_unchanged": true,
+    "source_assertions": 0,
+    "bounds": "Original example provides no accuracy inequalities. Analytic, representation and image differences are descriptive; helper tests reuse the existing JAX Airy numerical-replacement1e-12 gate, not a new scientific acceptance bound.",
+    "independent_original_integrand_infinite_domain_quadrature": {
+      "method": "Gauss-Laguerre with independent SciPy Ai(-x); original exponential weight and infinite domain, no coordinate cutoff.",
+      "rows": [
+        {
+          "order": 64,
+          "integral": 0.37875136904375245,
+          "difference_from_source_reference": 2.3633533408062846e-07
+        },
+        {
+          "order": 128,
+          "integral": 0.37875160501371397,
+          "difference_from_source_reference": 3.653725655361484e-10
+        },
+        {
+          "order": 256,
+          "integral": 0.37875160537912034,
+          "difference_from_source_reference": 3.3806291099836017e-14
+        }
+      ],
+      "scope": "Independent diagnostic convergence data, no invented rigorous error bound or production host fallback."
+    }
+  },
+  "pre_edit_JAX_product_probe": {
+    "execution": 0,
+    "saved513_product_max_finite_difference": 1.6653345369377348e-16,
+    "finite0to40_product_max_difference": 1.1102230246251565e-16,
+    "native_missing_point": {
+      "x": [
+        1593634.42189079
+      ],
+      "native_ai": [
+        0.009303236822568329
+      ],
+      "jax_ai": [
+        0.009303236950379327
+      ],
+      "jax_product": [
+        0.0
+      ],
+      "native_product": [
+        0.0
+      ]
+    }
+  },
+  "page_audit": {
+    "replaced_source_output_slots": [
+      6,
+      7
+    ],
+    "replaced_figures": [
+      4
+    ],
+    "other_10_output_blocks_byte_preserved": true,
+    "other_8_pngs_byte_preserved": true,
+    "original_prose_matlab_cells_and_figure_order_unchanged": true,
+    "raw_actual_stdout_preserved": true
+  },
+  "provenance": {
+    "earlier_completed_full_execution_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_final_full_run_20261017/final_evidence.zip",
+    "earlier_full_archive_sha256": "ed7096b4bd3d579e4065d722b8a1e973ec40449d2289c9431097dc8bc4a850cd",
+    "earlier_full_source_example_sha256": "8708e581d53efdb85dca7eb1df4ec86deac00f19ee1512f740cbac403bec5d5a",
+    "earlier_other_10_scientific_cells_AST_unchanged": true,
+    "earlier_full_run_status": "All12cells/9figures completed before this Airy callback correction; oldAiry+Inf is preserved in immutable evidence.",
+    "causal_native_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tricky_airy_diagnosis_20261017/diagnosis_evidence.zip",
+    "causal_native_archive_sha256": "e096e0ea08d48c67a31fa0e8b24658bed56641a5c70bcadc62201c6886a01b20",
+    "historical_native_length415": "Cached MATLAB-published HTMLmtime2026-10-02, not a forced degree or current native full-run capture.",
+    "previous_translated_length438": "Earlier Python page, not same native capture."
+  },
+  "remaining": [
+    "No full current modified-script run after this scoped Airy correction; other10source cells and8images use earlier complete execution with scientificAST unchanged.",
+    "Axis ylimits/ticks/fonts and raster discrepancies remain. Figure4RGBMAE3.2426/255 is descriptive, not pixel parity.",
+    "JAX CPU subnormal flushing differs from native/NumPy by about1.94e-309 near the actual exponential-underflow transition. This is recorded, not hidden by a coordinate threshold.",
+    "Raw large-argument JAX Ai accuracy is not qualified by the damped product: at native pointx1593634.42189079 rawAi error1.28e-10, product0 is exact.",
+    "Original unresolved slot4 approximation and associated source warning retained.",
+    "Source original page has no accuracy inequalities. Finite-prefix/infinite-domain quadrature convergence data are independent diagnostics, not rigorous error bounds."
+  ]
+}

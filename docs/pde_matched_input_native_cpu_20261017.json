@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-17",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Matched-input native replay of the retained actual Python initial polynomial/endpoints. Diagnostic only; no production or test input changes.",
+  "input_source": "Actual Python coeffs/literal_y/literal_f0 before initialize_full_mass from retained replay_endpoints.npz; baseline_mass and matching baseline_initial_y from stages.npz. Serialized as float64 through supported native chebfun(coeffs,domain,coeffs) and definePoint.",
+  "native_result": {
+    "elapsed": 0.379736,
+    "output_count": 1,
+    "all_requested_outputs": 0,
+    "returned_times": 0,
+    "maxima": 0.9991889981715698,
+    "y_exact": 1,
+    "mass_exact": 1,
+    "f0_exact": 1,
+    "y_max_difference": 0,
+    "mass_max_difference": 0,
+    "f0_max_difference": 0,
+    "warning": "Failure at t=1.154227e-15.  Unable to meet integration tolerances without reducing the step size below the smallest value allowed (3.155444e-30) at time t.",
+    "warning_id": "MATLAB:ode15s:IntegrationTolNotMet",
+    "invocation_returned_without_exception": 1,
+    "scientific_source_control_succeeded": false
+  },
+  "causal_conclusion": "With actual initial state, mass and RHS bit-identical to Python, unmodified native ode15s fails at the same reported t=1.154227e-15 and hmin3.155444e-30 and returns one initial output. This demonstrates native cancellation sensitivity for these operands; no downstream DAE correction is supported by this case. It does not establish full DAE or literal-constructor parity.",
+  "prior_first_divergence": "Native/JAX grids and callback sine values match; inverseFFT arithmetic differs, coefficientmax1.1102230246251565e-16. Native literal constructor succeeds; default Python literal constructor remains failing.",
+  "runs": {
+    "pde_python_input_native_replay_20261017": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 79.73856670083478,
+      "sampled_peak_summed_rss_kib": 1337220,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "pde_python_input_native_replay_v2_20261017": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 104.49857046222314,
+      "sampled_peak_summed_rss_kib": 1321920,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "first_run_caveat": "Original pde15s forcibly resets ODESolver, so first run has no startup observer assertions. It independently reproduces the same actual failure. V2 invokes its common unchanged pdeSolve core with observational wrapper, byte-asserts y0/M/f0 and forwards unmodified ode15s without changing any operand/options.",
+  "remaining": "Default literal-initialization PDE, same-provider FFT/native representation and full CI remain unresolved. No bound widened, degree forced, reference injection or AD Jacobian substituted in production.",
+  "archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_python_input_native_replay_cpu_20261017.tar.gz",
+    "sha256": "db268e1e45fe031d4f1dcea60b5ff47967e25fd52060dd789010da04b1c77621",
+    "bytes": 4187845,
+    "verified_payloads": 3473,
+    "both_guards_reconstructable": true
+  }
+}

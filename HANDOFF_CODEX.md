@@ -1,3 +1,27 @@
+## Airy callback correction and matched-input PDE diagnosis — 2026-10-17
+
+Tricky's Airy callback now uses the existing JAX Airy primitive, with a
+finite-real exp-underflow mask and unchanged Inf/NaN endpoint semantics.
+At a large finite source sample, SciPy returned NaN while native Ai was
+finite; this contaminated extrapolation. The original sum rejection was
+correct. Actual adaptive unbounded/finite constructions now have lengths
+415/121 and integrals0.3787516053790858/0.3787516053790866, both matching
+native displayed integrals. No degree, tolerance or endpoint was forced.
+Four helper/AD controls and both current source cells pass; page blocks6/7
+and figure4 are refreshed. Other ten blocks/eight figures retain the earlier
+full-run capture with unchanged scientific statements. Full modified-script
+rerun, native representations, axes/raster and raw-large-Ai accuracy remain
+open. Evidence:`docs/tricky_airy_jax_cpu_20261017.json`.
+
+Native advection replay with the retained actual Python polynomial/endpoints
+uses supported native public constructors. Actual initial state, mass and
+RHS are byte-identical to Python. Unmodified native ode15s also fails at the
+same reported t1.154227e-15/minimum step3.155444e-30, returning one output.
+This supports FFT-provider/cancellation sensitivity, not a downstream DAE
+patch. Native literal construction succeeds; Python literal construction
+still fails. No diagnostic data enter production. Evidence:
+`docs/pde_matched_input_native_cpu_20261017.json`.
+
 ## Public Trigtech JAX/feval checkpoint — 2026-10-17
 
 Public concrete/traced Trigtech evaluation now shares an array-only JAX

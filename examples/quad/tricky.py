@@ -19,18 +19,17 @@ import time
 import jax
 import jax.numpy as jnp
 import matplotlib
-import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 from jax.scipy.special import erf  # noqa: E402
-from scipy.special import airy  # noqa: E402
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj  # noqa: E402
 from chebfunjax.plotting import chebfun_style  # noqa: E402
 from chebfunjax.plotting import save_chebfun_figure as _savefig  # noqa: E402
+from chebfunjax.utils.airy_general import airy_all  # noqa: E402
 
 jax.config.update("jax_enable_x64", True)
 chebfun_style()
@@ -76,12 +75,21 @@ def plot(f):
     plt.close(fig)
 
 
-def _np_handle(fn):
-    """Wrap a numpy-only special function as a vectorised handle."""
-    def h(x):
-        xa = np.asarray(x, dtype=float)
-        return jnp.asarray(fn(xa))
-    return h
+@jax.jit
+def _damped_airy(x):
+    """Evaluate exp(-x)*Ai(-x) with the JAX Airy primitive.
+
+    On finite inputs where exp(-x) underflows to zero, Ai(-x) is
+    bounded and its product is zero. Mask its argument before evaluation
+    to avoid unnecessary large-argument phase reduction. Infinite and
+    NaN inputs retain the source product's NaN endpoint behavior.
+    """
+    x = jnp.asarray(x)
+    weight = jnp.exp(-x)
+    underflow = jnp.isfinite(x) & (weight == 0)
+    argument = jnp.where(underflow, 0.0, -x)
+    product = weight * airy_all(argument)[0]
+    return jnp.where(underflow, 0.0, product)
 
 
 def run():
@@ -121,10 +129,10 @@ def run():
     plot(f)
 
     # An unbounded domain.
-    ff = _np_handle(lambda x: np.exp(-x) * airy(-x)[0])
+    ff = _damped_airy
     Iexact = 0.378751605379086535
     show("Iexact", Iexact)
-    tic(); f = cj.chebfun(ff, domain=[0, np.inf]); show("f", f); show("I", float(f.sum())); toc()
+    tic(); f = cj.chebfun(ff, domain=[0, jnp.inf]); show("f", f); show("I", float(f.sum())); toc()
     plot(f)
     tic(); f = cj.chebfun(ff, domain=[0, 40]); show("f", f); show("I", float(f.sum())); toc()
 
