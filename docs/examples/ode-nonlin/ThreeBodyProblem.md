@@ -99,7 +99,7 @@ max(abs(rh(linspace(0,4*pi,100)) - v(linspace(0,4*pi,100))))
 
 ```text
 ans =
-     4.859053661592988e-10
+     4.858349981994109e-10
 ```
 
 ## Analysis of Singularities
@@ -112,14 +112,14 @@ poles
 
 ```text
 poles =
-  2.092587694719901 - 0.539634303612716i
-  2.912620119913508 + 1.939058982833960i
-  4.188725872591013 - 0.551336319657008i
-  5.233710456912989 + 0.551707280056816i
-  7.332660227865999 + 0.551707257109169i
-  8.377644821226600 - 0.551336336168766i
-  9.653752540866988 + 1.939062237534320i
- 10.473782862057893 - 0.539634393888065i
+  2.092587943564713 - 0.539633935969581i
+  2.912578159741150 + 1.939020073309048i
+  4.188725944201677 - 0.551336253512759i
+  5.233710379376683 + 0.551707317232708i
+  7.332660340705836 + 0.551707092063434i
+  8.377644748935609 - 0.551336424392930i
+  9.653681175600379 + 1.939025959630813i
+ 10.473782281584352 - 0.539634403359369i
 ```
 
 A straightforward analysis considering the symmetries of the system (communicated to me by Viswanath) shows that if the solution that $v$ is approximating has any complex singularities, the real parts may only take the values $(\pi/3)[1,2,4,5]~(\mbox{mod}\ 2\pi)$.
@@ -130,14 +130,14 @@ real(poles)*3/pi
 
 ```text
 ans =
-   1.998274052807678
-   2.781347336598863
-   3.999938567278634
-   4.997825339576666
-   7.002174727669304
-   8.000061508598588
-   9.218654617589552
-  10.001725892206156
+   1.998274290436969
+   2.781307267585800
+   3.999938635661781
+   4.997825265534948
+   7.002174835423411
+   8.000061439565776
+   9.218586468779879
+  10.001725337894756
 ```
 
 We have found poles with real parts approximately $(\pi/3)[2,4,5,7,8,10]$, which agrees with the analysis. We do appear to have missed one singularity at $\pi/3$ and $11\pi/3$, but it is typical to expect only the singularities near the centre of the interval to be found. We have also found two additional poles. A plot shows that these are further from the real line.
@@ -203,7 +203,7 @@ This is a demonstration of the phenomenon of spurious poles or "Froissart double
 1. Private communication with Divakar Viswanath, July 2011
 2. A. Chenciner and R. Montgomery. A remarkable periodic solution of the three-body problem in the case of equal masses. *Annals of Mathematics- Second Series*, 152(3):881-902, 2000.
 3. P. Gonnet, R. Pachon, and L.N. Trefethen. Robust rational interpolation and least-squares. *Electronic Transactions on Numerical Analysis*, 38:146-167, 2011.
-4. Chebfun Example [approx/RationalInterp](https://www.chebfun.org/examples/approx/RationalInterp.html)
+4. Chebfun Example [approx/RationalInterp](../approx/RationalInterp.md)
 5. [http://en.wikipedia.org/wiki/Three_body_problem](http://en.wikipedia.org/wiki/Three_body_problem)
 
 ---

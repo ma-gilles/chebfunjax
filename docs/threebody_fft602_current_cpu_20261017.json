@@ -1,0 +1,142 @@
+{
+  "source_commit": "7098a7a7a94e1d8d998e8ba4076bc5a07f673c78",
+  "script_sha256": "8f1394b36550c679875f0f4160c6bd28273b1774c295e5a4bb0c42dfeb61699e",
+  "wall_seconds": 104.57279594708234,
+  "peak_rss_kib": 4082096,
+  "inputs_stable": true,
+  "survivors": [],
+  "actual_runtime_imports_all_preguarded": 1380,
+  "degrees": [
+    [
+      151,
+      8
+    ],
+    [
+      157,
+      156
+    ]
+  ],
+  "figures": [
+    {
+      "name": "ThreeBodyProblem_01.png",
+      "reference_sha256": "3393367f8b4b0fb24c5b51127084bbba8af22a55a1c7f62e972588ad6cf15866",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.12990740740740742,
+      "mean_absolute_channel_difference": 7.584702160493827,
+      "sha256": "a56ed04b3c945c9e54a8404f16e41bc64e978b2e33037017acd19fd86a51c8a3",
+      "previous_published_png_equal": true
+    },
+    {
+      "name": "ThreeBodyProblem_02.png",
+      "reference_sha256": "0eaa0beac904a7e965dfc357bdbfced1896ab8b3bcf0a9b433ddb01c7010b074",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.07580246913580246,
+      "mean_absolute_channel_difference": 5.332396604938271,
+      "sha256": "4f43d1f9a7e1194469be4974e8cefdc0f9a63019a595eca66cc7fd066125926c",
+      "previous_published_png_equal": false
+    },
+    {
+      "name": "ThreeBodyProblem_03.png",
+      "reference_sha256": "2b8041306a5689e44dd827343ccd0c437f96bd713f2b1e5bc3529d59a5304ff3",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.25949382716049385,
+      "mean_absolute_channel_difference": 22.134432098765433,
+      "sha256": "902eba4f9110fb0ccded61a0c7d4d2826627ec9a6a0c55bd6362481aa29f654f",
+      "previous_published_png_equal": true
+    },
+    {
+      "name": "ThreeBodyProblem_04.png",
+      "reference_sha256": "4a23f113f7cdeffc037d86b9cd02cbf90e2f8a6b3466bd5e96f62c703dd38dc0",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.06398765432098766,
+      "mean_absolute_channel_difference": 4.517973765432099,
+      "sha256": "830fba343e75e6c57b0791b8a1d8b88eae2abcd605a2d6efae6a68bed832556c",
+      "previous_published_png_equal": false
+    }
+  ],
+  "run1_numerical_json_bytes_equal": {
+    "rational_calls.json": true,
+    "mpoles_input.json": true,
+    "mpoles_output.json": true,
+    "quiver_calls.json": true
+  },
+  "first_fit_retained_comparison": {
+    "degrees": [
+      151,
+      8
+    ],
+    "retained_input_length": 415,
+    "fresh_input_length": 415,
+    "pole_gap_to_retained_native": 2.0758886729860572e-11,
+    "input_coeff_max_abs_change": 0.0,
+    "input_coeff_word_mismatches": 0
+  },
+  "limits": [
+    "Pole comparison is to retained native fit on the same retained Python function coefficients, not a new full MATLAB ODE rerun.",
+    "All four reference sizes match; all four rendered images differ from official reference pixels.",
+    "Native ODE, second-fit residues/zeros, renderer layout/fonts/raster, matched performance and latest-mainCI/coverage remain open."
+  ],
+  "page_audit": {
+    "native_prose_code_figures_unchanged": true,
+    "only_nonoutput_change": "Canonical cross-example link normalized to local equivalent.",
+    "text_output_blocks": 5,
+    "figure_references": 4,
+    "stdout_sha256": "aab3fc3383e068c7ff6489a82476f8eeec5b85a57cc5a6e855be124bb44b1c9c",
+    "cache_html_sha256": "925e76d6aacdc386d179fdb33805a7b8a9a5ef1f76e1d83c749d6143ae646e0a"
+  },
+  "source_bridge": {
+    "library_files": 362,
+    "all_hashes_match_qualified_fft602_basis_and_publication": true,
+    "prior_archive_sha256": "80e77b841549b8320bbc22ecd2cd539072f5c7056dd818a7999ad024b7b299cc"
+  },
+  "first_attempt_limit": "Run001 completed but35actual SciPy import files were absent from inherited runtimeguard. Run002 guarded them before execution. An unsuccessful no-stdout generator invocation was preserved, original page restored, and final generation used captured run002 stdout.",
+  "svd_algorithm_diagnostic": {
+    "scope": "Same captured native matrix, alternative JAX SVD algorithm diagnostic. Does not establish native backend choice or full public fitting parity.",
+    "comparisons": {
+      "default": {
+        "cold_seconds": 0.08739918004721403,
+        "shape": [
+          150,
+          9
+        ],
+        "phase_aligned_b_max_abs": 5.738966033237563e-12,
+        "normalized_b0_max_abs": 1.8456349817986835e-11,
+        "singular_values_max_abs": 1.8611563782443123e-23,
+        "residual": 9.992725664693103e-13
+      },
+      "qr": {
+        "cold_seconds": 0.038224522955715656,
+        "shape": [
+          150,
+          9
+        ],
+        "phase_aligned_b_max_abs": 5.739021550445487e-12,
+        "normalized_b0_max_abs": 1.84561277565152e-11,
+        "singular_values_max_abs": 1.8611563782443123e-23,
+        "residual": 9.992725664697453e-13
+      }
+    },
+    "invalid_initial_driver": "First diagnostic accidentally used m150 rather than actual151, yielding wrong151x9matrix. Preserved with DRIVER_LIMIT.json; corrected150x9same-native-input test qualifies only the recorded algorithm comparison. No production algorithm switch."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/threebody_fft602_cpu_20261017.tar.gz",
+    "sha256": "df72a012a2fae07a4da4ce38b17e276505504f7de1ed30925a534e88878c7831",
+    "verified_payloads": 126
+  }
+}

@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Fresh full ThreeBody after FFT602 integration:104.57s,1380actual imports preguarded, stable/no survivors. Fresh415coefficients match retained input words; bothfits and allfour600x270figures complete. Five actual stdout blocks and two changed PNGs regenerated. [Evidence](threebody_fft602_current_cpu_20261017.json). Full nativeODE/second-fit/renderer/performance parity remains open.
+
+
 - [x] Integrate source CPU602 Fourier/C2R arithmetic, direct inverse normalization and omitted Chebfun-domain inheritance. Final129checks pass, including all23literal default original ratinterp predicates and six native real-primal controls. Source D/product/coefficient assembly matches native words; public pole gap improves to2.076e-11. [Evidence](fft602_rational_integration_cpu_20261017.json).
 - [ ] Remaining rational SVD/pole gap, FFT wider plans/extreme values/dynamic native storage, full APIs and CPU performance. Local source kernels remain52.1x/32.7x slower than generic JAX at measured shapes; matched native performance unqualified.
 

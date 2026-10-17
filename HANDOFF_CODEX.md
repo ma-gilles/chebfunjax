@@ -1,3 +1,16 @@
+# Latest fresh ThreeBody execution — 2026-10-17
+
+After FFT602integration, full unchanged script104.57s;1380actual imports all
+preguarded, stable source/no survivors. Bothfits151/8and157/156complete, five
+printed blocks regenerated from actualstdout, figures2/4refreshed. Four600x270
+figures remain different from official pixels. Fresh415inputcoefficients match
+retained input exactly; firstsame-input nativepolegap2.076e-11. NativeODE,
+secondfit/residue/renderer/performance/latestCI remainopen. JAXdefault/QRsame
+native150x9matrixdiagnostic bothretain5.739e-12alignedvectorgap; no algorithm
+switch. Run1missing35runtimeguardinputs and wrong-row initialSVDdriver are
+preserved, not credited as final qualification. Full run2guard accepted.
+Evidence: docs/threebody_fft602_current_cpu_20261017.json.
+
 # Latest FFT602/rational integration — 2026-10-17
 
 Production CPU length602 real forward, complex inverse and real-even C2R

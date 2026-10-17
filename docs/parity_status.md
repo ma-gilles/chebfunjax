@@ -1,3 +1,15 @@
+# Latest ThreeBody after FFT602 integration — 2026-10-17
+
+The complete unchanged CPU script runs in104.57s with all1380observed imports
+preguarded, stable declared inputs and no survivors. Its newly constructed415
+coefficients equal retained input words exactly, and both fits complete with
+degrees151/8and157/156. The first fit's retained same-input native pole gap is
+2.076e-11. Five actual stdout blocks and two refreshed PNGs are published.
+All four600x270figures differ from official reference pixels. Full nativeODE,
+second-fit numerical/residue, renderer and matched performance parity remain
+open. See [evidence](threebody_fft602_current_cpu_20261017.json). This report
+supersedes earlier production pole/FFT diagnostic-only status below.
+
 # Latest LaplaceBall whole-script scope — 2026-10-17
 
 The complete unchanged script now runs on current CPU source, including its
