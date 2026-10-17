@@ -96,7 +96,7 @@ toc
 ```
 
 ```text
-Elapsed time is 27.124679 seconds.
+Elapsed time is 26.990668 seconds.
 ```
 
 Now that we have the coordinates of the points, and let's mark them on the curve.
@@ -127,7 +127,7 @@ tic, g = inv(len); toc
 ```
 
 ```text
-Elapsed time is 12.218170 seconds.
+Elapsed time is 11.990434 seconds.
 ```
 
 Here we put circles around the dots to confirm that we have the same result as before:

@@ -1,3 +1,26 @@
+## ComplexArcLength graphics adapters and tracking repair — 2026-10-17
+
+The example now applies existing MATLAB layout/equal-axis adapters at its final
+600×270 canvas and uses numeric matlab_plot for the original marker sizes 16/8.
+A full unchanged-computation run completes in 68.635s, with distinct 64-point
+P and Q groups captured. Inverse input/output arrays equal the previous whole
+run exactly. Figure 4 mean channel difference improves from 12.3598 to 10.9031;
+all four images retain reference sizes, but raster/marker/typography differences
+remain. The earlier Q-only exploratory comparison is not parity evidence.
+The failed interpreter-path launch occurred before Python and is retained.
+The only imported source difference from integration main is the unrelated
+trigremez presentation body; the scoped source bridge is recorded explicitly.
+
+The checklist's missing historical handoff-audit link is repaired by preserving
+its original b16 report and hashes. Four grouped exporter cohorts missed by
+basename matching now have reviewed navigation entries; all 64 demo fixtures
+match native bytes, and five Python controls pass. No native exporter invocation
+or complete original-test/API parity is claimed by this package.
+
+[Renderer evidence](docs/complex_arc_renderer_cpu_20261017.json) and
+[exporter mapping](docs/chebgui_inventory_mapping_20261017.json).
+Latest-main CI/coverage and the full goal remain open.
+
 ## Packed Clenshaw CPU optimization and iteration colors — 2026-10-17
 
 Packed registers and branch-local reads remove redundant vector copies while

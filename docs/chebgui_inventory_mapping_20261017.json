@@ -1,0 +1,77 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_source_base": "92ac25e5b2603b60add753e48f65545d2f10b8e5",
+  "mapping_review": [
+    {
+      "source": "tests/chebgui/test_toFileBVP.m",
+      "native_source_sha256": "5481e61e7ba041fe85224e3384a808f17bc9cb93084c8339cb11de4b933ad1d1",
+      "python_path": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+      "python_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+      "python_selector": "test_to_file_bvp_matlab",
+      "source_demo_count": 25,
+      "scope": "Reviewed source navigation and exact demo fixture bytes only. No new execution or full assertion/output parity qualification."
+    },
+    {
+      "source": "tests/chebgui/test_toFileIVP.m",
+      "native_source_sha256": "4df38cd3347621a5198e21ff14b59535d5fc3e434a34cb7976a79b0aa5f04e37",
+      "python_path": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+      "python_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+      "python_selector": "test_to_file_ivp_matlab",
+      "source_demo_count": 11,
+      "scope": "Reviewed source navigation and exact demo fixture bytes only. No new execution or full assertion/output parity qualification."
+    },
+    {
+      "source": "tests/chebgui/test_toFileEIG.m",
+      "native_source_sha256": "21379b98b57371a133e1a188609b7de1cf69c90b7c3c2f62f5a579494bf2e978",
+      "python_path": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+      "python_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+      "python_selector": "test_to_file_eig_matlab",
+      "source_demo_count": 12,
+      "scope": "Reviewed source navigation and exact demo fixture bytes only. No new execution or full assertion/output parity qualification."
+    },
+    {
+      "source": "tests/chebgui/test_toFilePDE.m",
+      "native_source_sha256": "d0b6a602df0a22057e6a9ee1bd92433eb5dae2925d200aeb79426bb5596966b1",
+      "python_path": "tests/test_matlab_port/chebgui/test_toFile_exporters_matlab.py",
+      "python_sha256": "5bf70db3a962988a9337bfa4d355a492853bb0529311a3f43d05db79f3dc787c",
+      "python_selector": "test_to_file_pde_matlab",
+      "source_demo_count": 16,
+      "scope": "Reviewed source navigation and exact demo fixture bytes only. No new execution or full assertion/output parity qualification."
+    }
+  ],
+  "fixture_bytes_compared_to_native": 64,
+  "fixture_manifest_sha256": "b9249dea2065f20fd86cc04195923bb258ec5c569b6db8c629806613fa066b0e",
+  "limitation": "Grouped exporter tests were missed by basename-only matching. Existing code was found, not newly ported. Test assertions, native runtime/exported output semantics and whole-file parity remain unverified by this source-only review.",
+  "python_execution": {
+    "passed": 5,
+    "cohorts": 4,
+    "demo_files": 64,
+    "junit": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebgui_mapping_gate_20261017/junit.xml",
+      "sha256": "07318abf1dc5dc0d1a7f2aa5c3ee2e67ec001435d57e88e6065ac97d4601fd87"
+    },
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebgui_mapping_gate_20261017_run001/receipt.json",
+      "sha256": "ce5a6cd3439dad31116ea7003519bce3e05cf6fd5b9a2e4121882de6c2774d19"
+    },
+    "seconds": 6.54290097206831,
+    "sampled_peak_summed_rss_kib": 412424,
+    "source_stable": true,
+    "no_survivors": true,
+    "runtime": {
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "backend": "cpu",
+      "x64": true,
+      "source": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/src/chebfunjax/__init__.py",
+      "external_runtime_scope": "Versions and source origin asserted; external dependency sources not exhaustively preguarded."
+    },
+    "scope": "Four existing Python export cohorts and source-fixture checksum check; no native original invocation was run in this package."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parity_tracking_repair_evidence_20261017.zip",
+    "sha256": "d1ce52b9e53af3576e5fd94acd93f91d7012650ab416881071abde47a67de781",
+    "payloads": 92,
+    "scope": "Selected exporter code/tests, native source smoke tests (not executed), 64 exact demo fixtures, five-check CPU gate and original historical handoff audit; full runtime is external."
+  }
+}

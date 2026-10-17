@@ -21,7 +21,8 @@ import numpy as np
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style, matlab_plot
+from chebfunjax._matlab_layout import matlab_axes_layout
+from chebfunjax.plotting import chebfun_style, matlab_axis_equal, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -31,9 +32,14 @@ _IMG = os.path.join(_HERE, '..', '..', 'docs', 'images', 'complex')
 
 def _save(fig, k):
     fig.set_facecolor("white")
-    fig.tight_layout()
+    ax = fig.axes[0]
+    # The source figure canvas is 600 x 270. Set its final box before applying
+    # axis equal so equal data units use the exported MATLAB-style axes box.
+    fig.set_size_inches(6.0, 2.7)
+    matlab_axes_layout(ax)
+    matlab_axis_equal(ax)
     _savefig(fig, os.path.join(_IMG, f"ComplexArcLength_{k:02d}.png"),
-             size=(600, 270))
+             size=(600, 270), layout="matlab")
 
 
 def _show_row(name, v, per_line=3):
@@ -67,7 +73,6 @@ def run():
     # one chebfun, one colour (matlab_plot cycles colours per piece of a
     # complex piecewise chebfun)
     matlab_plot(z, ax=ax, lw=lw, color="C0")
-    ax.set_aspect("equal")
     _save(fig, 1)
     plt.close(fig)
 
@@ -86,7 +91,6 @@ def run():
     s = cj.exp(1j * 2 * np.pi * t) * (0.5 * cj.sin(8 * np.pi * t) ** 2 + 0.5)
     fig, ax = plt.subplots()
     matlab_plot(s, ax=ax, lw=lw)
-    ax.set_aspect("equal")
     _save(fig, 2)
 
     L = s.arc_length()
@@ -104,9 +108,7 @@ def run():
     print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
 
     P = np.asarray(s(jnp.asarray(T)))
-    # MS = 16: MATLAB draws '.' at about a third of MarkerSize,
-    # matplotlib at about half, hence 12
-    ax.plot(P.real, P.imag, ".r", markersize=12)
+    matlab_plot(P.real, P.imag, ".r", ax=ax, markersize=16)
     _save(fig, 3)
 
     print("ans =")
@@ -117,7 +119,8 @@ def run():
     print(f"Elapsed time is {time.perf_counter() - t0:.6f} seconds.")
 
     Q = np.asarray(s(g(jnp.arange(N) * h)))
-    ax.plot(Q.real, Q.imag, "ok", markersize=8, markerfacecolor="none")
+    matlab_plot(Q.real, Q.imag, "ok", ax=ax, markersize=8,
+                markerfacecolor="none")
     _save(fig, 4)
     plt.close(fig)
 

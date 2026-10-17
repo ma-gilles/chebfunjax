@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] ComplexArcLength uses source layout/equal-axis/marker adapters. Full run 68.635s, actual 64-point P/Q groups captured, inverse arrays unchanged; four images retain 600×270 dimensions. Figure 4 comparison improves, with raster/marker/typography gaps still open. [Evidence](complex_arc_renderer_cpu_20261017.json).
+- [x] Repair the historical handoff-audit link and four grouped exporter navigation mappings. All 64 demo fixtures match native bytes; five Python controls pass. Native paired exporter invocation remains unqualified. [Evidence](chebgui_inventory_mapping_20261017.json).
+
 - [x] Packed Clenshaw: 95 component controls, 59 retained native raw Brent states and four inverse output byte comparisons qualify unchanged arithmetic/outputs. Warm median 6.9312s to 2.2687s (3.055x); native 0.6536s remains faster. [Evidence](inverse_packed_color_cpu_20261017.json).
 - [x] Unchanged whole ComplexArcLength completes in 66.112s; input bytes match retained fixture; generated page uses actual stdout and four refreshed 600x270 figures.
 - [x] Correct trigremez named-Color double advancement; all 24 combined plotting controls pass.

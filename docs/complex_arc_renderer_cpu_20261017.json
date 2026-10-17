@@ -1,0 +1,196 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "integration_base": "92ac25e5b2603b60add753e48f65545d2f10b8e5",
+  "candidate_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_arc_renderer_20261017/REPORT.json",
+    "sha256": "444ae57fb3e7936b582c81d2d84e82c3de3b0f7bf378a14e841259d9fd8d9658"
+  },
+  "source_hashes": {
+    "example": "26b61f92a859e1fe257e50e74c8ea21ef54de8d3b336c4773f0552891a702ff9",
+    "support_clenshaw_overlay": "ca89fa27a090e6acf41ce70e0de8a1bccae1eb19090daba5b69dec00b67368ea",
+    "plotting_helpers": "17cb73d5b21086f2cd3a5a603930374857d8499ada55d54c1cc314f563e22d63",
+    "layout_helper": "43cd382fcaf0689ccf01bf1b6e79cef6d5a81ba6fdb86d12eed9a03a6435cbac",
+    "marker_test": "3fd3e26ef6348c5eeb64827bca2592b68c2547804239e501a45561986b939064",
+    "marker_fixture": "d0ccef6113bf7959bba697efe017aa17fe065e512e1b3f0b8aa28d7799cd6e18",
+    "runner": "206df7a8f3983ed158f075b92e5c29f496ee157d0db3515626dc771ab822bbba",
+    "launch": "b9b19ae24617ffffd60775f3240f8cb7db3b68cc2c47650e92c38b5e252fe936",
+    "guard": "76933a1f4e6137f51ec27be3c6c3dcdfc70184ad173dca8cf804268775a1eb64",
+    "axis_equal_test": "d935dcbfd4ff26a3faa2ce47024b98d9c6a29f4743e5d3e7f3f894820d642d34"
+  },
+  "change": {
+    "scope": "Renderer adapter change in examples/complex/complex_arc_length.py only.",
+    "details": [
+      "Apply the MATLAB loose axes layout at the final 600x270 export canvas, then apply MATLAB axis-equal behavior.",
+      "Route the red dot group through matlab_plot at source MarkerSize 16 and the open black circle group through matlab_plot at source MarkerSize 8.",
+      "Keep the original contour, P/Q computations, points, line style and marker-size operands unchanged."
+    ],
+    "helper_provenance": {
+      "matlab_axis_equal": "src/chebfunjax/plotting.py (SHA above); existing source test tests/test_plotting_axis_equal_source.py",
+      "matlab_axes_layout": "src/chebfunjax/_matlab_layout.py (SHA above)",
+      "dot_marker_geometry": "tests/test_source_dot_native_geometry.py and tests/fixtures/dot_geometry_r2024b.json (SHA above)"
+    },
+    "overlay_note": "_source_clenshaw.py is a copied reviewed candidate overlay needed for this worktree run (SHA ca89fa27a090e6acf41ce70e0de8a1bccae1eb19090daba5b69dec00b67368ea); do not include it in the renderer patch."
+  },
+  "execution": {
+    "corrected_run": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_renderer_final_20261017_run002",
+    "launch_exit": 0,
+    "supervisor_exit": 0,
+    "wall_seconds": 68.63538319664076,
+    "sampled_peak_summed_rss_kib": 2336664,
+    "inputs_stable": true,
+    "guarded_input_count": 365,
+    "guard_sha256": "76933a1f4e6137f51ec27be3c6c3dcdfc70184ad173dca8cf804268775a1eb64",
+    "receipt_sha256": "d301b7127d6f9fc0530ba8f96f0aaff7f1d57278e432716bca1a7eea78e30910",
+    "stdout_sha256": "e3964fec42bd67ddeb42e47fb999ab17be665356ffcf5440067748adf1f0346d",
+    "stderr_sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "cpu_only": true,
+    "x64": true,
+    "package_origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_arc_renderer_20261017/src/chebfunjax/__init__.py",
+    "inverse_call_sha256": "d56e4cf6541f04aeefaa6278f41d984e7c04dce3dcbbf97003782e4cf3099e7f",
+    "candidate_inverse_output_coefficients": 9030,
+    "captured_plot_groups": [
+      {
+        "format": ".r",
+        "markersize": 16,
+        "markerfacecolor": null,
+        "point_count": 64,
+        "xy_json_sha256": "ab667eb9f69443b931c210151ae3d72e8e425dad956be051cfa4901ac3a5c54b"
+      },
+      {
+        "format": "ok",
+        "markersize": 8,
+        "markerfacecolor": "none",
+        "point_count": 64,
+        "xy_json_sha256": "5f5e3cc6ae9aa5f39385a6a59c42fe2b48d4c8fd4109d4a409b801763e407304"
+      }
+    ],
+    "prelaunch_failed_attempt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_arc_renderer_final_20261017_run001",
+      "exit_code": 127,
+      "reason": "Stale interpreter path; failed before Python started; no scientific code executed."
+    },
+    "observed_inverse_call_seconds": 11.976250100880861
+  },
+  "figures": [
+    {
+      "name": "ComplexArcLength_01.png",
+      "baseline": {
+        "sha256": "b889b341e452978b6e75a94201ff07511865a94f8571e1618fee28326567b5a4",
+        "different_channel_values": 29869,
+        "mean_abs_channel_delta": 5.088489197530865
+      },
+      "candidate": {
+        "sha256": "d971600f532f9a33cf187452b2fe8a398a04b9d2f9b47e8d4b37b6e3d0612ff2",
+        "different_channel_values": 26739,
+        "mean_abs_channel_delta": 3.95787037037037
+      },
+      "official_reference_sha256": "0502a358f451cfa5c5a547bb6f771c0522ec39848744e1434255bf8a623d386b",
+      "dimensions_px": [
+        600,
+        270
+      ],
+      "total_channel_values": 648000,
+      "pixel_identical_to_reference": false
+    },
+    {
+      "name": "ComplexArcLength_02.png",
+      "baseline": {
+        "sha256": "80571d86af634fe1a9a7e0875b911032e620e4752f4e6329d72b074cf5c534a0",
+        "different_channel_values": 34754,
+        "mean_abs_channel_delta": 5.793587962962963
+      },
+      "candidate": {
+        "sha256": "60789cdb947a0aa0c84ef721acbe71d8bc7669cdf06b37032982c9bf8d390817",
+        "different_channel_values": 35117,
+        "mean_abs_channel_delta": 5.540219135802469
+      },
+      "official_reference_sha256": "7e7ba0e082270fb44b4441ef3bcd404bdd2ec10cf53a13a050776929c64b2810",
+      "dimensions_px": [
+        600,
+        270
+      ],
+      "total_channel_values": 648000,
+      "pixel_identical_to_reference": false
+    },
+    {
+      "name": "ComplexArcLength_03.png",
+      "baseline": {
+        "sha256": "a87fb02f614b3eb89ef8d1c0ba422ba37b4cff57b42494c91412e8847bd5ade3",
+        "different_channel_values": 40416,
+        "mean_abs_channel_delta": 8.655930555555555
+      },
+      "candidate": {
+        "sha256": "3caa61dd43520f4c0483dd0282a3f78eae75dcc01e734b030b076d5d7b95b690",
+        "different_channel_values": 37164,
+        "mean_abs_channel_delta": 7.107799382716049
+      },
+      "official_reference_sha256": "efc54cb43d6c34c11ee9a0c031a66c17d15ca2b31cbb202ba3f270736bc2dabf",
+      "dimensions_px": [
+        600,
+        270
+      ],
+      "total_channel_values": 648000,
+      "pixel_identical_to_reference": false
+    },
+    {
+      "name": "ComplexArcLength_04.png",
+      "baseline": {
+        "sha256": "9063e2e5e3acfb442c1c50e58d6556a5422620cf87ec7bea3f916397c83ca261",
+        "different_channel_values": 53830,
+        "mean_abs_channel_delta": 12.359805555555555
+      },
+      "candidate": {
+        "sha256": "817ecae75c4fe9bdebea60215a8908af95e5bd19d04a7209c9dda9e1ed7c9a7e",
+        "different_channel_values": 52780,
+        "mean_abs_channel_delta": 10.903145061728395
+      },
+      "official_reference_sha256": "ada72358c6aaf4dd4c7aa8984593b1c7d1959245cf89b428985d883585a4ed47",
+      "dimensions_px": [
+        600,
+        270
+      ],
+      "total_channel_values": 648000,
+      "pixel_identical_to_reference": false
+    }
+  ],
+  "comparison": {
+    "all_four_dimensions_match_reference": [
+      600,
+      270
+    ],
+    "all_four_pixel_different": true,
+    "figure04_mean_channel_delta_before": 12.359805555555555,
+    "figure04_mean_channel_delta_after": 10.903145061728395,
+    "figure04_different_channels_before": 53830,
+    "figure04_different_channels_after": 52780,
+    "qualification": "The full run includes the distinct original red P group and black Q group; metrics are now a true same-output comparison. Renderer change improves the mean figure04 channel delta by about 11.8%, but pixel parity is not achieved."
+  },
+  "limits": [
+    "No native numerical branches, root calculations, inverse algorithm or operands were changed.",
+    "No pixel image is identical to the official reference; this is scoped renderer evidence, not full page visual parity.",
+    "The run regenerates the example images but not its Markdown page.",
+    "One stale-path launch failure is preserved separately; it exited before Python and is not counted as a numerical run."
+  ],
+  "bridge": {
+    "renderer_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731",
+    "integration_base": "92ac25e5b2603b60add753e48f65545d2f10b8e5",
+    "observed_package_source_mismatches": [
+      "src/chebfunjax/utils/_trigremez_iteration_options.py"
+    ],
+    "bridge": "Only unrelated trigremez plot_iteration function body differs; top-level executable AST and all other definitions match. Original ComplexArcLength run uses no trigremez iteration presentation; roots and inverse use their existing numerical paths. No whole-package hash-identity claim. The actual inverse input/output arrays also match the prior whole run exactly.",
+    "inverse_input_arrays_unchanged": true,
+    "inverse_output_arrays_unchanged": true,
+    "runtime_paths_are_observed_not_all_preguarded": true,
+    "reviewed_example_sha256": "26b61f92a859e1fe257e50e74c8ea21ef54de8d3b336c4773f0552891a702ff9"
+  },
+  "generated_page_sha256": "f801c6fcdb3abf68f0668db0f8afa7bc716657271d3e628e87536c938da119d9",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_arc_renderer_evidence_20261017.zip",
+    "sha256": "f21d48ee4c43ffb21b13cf810a872aa398ac2a36e8326e0db05f88274b8ebf2d",
+    "scope": "44 selected payloads plus readback-verified manifest; includes actual P/Q coordinates, selected sources, reference images and both execution attempts. External runtime and full repository are not embedded."
+  },
+  "remaining": "Reference graphics still differ; representation counts, full scientific/page parity and latest-main CI/coverage remain open."
+}
