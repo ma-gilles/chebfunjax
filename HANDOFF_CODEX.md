@@ -1,3 +1,14 @@
+## Complex periodic matrix constructor native qualification — 2026-10-16
+
+Four odd/even rectangular complex numeric matrices now have direct captures from
+clean Chebfun7574c77/MATLAB R2025b, including nondefault-domain/Nyquist cases.
+All eight CPU tests pass: four existing tighter analytic controls and four native
+replays. Native and Python source guards remain stable with no survivors.
+No production numerical changes or original tolerance changes. This qualifies
+these supplemental cases, not full GinzburgLandau or periodic constructor parity.
+See `docs/complex_trig_matrix_native_cpu_20261016.json`. Full parity and green
+latest-main CI remain open.
+
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
 ## QZ CPU updates and exhaustive CI scheduling — 2026-10-16

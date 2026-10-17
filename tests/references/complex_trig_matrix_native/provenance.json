@@ -1,0 +1,57 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "MATLAB R2025b, -singleCompThread, CPU",
+  "capture_source_sha256": "6a493f603d9ca3eaa9ccee46f8edee69ac84398908c3035b8e59dbb06669c387",
+  "cases": [
+    {
+      "file": "case_11x09.mat",
+      "sha256": "1171fbe73b125cf28d92aedfb1bf3504a5c178a38f94e043f929bf6d6aab018e",
+      "nx": 11,
+      "ny": 9,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 5.0206146149789415e-15,
+      "callback_dense_error": 2.6668472207145996e-15
+    },
+    {
+      "file": "case_11x10.mat",
+      "sha256": "4a789fbe6908f7d1570f40cb18fcff72b89f99b16e9dc894e4473bcf3f010fc7",
+      "nx": 11,
+      "ny": 10,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.4854246812366414e-15,
+      "callback_dense_error": 3.608224830031759e-15
+    },
+    {
+      "file": "case_12x09.mat",
+      "sha256": "4aadd4e93003a7b1a048ee9c099c543c8fcb18c0b37a763c372d3470590623dc",
+      "nx": 12,
+      "ny": 9,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.7207330545682824e-15,
+      "callback_dense_error": 5.3475422218306674e-15
+    },
+    {
+      "file": "case_12x10.mat",
+      "sha256": "1ad2d34084c3093f1ef0591d2a9b7c5e6357ce5f4f67cf3737c4587530bde404",
+      "nx": 12,
+      "ny": 10,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.557326905135504e-15,
+      "callback_dense_error": 6.968805455576195e-15
+    }
+  ],
+  "native_run": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_native_run_20261016",
+  "python_replay": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_replay_20261016",
+  "supplemental_cases": true,
+  "original_matrix_specific_predicate": false,
+  "bounds": "test_constructor.m pass(1) norm <100*chebfun2eps, pass(7) dense max <2e4*tol; existing independent analytic controls unchanged",
+  "scope": "Native-backed four odd/even complex rectangular sample matrices and callback controls on nondefault domain. Not full GinzburgLandau page or all periodic constructor parity."
+}

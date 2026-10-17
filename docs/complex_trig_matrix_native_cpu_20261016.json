@@ -1,0 +1,95 @@
+{
+  "baseline": "0696b614c125789af123fb00dd7bee8ffb66fed8",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Four supplemental native complex periodic numeric-matrix cases, all odd/even rectangular parities, asymmetric physical domain and complex Nyquist terms. Not an original matrix-specific MATLAB predicate, full periodic range or full GinzburgLandau page closure.",
+  "changes": "Add native fixtures and replay to existing independent analytic public constructor test; no production numerical changes.",
+  "tests": {
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "existing_analytic": 4,
+    "new_native": 4,
+    "pytest_seconds": 20.44,
+    "driver": {
+      "exit_code": 0,
+      "wall_seconds": 21.10511934477836
+    },
+    "runtime": "JAX/JAXlib0.11.0, CPU, x64, no compilation cache, taskset20-23"
+  },
+  "receipts": {
+    "matlab": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 103.95259849680588,
+      "sampled_peak_summed_rss_kib": 1337844,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "censored_limit": null
+    },
+    "python": {
+      "supervisor_exit_code": 0,
+      "wall_seconds": 26.23880781698972,
+      "sampled_peak_summed_rss_kib": 1664944,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "censored_limit": null
+    }
+  },
+  "native_cases": [
+    {
+      "file": "case_11x09.mat",
+      "sha256": "1171fbe73b125cf28d92aedfb1bf3504a5c178a38f94e043f929bf6d6aab018e",
+      "nx": 11,
+      "ny": 9,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 5.0206146149789415e-15,
+      "callback_dense_error": 2.6668472207145996e-15
+    },
+    {
+      "file": "case_11x10.mat",
+      "sha256": "4a789fbe6908f7d1570f40cb18fcff72b89f99b16e9dc894e4473bcf3f010fc7",
+      "nx": 11,
+      "ny": 10,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.4854246812366414e-15,
+      "callback_dense_error": 3.608224830031759e-15
+    },
+    {
+      "file": "case_12x09.mat",
+      "sha256": "4aadd4e93003a7b1a048ee9c099c543c8fcb18c0b37a763c372d3470590623dc",
+      "nx": 12,
+      "ny": 9,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.7207330545682824e-15,
+      "callback_dense_error": 5.3475422218306674e-15
+    },
+    {
+      "file": "case_12x10.mat",
+      "sha256": "1ad2d34084c3093f1ef0591d2a9b7c5e6357ce5f4f67cf3737c4587530bde404",
+      "nx": 12,
+      "ny": 10,
+      "source_tol": 2.220446049250313e-14,
+      "source_norm": 0.0,
+      "source_pass": true,
+      "matrix_dense_error": 4.557326905135504e-15,
+      "callback_dense_error": 6.968805455576195e-15
+    }
+  ],
+  "test_sha256": "b75c5b7a25f0b3165b68c30c102dccdbd1876ba2e5d7ea20cbaed75b0a88d3bd",
+  "bounds": "Retain existing independent100eps*scale analytic bounds. Supplemental source function norm uses100*chebfun2eps and dense checks2e4*tol from test_constructor.m; no original bounds modified.",
+  "evidence": {
+    "native": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_native_run_20261016",
+    "replay": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_replay_20261016",
+    "preparation_review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_native_prepare_20261016/REVIEW_v2.json",
+    "native_audit": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_native_run_20261016/AUDIT.json",
+    "replay_audit": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_complex_matrix_replay_20261016/AUDIT.json"
+  },
+  "latest_main_ci": "unresolved",
+  "full_goal_complete": false,
+  "archive_record": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/complex_matrix_native_qualified_20261016_archive.json"
+}
