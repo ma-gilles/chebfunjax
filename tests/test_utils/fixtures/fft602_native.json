@@ -1,0 +1,30 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "R2025b Update2",
+  "scope": "Actual native control inputs/outputs, full sourceD302and actual product/Z; no candidate output data.",
+  "fixture_sha256": "8889c2ced2230c9c418a6c9a39e0997b6b04d6932f575e3f7aa0c3561a196cd3",
+  "source_file_sha256": {
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_real602_capture_20261017/native.mat": "b1591c932cd8256fd7e39d8b4cdf697799ae206b04e417b5235271706fa5de94",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_outer_capture02_20261017/positive.mat": "0e1fc32830fedf1a1daa13c0f369526c69a1d196d44b920cb9557a0b4cd8f724",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_fft602_plan_20261017/independent.mat": "b66d151f203e314ce272bc8f888787ecd69ba47c071e49de1a3b42ceb922c824",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_preifft_20261017/native_product.mat": "dc60c6c0617a10cdad0fc8e7c1ab692bd112c3e26bbfa8537f5c4c75ab6e4843",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ratinterp_preifft_20261017/native_assembly.mat": "9382c2cb8787e0e11daf9497f67f2bc1a8c8ca269b0a352551b46eb04b7148d1"
+  },
+  "archives": {
+    "complex": "197a34e645f4459fd13778c0a3f78801958455c362221034ed07a80b1702cbcf",
+    "real": "0b42bc350af6f544cc197611f9606c6df6f16215e552ac5b432723f7eb1035b1"
+  },
+  "limits": [
+    "Control fixture only; general RNG, extreme magnitudes and full API/performance not qualified.",
+    "Independent complex columns0,74,150 preserve native inputs/outputwords from the qualified602x151matrix."
+  ],
+  "real_inverse_primal602": {
+    "native_mat": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft602_real_primal_native_20261017/native.mat",
+    "sha256": "f4aacd5b7c7e2344df5f9f7e4cd7656cfcfacf321030acc86431923f9109b98b",
+    "native_report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft602_real_primal_native_20261017/REPORT.json",
+    "plan_observation": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft602_real_primal_native_20261017/plans.txt",
+    "diagnostic_result": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft602_real_primal_native_20261017/DIAGNOSTIC_C2R.json",
+    "fixture_scope": "Six deterministic native C2vals2coeffs controls: five-column and one-column real, imaginary, complex-stored real. No candidate outputs."
+  },
+  "prior_fixture_sha256": "46cdce5a75df121af693b92ce228b9f14406a27e70cb235e9a8091fa99682e16"
+}

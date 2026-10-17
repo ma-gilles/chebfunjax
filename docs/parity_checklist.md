@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Integrate source CPU602 Fourier/C2R arithmetic, direct inverse normalization and omitted Chebfun-domain inheritance. Final129checks pass, including all23literal default original ratinterp predicates and six native real-primal controls. Source D/product/coefficient assembly matches native words; public pole gap improves to2.076e-11. [Evidence](fft602_rational_integration_cpu_20261017.json).
+- [ ] Remaining rational SVD/pole gap, FFT wider plans/extreme values/dynamic native storage, full APIs and CPU performance. Local source kernels remain52.1x/32.7x slower than generic JAX at measured shapes; matched native performance unqualified.
+
+
 - [x] Remove non-native bounded fractional-power norm preflight:4tiny-complex falsezero failures fixed,18controls pass with original33bound/warningcheck, and20CIprotocol checks retain1075anchors plus1new selector. [Evidence](power_zero_preflight_cpu_20261017.json). Standalone norm/extrema/nonfinite primitive/fullAPI remain open.
 
 - [x] Real602forward diagnostic matches275424native nonredundant FFT words; sourceD302reconstruction matches all91204words. All690captured stage words and independent constants match. [Evidence](ratinterp_real602_cpu_20261017.json). Production integration/public poles/API remain open.
@@ -190,7 +194,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Publish rational explicit six/seven output source semantics and arbitrary-node symmetry5105d431; unchanged original23 clauses covered.
 - [ ] High-degree complex fitting/poles/residue accuracy and actualThreeBody scientific parity.
 - [ ] C2 factor eligibility and newly retained positive-order manufactured Newton convergence failure (unpublished diagnostic; native behavior not yet compared, not a confirmed parity bug).
-- [ ] Authored fixed48CIadvection integration failure (distinct from passing mapped original PDE); FFT/provider/source representation.
+- [x] Authored fixed48 CI advection regression is qualified by the published FFT64 gate above; final FFT602 integration reruns that unchanged control. Broader PDE and performance gaps remain open.
 - [ ] ChemicalPDE lateaccuracy/constructor/LU differences.
 - [ ] Broader nonlinear parameter/default setup APIs and original predicates beyond the qualified C1/US/C2 cases; interpolation invalid/API semantics and broader Subsref record behavior.
 - [ ] Composition/division strict shape/length candidates; reassess after source sampling fixes.

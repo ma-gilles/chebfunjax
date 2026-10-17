@@ -1,3 +1,25 @@
+# Latest FFT602/rational integration — 2026-10-17
+
+Production CPU length602 real forward, complex inverse and real-even C2R
+kernels now follow the observed source plans. Final129checks pass across
+49FFT/domain/literalratinterp,42extrema/normalization/FFT64/C2,18power and
+20protocol controls; guarded source stable and no survivors. Actual sourceD302,
+product and coefficient assembly match native words, publicdegrees151/8match.
+Pole gap improves from ~1e-4 to2.076e-11 but remains open; denominator coefficient
+gap5.739e-12 remains consistent with same-input SVD discrepancy. Native real
+primal controls include vector/batch/imaginary and complex-stored-real input;
+JAX dynamic output storage is not claimed. Exact-primal custom JVP retains
+transverse complex derivatives and signed-zero words. Generic inverse FFT
+normalization divides directly; native constant-extrema regression passes.
+Omitted ratinterp domain inherits outer Chebfun endpoints. All23literal original
+ratinterp predicates retain source output counts/constructors/bounds/grids.
+
+Local descriptive source602kernels cost52.1x inverse/32.7x realforward versus
+generic JAX at measured matrix shapes; not native matched performance. Speed,
+remainingSVD/poles, widerplans/fullAPI/pages/figures/latestCI remain open.
+Archive485payloads verified; failed candidates and adapter failures retained.
+Evidence: docs/fft602_rational_integration_cpu_20261017.json.
+
 # Latest exactzero fractional-power preflight — 2026-10-17
 
 Native columnPower has no normpreflight. BoundedC1/C2/Singfun paths now check

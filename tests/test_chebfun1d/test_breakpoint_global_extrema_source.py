@@ -23,7 +23,7 @@ def test_native_impulse_point_values():
     [
         ([-4.0, 3.0], (-1.0, -4.0), (1.0, 3.0)),
         ([4.0, -3.0], (1.0, -3.0), (-1.0, 4.0)),
-        ([0.0, 0.0], (-1.0, 0.0), (-1.0, 0.0)),
+        ([0.0, 0.0], (0.0, 0.0), (0.0, 0.0)),
     ],
 )
 def test_explicit_breakpoint_extrema(point_values, expected_min, expected_max):

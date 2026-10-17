@@ -188,7 +188,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_randnfunsphere_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_coeffs2vals_vals2coeffs_matlab]",
       "tests/test_chebfun1d/test_get_roots_for_breaks_source.py",
-      "tests/test_chebfun1d/test_root_power_zero_preflight.py"
+      "tests/test_chebfun1d/test_root_power_zero_preflight.py",
+      "tests/test_utils/test_ifft_normalization_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -239,7 +240,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_minimax_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_smoothie_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_curl_matlab]",
-      "tests/test_utils/test_matlab_imaginary_literals.py"
+      "tests/test_utils/test_matlab_imaginary_literals.py",
+      "tests/test_utils/test_fft602_ordered.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -698,7 +700,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_quantumstates_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_BMCsvd_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_svd_matlab]",
-      "tests/test_operators/test_fourier_scalar_coefficient_layout.py"
+      "tests/test_operators/test_fourier_scalar_coefficient_layout.py",
+      "tests/test_utils/test_ratinterp_inherited_domain_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",

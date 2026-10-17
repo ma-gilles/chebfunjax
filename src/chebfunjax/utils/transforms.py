@@ -22,8 +22,28 @@ import jax
 import jax.numpy as jnp
 
 from chebfunjax.utils._fft64 import real_even_inverse64
+from chebfunjax.utils._fft602 import (
+    complex_inverse602,
+    real_forward602_values,
+    real_inverse602_values,
+)
+from chebfunjax.utils._ifft_normalization import source_ifft
 from chebfunjax.utils.fasttransforms import dst as _source_dst
 from chebfunjax.utils.fasttransforms import idst as _source_idst
+
+
+@jax.custom_jvp
+def _retain_linear_tangent(linear, primal):
+    """Use source primal words while retaining the complex linear derivative."""
+    return primal
+
+
+@_retain_linear_tangent.defjvp
+def _retain_linear_tangent_jvp(primals, tangents):
+    _, primal = primals
+    linear_tangent, _ = tangents
+    return primal, linear_tangent
+
 
 # ===========================================================================
 # Chebyshev values <-> coefficients (DCT-I based)
@@ -43,7 +63,37 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
     if n <= 1:
         return values
     tmp = jnp.concatenate([values[n - 1:0:-1], values[:n - 1]])
-    if jnp.iscomplexobj(values):
+    if n == 302 and values.dtype == jnp.complex128:
+        # Literal source general-complex input: no conjugacy orientation adapter.
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=lambda a: complex_inverse602(a)[:n],
+            default=lambda a: jnp.fft.ifft(a, axis=0)[:n],
+        )
+        pure_real = jnp.all(jnp.imag(values) == 0)
+        pure_imaginary = jnp.all(jnp.real(values) == 0) & ~pure_real
+
+        def project_source_primal(coeffs):
+            # Native chooses its real/pure-imaginary branch for the complete
+            # matrix. Retain transverse complex tangents of the linear map.
+            a = jnp.where(pure_imaginary, jnp.imag(tmp), jnp.real(tmp))
+            r = jax.lax.platform_dependent(
+                a, cpu=real_inverse602_values,
+                default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0))[:n],
+            )
+            imaginary = jax.lax.complex(jnp.copysign(jnp.zeros_like(r), r), r)
+            real = jax.lax.complex(r, jnp.zeros_like(r))
+            primal = jnp.where(pure_imaginary, imaginary, real)
+            return _retain_linear_tangent(
+                coeffs, jnp.where(jnp.isfinite(coeffs), primal, coeffs))
+
+        coeffs = jax.lax.cond(pure_real | pure_imaginary,
+                             project_source_primal, lambda a: a, coeffs)
+    elif n == 302 and values.dtype == jnp.float64:
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=real_inverse602_values,
+            default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0))[:n],
+        )
+    elif jnp.iscomplexobj(values):
         # DCT-I has a real matrix. Canonicalize each conjugate pair to
         # one FFT input so backend roundoff preserves exact conjugacy.
         # This is a numerical adapter of the source general-complex IFFT,
@@ -56,7 +106,7 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
         pure_real = jnp.all(imaginary == 0, axis=0)
         # Rotate pure imaginary columns onto the real source branch.
         rotated = jnp.where(pure_imaginary, -1j * canonical, canonical)
-        coeffs = jnp.fft.ifft(rotated, axis=0)
+        coeffs = source_ifft(rotated)
         projected = jnp.where(pure_real | pure_imaginary,
                               jnp.real(coeffs), coeffs)
         # Enforce source primal storage without discarding transverse
@@ -74,7 +124,7 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
             default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0)),
         )
     else:
-        coeffs = jnp.real(jnp.fft.ifft(tmp, axis=0))
+        coeffs = jnp.real(source_ifft(tmp))
     coeffs = coeffs[:n]
     coeffs = coeffs.at[1:n - 1].multiply(2.0)
     vflip = values[::-1]
@@ -83,6 +133,9 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
     k = jnp.arange(n).reshape((n,) + (1,) * (coeffs.ndim - 1))
     sym = jnp.where((k % 2 == 1) & is_even, 0.0, coeffs)
     sym = jnp.where((k % 2 == 0) & is_odd, 0.0, sym)
+    if n == 302 and values.dtype == jnp.complex128:
+        return _retain_linear_tangent(
+            coeffs, jnp.where(jnp.isfinite(coeffs), sym, coeffs))
     delta = jnp.where(jnp.isfinite(coeffs), sym - coeffs, 0.0)
     coeffs = coeffs + jax.lax.stop_gradient(delta)
     return coeffs
@@ -108,6 +161,11 @@ def _coeffs2vals_jax(coeffs: jnp.ndarray) -> jnp.ndarray:
         # conjugacy exactly, as in the inverse transform above.
         values = (jnp.real(jnp.fft.fft(jnp.real(tmp), axis=0))
                   + 1j*jnp.real(jnp.fft.fft(jnp.imag(tmp), axis=0)))
+    elif n == 302 and coeffs.dtype == jnp.float64:
+        values = jax.lax.platform_dependent(
+            tmp, cpu=real_forward602_values,
+            default=lambda a: jnp.real(jnp.fft.fft(a, axis=0))[:n],
+        )
     else:
         values = jnp.real(jnp.fft.fft(tmp, axis=0))
     values = values[n - 1::-1]

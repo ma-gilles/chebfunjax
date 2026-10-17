@@ -295,7 +295,7 @@ def ratinterp(
     NN: int | None = None,
     xi=None,
     tol: float = 1e-14,
-    domain: tuple[float, float] = (-1.0, 1.0),
+    domain: tuple[float, float] | None = None,
     *,
     outputs: int | None = None,
 ):
@@ -330,7 +330,8 @@ def ratinterp(
         Relative tolerance for robustification.  Default: 1e-14.
         Set to 0 to disable.
     domain : (float, float), optional
-        Physical domain.  Default: ``(-1, 1)``.
+        Physical domain. Defaults to the full Chebfun input domain, or
+        ``(-1, 1)`` for other inputs.
 
     outputs : int or None, optional
         With ``None``, retain the Python coefficient tuple below. Explicit
@@ -415,6 +416,12 @@ def ratinterp(
         if not 1 <= outputs <= 7:
             raise ValueError("outputs must be between 1 and 7")
 
+    if domain is None:
+        # ratinterp.m:174-182 inherits the full CHEBFUN domain when omitted.
+        from chebfunjax.chebfun1d.chebfun import Chebfun
+
+        domain = ((f.domain.breakpoints[0], f.domain.breakpoints[-1])
+                  if isinstance(f, Chebfun) else (-1.0, 1.0))
     if isinstance(domain, Domain):
         domain = domain.breakpoints
     a_dom, b_dom = float(domain[0]), float(domain[1])
