@@ -42,6 +42,24 @@ def _source_log(x):
     return jnp.log(x)
 
 
+def _source_gamma(x):
+    """Real MATLAB numeric gamma, including +Inf at nonpositive integer poles.
+
+    Provenance
+    ----------
+    MATLAB source : built-in gamma used by @chebfun/chebfun.m strings;
+        actual R2025b tests/test_utils/gamma_matlab_primitive_fixture.json.
+    Chebfun commit: 7574c77
+    """
+    from jax.scipy.special import gamma
+
+    x = jnp.asarray(x)
+    if jnp.iscomplexobj(x):
+        raise TypeError("MATLAB numeric gamma requires real arguments")
+    poles = jnp.isfinite(x) & (x <= 0) & (x == jnp.floor(x))
+    return jnp.where(poles, jnp.inf, gamma(x))
+
+
 def _eager_real_storage(value):
     """Normalize exact-real eager multiplication/division output storage.
 
@@ -132,6 +150,7 @@ _FUNS = {
 }
 _FUNS["log"] = _source_log
 _FUNS["pi"] = jnp.pi
+_FUNS["gamma"] = _source_gamma
 # MATLAB numeric heaviside has half value at zero; source @chebfun/
 # heaviside.m likewise uses 0.5*(sign(f)+1). Register the name so
 # _string_op does not mistake it for the expression variable.

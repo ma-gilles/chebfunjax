@@ -1,3 +1,15 @@
+# Latest original minandmax scope — 2026-10-17
+
+All14default original minandmax predicates now retain native operands and
+bounds, including singular splitting, unbounded, array/local and gamma cases.
+Authored older tests remain separate. Two actual gamma-case faults are fixed:
+missing numeric string registration and denominator pole jumps misread as zeros.
+Gamma real nonpositive-integer poles follow captured native +Inf convention.
+Final parent37 controls pass with current FFT/LU/extrema source. Native original14
+capture is reused with explicit source bindings. Full API/alternate preferences,
+nobreaks/pointValues root semantics, inherited host root filtering and latest CI
+remain open. Evidence: `docs/minmax_original14_cpu_20261017.json`.
+
 # Latest core CI deadline scope — 2026-10-17
 
 Run39059398761 reached90minute limits in Core1/2 after passing batches.

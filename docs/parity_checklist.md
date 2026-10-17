@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Restore all14default original minandmax predicates with exact source operands/bounds, retaining authored tests separately. Fix string gamma native real-pole convention and denominator jump-root discovery. Parent37 checks pass on current FFT source. [Evidence](minmax_original14_cpu_20261017.json).
+- [ ] Native nobreaks/root pointValues grammar, inherited host root filtering and full minandmax/gamma/division APIs/alternate preferences.
+
 - [x] Split Core1/2 at unchanged process boundaries after observed90minute cancellations;9to11lanes preserve all1072selectors, priorCore8 and scientific/coverage limits.17protocol checks pass. [Evidence](ci_core_deadline_cpu_20261017.json).
 - [ ] Actual latest-main core/3D runtime, scientific assertions and coverage>=79%.
 

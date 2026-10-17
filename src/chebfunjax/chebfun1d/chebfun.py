@@ -973,7 +973,8 @@ def _real_simple_roots(den: "Chebfun"):
     """
     import numpy as _np
     try:
-        r = _np.asarray(den.roots())
+        # getRootsForBreaks excludes jump sign changes and zero FUNs.
+        r = _np.asarray(den.roots(nojump=True, nozerofun=True))
     except Exception:
         return _np.zeros(0)
     if r.ndim != 1:

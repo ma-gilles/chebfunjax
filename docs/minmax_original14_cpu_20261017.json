@@ -1,0 +1,419 @@
+{
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "child_base": "78e6c4abef3e5d70d82722f4a087a85a24d000bb",
+  "parent_base": "f6433af8c265eb43e3af0328cd0731250f7e9dd7",
+  "scope": "All14 default pinned test_minandmax predicates plus bounded numerical division repairs",
+  "changes": [
+    "Retain authored/partial test_minandmax_matlab.py byte-for-byte and add independent complete original14literal file.",
+    "Register string gamma using JAX finite values and the retained native +Inf nonpositive-integer real-pole convention.",
+    "Exclude jump and zero-FUN roots in reciprocal/division denominator root discovery, following native getRootsForBreaks."
+  ],
+  "predicate_mapping": [
+    {
+      "predicate": 1,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_01_empty",
+      "prior_coverage": "existing empty node faithful",
+      "literal_contract": "isempty(y)&&isempty(x)",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 2,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_02_smooth",
+      "prior_coverage": "Existing smooth node retains bounds, but callback divides bycos instead of multiplying bysec.",
+      "literal_contract": "Exact callback multiplies by1/cos; values and feval <=10*vscale*eps.",
+      "acceptance_receipt": "literal_reference_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 3,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_03_piecewise",
+      "prior_coverage": "Existing piecewise node retains bounds/domain, but callback divides bycos instead of multiplying bysec.",
+      "literal_contract": "Exact callback multiplies by1/cos on linspace(-1,1,10); values and feval <=10*vscale*eps.",
+      "acceptance_receipt": "literal_reference_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 4,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_04_complex_cells",
+      "prior_coverage": "existing callback replaced literal cell operators with where",
+      "literal_contract": "literal exp((1+i)x),1-x/10 cells and[-1,0,1]; both <=10*vscale*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 5,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_05_constant_cells",
+      "prior_coverage": "existing constants used callable replacements",
+      "literal_contract": "literal numeric constant cells{-1,1,2}; exact values",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 6,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_06_point_values",
+      "prior_coverage": "existing point values asserts faithful; construction replaced cells",
+      "literal_contract": "literal numeric cells and stored values10/-10; exact values/positions",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 7,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_07_local_scalar",
+      "prior_coverage": "existing node adds len7 and x1e-10 authored checks",
+      "literal_contract": "literal numel(y==7) truthiness and norminf(y-yexact)<10*vscale*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 8,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_08_09_global_array[8]",
+      "prior_coverage": "missing global real array predicate",
+      "literal_contract": "literal sin(10x),cos(10x),exp(x),[-1,-.5,.5,1]; values/diagonalfeval <=10*vscale*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 9,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_08_09_global_array[9]",
+      "prior_coverage": "missing global complex array predicate",
+      "literal_contract": "literal exp((1+i)x),sec(i(x-.5)),[-1,0,1]; both <=10*vscale*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 10,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_10_11_local_array[10]",
+      "prior_coverage": "existing local array node omitted xNaN mask",
+      "literal_contract": "literal yshape7x2; all y/x tail NaN",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 11,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_10_11_local_array[11]",
+      "prior_coverage": "existing local array node uses1e-10 and omits feval assertions",
+      "literal_contract": "all4literal norminf bounds<10*vscale*eps, exact stored xqueries",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 12,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_12_singular_splitting",
+      "prior_coverage": "missing",
+      "literal_contract": "literal[-2,7],power-.5,sin(300x)^2,exps[-.5,0],splittingon; native max omitsNaN forInf-Inf; both <1e4*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 13,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_13_unbounded",
+      "prior_coverage": "missing from Chebfun file; classicfun counterpart elsewhere",
+      "literal_contract": "literal(1-exp(-x^2))/x on[-Inf,Inf]; value/position norminf<100*eps*vscale",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    },
+    {
+      "predicate": 14,
+      "python_node": "tests/test_matlab_port/chebfun/test_minandmax_original14.py::test_pass_14_gamma_reciprocal",
+      "prior_coverage": "missing",
+      "literal_contract": "literal gamma(x) string[-4,4],blowupon,splittingon; numeric2norm reciprocal extrema error<1e4*eps",
+      "acceptance_receipt": "final_run/receipt.json",
+      "result": "pass"
+    }
+  ],
+  "child_validation": {
+    "first11_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 48.59821865288541,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "gamma_baseline_run": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 4.118952712975442,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unbounded_baseline_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.311413306277245,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "singular_baseline_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 74.64631687104702,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "gamma_candidate_run": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 57.58021021587774,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "gamma_candidate_run2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 53.47999583976343,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "final_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 175.73312739143148,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "literal_reference_run": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 15.101502169854939,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "reference_arithmetic_bridge": {
+    "only_reference_function_changed": true,
+    "reference_callers": [
+      "test_pass_02_smooth",
+      "test_pass_03_piecewise"
+    ],
+    "earlier_test_sha256": "b0bb510776ed0b578d49ae9ace3fa5f01684f700cbefe579681584b77e53abbf",
+    "final_test_sha256": "9901798f338c98ce00d9b7a5fc06766c8a5bb3ae3c83234c8b63214112eab1a7"
+  },
+  "original_authored_file_unchanged": true,
+  "native_reference": {
+    "cases": [
+      {
+        "x": [
+          0.9999999999999998,
+          -1
+        ],
+        "yr": [
+          1,
+          1
+        ],
+        "yi": [
+          -2.220446049250313e-16,
+          -2
+        ],
+        "fxr": [
+          1,
+          1
+        ],
+        "fxi": [
+          -2.220446049250313e-16,
+          -2
+        ],
+        "xhex": [
+          "3feffffffffffffe",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          1.0000000000000002,
+          -1
+        ],
+        "yr": [
+          1,
+          2
+        ],
+        "yi": [
+          0,
+          -2
+        ],
+        "fxr": [
+          1,
+          2
+        ],
+        "fxi": [
+          2.220446049250313e-16,
+          -2
+        ],
+        "xhex": [
+          "3ff0000000000001",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          0,
+          -1
+        ],
+        "yr": [
+          1,
+          0
+        ],
+        "yi": [
+          0,
+          100
+        ],
+        "fxr": [
+          1,
+          0
+        ],
+        "fxi": [
+          0,
+          100
+        ],
+        "xhex": [
+          "0000000000000000",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          1,
+          -1
+        ],
+        "yr": [
+          0,
+          1
+        ],
+        "yi": [
+          0,
+          -1
+        ],
+        "fxr": [
+          0,
+          1
+        ],
+        "fxi": [
+          0,
+          -1
+        ],
+        "xhex": [
+          "3ff0000000000000",
+          "bff0000000000000"
+        ]
+      },
+      {
+        "x": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "yr": [
+          1,
+          2
+        ],
+        "yi": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "fxr": [
+          1,
+          2
+        ],
+        "fxi": [
+          -1.1102230246251565e-16,
+          1
+        ],
+        "xhex": [
+          "bca0000000000000",
+          "3ff0000000000000"
+        ]
+      }
+    ],
+    "array": {
+      "x": [
+        [
+          0.9999999999999998,
+          1.0000000000000002
+        ],
+        [
+          -1,
+          -1
+        ]
+      ],
+      "yr": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          2
+        ]
+      ],
+      "yi": [
+        [
+          -2.220446049250313e-16,
+          0
+        ],
+        [
+          -2,
+          -2
+        ]
+      ]
+    },
+    "original": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "original_count": 14
+  },
+  "native_reference_report": {
+    "path": "docs/complex_minmax_cpu_20261017.json",
+    "sha256": "798da82283310d7bfa69a1438791a4a81a215ff1beb347dd8b30a95fc0fa5b98",
+    "scope": "Retained supervised native original14 default invocation, exact which/count and preguarded native sources; no native rerun for Python changes."
+  },
+  "native_reference_hash_bridge": {
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/minandmax.m": true,
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech/minandmax.m": true,
+    "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_minandmax.m": true
+  },
+  "parent_gate": {
+    "groups": [
+      26,
+      11
+    ],
+    "wall_seconds": 207.26151669118553,
+    "sampled_peak_summed_rss_kib": 4972156,
+    "inputs_stable": true,
+    "survivors": [],
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minmax_original14_parent_run001/receipt.json",
+    "scope": "All14literal predicates with final multiply-by-sec callback, gamma provider/pole and ten rdivide cancellation controls, plus complex extrema/Frobenius/original LU integration on current FFT source."
+  },
+  "source_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "2f5bf129e66467c042c72c41ba01f623bad090e4ca3c96799da7e305b877a07c",
+    "src/chebfunjax/utils/matlab_expr.py": "b8c7b1885c61d1bd6f4c0362ada99356b3c6ece9a2358e709ee60148cd08f311",
+    "tests/test_matlab_port/chebfun/test_minandmax_original14.py": "9901798f338c98ce00d9b7a5fc06766c8a5bb3ae3c83234c8b63214112eab1a7",
+    "tests/test_matlab_port/chebfun/test_minandmax_original14_gamma_provider.py": "abdddf6763dda23507f1187ac51b29f42ac96f365d074adcf2f8bddb6f027317"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minmax_original14_parent_cpu_20261017.tar.gz",
+    "sha256": "700e4fe4bb9b62b6b736186bd3b2058b3d7dc159ec4213f713996f45583a16d4",
+    "verified_payloads": 105
+  },
+  "limitations": [
+    "This closes14default test predicates; it is not full minandmax/rdivide/gamma API or alternate-preference qualification.",
+    "Full26gate used directdivision-by-cos in the newport smooth helper, inherited from prior translation. Final callback now multiplies bysec as native does, without changing any original operand/bound. A clean affected-predicates2/3 gate plus ASTbridge proves allother test code unchanged.",
+    "Native original14proof reused from prior sealedcomplex package; no MATLAB rerun solely for Python changes. The retained gamma primitive fixture is existing actual R2025b capture, not a new native invocation.",
+    "The existing Python roots API lacks native nobreaks; this bounded repair adds proven nojump/nozerofun flags only. No broader breakpoint/root API parity is claimed.",
+    "Native and Python runtime origins are not exhaustively frozen beyond preserved source/test guards and pinnedheads.",
+    "Inherited host numerical root filtering remains in _real_simple_roots; no new NumPy/SciPy provider or waiver introduced.",
+    "Native nobreaks/public pointValues root semantics and JAX helper conversion are under separate source work.",
+    "Full API/alternate preferences and latest-main CI/coverage remain required."
+  ]
+}

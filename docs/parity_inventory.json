@@ -151,6 +151,11 @@
       "scope": "JAX LU source arithmetic, original eight default predicates and bounded controls; full-item statuses unchanged",
       "sha256": "41b33c39b46aadaf0332cd27bd39becb2332bb06f4599041cd56c17bdc7fd724"
     },
+    "minmax_original14_cpu_20261017": {
+      "path": "docs/minmax_original14_cpu_20261017.json",
+      "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged",
+      "sha256": "7f7ea075b44e5a07f364a32d0fb11a0c790f8d14baa8d6ed8f9dc5c2624f2bc6"
+    },
     "ndarray_subspace_cpu_20261017": {
       "path": "docs/ndarray_subspace_cpu_20261017.json",
       "scope": "Public Chebfun rank>2 array-valued query adapter; restore literal subspace original domains/row predicates1-6",
@@ -51423,7 +51428,15 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "minmax_original14_cpu_20261017"
+          ],
+          "kind": "reviewed_original_predicates_cpu",
+          "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -52739,6 +52752,13 @@
           ],
           "kind": "reviewed_scoped_cpu_evidence",
           "scope": "Six native-backed authored complex extrema cases with stored points, sides and arrays; full-item statuses unchanged"
+        },
+        {
+          "artifacts": [
+            "minmax_original14_cpu_20261017"
+          ],
+          "kind": "reviewed_original_predicates_cpu",
+          "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
         }
       ],
       "functions": [
@@ -103001,7 +103021,15 @@
         "tests/test_matlab_port/singfun/test_minandmax_matlab.py",
         "tests/test_matlab_port/trigtech/test_minandmax_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifacts": [
+            "minmax_original14_cpu_20261017"
+          ],
+          "kind": "reviewed_original_predicates_cpu",
+          "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
