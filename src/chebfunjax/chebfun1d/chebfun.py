@@ -3933,15 +3933,37 @@ class Chebfun(eqx.Module):
         import numpy as _np
 
         from chebfunjax.fun.singfun import Singfun
-        # The identically-zero function: 0**b = 0 for b > 0.  Falling
-        # through to the root-splitting path below would ask roots()
-        # for the roots of the zero function -- every point is one --
-        # which hangs.  (Operator probing evaluates ops on the zero
-        # function, so a fractional power in the op hit this.)
-        try:
-            _is_zero = float(self.norm(jnp.inf)) == 0.0
-        except Exception:
-            _is_zero = False
+        from chebfunjax.tech.chebtech import Chebtech1
+
+        # Native columnPower does not compute a norm before root insertion.
+        # Keep the zero-function shortcut for operator probing, using exact
+        # @chebtech/iszero / @singfun/iszero smooth coefficients instead.
+        # Squaring a tiny complex input in a norm can underflow to zero;
+        # singular endpoint products can introduce NaNs and extrema warnings.
+        # Stored isolated values must also be zero before this shortcut.
+        bounded_zero_check = (
+            not self.deltas and bool(self.funs)
+            and all(type(piece) is _Piece
+                    and all(math.isfinite(float(end)) for end in piece.interval)
+                    and isinstance(piece.tech.smoothPart
+                                   if isinstance(piece.tech, Singfun)
+                                   else piece.tech, (Chebtech1, Chebtech2))
+                    for piece in self.funs)
+        )
+        if bounded_zero_check:
+            _is_zero = (
+                all(bool(jnp.all((piece.tech.smoothPart
+                                  if isinstance(piece.tech, Singfun)
+                                  else piece.tech).coeffs == 0))
+                    for piece in self.funs)
+                and bool(jnp.all(self.point_values == 0))
+            )
+        else:
+            # Retain the existing adapter for other FUN families/domains.
+            try:
+                _is_zero = float(self.norm(jnp.inf)) == 0.0
+            except Exception:
+                _is_zero = False
         if _is_zero and b > 0:
             return self * 0.0
         if _is_zero and b < 0:
@@ -3957,7 +3979,6 @@ class Chebfun(eqx.Module):
         # Finite endpoint Singfuns retain their singular factors while their
         # smooth parts are composed. Unbounded and periodic representations
         # retain their existing dispatch until their source paths qualify.
-        from chebfunjax.tech.chebtech import Chebtech1
         complex_bounded = (
             bool(self.funs)
             and

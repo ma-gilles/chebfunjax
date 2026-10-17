@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Remove non-native bounded fractional-power norm preflight:4tiny-complex falsezero failures fixed,18controls pass with original33bound/warningcheck, and20CIprotocol checks retain1075anchors plus1new selector. [Evidence](power_zero_preflight_cpu_20261017.json). Standalone norm/extrema/nonfinite primitive/fullAPI remain open.
+
 - [x] Real602forward diagnostic matches275424native nonredundant FFT words; sourceD302reconstruction matches all91204words. All690captured stage words and independent constants match. [Evidence](ratinterp_real602_cpu_20261017.json). Production integration/public poles/API remain open.
 
 - [x] Complete source-derived JAX602inverse diagnostic matches367220native outputwords across positive/actual/independent matrices; outer2/7stages match204distinct words, independent constants and division normalization. [Evidence](ratinterp_full602_cpu_20261017.json). No production patch/public pole claim; real D route remains open.

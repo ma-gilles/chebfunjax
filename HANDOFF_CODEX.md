@@ -1,3 +1,14 @@
+# Latest exactzero fractional-power preflight — 2026-10-17
+
+Native columnPower has no normpreflight. BoundedC1/C2/Singfun paths now check
+exact smoothcoefficients plus storedpointValues before the existing zero shortcut.
+This removes the original33spurious complex-extrema warning without changing its
+error/bound, and fixes4tiny-complex falsezero failures.18final controls pass;
+all360library files match childsource at publication, not a new parent run.
+20protocol checks retain1075core anchors with1new selector. Standalone norm/
+extrema/nonfinite complex endpointprimitive and fullAPI remain unqualified.
+Evidence: docs/power_zero_preflight_cpu_20261017.json.
+
 # Latest real602 and D302 diagnosis — 2026-10-17
 
 Complete source-derived real602FFT diagnostic matches275424native nonredundant

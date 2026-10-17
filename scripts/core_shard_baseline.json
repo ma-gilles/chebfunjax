@@ -187,7 +187,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_gpr_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.misc.test_randnfunsphere_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_coeffs2vals_vals2coeffs_matlab]",
-      "tests/test_chebfun1d/test_get_roots_for_breaks_source.py"
+      "tests/test_chebfun1d/test_get_roots_for_breaks_source.py",
+      "tests/test_chebfun1d/test_root_power_zero_preflight.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -1101,6 +1102,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "44a1be2837a45c03bd7f58cab580ce7a3813c7fb",
+  "last_update_parent": "9fb0323f0e9912b3d495b775d8454cc95532e977",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

@@ -216,6 +216,11 @@
       "scope": "All41 literal default original Chebfun power predicates with verified native seed6178 draw operands. Test-only coverage restoration; no library fix.",
       "sha256": "00abf51eabaf23a045fb4d7866707bc794f81381435215e3d47821e4566745db"
     },
+    "power_zero_preflight_cpu_20261017": {
+      "path": "docs/power_zero_preflight_cpu_20261017.json",
+      "scope": "Source-backed exactzero preflight for boundedC1/C2/Singfun fractional powers; removes unnecessary norm warning and tiny-complex falsezero faults.",
+      "sha256": "bd2b8f35f9ff7bc7e9ae88971d78c482c72d2a7a03be69809bfb690fef043d23"
+    },
     "quantum_periodic_column_cpu_20261017": {
       "path": "docs/quantum_periodic_column_cpu_20261017.json",
       "scope": "JAX scalar Fourier coefficient diagonal scaling preserves flat/column/row sample layouts and complex values; repair actual CI quantumstates shape failure.",
@@ -54067,6 +54072,10 @@
         {
           "artifact": "power_original41_cpu_20261017",
           "scope": "All41default original numerical predicates,27actual source draw events verified; extra predicate33warning/fullAPI/preferences unqualified."
+        },
+        {
+          "artifact": "power_zero_preflight_cpu_20261017",
+          "scope": "Bounded fractionalpower preflight uses exact smooth coefficients/PV;18controls, fullAPI/standalone norm/primitive unverified."
         }
       ],
       "functions": [
@@ -69488,7 +69497,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "power_zero_preflight_cpu_20261017",
+          "scope": "Bounded fractionalpower preflight uses exact smooth coefficients/PV;18controls, fullAPI/standalone norm/primitive unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -81992,7 +82006,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "power_zero_preflight_cpu_20261017",
+          "scope": "Bounded fractionalpower preflight uses exact smooth coefficients/PV;18controls, fullAPI/standalone norm/primitive unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

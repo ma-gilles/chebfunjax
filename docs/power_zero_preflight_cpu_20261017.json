@@ -1,0 +1,30 @@
+{
+  "scope": "Source-backed exactzero preflight for boundedC1/C2/Singfun fractional powers; removes unnecessary norm warning and tiny-complex falsezero faults.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "baseline": {
+    "tiny_same_body_controls_failed": 4,
+    "original33": "Numerical predicate alreadypassed, but normpreflight emitted complex extrema warning.",
+    "preserved_attempts": "Owned baseline stop and two incorrect authored ideal-complex-infinity endpoint assertions retained, not credited as passing native behavior."
+  },
+  "candidate": {
+    "final_passed": 18,
+    "pytest_seconds": 51.67,
+    "same_source_files_at_publication": 360,
+    "source_bridge": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_zero_parent_review_20261017/root_review.json",
+    "scientific_scope": "Identical childsource bridge, no additional parent scientific executions. Includes unchanged literal33/error/bound, exactzero, tiny positive/negative powers, isolated finite/Inf/NaNPV, singular factors, arrays andperiodic fallback.",
+    "protocol_passed": 20,
+    "core_selectors": 1076,
+    "prior_anchors_retained": 1075
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/power_zero_parent_cpu_20261017.tar.gz",
+    "sha256": "948f49e10008e9c01e0059d7f97151c1e3f9d0601ed0577e4987226ced141430",
+    "verified_payloads": 98
+  },
+  "limits": [
+    "Standalone singular complexnorm/extrema and nonfinite complex primitive are unchanged/unqualified.",
+    "Existing pole endpointNaN+NaNi behavior preserved with exact baseline/candidate endpoint/interior wordbridge; not claimed native primitive parity.",
+    "Othertechnologies/unbounded/distribution fallback and broaderISZERO/POWER API remain open.",
+    "Pages/figures/nativeperformance/latest-main CI andcoverage>=79% remain required."
+  ]
+}
