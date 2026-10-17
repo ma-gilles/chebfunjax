@@ -1,0 +1,7 @@
+{
+  "prior_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_callback_arity_prepare_v2_20261017",
+  "cause": "Chebmatrix numel returns one object; eight sample cells empty despite complete metadata",
+  "change": "Explicit species/time size loops and finite3x1 sample checks before complete",
+  "equations_and_bounds_unchanged": true,
+  "harness_sha256": "6c4fd8f930678db1331e08ac210e38cdb52a0e4b0d11c1e42473b1bb91621f77"
+}

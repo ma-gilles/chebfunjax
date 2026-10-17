@@ -1,0 +1,116 @@
+{
+  "solver_capture.mat": {
+    "record.mass": "27x27 actual odeget Mass",
+    "record.context.P": "27x27 actual native closure P",
+    "record.context.M": "27x27 actual native closure M",
+    "record.context.BCVALOFFSET": "4x1 stored initial boundary adjustment",
+    "record.context.q": "4x1 boundary RHS",
+    "record.context.x": "9 source nodes",
+    "record.context.numBCs": 4,
+    "record.context.numLBCs": 2,
+    "record.context.numRBCs": 2,
+    "record.difforder": [
+      2,
+      2,
+      0
+    ],
+    "record.initial": "9x3 in source input orientation",
+    "record.span": [
+      0,
+      0.005,
+      0.01
+    ],
+    "record.probe.state": "9x3 named polynomial samples on native nodes",
+    "record.probe.full_pde": "9x3 source parsed PDE expressions before projection",
+    "record.probe.full_left": "9x2 source parsed left residual columns before endpoint selection",
+    "record.probe.full_right": "9x2 source parsed right residual columns before endpoint selection",
+    "record.probe.endpoint_residuals": "4x1 [left_firstrow(:); right_lastrow(:)] in source order",
+    "record.probe.rhs": "27x1 full actual odeFun result INCLUDING boundary offset subtraction",
+    "record.primary_t": "3x1 actual ode15s times",
+    "record.primary_y": "3x27 ode15s states",
+    "record.callback_log": "cell array of exact t/y/flag records from primary callback",
+    "record.rng_before_primary": "native full RNG state",
+    "record.rng_after_primary": "native full RNG state"
+  },
+  "public_output.mat": {
+    "tout": "actual native return; expected [0] per known fixed-N omission, never fabricated",
+    "requested_times": [
+      0,
+      0.005,
+      0.01
+    ],
+    "sample_x": [
+      -0.75,
+      0,
+      0.625
+    ],
+    "samples": "3species x3times cell array; each entry3x1 probe values"
+  },
+  "row_map_matlab_1based": {
+    "left": [
+      1,
+      2
+    ],
+    "right": [
+      3,
+      4
+    ],
+    "u_equation": [
+      5,
+      11
+    ],
+    "v_equation": [
+      12,
+      18
+    ],
+    "w_equation": [
+      19,
+      27
+    ]
+  },
+  "component_columns_matlab_1based": {
+    "u": [
+      1,
+      9
+    ],
+    "v": [
+      10,
+      18
+    ],
+    "w": [
+      19,
+      27
+    ]
+  },
+  "block_shapes": [
+    [
+      7,
+      9
+    ],
+    [
+      7,
+      9
+    ],
+    [
+      9,
+      9
+    ]
+  ],
+  "analytic_solution": {
+    "u": "1",
+    "v": "2",
+    "w": "2+(1+x^2)*exp(-t)"
+  },
+  "probe_polynomials": {
+    "u": "1+x+2*x^2",
+    "v": "2-3*x+2*x^2+x^3",
+    "w": "3+x^2-2*x^3"
+  },
+  "analytic_unadjusted_probe_boundary": [
+    -3,
+    -4,
+    5,
+    4
+  ],
+  "qualification": "Primary installed-source capture only; no instrumented replay or initializer internal capture."
+}

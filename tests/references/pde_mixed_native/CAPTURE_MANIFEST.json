@@ -1,0 +1,231 @@
+{
+  "reference_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_context": "321fb12d",
+  "licensed_source_copied": false,
+  "files": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_mixed_boundary_prepare_20261017/capture_mixed_boundary.m",
+      "sha256": "efa7f1a2a6fb754a2829b8e7a4873c03f8543ebb3e4a3646e4947a14c8943624"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_mixed_boundary_prepare_20261017/run_capture_mixed_boundary.m",
+      "sha256": "e85bc499efabae6378871ec49e277a9ea53d9c3c1f0cbd612b490eee8a405243"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/pdeSolve.m",
+      "sha256": "17db32dd0029bc0680266824a43f56add281e5c9a42086ba541afb2fb2e2fe66"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/pde15s.m",
+      "sha256": "550ea0c965980e4a3cd2c59ad73a6def381ea97f9209e2834d03f808c1df5586"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebmatrix/pde15s.m",
+      "sha256": "de902062dee1e5d40cbe6d06ba32c663096057c0e2b20fd7cee1d73b8c0cc41d"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m",
+      "sha256": "65c842de9d46d71ead533d31128ccabb8a34067a4117f8fe191cec34c9c06cc7"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebdouble/chebdouble.m",
+      "sha256": "03bc1304eb8a6890210cd8a15bf157c6865168b5f74c4c23b6624fc86248064f"
+    },
+    {
+      "path": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/pdeset.m",
+      "sha256": "f3843602ae98ce7f0d0b5b7515d2be72bdb916a3332a9db3aaac3c7b2eaa387a"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/ode15s.m",
+      "sha256": "b791d98d007525812aa677c2e64dcdc64bb7e4a72edabcf5fe3b5f8c94a1c2ad"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/matfun/condest.m",
+      "sha256": "666fc40992720c9d9b8e16d33eb15db11b1a2b116556de00040cd60af8878fea"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/matfun/normest1.m",
+      "sha256": "db639c86d3b799068fc420a4e9580ebb0356905d00420d40466381b729f75f5c"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/Gauss3Kronrod7.m",
+      "sha256": "c5bd60cf0176f8149a2eb7ca54894ed552956756caba6b652f041f7483919f8b"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/Gauss7Kronrod15.m",
+      "sha256": "3f2ab5502e6557fea2a0774881f3b86eb1d5187b0b721cb7a52e105e9c4807f5"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/bvparguments.m",
+      "sha256": "fe5fbbefa1387f0d099ec3c012279ba3b2c6506a5e0fcfb5953b8d5855027343"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/bvpfunctions.m",
+      "sha256": "d8666d0c9fef066ce2b14a475c31b60728250ccb28ed066929a0dd931bfa630a"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/bvpsingular.m",
+      "sha256": "3fbe1e17e32bcb2b16485c82b97f6c4e04445ad9b3bfc502323ef22d56f4307f"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/colgroup.m",
+      "sha256": "c56fb6be215097606563ce44cb393d62a0af480702524842a5bb4a6d59c42226"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/daeic12.m",
+      "sha256": "ff5134ea547673fb39ff2114202d5807281465188a472720ea0d00ad9152a682"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/daeic3.m",
+      "sha256": "2a37d780eef6c83098dd5467188ada90d1f5b0d4fad7577096827a146b38dd50"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/funstring.m",
+      "sha256": "ca707d4089b839366aabcf40372fbd297206f1ee9dfcff8aec5c54c837d0a6b3"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/integral2Calc.m",
+      "sha256": "c2c9f89278279d21d471db8763661246213e8ab2bd8eeaa50b45093cb57d4c55"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/integral2ParseArgs.m",
+      "sha256": "99cf7efe974310b6bba52c61912252c5e047546a007f6089d64c3eca03a4a978"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/integralCalc.m",
+      "sha256": "11992f61263eb121ba3dc58e04335cd8c6604697493f9cc0fb8a06936afa603f"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/integralParseArgs.m",
+      "sha256": "bbd095aab0c31e88160d2fe37cc3df646458ad463a0f97559c53fea30012ddff"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp113.m",
+      "sha256": "69da58404189f03f3ae608f9cc02ac5c3ecc1593defd951714265f8e789fd560"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp15i.m",
+      "sha256": "33979e4461d93b12cefdfee52774180a97f1aa3d67a0d1bb52d0d9b3632eeb11"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp15s.m",
+      "sha256": "1dffa663786048384daf1ab8ed6d936d588527f31bbe66def174ddab493d3091"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp23.m",
+      "sha256": "11581eaa461ba0486ae2f21285861898bd3b977f6e43a1626337c5fc0e7d9331"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp23s.m",
+      "sha256": "ffa5c239fcfd4d73d813b2bea0a2a47878b1431257ab86349b8d84b61bdfe4a0"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp23t.m",
+      "sha256": "803218d86adbca63fb2c739581e05f25c7f9b33070be87ded4210833f2e71edc"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp23tb.m",
+      "sha256": "e2a9042b1061772dceff0a4341d172e0d51055a44256824c1821c39e8e39e59f"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp3h.m",
+      "sha256": "5c44de3580a2d15f53ef7551b541b17cb086212a07820c783f31350c3732af31"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp45.m",
+      "sha256": "baaf9a5086f4a886d1fc99b0f01233dd7fcfd262b6b38ee3e2b1a43af2bea1ae"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp45split.m",
+      "sha256": "1260e14582005f9f6f4b99b6133ced32ffc72e0ee40d9055b63a8e2ef3a5834f"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp4h.m",
+      "sha256": "6b0eb08c92f05eadef676c2e1274172bfc0a62c88be9405a51ae65a61950756a"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp78.m",
+      "sha256": "4be45744d19f6d5cc6330065cc793c978daaf8e7cb3a19c23ae740cd5c6f26e0"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp78split.m",
+      "sha256": "15951da01cb53bae90d6c17b8137fd199c815e3d5387df5813b1b2b4d7936aa0"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp89.m",
+      "sha256": "67e71f28e97de47d15a38c443543fee3f8cb372ebd05d6e7671e2751c9bfdd1b"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ntrp89split.m",
+      "sha256": "ec8ee676cecea5c17621ec003c0e0cfc95698671f59f58b02ba06abad36ca51d"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ode15ipdinit.m",
+      "sha256": "2bec6f3866c46fd4c032e855fd193d1893ca6adcf212db6f00448b01213e87de"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/ode15ipdupdate.m",
+      "sha256": "b369af3840f589515ad3bff0cd6ebd60dd14b1863baa97caa1cd767280884cef"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odePlotImpl.m",
+      "sha256": "3f94bd29fe48217b6739fa4af6059a56dece6d58a9a650bf386fa04d91a2d71b"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odearguments.m",
+      "sha256": "453659846f9a461918f6a217bfb08abe2c3ecd0d07e17259a7019158184443f3"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odeevents.m",
+      "sha256": "cefbd86f715e70d9050ab9c936ca403208566217d09d3e20549426d233d803b1"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odefactorize.m",
+      "sha256": "6e571641c5fa4c9a70135fe7187f573b440d14dc8eadfdbd2de9d4fdf5e3ab1a"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odefinalize.m",
+      "sha256": "1fb9f2870c87102c42d172cb97efec5cb9c58799d13310416ea28c1ae8f2bd14"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odejacobian.m",
+      "sha256": "3192a1742be942e434d5843dbc386f4382370be8c16b5ab2b9e50884ef320c1c"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odemass.m",
+      "sha256": "b307620869a7d73b6a5b991f78f769cd7055dcd1c2d8411902079f29ce173d03"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odemassexplicit.m",
+      "sha256": "f9b55177f17b15eb4eb6a42f957be8607c978930373913b110ea80716d9f3aa9"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odemxv.m",
+      "sha256": "6c2f35046d39519501fd01f3dc45df2e7efa7bcfaf2eb691fd5c607e491b8731"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odenonnegative.m",
+      "sha256": "797e2cfef520c315b27697ce2abc33823c7535b697ebf0d2f1c93f35d19e2a1f"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odenumjac.m",
+      "sha256": "e57bed8ff1a4697c87bc327fd8c12c35dbbfdead9c74bb82ca87afb633273118"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odesolve.m",
+      "sha256": "e238138530da324e55043e70c0ad8437ed0249e0664e2e3aa0a1027a676902f6"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/odezero.m",
+      "sha256": "08c08df9d69018dd905be3bef81443228216810260b8688b9cbe09fd29c07305"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/packageAsFuncHandle.m",
+      "sha256": "231c0a1320aa7fdc38e86cee4c5e8ce0f36136d3e98550b4fecb98b5fc2e3df0"
+    },
+    {
+      "path": "/usr/licensed/matlab-R2025b/toolbox/matlab/funfun/private/pdentrp.m",
+      "sha256": "dda7765c36a315036639ffefad2267a7d3a0d7086d83a2c450c992a4b93cf691"
+    }
+  ]
+}

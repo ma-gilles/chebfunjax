@@ -62,7 +62,9 @@ class Values:
         values = other.vals if isinstance(other, Values) else other
         order = max(self.order, other.order) if isinstance(other, Values) else self.order
         dependent = self.dependent or (isinstance(other, Values) and other.dependent)
-        result = fn(self.vals, values) if operation is None else binary(self.vals, values, operation)
+        result = (
+            fn(self.vals, values) if operation is None else binary(self.vals, values, operation)
+        )
         return Values(result, self.context, order, dependent)
 
     def __add__(self, v):
@@ -94,17 +96,23 @@ class Values:
         return Values(-self.vals, self.context, self.order, self.dependent)
 
 
-def _invoke_system(fun, t, x, columns):
-    """pdeSolve parseFun: dependent-only or full independent-variable inputs."""
+def _invoke_system(fun, t, x, columns, *, role="pde", expected_count=None):
+    """pdeSolve parseFun: independent input follows the callback's role."""
     arity = _positional_arity(fun)
     if arity == len(columns):
         result = fun(*columns)
+    elif arity == len(columns) + 1:
+        result = fun(x if role == "pde" else t, *columns)
     elif arity == len(columns) + 2:
         result = fun(t, x, *columns)
     else:
-        raise NotImplementedError("System callbacks require N or N+2 positional inputs")
-    if not isinstance(result, (tuple, list)) or len(result) != len(columns):
-        raise ValueError("System callbacks must return one expression per component")
+        raise NotImplementedError("System callbacks require N, N+1 or N+2 positional inputs")
+    if role == "pde":
+        expected_count = len(columns)
+    if not isinstance(result, (tuple, list)):
+        raise ValueError("System callbacks must return a tuple or list of expressions")
+    if expected_count is not None and len(result) != expected_count:
+        raise ValueError("System callback expression count changed or does not match its role")
     return result
 
 
@@ -130,8 +138,8 @@ def solve(
     size = coefficients.shape[1] if system else 1
     if system and jnp.iscomplexobj(coefficients):
         raise NotImplementedError("System NDF currently requires real components")
-    if system and (not callable(lbc) or not callable(rbc)):
-        raise NotImplementedError("Systems require one residual per component on each boundary")
+    if system and any(spec is not None and not callable(spec) for spec in (lbc, rbc)):
+        raise NotImplementedError("System boundaries require callable handles or None")
     if len(u0.funs) != 1:
         # pdeSolve first attempts merge(all, 1025, tol), then rejects pieces.
         u0 = u0.merge("all", max_length=1025, tol=spatial_tol)
@@ -176,6 +184,7 @@ def solve(
         # Traced public evaluation stays in JAX and preserves the stored polynomial.
         initial_values = jax.jit(lambda z: current(z))(x)
         coordinate = Values(x, context, dependent=False)
+
         def components(y):
             matrix = jnp.reshape(y, (n, size), order="F")
             return [Values(matrix[:, k], context) for k in range(size)]
@@ -185,10 +194,16 @@ def solve(
             prototype = _invoke_system(pdefun, current_time, coordinate, components(initial_values))
             orders = [v.order if isinstance(v, Values) else 0 for v in prototype]
             order = sum(orders)
-            if order != 2 * size:
-                raise ValueError("System differential orders must match boundary constraints")
-            for _, spec in ordered:
-                _invoke_system(spec, current_time, coordinate, components(initial_values))
+            boundary_counts = [
+                len(
+                    _invoke_system(
+                        spec, current_time, coordinate, components(initial_values), role="boundary"
+                    )
+                )
+                for _, spec in ordered
+            ]
+            if order != sum(boundary_counts):
+                raise ValueError("System differential orders must match boundary residual count")
         else:
             invoke(pdefun, current_time, coordinate, Values(initial_values, context))
             order = context["order"]
@@ -218,8 +233,10 @@ def solve(
                 )
                 rhs = projection @ jnp.reshape(matrix, (-1,), order="F")
                 row = 0
-                for side, spec in ordered:
-                    for value in _invoke_system(spec, t, coordinate, columns):
+                for (side, spec), count in zip(ordered, boundary_counts):
+                    for value in _invoke_system(
+                        spec, t, coordinate, columns, role="boundary", expected_count=count
+                    ):
                         value = value.vals if isinstance(value, Values) else jnp.asarray(value)
                         rhs = rhs.at[row].set(value if value.ndim == 0 else value[side])
                         row += 1
@@ -261,7 +278,7 @@ def solve(
         def fun(t, y):
             return raw(t, y).at[:order].add(-offset)
 
-        if ordered:
+        if system or ordered:
             init = initialize_full_mass(
                 lambda y: fun(current_time, y), mass, initial_values, reltol=rtol, abstol=atol
             )
@@ -282,7 +299,7 @@ def solve(
             threshold=atol / rtol,
             userhmax=float(times[-1] - current_time) / 10,
             htspan=float(remaining[1] - remaining[0]),
-            dae=bool(ordered),
+            dae=bool(system or ordered),
             rhs=fun,
         )
         s["tfinal"] = times[-1]
@@ -296,9 +313,7 @@ def solve(
             if system:
                 value = jnp.reshape(value, (n, size), order="F")
             happiness = system_happiness if system else scalar_happiness
-            happy, cutoff = (
-                (True, None) if fixed_n is not None else happiness(value, spatial_tol)
-            )
+            happy, cutoff = (True, None) if fixed_n is not None else happiness(value, spatial_tol)
             decisions.append((float(t), happy, cutoff))
             if not happy and fixed_n is None:
                 length = 2 * length - 1

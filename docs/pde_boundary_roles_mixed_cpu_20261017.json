@@ -1,0 +1,111 @@
+{
+  "base_commit": "321fb12d9459e99776c611b84341ea0123cbc97b",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "cpu_only": true,
+  "jax": "0.11.0",
+  "binary64": true,
+  "changes": [
+    "N+1 PDE independent input is space; N+1 endpoint boundary input is time",
+    "Boundary prototypes determine actual residual counts; runtime counts must remain fixed",
+    "Sum of per-expression differential orders equals total actual boundary residuals",
+    "Preserve per-expression barycentric projection including nonidentity zero-order blocks",
+    "Absent sides add zero residuals; empty handles accepted",
+    "System full-mass initialization and DAE startup retained even for nonsingular zero-boundary mass; scalar compatibility unchanged"
+  ],
+  "native_scope": {
+    "mixed_case": "Primary installed MATLAB ode15s; fixedN9, orders[2,2,0], boundary counts[2,2], matrix27x27, block rows[7,7,9]; native projection/mass/RHS/offset and public samples compared",
+    "arity_case": "FixedN9 three-component PDE(x,u,v,w), BC(t,u,v,w), all nine species/time samples with three finite values",
+    "no_instrumented_replay_claim": true,
+    "mixed_joint_process_exit": 1,
+    "mixed_joint_exit_explanation": "Separate earlier arity harness failed in source backCompat before solve; mixed case independently completed with stable input guard",
+    "arity_v3_process_exit": 0,
+    "harness_failures_preserved": [
+      "v1 named handle incompatible with source backCompat anonymous argument parser",
+      "v2 Chebmatrix numel populated only one sample despite complete flag; structural audit rejected it",
+      "v3 nested size loops and explicit all-sample validation correct the capture"
+    ]
+  },
+  "verification": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/pde_boundary_roles_mixed_qualified_20261017.zip",
+    "sha256": "4e7c8cdf449ef83de7f281489f6d15fcde8d710031fc1a3dcd9d6984ba732823",
+    "entries": 3298,
+    "bytes": 26403940,
+    "verified": true,
+    "licensed_runtime_excluded": true,
+    "passed": 68,
+    "distinct": 68,
+    "supervisor_seconds": 130.1070354678668,
+    "peak_summed_rss_kib": 3869988,
+    "stable": true,
+    "survivors": [],
+    "full_goal_complete": false,
+    "summed_testcase_seconds": 121.071,
+    "pytest_seconds": 121.79
+  },
+  "acceptance_bounds": {
+    "source_arrays": "100*eps*max(1,maxabs(reference))",
+    "public_and_manufactured_forward": 1e-07,
+    "widened": false
+  },
+  "initial_candidate_gate": {
+    "passed": 9,
+    "failed": 1,
+    "failure": "Incomplete native arity sample fixture; numerical comparison was not reached"
+  },
+  "docstring_only_after_gate": {
+    "tests/test_pde_ndf_mixed_boundary.py": {
+      "tested_sha256": "bedcbb71faa28d73d90a8482039b1d26d81bdcf28245c49de273fbb53d8f74f3",
+      "publication_sha256": "01c4318229a30d6c7252c490f8bcb1c9d02a37b320b5c1cb485ebf77dd61344a",
+      "only_module_docstring_changed": true,
+      "remaining_ast_equal": true
+    },
+    "tests/test_pde_ndf_empty_boundaries.py": {
+      "tested_sha256": "aea3bec9079138b9da9958a4c4fdf9c94f8c58444976e8500e68b95185bf8e6f",
+      "publication_sha256": "e3629575467b6edcba6f193b811f9a4b5a0063d9876b9921a283380e7b5894e8",
+      "only_module_docstring_changed": true,
+      "remaining_ast_equal": true
+    },
+    "tests/test_pde_ndf_callback_roles.py": {
+      "tested_sha256": "3575c910572ddcfe4da4a32140d544d8540323d6a47ecc489a30db6b8eb55b05",
+      "publication_sha256": "61f9ac89adcb489c3455b7147661c68c46488e80ba264d72886e0793addd949d",
+      "only_module_docstring_changed": true,
+      "remaining_ast_equal": true
+    }
+  },
+  "review_paths": [
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_boundary_final_review_20261017/FINAL_SOURCE_REVIEW.json",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_boundary_evidence_audit_20261017/AUDIT.json"
+  ],
+  "remaining": [
+    "Neumann/Dirichlet shorthand and full chemical example",
+    "Complex/Fourier/sparse/variable-mass PDE paths",
+    "Arbitrary proxy ufuncs and wider callback syntax",
+    "Native return representation including source fixed-N tOut behavior",
+    "Legacy SciPy routes",
+    "Full library/test/example/figure/CPU performance audit and latest-main green CI"
+  ],
+  "full_goal_complete": false,
+  "publication_input_sha256": {
+    "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "c3b52327c4ea87a244d18fb83c7e1d7e54e03a372c94146898d14910e8a0abab",
+    "src/chebfunjax/chebfun1d/pde15s.py": "240140b079d0bff16fd1c8b612841575755921c6c00d7d909cbdc8f760667666",
+    "tests/test_pde_ndf_mixed_boundary.py": "01c4318229a30d6c7252c490f8bcb1c9d02a37b320b5c1cb485ebf77dd61344a",
+    "tests/test_pde_ndf_empty_boundaries.py": "e3629575467b6edcba6f193b811f9a4b5a0063d9876b9921a283380e7b5894e8",
+    "tests/test_pde_ndf_callback_roles.py": "61f9ac89adcb489c3455b7147661c68c46488e80ba264d72886e0793addd949d",
+    "tests/references/pde_mixed_native/solver_capture.mat": "5fe04aba278c7c036ca645d3d441b1043aad9fb2e23f7c2f7a2da7c4c6caa951",
+    "tests/references/pde_mixed_native/solver_summary.json": "5864b2522f304aa2bd7b253357019200fb9267d9ee4390be0b7fca632562aa6d",
+    "tests/references/pde_mixed_native/public_output.mat": "8a867342fc2084c795cf45f4cb6530d5375d23a00520d5043a745f39bd21c6aa",
+    "tests/references/pde_mixed_native/metadata.json": "6411342602090ee8d000011d2f0e10811b45bf48a33faefb5740a63d672fcec2",
+    "tests/references/pde_mixed_native/FIXTURE_HASHES.json": "f0685ab862a6910aed7654be85fb80037a05f046d04949068f5783868d76dd49",
+    "tests/references/pde_callback_arity_native/public_output.mat": "1565ef74a322a6475801fb12581154b73663d0f5f4fbe0126bb2f3f9aab5b097",
+    "tests/references/pde_callback_arity_native/metadata.json": "9ac9f7bf67aabfddde259ecebca5f9a382b2b338b8d4e40a5193ad02af161c74",
+    "tests/references/pde_callback_arity_native/FIXTURE_HASHES.json": "c2eed054fca959d3955c1196c52d83a1db3dcad1ebac8faacce3c1cf3511bf47",
+    "tests/references/pde_mixed_native/CAPTURE_MANIFEST.json": "0214b29a4d699cd75317eb3f47a38176334de5c47ef73aec567986fe2e13348d",
+    "tests/references/pde_mixed_native/run_capture_mixed_boundary.m": "e85bc499efabae6378871ec49e277a9ea53d9c3c1f0cbd612b490eee8a405243",
+    "tests/references/pde_mixed_native/README.md": "689aef2cea7df360f509d39af8418a0053ed97c80ea4ce78e82e04412548c7ab",
+    "tests/references/pde_mixed_native/EXPECTED_OUTPUT_MAP.json": "50a9ba1611a2765c703167a9effb091a90fb2c4d92367a59de18d906e03a1a9d",
+    "tests/references/pde_mixed_native/capture_mixed_boundary.m": "efa7f1a2a6fb754a2829b8e7a4873c03f8543ebb3e4a3646e4947a14c8943624",
+    "tests/references/pde_callback_arity_native/V3_CORRECTION.json": "2b16e750e7221172cf335e9fe05906478b7cfd5acddc66f5cd1fe51ecf83b0e4",
+    "tests/references/pde_callback_arity_native/capture_callback_arity.m": "6c4fd8f930678db1331e08ac210e38cdb52a0e4b0d11c1e42473b1bb91621f77",
+    "tests/references/pde_callback_arity_native/README.md": "689aef2cea7df360f509d39af8418a0053ed97c80ea4ce78e82e04412548c7ab"
+  }
+}
