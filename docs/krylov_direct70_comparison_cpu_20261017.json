@@ -1,0 +1,31 @@
+{
+  "status": "Actual direct70 stages complete; numerical and performance parity unresolved",
+  "reference": "7574c77",
+  "python_seconds": 83.064526,
+  "native_seconds": 28.037204,
+  "python_length": 3084,
+  "native_length": 3082,
+  "function_sample_max_difference": 8.21e-09,
+  "python_endpoint_residual_max": 39.73,
+  "native_endpoint_residual_max": 55.43733,
+  "interpretation": "Native actual L*u-f and independent stored-coefficient evaluation confirm the native endpoint residual too. This does not establish parity or excuse the function-value discrepancy. Timings are actual single captured solves, not a repeated matched performance qualification.",
+  "archives": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/krylov_direct70_native_20261017/qualified_evidence.zip",
+      "sha256": "3958e995826c4cd3f2f1ea522652876c4d42172a48b5258f685d33d5e89baf58",
+      "verified_payloads": 3467
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/krylov_direct70_source_ad_20261017/qualified_evidence.zip",
+      "sha256": "ad444f26b0472a115a5127ef885928735acb5206c19111c81f9cfe4a62ee9743",
+      "verified_payloads": 6597
+    }
+  ],
+  "limitations": [
+    "Exact executed native stage and library frozen; full external example file captured only as postrun provenance.",
+    "Raw preference isequal=false preserved; native factory prefs contain NaN scale; driver makes no preference assignments.",
+    "No complete Krylov page run or success claim."
+  ],
+  "native_timing_source": "Archive run/supervision/stdout: Elapsed time is 28.037204 seconds (literal source tic/toc).",
+  "native_driver_probe_seconds": 30.877176
+}

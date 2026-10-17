@@ -1689,6 +1689,12 @@ class Chebop:
                                              bvp_tol=tol, n_min=n_min, n_max=n_max)
                     except CoupledParameterVariables:
                         pass  # Preserve the existing parameter adapter below.
+            if self._n_params() > 0:
+                from chebfunjax.operators._mixed_linear import prepare, solve
+                mixed = prepare(self)
+                if mixed is not None:
+                    return solve(self, f, mixed, n=n, n_min=n_min,
+                                 n_max=n_max, tol=tol)
             if self._system_is_linear():
                 return self._solve_linear_system(f, n=n)
             if self._has_explicit_scalar_parameters():
@@ -6700,7 +6706,7 @@ class Chebop:
         than evaluating the operator separately on every basis function.
         Chebfun commit: 7574c77.
         """
-        if (not _known_local and self._n_vars() == 1 and len(self.domain) == 2
+        if (self._n_vars() == 1 and len(self.domain) == 2
                 and not self._periodic and self._bc_general is None
                 and all(bool(jnp.isfinite(v)) for v in self.domain)):
             from chebfunjax.operators.chebop_altdisc import (
@@ -6711,9 +6717,32 @@ class Chebop:
                 data = _linearize_scalar_ad(self, f, tuple(self.domain))
             except (NotImplementedError, TypeError, AttributeError):
                 data = None
-            if data is not None and data[0].A.blocks[0][0]._coeff_fn is None:
-                return _solve_scalar_linear_ad(
-                    self, data, "chebcolloc2", n, n_min, n_max, tol)[0]
+            if data is not None:
+                operator = data[0]
+                block = operator.A.blocks[0][0]
+                # Native linearize constructs the Jacobian as composed AD
+                # blocks.  Supported local equations use that source route;
+                # they do not reconstruct sampled monomial/validation probes.
+                # Capabilities select this route, not an order threshold or
+                # an inference from the coefficient table alone.  The C2
+                # solver currently realizes nodal blocks, even though these
+                # blocks also carry coordinate capabilities.
+                supported_local = (
+                    self._lbc_raw is not None and self._rbc_raw is not None
+                    and tuple(operator.domain) == tuple(self.domain)
+                    and tuple(block.domain) == tuple(self.domain)
+                    and block._coeff_fn is not None
+                    and block._coordinate_fn is not None
+                    and block._values_capability is not None
+                    and len(operator.constraint) == block.order
+                    and all(row[0]._coordinate_fn is not None
+                            and row[0]._values_capability is not None
+                            for row, _ in operator.constraint)
+                )
+                existing_nonlocal = not _known_local and block._coeff_fn is None
+                if existing_nonlocal or supported_local:
+                    return _solve_scalar_linear_ad(
+                        self, data, "chebcolloc2", n, n_min, n_max, tol)[0]
         linop = self._build_linop()
 
         # RHS callable

@@ -1,3 +1,27 @@
+## Original parameter ODEs and scalar source routing — 2026-10-17
+
+Natural mixed linear ODEs now retain genuine numeric scalar columns, native AD
+boundary contraction and adaptive source C2 solves.49 distinct focused checks
+pass, including16 original parameter-linearization predicates and both original
+parameter-ODE aggregate predicates at unchanged default bounds. Nonlinear/mixed
+alternative backend and broader original coverage remain open.
+
+Supported scalar linear AD route passes73 checks; combined14 integration checks
+pass (subsets, not extra distinct cases). Actual Krylov direct70 now completes,
+but Python83.06s versus native28.04s and max function difference8.21e-9 remain
+unresolved. Both implementations exhibit large endpoint residuals. No complete
+Krylov page or scientific/performance parity claim.
+
+Subsref39 focused tests pass, with12 original clauses restored using native
+seeded probes and column-major layouts; remaining18 original clauses explicit.
+Current roots stress passes both native norm clauses within original900s bound
+(580.923s,4.88GiB). Full pages/figures, known faults, performance and CI remain
+incomplete. Evidence: docs/mixed_linear_source_cpu_20261017.json,
+docs/krylov_scalar_ad_route_cpu_20261017.json,
+docs/krylov_direct70_comparison_cpu_20261017.json,
+docs/subsref_original_clauses_cpu_20261017.json,
+docs/roots_stress_current_cpu_20261017.json.
+
 ## JAX Airy gallery callbacks — 2026-10-17
 
 ## Numerical correction checkpoint (2026-10-17; latest scoped update)

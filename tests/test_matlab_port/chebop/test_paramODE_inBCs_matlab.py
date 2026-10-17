@@ -1,12 +1,9 @@
-"""Port of MATLAB Chebfun tests/chebop/test_paramODE_inBCs.m (Fable 5).
+"""Supplemental fixed-grid controls related to test_paramODE_inBCs.m.
 
-Every case places the unknown parameter in the boundary conditions (or, where
-it appears in the operator as ``diff(u)-p``, determines it only implicitly with
-no BC referencing it).  FIXED (Fable 5): general ``.bc`` constraints and
-lbc/rbc conditions may reference an unknown scalar parameter, which is carried
-in the square collocation system as a constant field (``p' = 0``) pinned by the
-boundary/interior condition rows -- matching MATLAB @chebop's treatment of
-parameters as extra unknowns in the linearization (see #1209).
+Natural parameter problems return numeric scalar parameters. These inherited
+n=24 controls retain their analytic comparisons and1e-9bound; they are not a
+claim of default adaptive source-test qualification. The16 original parameter
+linearization predicates are in test_paramODE_linearization_literal_source.py.
 
 Provenance
 ----------
@@ -15,6 +12,8 @@ Chebfun commit: 7574c77
 """
 
 from __future__ import annotations
+
+import numbers
 
 import jax.numpy as jnp
 import numpy as np
@@ -62,7 +61,7 @@ class TestChebopParamodeInbcs:
         u, p = _deal(A.solve(0.0, n=24))
         err = float(A([u, p]).norm()) + _bc_resid(bc, u, p, dom)
         assert err < TOL
-        assert isinstance(u, Chebfun) and isinstance(p, Chebfun)
+        assert isinstance(u, Chebfun) and isinstance(p, numbers.Number) and not isinstance(p, bool)
 
     def test_example1_lbc_rbc(self):
         # L = diff(u) - 1 on [-1, 1], lbc u = 0, rbc u - p = 0.
@@ -73,7 +72,7 @@ class TestChebopParamodeInbcs:
         L.rbc = lambda u, p: u - p
         u, p = _deal(L.solve(0.0, n=24))
         line = cj.chebfun(lambda t: 1.0 + t, domain=dom)
-        err = float((u - line).norm()) + abs(float(p(_a(0.0))) - 2.0)
+        err = float((u - line).norm()) + abs(float(p) - 2.0)
         assert err < TOL
 
     def test_example2_bc_field(self):
@@ -83,7 +82,7 @@ class TestChebopParamodeInbcs:
         L.bc = lambda t, u, p: [u(_a(-1.0)), u(_a(1.0)) - p]
         u, p = _deal(L.solve(0.0, n=24))
         line = cj.chebfun(lambda t: 1.0 + t, domain=dom)
-        err = float((u - line).norm()) + abs(float(p(_a(0.0))) - 2.0)
+        err = float((u - line).norm()) + abs(float(p) - 2.0)
         assert err < TOL
 
     def test_example3_param_in_operator(self):
@@ -94,5 +93,5 @@ class TestChebopParamodeInbcs:
         L.bc = lambda t, u, p: [u(_a(-1.0)), u(_a(1.0)) - 2]
         u, p = _deal(L.solve(0.0, n=24))
         line = cj.chebfun(lambda t: 1.0 + t, domain=dom)
-        err = float((u - line).norm()) + abs(float(p(_a(0.0))) - 1.0)
+        err = float((u - line).norm()) + abs(float(p) - 1.0)
         assert err < TOL

@@ -1,15 +1,10 @@
-"""Port of MATLAB Chebfun tests/chebop/test_paramODE_linearization.m (Fable 5).
+"""Supplemental fixed-grid parameter and boundary controls.
 
-Unknown-parameter problems solve as a forced square system (the parameter
-``p`` carried as an extra unknown with ``p' = 0``) WHEN the parameter appears
-in the differential operator and is pinned by an endpoint boundary condition.
-
-The cases where the parameter appears ONLY in the boundary conditions (not in
-the operator), or where a condition is imposed at an interior point
-(``u(0)`` on a domain straddling 0), or where the parameter is determined
-only implicitly (no boundary condition references it), are not solved -- the
-parameter stays at its initial value.  Those stay skipped with precise
-reasons.
+The16 literal original predicates, natural operators and default adaptive
+solves are in test_paramODE_linearization_literal_source.py. These inherited
+controls use fixed grids and analytic variants. Natural parameter problems
+return numeric scalars; the explicit p.diff() system below retains a function
+unknown and is a supplemental forced-system control.
 
 Provenance
 ----------
@@ -18,6 +13,8 @@ Chebfun commit: 7574c77
 """
 
 from __future__ import annotations
+
+import numbers
 
 import jax.numpy as jnp
 
@@ -59,11 +56,10 @@ def _bc_resid(bc_fn, u, p, domain):
 
 
 class TestChebopParamodeLinearization:
-    def test_second_order_param_in_operator(self):
-        # pass(1,3)/(1,4): diff(u,2) + u + p on [0,1] with u(0)=0, u(1)=2,
-        # u'(0)=p -- the parameter appears in the operator and is pinned by the
-        # left endpoint condition u'(0) - p.
-        # FIXED (Fable 5, Big-Three array-valued epic).
+    def test_supplemental_forced_second_order_field_system(self):
+        # Explicit fixed16-node field system: this adds p.diff()=0 and
+        # checks an actual Chebfun field parameter, separately from native
+        # natural numeric parameter cases3/4 in the literal companion.
         A = Chebop(lambda x, u, p: [u.diff(2) + u + p, p.diff()], (0.0, 1.0))
         A.lbc = lambda u, p: [u, u.diff() - p]
         A.rbc = lambda u, p: u - 2
@@ -78,16 +74,15 @@ class TestChebopParamodeLinearization:
             + abs(float(u.diff()(a)) - float(p(jnp.asarray(0.5))))
         )
         assert err < TOL
-        # pass(2,3)/(2,4): u is a chebfun and p is (a constant) chebfun.
+        # Both unknowns in this explicit differential system are Chebfuns.
         from chebfunjax.chebfun1d.chebfun import Chebfun
         assert isinstance(u, Chebfun) and isinstance(p, Chebfun)
 
     def test_param_only_in_bcs(self):
-        # pass(1,1)/(1,2)/(1,5): the parameter appears only in the boundary
+        # Fixed-grid variants of source cases1/2/5: the parameter appears only in the boundary
         # conditions (operator is diff(u) or diff(u,2)+u with no p).
         # FIXED (Fable 5): general .bc constraints referencing an unknown
-        # parameter, assembled by the block collocation solver (the parameter
-        # is carried as a constant field p'=0 pinned by the BC rows).
+        # numeric parameter in the natural mixed system.
         from chebfunjax.chebfun1d.chebfun import Chebfun
 
         # pass(1,1): op diff(u), bc = [u(-1); u(0)-c], f = exp
@@ -99,7 +94,7 @@ class TestChebopParamodeLinearization:
         err = float((A([u, c]) - f).norm()) + _bc_resid(
             lambda x, uu, cc: [uu(_a(-1.0)), uu(_a(0.0)) - cc], u, c, (-1.0, 1.0))
         assert err < TOL
-        assert isinstance(u, Chebfun) and isinstance(c, Chebfun)
+        assert isinstance(u, Chebfun) and isinstance(c, numbers.Number) and not isinstance(c, bool)
 
         # pass(1,2): same op, bc = u(0)-c, and an lbc u(-1)=0
         A = Chebop(lambda x, u, c: u.diff(), (-1.0, 1.0))
@@ -112,7 +107,7 @@ class TestChebopParamodeLinearization:
             + abs(float(u(_a(-1.0))))
         )
         assert err < TOL
-        assert isinstance(u, Chebfun) and isinstance(c, Chebfun)
+        assert isinstance(u, Chebfun) and isinstance(c, numbers.Number) and not isinstance(c, bool)
 
         # pass(1,5): op diff(u,2)+u (p NOT in operator), determined by the BCs
         A = Chebop(lambda x, u, p: u.diff(2) + u, (0.0, 1.0))
@@ -123,7 +118,7 @@ class TestChebopParamodeLinearization:
             lambda x, uu, pp: [uu(_a(0.0)), uu(_a(1.0)) - 2,
                                uu.diff()(_a(0.0)) - pp], u, p, (0.0, 1.0))
         assert err < TOL
-        assert isinstance(u, Chebfun) and isinstance(p, Chebfun)
+        assert isinstance(u, Chebfun) and isinstance(p, numbers.Number) and not isinstance(p, bool)
 
     def test_interior_point_condition(self):
         # pass(1,1)/(1,2): the condition u(0) - c is imposed at an interior
@@ -152,14 +147,13 @@ class TestChebopParamodeLinearization:
         u, c = _deal(A.solve(f, n=24))
         # c = u(0) = 1 - exp(-1) since u' = exp, u(-1) = 0
         import numpy as np
-        assert abs(float(c(_a(0.3))) - (1.0 - np.exp(-1.0))) < TOL
+        assert abs(float(c) - (1.0 - np.exp(-1.0))) < TOL
 
     def test_param_determined_implicitly(self):
-        # pass(1,6)/(1,7)/(1,8): the parameter is fixed only implicitly (no BC
+        # Fixed-grid variants of source cases6/7/8: the parameter is fixed only implicitly (no BC
         # references it), e.g. diff(u)-p with u(-1)=0, u(1)=2 -> p=1.
-        # FIXED (Fable 5): the parameter is carried as a constant field and
-        # pinned through the differential-equation rows (which reference p),
-        # so it is determined even when no boundary condition names it.
+        # The natural parameter remains numeric even when the differential
+        # equation determines it without a BC naming the parameter.
         from chebfunjax.chebfun1d.chebfun import Chebfun
 
         # pass(1,6): op diff(u)-1, lbc u=0, rbc u-p=0  ->  p = 2
@@ -170,11 +164,11 @@ class TestChebopParamodeLinearization:
         err = (
             float(L([u, p]).norm())
             + abs(float(u(_a(-1.0))))
-            + abs(float(u(_a(1.0))) - float(p(_a(1.0))))
+            + abs(float(u(_a(1.0))) - float(p))
         )
         assert err < TOL
-        assert abs(float(p(_a(0.0))) - 2.0) < TOL
-        assert isinstance(u, Chebfun) and isinstance(p, Chebfun)
+        assert abs(float(p) - 2.0) < TOL
+        assert isinstance(u, Chebfun) and isinstance(p, numbers.Number) and not isinstance(p, bool)
 
         # pass(1,7): op diff(u)-1, bc = [u(-1); u(1)-p]  ->  p = 2
         L = Chebop(lambda x, u, p: u.diff() - 1, (-1.0, 1.0))
@@ -183,7 +177,7 @@ class TestChebopParamodeLinearization:
         err = float(L([u, p]).norm()) + _bc_resid(
             lambda x, uu, pp: [uu(_a(-1.0)), uu(_a(1.0)) - pp], u, p, (-1.0, 1.0))
         assert err < TOL
-        assert abs(float(p(_a(0.0))) - 2.0) < TOL
+        assert abs(float(p) - 2.0) < TOL
 
         # pass(1,8): op diff(u)-p, bc = [u(-1); u(1)-2]  ->  p = 1 (implicit)
         L = Chebop(lambda x, u, p: u.diff() - p, (-1.0, 1.0))
@@ -192,4 +186,4 @@ class TestChebopParamodeLinearization:
         err = float(L([u, p]).norm()) + _bc_resid(
             lambda x, uu, pp: [uu(_a(-1.0)), uu(_a(1.0)) - 2], u, p, (-1.0, 1.0))
         assert err < TOL
-        assert abs(float(p(_a(0.0))) - 1.0) < TOL
+        assert abs(float(p) - 1.0) < TOL

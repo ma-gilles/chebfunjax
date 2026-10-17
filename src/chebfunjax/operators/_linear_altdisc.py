@@ -339,8 +339,10 @@ def solve_operator(L, rhs, *, backend, n=None, n_min=32, n_max=4096,
     else:
         dimensions = disc.dimensions
         schedule = tuple(size for size in schedule if size > max(dimensions))
-    scales = jnp.zeros(L.ncols) if vscale is None else jnp.broadcast_to(
-        jnp.asarray(vscale), (L.ncols,))
+    isfun = tuple(L.is_fun_variable())
+    field_indices = jnp.asarray([i for i, flag in enumerate(isfun) if flag])
+    scales = (jnp.zeros(sum(isfun)) if vscale is None else
+              jnp.broadcast_to(jnp.asarray(vscale), (L.ncols,))[field_indices])
     history = []
     for next_dimension in (*schedule, None):
         if disc is None or disc.dimensions != dimensions or not disc.is_factored:

@@ -1,0 +1,57 @@
+{
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/roots_stress_e95d3bf2_20261017_evidence.tar.gz",
+  "sha256": "6fc7fabc907161222d362f20044fb5f9e806e636aabb90030edac92f780a6aec",
+  "verified_payloads": 3675,
+  "summary": {
+    "head": "e95d3bf27a7a0a02f682136a1c82e774ea8b5f24",
+    "source_reference": "7574c77680d7e82b79626300bf255498271a72df",
+    "test": "tests/test_matlab_port/chebfun2v/test_roots_slow_matlab.py::TestChebfun2vRootsSlow::test_all_matlab_assertions",
+    "tests_passed": 1,
+    "original_native_clauses": 2,
+    "pytest_seconds": 580.923,
+    "original_pytest_timeout_seconds": 900,
+    "supervisor_seconds": 592.7503699627705,
+    "sampled_peak_summed_rss_kib": 5115056,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "comparison": {
+      "shapes": [
+        [
+          93,
+          2
+        ],
+        [
+          93,
+          2
+        ]
+      ],
+      "source_sorted_column_2norms": [
+        7.450851891451834e-15,
+        4.38127959144101e-15
+      ],
+      "original_tolerance": 2.220446049250313e-13,
+      "original_result": true,
+      "observer": "Actual operands captured only at the original final assertion; no solver/constructor overrides."
+    },
+    "runtime": {
+      "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_stress_e95d3bf2_20261017/src/chebfunjax/__init__.py",
+      "jax": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "backend": "cpu",
+      "x64": true,
+      "affinity": [
+        32,
+        33,
+        34,
+        35
+      ],
+      "driver_seconds": 584.531534222886
+    },
+    "runtime_imported_files_unchanged": 1394,
+    "limits": [
+      "CPU original stress qualification at this exact source head only; no whole-library or CI success claim.",
+      "No paired native timing or performance ratio claim.",
+      "First launcher failed before tests due missing test-package sys.path; both launcher versions and terminal evidence preserved."
+    ]
+  }
+}

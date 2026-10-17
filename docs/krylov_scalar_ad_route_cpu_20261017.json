@@ -1,0 +1,93 @@
+{
+  "status": "Supported scalar source AD route selection qualified by focused controls; no current Krylov solve success claimed",
+  "base_commit": "e95d3bf27a7a0a02f682136a1c82e774ea8b5f24",
+  "scope": [
+    "src/chebfunjax/operators/chebop.py:Chebop._solve_linear route selection",
+    "tests/test_operators/test_scalar_ad_route_source.py"
+  ],
+  "source_semantics": {
+    "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "source": "@chebop/linearize.m seeds AD and extracts Jacobians; @operatorBlock/operatorBlock.m composes stacks; @valsDiscretization/instantiate.m instantiates the source block algebra.",
+    "eligibility": "Finite single-interval scalar two-sided AD-linear operator, same construction domain, square source constraints and explicit differential/coefficient, coordinate and native-values capabilities for operator and boundaries. Existing nonlocal AD condition preserved.",
+    "realization": "Existing _linearize_scalar_ad/_solve_scalar_linear_ad(...,chebcolloc2). SecondKindDiscretization realizes source nodal blocks; coordinate capabilities are eligibility metadata, not used for its solve.",
+    "validation": "The supported native AD route uses source linearity/capability metadata. It does not use legacy sampled-probe validation. Legacy _linearize_op/_assembly_ok/1e-6/general-column fallback remain byte-identical."
+  },
+  "legacy_source_sha256": {
+    "_linearize_op": "6c11979d6692c00a2a2d263ba129c53169208150c27009298f6d17af2685f948",
+    "_assembly_ok": "53c9f61a66504d633ffb5ecbeffd30fad1f6b04d532dacbf3e45fb6eddd6b0e1",
+    "_sniff_order": "079d2de64873b1fa475b0b549ef01e9782288f39ba055387f109a51055429fc5"
+  },
+  "focused_groups": {
+    "candidate": {
+      "passed": 40,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 104.97821273002774,
+      "sampled_peak_summed_rss_kib": 3956064,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "boundary_chebcolloc2": {
+      "passed": 8,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 40.348287645727396,
+      "sampled_peak_summed_rss_kib": 2009456,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "boundary_chebcolloc1": {
+      "passed": 8,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 41.106232879683375,
+      "sampled_peak_summed_rss_kib": 2075888,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "boundary_ultraS": {
+      "passed": 8,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 34.85541535913944,
+      "sampled_peak_summed_rss_kib": 1880420,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native_scalar": {
+      "passed": 9,
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 77.64720255089924,
+      "sampled_peak_summed_rss_kib": 3374364,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "total_passed": 73,
+  "new_controls": 8,
+  "existing_unchanged": 65,
+  "baseline": {
+    "three_expected_failures": "Public supported local/divergence, affine, and affine with nonzero initial state enter legacy before correction.",
+    "two_new_fixture_errors": "Initial fallback fixtures omitted required private-call arguments; raw TypeErrors and test preimages preserved. Required args corrected before candidate; no existing test or numerical bound changed.",
+    "other_three_controls": "Capability-missing and existing nonlocal controls pass unchanged baseline.",
+    "archive_sha256": "c5b9703bccca08517a3e769e9ace343d3848e838aad890bdf4712eb7d4fd1934"
+  },
+  "bounds": {
+    "manufactured_new_controls": 1e-10,
+    "unchanged_structured_matrix_relative": 1e-09,
+    "unchanged_legacy_validation_relative": 1e-06,
+    "unchanged_original_boundary_clauses": 1e-10,
+    "unchanged_original_scalar_ODE_and_init": 5e-10
+  },
+  "remaining": [
+    "No direct70 or full Krylov result from this patch yet; actual capped direct stage approved after this archive is sealed.",
+    "Retained raw large-grid nodal matrix cancellation and unresolved coarse-grid errors from prior diagnostic; block agreement is not physical solver success.",
+    "No degree, tolerance, iteration cap, source operand, script, page, figure, or realization kernel changed. Native representations/raster/performance unqualified."
+  ]
+}

@@ -4,7 +4,9 @@ Targets the introspection and parameter/interior-BC paths the core suite did
 not reach: ``matrix(n)`` realization, ``linop()`` typed block introspection,
 a parameter carried in the boundary conditions, and an interior-point
 condition.  All problems use small ``n`` and the cheapest linear operators
-that exercise the code paths, with closed-form assertions.
+that exercise the code paths, with closed-form assertions. These are supplemental fixed-grid coverage
+controls; natural parameters are numeric. The16 original adaptive predicates
+are in test_paramODE_linearization_literal_source.py.
 
 Provenance
 ----------
@@ -13,6 +15,8 @@ test_paramODE_linearization.m); Chebfun commit 7574c77.
 """
 
 from __future__ import annotations
+
+import numbers
 
 import jax.numpy as jnp
 import numpy as np
@@ -62,10 +66,10 @@ class TestChebopParamInBC:
         L.lbc = lambda u, p: u
         L.rbc = lambda u, p: u - p
         u, p = _deal(L.solve(0.0, n=24))
-        assert isinstance(u, Chebfun) and isinstance(p, Chebfun)
+        assert isinstance(u, Chebfun) and isinstance(p, numbers.Number) and not isinstance(p, bool)
         line = cj.chebfun(lambda t: 1.0 + t, domain=dom)
         npt.assert_allclose(float((u - line).norm()), 0.0, atol=TOL)
-        npt.assert_allclose(float(p(_a(0.0))), 2.0, atol=TOL)
+        npt.assert_allclose(float(p), 2.0, atol=TOL)
 
     def test_param_determined_implicitly(self):
         # diff(u) - p, u(-1) = 0, u(1) = 2  ->  p = 1, u = 1 + t
@@ -74,7 +78,7 @@ class TestChebopParamInBC:
         L.lbc = lambda u, p: u
         L.rbc = lambda u, p: u - 2
         u, p = _deal(L.solve(0.0, n=24))
-        npt.assert_allclose(float(p(_a(0.0))), 1.0, atol=TOL)
+        npt.assert_allclose(float(p), 1.0, atol=TOL)
         npt.assert_allclose(float(u(_a(1.0))), 2.0, atol=TOL)
 
 
