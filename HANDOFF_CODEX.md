@@ -1,3 +1,40 @@
+## CPU CDR and CI process checkpoint — 2026-10-17
+
+This section supersedes older current-status summaries below. Full parity is
+**incomplete**. Use the shared publication checkout, not the historical dirty
+home checkout: `/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout`.
+
+- Shared JAX CDR evaluation removes the enclosing rank-expanded point-evaluation
+  compile for homogeneous Chebtech2 factor families. All48focused checks pass;
+  original roots-slow test passes in564.78s pytest/568.11s driver, peak4.98GiB,
+  unchanged900s timeout. Four actual contour workloads match baseline raw bits.
+  Final dtype eligibility tightening has an explicit branch/AST bridge and
+  focused tests. No coefficient padding or host fallback added; unsupported
+  families retain the old traced path. Long-query warm speed is not improved
+  generally. Evidence: `docs/chebfun2_cdr_cpu_20261017.json`.
+- CI core selections now run in fresh single-worker batches of12selection
+  units (files/cases, not12tests);141mirror cases distribute across8shards.
+  All14new gate checks pass. Collection-only old/new inventories are exactly
+  equal (12331node IDs); this is not12331passing scientific tests. A real
+  13-test smoke verifies two child processes and complete coverage union; the
+  unchanged79percent coverage gate correctly rejects its4percent coverage.
+  Full CI resource/runtime qualification remains pending. Evidence:
+  `docs/core_process_isolation_cpu_20261017.json`.
+- Check CI for the resulting commit; local gates do not establish green CI.
+  Main352ad369's core0/core6 jobs ended with runner shutdown signals, without
+  reported assertion failures. Other jobs were still running at inspection.
+- Full chemical example, composition transform/representation, every remaining
+  source assertion, all322page computations/printed outputs/figures, broader
+  CPU speed qualification and remaining host numerical paths stay open.
+  Detailed living status/checklist are `CURRENT_GOAL_STATUS.md` and
+  `GOAL_CHECKLIST.md` under the shared goal directory named above.
+- Runtime: source that directory's `pinned_cpu_env.sh`, preserve its dependency
+  PYTHONPATH when prepending checkout/src, and assert BOTH JAX/JAXlib0.11.0
+  plus CPU/x64. The interpreter is under GILLES `_agent_scratch`, not CRYOEM.
+  Two exploratory C1diagnostics accidentally used0.11.2; they are excluded from
+  pinned qualification. Native captures and later0.11.0saved-input audits are
+  separate, preserved evidence. Ordinary direct-main pushes work.
+
 ## Shared JAX Clenshaw evaluator — 2026-10-17
 
 Concrete and traced Chebtech2 calls now share an array-only JAX kernel. Real

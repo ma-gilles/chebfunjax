@@ -1,0 +1,103 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "jax_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+    "jaxlib_origin": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+    "source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_cdr_candidate_20261017/src/chebfunjax/__init__.py",
+    "backend": "cpu",
+    "x64": true,
+    "cache": false
+  },
+  "change": [
+    "Remove object-enclosing _eval_xy JIT only together with replacement JAX array-kernel evaluator.",
+    "Stack only equal genuine coefficient lengths and equal dtype per Chebtech2 family; retain original traced fallback otherwise. No padding or host numerical path added.",
+    "Reuse two-distance mapping, ordered source Clenshaw and literal existing Python rank accumulation; coefficient and coordinate JVP/VJP remain JAX."
+  ],
+  "focused_tests": 48,
+  "original_stress": {
+    "pytest_seconds": 564.78,
+    "driver_seconds": 568.114091238007,
+    "supervisor_seconds": 575.4963705092669,
+    "peak_rss_kib": 5224240,
+    "original_timeout_seconds": 900,
+    "supervisor_rss_limit_mib": 8192,
+    "passed": true,
+    "stable_inputs_no_survivors": true
+  },
+  "saved_contours": {
+    "f0_query0": {
+      "reconstructed_baseline_exact": true,
+      "candidate_exact": true
+    },
+    "f0_query1": {
+      "reconstructed_baseline_exact": true,
+      "candidate_exact": true
+    },
+    "f1_query0": {
+      "reconstructed_baseline_exact": true,
+      "candidate_exact": true
+    },
+    "f1_query1": {
+      "reconstructed_baseline_exact": true,
+      "candidate_exact": true
+    }
+  },
+  "matched_four_query_driver_seconds": {
+    "baseline": 24.92063285689801,
+    "candidate": 4.296721728052944
+  },
+  "scope": "Four actual shortest/longest opposite-field contour point lists; same saved genuine coefficients; separate fresh pinned CPU processes; one cold/warm sample per case. No broad warm-speed claim.",
+  "post_stress_dtype_bridge": {
+    "stress_receipt_sha256": "c1d477f3b883b7822c7ade8fa354f5b7f39e93881e2ae8dd88fc3bca2f3fea71",
+    "old_source_sha256": "032538231b001ff44b9939e36c5d52a7fe667f864148287277a84ccd29f78365",
+    "new_source_sha256": "ddc207d9ecf59f743f0203014a5b9c4390289fc3548dcb519250b9273dfb6f64",
+    "old_test_sha256": "9bc99db06b502253361c40f5b37254676f9c65025bc5d33841e2e41e98e77eef",
+    "new_test_sha256": "a695d4ecc0bc9904c4c796dcae77ad3b180f4ce3a4f9e039a67828004f220943",
+    "changed_function_asts": [
+      "_call_array_jax"
+    ],
+    "reverse_predicate_change_restores_source_bytes": true,
+    "numerical_kernel_asts_unchanged": {
+      "_cdr_coordinates": true,
+      "_cdr_accumulate": true,
+      "_call_traced": true
+    },
+    "saved_actual_factor_dtypes": {
+      "f0_cols": "float64",
+      "f0_rows": "float64",
+      "f0_pivots": "float64",
+      "f1_cols": "float64",
+      "f1_rows": "float64",
+      "f1_pivots": "float64"
+    },
+    "bridge_scope": "Only equal-dtype eligibility is added. Saved genuine stress factor families are uniformly float64 and follow the unchanged body. Mixed-dtype factors now retain the previous individual-slice traced evaluator. No original assertion/bound modified.",
+    "tests_appended_only": true
+  },
+  "publication_source_bridge": {
+    "src/chebfunjax/chebfun2d/chebfun2.py": {
+      "tested_sha256": "48b34e9e172c82ad0d05e707fdea021301a28bb14792b8bdcde528fd5e18877d",
+      "publication_sha256": "48b34e9e172c82ad0d05e707fdea021301a28bb14792b8bdcde528fd5e18877d",
+      "ast_equal": true
+    },
+    "src/chebfunjax/chebfun2d/separable_approx.py": {
+      "tested_sha256": "ddc207d9ecf59f743f0203014a5b9c4390289fc3548dcb519250b9273dfb6f64",
+      "publication_sha256": "ddc207d9ecf59f743f0203014a5b9c4390289fc3548dcb519250b9273dfb6f64",
+      "ast_equal": true
+    },
+    "tests/test_chebfun2d/test_cdr_array_evaluation.py": {
+      "tested_sha256": "a695d4ecc0bc9904c4c796dcae77ad3b180f4ce3a4f9e039a67828004f220943",
+      "publication_sha256": "df1ebb7072505478fac5379bfda0338e3a5a765edb5bb424bd70ea2e75008860",
+      "ast_equal": true
+    }
+  },
+  "limitations": [
+    "Existing unrelated NumPy evaluator routes remain; this is not a full JAX-only library claim.",
+    "Unequal-length/mixed-type/non-Chebtech2 families retain original object-traced fallback and may retain its compile-memory cost.",
+    "Only final eligibility predicate changed after stress; numerical kernel ASTs and actual homogeneous float64 selected path unchanged, with explicit tested preimages and reverse byte proof.",
+    "Timing is CPU-specific; single warm long-query samples are slightly slower, so improvement claim is restricted to observed cold compilation/memory and passed original stress limit."
+  ],
+  "rejected_experiment": "fori_loop rank accumulator changed rounding; retained failed receipt/outputs. Restoring original literal Python rank loop produced exact baseline values.",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_cdr_gate_20261017"
+}

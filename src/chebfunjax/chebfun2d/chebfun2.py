@@ -542,7 +542,6 @@ class Chebfun2(eqx.Module):
                                if not jnp.iscomplexobj(ya_) else ya_)
         return self._eval_xy(x, y)
 
-    @eqx.filter_jit
     def _eval_xy(self, x: jax.Array, y: jax.Array | None = None) -> jax.Array:
         """Evaluate f(x, y), or f(z) with z = x + iy.
 
@@ -572,7 +571,7 @@ class Chebfun2(eqx.Module):
         if y is None:
             z = jnp.asarray(x)
             x, y = jnp.real(z), jnp.imag(z)
-        return self.approx(x, y)
+        return self.approx._call_array_jax(x, y)
 
     def on_curve(self, c) -> "object":
         """Restrict f to a complex Chebfun curve (MATLAB f(c)).

@@ -61,6 +61,38 @@ def _phys_to_ref(x: jax.Array, a: float, b: float) -> jax.Array:
     return barrier(left/width)-barrier(right/width)
 
 
+
+@jax.jit
+def _cdr_coordinates(x, y, domain):
+    """Array-only mapping cache; preserve the two-distance inverse map.
+
+    Provenance
+    ----------
+    MATLAB source: @mapping/mapping.m (linear InvHandle), @bndfun/feval.m
+    Chebfun commit: 7574c77
+    """
+    xa, xb, ya, yb = domain
+    return _phys_to_ref(x, xa, xb), _phys_to_ref(y, ya, yb)
+
+
+@jax.jit
+def _cdr_accumulate(cols, rows, pivots):
+    """Accumulate CDR terms in increasing rank order.
+
+    Provenance
+    ----------
+    MATLAB source: @separableApprox/feval.m (CDR representation)
+    Chebfun commit: 7574c77
+
+    Retains the existing traced evaluator's multiplication grouping and
+    serial rank addition; no reduction tree or matrix product is introduced.
+    """
+    shape = jnp.broadcast_shapes(cols.shape[:-1], rows.shape[:-1])
+    result = jnp.zeros(shape, dtype=jnp.result_type(cols, rows, pivots))
+    for j in range(pivots.shape[0]):
+        result = result + pivots[j] * cols[..., j] * rows[..., j]
+    return result
+
 def _chebpts_phys(n: int, a: float, b: float) -> jax.Array:
     """Chebyshev-2 points on physical interval [a, b]."""
     t = chebpts(n, kind=2)
@@ -1072,6 +1104,36 @@ class SeparableApprox(eqx.Module):
         # than maintaining a second NumPy polynomial evaluator. Its
         # multi-column result is (m, r), so transpose for this CDR adapter.
         return np.asarray(_clenshaw(jnp.asarray(C), jnp.asarray(t))).T
+
+    def _call_array_jax(self, x, y):
+        """JAX point-list evaluation with array-only compilation reuse.
+
+        Equal genuine coefficient lengths are stacked without changing
+        any polynomial. Other representations retain the traced evaluator.
+        Mapping, Clenshaw and serial rank accumulation have separate shared
+        kernels, preventing per-object rank expansion in eager evaluation.
+
+        Provenance
+        ----------
+        MATLAB source: @separableApprox/feval.m, @chebtech/clenshaw.m
+        Chebfun commit: 7574c77
+        """
+        from chebfunjax.tech.chebtech import _clenshaw
+
+        families = (self.cols, self.rows)
+        supported = bool(self.cols) and all(
+            all(isinstance(f, Chebtech2) and f.coeffs.ndim == 1
+                and f.coeffs.shape == family[0].coeffs.shape
+                and f.coeffs.dtype == family[0].coeffs.dtype for f in family)
+            for family in families)
+        if not supported:
+            return self._call_traced(x, y)
+        x, y = jnp.asarray(x, dtype=jnp.float64), jnp.asarray(y, dtype=jnp.float64)
+        tx, ty = _cdr_coordinates(x, y, jnp.asarray(self.domain))
+        cols = jnp.stack([f.coeffs for f in self.cols], axis=1)
+        rows = jnp.stack([f.coeffs for f in self.rows], axis=1)
+        cv, rv = _clenshaw(cols, ty), _clenshaw(rows, tx)
+        return _cdr_accumulate(cv, rv, self.pivots)
 
     @eqx.filter_jit
     def _call_traced(self, x: jax.Array, y: jax.Array) -> jax.Array:
