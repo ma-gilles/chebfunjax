@@ -1,5 +1,27 @@
 # chebfunjax: handoff to a Codex agent (2026-10-02)
 
+## 2026-10-16: correct the diffmat CI scope probe and attribute roots CPU cost
+
+The preceding CI Core3 traceback identifies a stale provider-scope test:
+size130 now belongs to the source CPU path qualified through514. Its generic
+probe now uses515. No production numerics or accuracy bounds change. The
+baseline reproduces the same assertion; all17 candidate checks pass, including
+the existing native projection/D1/D2 controls at130and514. Kind1 and x64
+rejection checks remain. See docs/diffmat_ci_adapter_scope_cpu_20261016.json.
+
+The current original roots stress assertion passes unchanged in1471seconds.
+All314 QZ calls converge;33specializations spend11.42seconds lowering,
+37.90compiling and929.13executing, with497.43seconds unattributed by these
+measurements. It still exceeds CI's900second per-test cap. A saved231pencil
+value-only wrapper preserves H/T/status/sweeps bitwise, but optimized compiler
+output retains four matrix carries and warm timing ranges overlap. No wrapper
+optimization is adopted. Next qualify explicit omission of unused Schur-vector
+accumulation; full-factor consumers retain their vectors. See
+docs/roots_qz_cpu_attribution_20261016.json. Full parity and green latest-main
+CI remain unresolved. Qualified source/receipts/HLO are hash-verified in the
+shared archive referenced by both records.
+
+
 ## 2026-10-16: AAA refinement sampling and MATLAB grids
 
 Rational minimax initialization now samples the original handle first and

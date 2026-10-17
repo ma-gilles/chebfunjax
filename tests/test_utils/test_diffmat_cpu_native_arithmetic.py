@@ -42,7 +42,7 @@ def test_adapter_scope_keeps_generic_paths(monkeypatch):
         raise AssertionError("Bounded CPU sine adapter reached an excluded path")
 
     monkeypatch.setattr(module, "_sin_cheb_angles", forbidden)
-    assert np.isfinite(np.asarray(diffmat(130, p=1))).all()
+    assert np.isfinite(np.asarray(diffmat(515, p=1))).all()
     assert np.isfinite(np.asarray(diffmat(17, p=1, kind=1))).all()
     # C2 node generation already requires binary64; preserve that rejection.
     with jax.enable_x64(False):

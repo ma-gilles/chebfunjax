@@ -1,0 +1,285 @@
+{
+  "base_head": "cd644be7201097e9304904c0a0e6232aa13578a6",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_stress": {
+    "head": "cd644be7201097e9304904c0a0e6232aa13578a6",
+    "node": "tests/test_matlab_port/chebfun2v/test_roots_slow_matlab.py::TestChebfun2vRootsSlow::test_all_matlab_assertions",
+    "original_assertion_passed": true,
+    "supervisor": {
+      "wall_seconds": 1486.1524600419216,
+      "sampled_peak_summed_rss_kib": 6577952,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "testcase": {
+      "classname": "tests.test_matlab_port.chebfun2v.test_roots_slow_matlab.TestChebfun2vRootsSlow",
+      "name": "test_all_matlab_assertions",
+      "time": "1470.931"
+    },
+    "timing_seconds": {
+      "input_ready": 0.0052778152748942375,
+      "lower": 11.418712751474231,
+      "compile": 37.8957261252217,
+      "execute": 929.129402117338
+    },
+    "unattributed_metadata_wall_seconds": 497.42772963875905,
+    "qz_calls": 314,
+    "specializations": 33,
+    "nonzero_statuses": [],
+    "by_shape": {
+      "176x176": {
+        "calls": 11,
+        "execution_seconds": 55.66002185922116,
+        "sweeps": 5596
+      },
+      "150x150": {
+        "calls": 4,
+        "execution_seconds": 10.686161586083472,
+        "sweeps": 1758
+      },
+      "160x160": {
+        "calls": 16,
+        "execution_seconds": 58.1444322085008,
+        "sweeps": 7536
+      },
+      "170x170": {
+        "calls": 15,
+        "execution_seconds": 67.77479829732329,
+        "sweeps": 7478
+      },
+      "144x144": {
+        "calls": 2,
+        "execution_seconds": 4.793992784805596,
+        "sweeps": 840
+      },
+      "200x200": {
+        "calls": 3,
+        "execution_seconds": 24.67728787334636,
+        "sweeps": 1740
+      },
+      "192x192": {
+        "calls": 7,
+        "execution_seconds": 47.88175779301673,
+        "sweeps": 3879
+      },
+      "240x240": {
+        "calls": 2,
+        "execution_seconds": 31.061605508904904,
+        "sweeps": 1354
+      },
+      "209x209": {
+        "calls": 9,
+        "execution_seconds": 84.45969656482339,
+        "sweeps": 5439
+      },
+      "180x180": {
+        "calls": 9,
+        "execution_seconds": 49.06301306281239,
+        "sweeps": 4816
+      },
+      "190x190": {
+        "calls": 5,
+        "execution_seconds": 33.28550525335595,
+        "sweeps": 2802
+      },
+      "216x216": {
+        "calls": 5,
+        "execution_seconds": 52.56186521006748,
+        "sweeps": 3128
+      },
+      "252x252": {
+        "calls": 3,
+        "execution_seconds": 57.934028062969446,
+        "sweeps": 2150
+      },
+      "220x220": {
+        "calls": 10,
+        "execution_seconds": 116.58398516755551,
+        "sweeps": 6337
+      },
+      "198x198": {
+        "calls": 9,
+        "execution_seconds": 69.32603569794446,
+        "sweeps": 5202
+      },
+      "187x187": {
+        "calls": 5,
+        "execution_seconds": 30.639530900865793,
+        "sweeps": 2730
+      },
+      "231x231": {
+        "calls": 2,
+        "execution_seconds": 28.166345739737153,
+        "sweeps": 1346
+      },
+      "204x204": {
+        "calls": 2,
+        "execution_seconds": 17.887993706855923,
+        "sweeps": 1187
+      },
+      "165x165": {
+        "calls": 2,
+        "execution_seconds": 7.6887958268634975,
+        "sweeps": 972
+      },
+      "162x162": {
+        "calls": 1,
+        "execution_seconds": 3.987574653234333,
+        "sweeps": 491
+      },
+      "195x195": {
+        "calls": 1,
+        "execution_seconds": 7.066470730584115,
+        "sweeps": 571
+      },
+      "242x242": {
+        "calls": 1,
+        "execution_seconds": 16.013818747829646,
+        "sweeps": 693
+      },
+      "253x253": {
+        "calls": 1,
+        "execution_seconds": 19.472138314973563,
+        "sweeps": 735
+      },
+      "228x228": {
+        "calls": 1,
+        "execution_seconds": 13.086224184371531,
+        "sweeps": 647
+      },
+      "210x210": {
+        "calls": 2,
+        "execution_seconds": 20.238838562741876,
+        "sweeps": 1233
+      },
+      "36x36": {
+        "calls": 14,
+        "execution_seconds": 0.18900465173646808,
+        "sweeps": 1324
+      },
+      "2x2": {
+        "calls": 93,
+        "execution_seconds": 0.014831840060651302,
+        "sweeps": 93
+      },
+      "32x32": {
+        "calls": 57,
+        "execution_seconds": 0.5340764145366848,
+        "sweeps": 4740
+      },
+      "40x40": {
+        "calls": 8,
+        "execution_seconds": 0.14845736837014556,
+        "sweeps": 829
+      },
+      "28x28": {
+        "calls": 8,
+        "execution_seconds": 0.05631744908168912,
+        "sweeps": 606
+      },
+      "30x30": {
+        "calls": 1,
+        "execution_seconds": 0.01028753211721778,
+        "sweeps": 86
+      },
+      "24x24": {
+        "calls": 4,
+        "execution_seconds": 0.021975598763674498,
+        "sweeps": 263
+      },
+      "35x35": {
+        "calls": 1,
+        "execution_seconds": 0.012532963883131742,
+        "sweeps": 102
+      }
+    },
+    "interpretation": "Instrumented fresh-process diagnostic; compilation/execution split, input synchronization and retained executables change timing scope. No paired speedup or native output equivalence inferred."
+  },
+  "independent_attribution_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_qz_cpu_attribution_20261016/AUDIT.json",
+    "sha256": "c53596a8ceb98176da97fd83f2e0f5cad75cfee84aea03c369933e2e59b8283f"
+  },
+  "wrapper_only_probe": {
+    "supervisor": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 98.20826309686527,
+      "sampled_peak_summed_rss_kib": 731976,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "fixture": {
+      "path": "tests/references/qz_resultant_sine_pencil.npz",
+      "sha256": "2827730f1780394f310db75d9eef7369d2775c0fbd7f06f678544e654a80e7e2",
+      "shape": [
+        231,
+        231
+      ]
+    },
+    "raw_bit_equal": {
+      "h": true,
+      "t": true,
+      "status": true,
+      "sweeps": true
+    },
+    "status": 0,
+    "sweeps": 584,
+    "warm_execution": [
+      {
+        "repetition": 0,
+        "arm": "full",
+        "seconds": 11.474280056077987
+      },
+      {
+        "repetition": 0,
+        "arm": "value_only",
+        "seconds": 11.1492131780833
+      },
+      {
+        "repetition": 1,
+        "arm": "value_only",
+        "seconds": 11.085891479160637
+      },
+      {
+        "repetition": 1,
+        "arm": "full",
+        "seconds": 11.424300984013826
+      },
+      {
+        "repetition": 2,
+        "arm": "full",
+        "seconds": 10.880263503175229
+      },
+      {
+        "repetition": 2,
+        "arm": "value_only",
+        "seconds": 11.18072056863457
+      }
+    ],
+    "warm_medians": {
+      "full": 11.424300984013826,
+      "value_only": 11.1492131780833
+    },
+    "optimized_hlo_result": "All four231x231matrix carries remain in reduction/iteration/chase loops. The wrapper did not remove Q/Z accumulation.",
+    "independent_hlo_review": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_qz_value_only_probe_20261016/AUDIT.json",
+      "sha256": "861d7767324339856799b14a297a3ff6d94275e0a1f7be08701a983f73ca3d7e"
+    },
+    "interpretation": "Wrapper-only optimization hypothesis unsupported; no production change adopted. Sequential compilation and shared-process peak RSS are diagnostic only."
+  },
+  "next_experiment": "Explicit static vector-free specialization preserving initial QR Q for H=Q^H A, omitting only subsequent unused Q/Z accumulations. Require exact-bit and unchanged-original-assertion gates before adoption.",
+  "remaining": [
+    "Original stress1471s remains above CI900s per-test cap.",
+    "QZ execution929s plus497s unattributed wall require further optimization.",
+    "No matched speedup/native output equivalence is claimed from separate diagnostic runs.",
+    "Broader QZ correctness/range, all library assertions,322pages/figures and final CI remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/roots_qz_attribution_ci_scope_qualified_20261016.zip",
+    "sha256": "beeea9ec76b85fc7287fdce2c66a769e3f45aa34c3eb052fb498e2a457903dff",
+    "bytes": 2956737,
+    "entries": 74,
+    "all_entries_hash_verified": true,
+    "archive_testzip_passed": true
+  }
+}

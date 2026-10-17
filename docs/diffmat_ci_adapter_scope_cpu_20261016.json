@@ -1,0 +1,67 @@
+{
+  "base_head": "cd644be7201097e9304904c0a0e6232aa13578a6",
+  "source_scope": "Test-only generic-provider boundary correction; no production numerical change.",
+  "ci_failure": {
+    "run": 38981927801,
+    "head": "d6fb8512333241be0488d1a76a913213441aa670",
+    "job": 117247977809,
+    "node": "tests/test_utils/test_diffmat_cpu_native_arithmetic.py::test_adapter_scope_keeps_generic_paths",
+    "log": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_after_aaa_cd644be7_20261016/d6_core3_117247977809_terminal.log",
+      "sha256": "e8fe5efe239383002ab42a94b1d18b183f61f169aa6fa5b10da603fbdae81984"
+    },
+    "observation": "Immediate controller traceback identifies forbidden source-sine spy reached by diffmat(130). Runner later shut down; shutdown cause remains unestablished."
+  },
+  "source_contract": {
+    "production_file": "src/chebfunjax/utils/diffmat.py",
+    "qualified_cpu_range": "kind2, x64, n<=514",
+    "old_generic_probe": 130,
+    "corrected_generic_probe": 515,
+    "changed_mathematical_bounds": false,
+    "kind1_generic_and_x64_rejection_retained": true
+  },
+  "baseline": {
+    "supervisor": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 8.292632621712983,
+      "sampled_peak_summed_rss_kib": 596784,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "tests": 1,
+    "expected_failures": 1,
+    "failure_matches_ci": true
+  },
+  "candidate": {
+    "supervisor": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 44.10340582905337,
+      "sampled_peak_summed_rss_kib": 2394244,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "passed": 17,
+    "skipped": 0,
+    "scope": [
+      "All15 original CPU arithmetic module checks, including10native raw-bit and4jit raw-bit matrix cases",
+      "Two existing native projection/D1/D2 comparisons at130and514; original projection5e-17and exact matrix assertions retained"
+    ],
+    "candidate_file_sha256": "f9eee93bd6a22dbfb2103ad0c5fce99b365889f36a45a8f3b769ef702ccf8710"
+  },
+  "review": "Parent verified exact one-line130-to515 scope change against guarded production range; source and all accuracy assertions unchanged.",
+  "limitations": [
+    "Historical50afCore0/Core3 failure identities remain unavailable; this record identifies only the delivered d6Core3 failure.",
+    "Core2runner shutdown has no delivered assertion identity or demonstrated cause.",
+    "Latest-main green CI and full parity remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfunjax_archive_overflow_20261016/roots_qz_attribution_ci_scope_qualified_20261016.zip",
+    "sha256": "beeea9ec76b85fc7287fdce2c66a769e3f45aa34c3eb052fb498e2a457903dff",
+    "bytes": 2956737,
+    "entries": 74,
+    "all_entries_hash_verified": true,
+    "archive_testzip_passed": true
+  }
+}
