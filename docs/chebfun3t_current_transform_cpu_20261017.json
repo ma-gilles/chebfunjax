@@ -1,0 +1,36 @@
+{
+  "scope": "Current-source unmarked original Chebfun3T constructor predicate7 remains failing; no repair or pass claimed",
+  "source_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
+  "reason": "Published7098 source_ifft normalization changed this shared transform consumer, requiring fresh strict-xfail measurement",
+  "original_assertion_unchanged": true,
+  "query_grid": [
+    100,
+    100,
+    100
+  ],
+  "bound": 2.220446049250313e-14,
+  "actual_error": 2.864375403532904e-14,
+  "coefficient_shape": [
+    249,
+    259,
+    263
+  ],
+  "pytest_seconds": 34.48,
+  "supervisor_seconds": 37.11109681101516,
+  "sampled_peak_summed_rss_kib": 8732216,
+  "declared_inputs_stable": true,
+  "survivors": 0,
+  "censored_limit": null,
+  "strict_xfail_retained": true,
+  "comparison_to_historical_native": "Earlier native receipt8.326672684688674e-15 with shape261/265/263 is not remeasured here. Earlier Python2.808864252301646e-14 shape249/257/263 is superseded for this specific current-source invocation.",
+  "next_action": "Diagnose source FFT/standardChop assembly on matched samples; do not weaken unchanged native bound or fit a crop length",
+  "limits": [
+    "No fresh MATLAB reference or full observed-import qualification",
+    "No new implementation or full constructor test-file qualification"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun3t_current_transform_cpu_20261017.tar.gz",
+    "sha256": "9625662788bfe61d6fa5302a4d521c1bc397556e619859cb6c9936011d129730",
+    "verified_payloads": 376
+  }
+}

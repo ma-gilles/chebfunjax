@@ -1,0 +1,266 @@
+{
+  "scope": "Parent-reviewed ten-page warning/output-slot mapping; no new numerical/page runtime or full stdout parity qualification",
+  "parent_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
+  "child_snapshot_commit": "ddc13586a7b5ad0ca15ba8bc80a147d3582c3b29",
+  "snapshot_binding_note": "Child snapshot observed exact applied Bloodhound bytes before parent commit. All individual recorded files now hash-match current parent and retained inputs. This is per-file evidence, not a clean-child-HEAD claim.",
+  "snapshot_files_matched": 68,
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/output_slot_mapping_package_20261017.tar.gz",
+    "sha256": "76332bd4a0e5ab38c07a66372341a6358911f552e1e435ae93c208dcb6fb5645",
+    "verified_payloads": 72
+  },
+  "blank_slots": [
+    {
+      "page": "geom/Ellipses",
+      "local_slot": 4,
+      "local_line": 106,
+      "native_output_slot": 4,
+      "native_line_count": 60,
+      "classification": "graphics environment",
+      "script": "examples/geom/ellipses.py",
+      "script_lines": [
+        85,
+        89,
+        92
+      ],
+      "diagnosis": "Native JOGL\u2192painters fallback repeated60 times; no matching Python print; Agg animation has no JOGL canvas. Computed slots1\u20133 already present.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "858d7c80f292ba5077ec1991216e3ee834ae61b8a35ac2b8c9ac279c74478c7c",
+      "native_first_line": "Couldn't create JOGL canvas--using painters"
+    },
+    {
+      "page": "linalg/ConstrainedLeastSquares",
+      "local_slot": 10,
+      "local_line": 320,
+      "native_output_slot": 10,
+      "native_line_count": 10,
+      "classification": "graphics environment",
+      "script": "examples/linalg/constrained_least_squares.py",
+      "script_lines": [
+        144,
+        150,
+        156,
+        160,
+        163,
+        178,
+        203,
+        230,
+        238
+      ],
+      "diagnosis": "Native JOGL\u2192painters fallback repeated10 times after plotting; no matching Python print. Nine computed display/error slots already present.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "8bda660b7f6bff742547ab5b20b797a0a372c449b768151d01f9403ce5a315b6",
+      "native_first_line": "Couldn't create JOGL canvas--using painters"
+    },
+    {
+      "page": "ode-eig/Drum",
+      "local_slot": 4,
+      "local_line": 128,
+      "native_output_slot": 4,
+      "native_line_count": 13,
+      "classification": "graphics environment",
+      "script": "examples/ode-eig/drum.py",
+      "script_lines": [
+        63,
+        98
+      ],
+      "diagnosis": "Native JOGL\u2192painters fallback repeated13 times; no matching Python print. Omega/error/astar/residual prints present; script globally ignores warnings but cached missing block is only graphics environment text.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "c1d749dfe9983f8718499b76fdc668215fecf6d85adcef8bcdbf3aa5105e7916",
+      "native_first_line": "Couldn't create JOGL canvas--using painters"
+    },
+    {
+      "page": "ode-linear/DawsonIntegral",
+      "local_slot": 4,
+      "local_line": 133,
+      "native_output_slot": 4,
+      "native_line_count": 3,
+      "classification": "graphics environment",
+      "script": "examples/ode-linear/dawson_integral.py",
+      "script_lines": [
+        58,
+        67,
+        85,
+        101
+      ],
+      "diagnosis": "Native JOGL\u2192painters fallback repeated3 times; no matching Python print. Timing/representation/timing slots present; script globally ignores warnings, unrelated actual warnings not qualified.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "a819ab2dba93626c1a6685090a5c9245f5c94a3323d1901471ef9b02fc7aca84",
+      "native_first_line": "Couldn't create JOGL canvas--using painters"
+    },
+    {
+      "page": "ode-nonlin/Bloodhound",
+      "local_slot": 1,
+      "local_line": 106,
+      "native_output_slot": 1,
+      "native_line_count": 3,
+      "classification": "native Newton stop diagnostic",
+      "script": "examples/ode-nonlin/bloodhound.py",
+      "script_lines": [
+        76,
+        77,
+        78,
+        80
+      ],
+      "diagnosis": "Actual sealed candidate2 succeeds in7Newton iterations, error4.84e-11<1e-10, emits no warning; root47a integrates fixes. Cached native giveUp differs. No fabricated replacement.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "3678ba24628d2d5b0050e4c9b489b6494267da8aefdc10642085be74da3736a0",
+      "native_first_line": "Warning: Newton iteration failed."
+    },
+    {
+      "page": "ode-nonlin/LorenzAttractor",
+      "local_slot": 4,
+      "local_line": 228,
+      "native_output_slot": 4,
+      "native_line_count": 1,
+      "classification": "plot warning transport",
+      "script": "examples/ode-nonlin/lorenz_attractor.py",
+      "script_lines": [
+        160,
+        161
+      ],
+      "diagnosis": "Final matlab_plot(zr,0) uses complex root data. Current plotting.py5278\u20135282 emits RuntimeWarning when X or Y has complex storage. Script does not capture/print it; default stderr is not consumed by stdout-only page generator. Retained old stderr empty is not a current execution receipt.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "32df72ed7cdfc84f29cc8a998a282a33fdaf780dae8a5d4dea3506771d867d88",
+      "native_first_line": "Warning: Imaginary parts of complex X and/or Y arguments ignored "
+    },
+    {
+      "page": "ode-nonlin/ThreePlanets",
+      "local_slot": 1,
+      "local_line": 39,
+      "native_output_slot": 1,
+      "native_line_count": 1,
+      "classification": "constructor/IVP resolution diagnostic",
+      "script": "examples/ode-nonlin/three_planets.py",
+      "script_lines": [
+        43,
+        67,
+        84
+      ],
+      "diagnosis": "Native unresolved65537point warning during N\\0, no normal print. Script N.solve follows broad warnings.filterwarnings(ignore). Remove suppression/capture actual warnings only after guarded source-bound solve; do not synthesize native warning. RNG5489 is star-field-only, not warning/numerical trajectory.",
+      "missing_printed_numeric_computation": false,
+      "native_text_sha256": "d8612e062060d0a97425edb244d7dc1a8c8c9453f244aafdaa14be70c7b30d46",
+      "native_first_line": "Warning: Function not resolved using 65537 pts. Have you tried 'splitting on'? "
+    }
+  ],
+  "output_count_differences": [
+    {
+      "page": "approx/EightShades",
+      "native_count": 3,
+      "local_count": 4,
+      "mapping": [
+        {
+          "native": 1,
+          "local": 2,
+          "meaning": "CFerror actual computation"
+        },
+        {
+          "native": 2,
+          "local": 3,
+          "meaning": "t3 convergence warning,100iterations; cached tolerance1.1e-10 differs actual retained1.5e-14"
+        },
+        {
+          "native": 3,
+          "local": 4,
+          "meaning": "r3 cached20iteration convergence warning versus retained actual remez deprecation warning"
+        }
+      ],
+      "extra_local_slot": 1,
+      "script_stages": {
+        "p3_remez_line": 150,
+        "CFerror_print_lines": [
+          158,
+          159
+        ],
+        "t3_trigremez_line": 165,
+        "r3_remez_stage_line": 184,
+        "r3_remez_call_line": 185
+      },
+      "diagnosis": "Native pinned @chebfun/remez.m8\u201311 unconditionally warns deprecated; original cached example predates this behavior. Retained source-bound fullpage qualification records actual stage warnings, not synthesized. Rational successor source changed after retained fullpage; full current warning behavior remains unqualified. No numeric output is missing."
+    },
+    {
+      "page": "complex/ZetaZeros",
+      "native_count": 4,
+      "local_count": 5,
+      "mapping": [
+        {
+          "native": 1,
+          "local": 1,
+          "meaning": "computed/display/timing output"
+        },
+        {
+          "native": 2,
+          "local": 2,
+          "meaning": "computed/display/timing output"
+        },
+        {
+          "native": 3,
+          "local": 3,
+          "meaning": "computed/display/timing output"
+        },
+        {
+          "native": 4,
+          "local": 4,
+          "meaning": "computed/display/timing output"
+        }
+      ],
+      "extra_local_slot": 5,
+      "script_lines": [
+        130,
+        131
+      ],
+      "diagnosis": "Extra compose-complex warning from f(t) has actual fresh pinned-native corroboration in docs/zetazeros_native_comparison_cpu_20261013.json comparison.warning_native, warning_python_present=true. Cached HTML lacks it. Retain actual warning; count gap is historical reference variance, not missing computation."
+    },
+    {
+      "page": "linalg/TransientGrowth",
+      "native_count": 4,
+      "local_count": 3,
+      "mapping": [
+        {
+          "native": 1,
+          "local": 1,
+          "meaning": "A display"
+        },
+        {
+          "native": 2,
+          "local": null,
+          "meaning": "constructor unresolved6050-point warning"
+        },
+        {
+          "native": 3,
+          "local": 2,
+          "meaning": "Maximum energy"
+        },
+        {
+          "native": 4,
+          "local": 3,
+          "meaning": "timing"
+        }
+      ],
+      "script_lines": [
+        86,
+        98,
+        99,
+        108,
+        109
+      ],
+      "diagnosis": "No missing computed print or parser-fence artifact. Both sources use exact A, norm(expm(t*A)),domain[0,2.5],splitting on. Prior report removed blanketignore; retained historical stderr empty and no bound current construction receipt. Actual happiness/warning state needs constructor-only diagnosis, now separately authorized by parent."
+    }
+  ],
+  "classification_summary": {
+    "blank_graphics_environment_slots": 4,
+    "blank_solver_or_constructor_warning_slots": 2,
+    "blank_plot_warning_transport_slots": 1,
+    "missing_printed_numeric_computations_among_requested_slots": 0,
+    "RNG_dependent_missing_prints": 0
+  },
+  "generator_transport": "gen_example_pages.py reads .txt stdout only; regen_all.py captures stderr separately. A genuine stderr warning cannot populate text fence without actual capture/print or explicit truthful stderr adapter. Never copy cached warning.",
+  "limitations": [
+    "Warnings absent from a Python run cannot be filled from cache as claimed actual output",
+    "Four JOGL platform-warning blocks remain different; no waiver or exact-output match is claimed",
+    "ZetaZeros and EightShades version-dependent warnings remain explicit rather than hidden",
+    "Bloodhound cached-native failed Newton warning vs actual successful candidate remains a parity discrepancy",
+    "TransientGrowth current constructor and Lorenz warning transport need actual scoped qualification",
+    "This audit does not compare numerical stdout values, timings or figures across all322pages"
+  ]
+}

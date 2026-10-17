@@ -216,3 +216,22 @@ native predicates and the corresponding Python tests pass. The final 17-check
 Python gate also covers ten existing authored tests and four new JAX/correctness
 contracts. Full function, API and alternate-parameter statuses remain unverified;
 this attachment preserves all prior item statuses and page records.
+
+## Ten remaining output-slot discrepancies — 2026-10-17
+
+[Reviewed mapping](output_slot_reconciliation_cpu_20261017.json) attaches scoped
+stdout evidence to ten page rows. Four blank blocks contain native JOGL graphics
+messages; the other three contain native Newton, complex-plot or unresolved
+constructor warnings. Three count differences concern EightShades, ZetaZeros
+and TransientGrowth warnings. No missing numerical print was found among these
+specific slots. These differences remain explicit; no page or stdout status is
+promoted, and no warning is synthesized from cached native output.
+
+## Current Chebfun3T unresolved predicate — 2026-10-17
+
+[Fresh current-source evidence](chebfun3t_current_transform_cpu_20261017.json)
+records original constructor predicate 7 still failing at its unchanged
+`100*eps` bound after the shared inverse-transform change. The error is
+`2.864375403532904e-14`; the bound is `2.220446049250313e-14`.
+The strict expected-failure marker remains. This negative result is attached
+to the constructor and original-test rows; no full-item status changes.

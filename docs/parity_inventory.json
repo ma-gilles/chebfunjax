@@ -20,6 +20,11 @@
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
       "sha256": "0fa2b85937e671fa8da2b74887d3c7f94e396c18e2e842d6c409301185442aef"
     },
+    "chebfun3t_current_transform_cpu_20261017": {
+      "path": "docs/chebfun3t_current_transform_cpu_20261017.json",
+      "scope": "Unchanged original constructor predicate7 still fails on47a CPU; strict xfail retained, no repair claimed",
+      "sha256": "355f9d15e72f08b327fb1c892cc55ff62d22118334720a043ba24d954f209757"
+    },
     "chebgui_inventory_mapping_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/parity_tracking_repair_evidence_20261017.zip",
@@ -198,6 +203,11 @@
       "scope": "Five default native original test invocations paired with mapped Python nodes; full API and alternate-preference coverage remain open.",
       "sha256": "0c2e9838b9662b78f05749aa5ae0ac39cabff67c0fba030ac6491e7da67977bd",
       "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d"
+    },
+    "output_slot_reconciliation_cpu_20261017": {
+      "path": "docs/output_slot_reconciliation_cpu_20261017.json",
+      "scope": "Parent-reviewed ten-page warning/output-slot mapping; no new numerical/page runtime or full stdout parity qualification",
+      "sha256": "14ecc8b49294d6302d9c97b215b16f549c9558a009c88ba280ce371343a7e490"
     },
     "pade_jax_source_cpu_20261017": {
       "path": "docs/pade_jax_source_cpu_20261017.json",
@@ -7305,6 +7315,11 @@
             "url": "https://www.chebfun.org/examples/approx/EightShades.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -16103,6 +16118,11 @@
             "url": "https://www.chebfun.org/examples/complex/ZetaZeros.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -18844,6 +18864,11 @@
             "url": "https://www.chebfun.org/examples/geom/Ellipses.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -21064,6 +21089,11 @@
             "url": "https://www.chebfun.org/examples/linalg/ConstrainedLeastSquares.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -22606,6 +22636,11 @@
             "url": "https://www.chebfun.org/examples/linalg/TransientGrowth.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -23054,6 +23089,11 @@
             "url": "https://www.chebfun.org/examples/ode-eig/Drum.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -25205,6 +25245,11 @@
             "url": "https://www.chebfun.org/examples/ode-linear/DawsonIntegral.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -28125,6 +28170,11 @@
             "url": "https://www.chebfun.org/examples/ode-nonlin/Bloodhound.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -30282,6 +30332,11 @@
             "url": "https://www.chebfun.org/examples/ode-nonlin/LorenzAttractor.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -31225,6 +31280,11 @@
             "url": "https://www.chebfun.org/examples/ode-nonlin/ThreePlanets.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "output_slot_reconciliation_cpu_20261017",
+          "dimension": "stdout",
+          "scope": "Specific native/local warning/output slots mapped; full numerical stdout/runtime parity remains unverified"
         }
       ],
       "figure_content_status": "unverified",
@@ -62260,10 +62320,22 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebfun3t_current_transform_cpu_20261017",
+          "recorded_python_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
+          "scope": "Current source original constructor7 error2.864e-14 exceeds unchanged100eps; unresolved"
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun3t_current_transform_cpu_20261017",
+              "predicate": 7,
+              "scope": "Bounded current-source constructor7 failure; native not rerun"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -110851,10 +110923,22 @@
         "tests/test_matlab_port/trigtech/test_constructor_matlab.py",
         "tests/test_matlab_port/unbndfun/test_constructor_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebfun3t_current_transform_cpu_20261017",
+          "recorded_python_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
+          "scope": "Current source original constructor7 error2.864e-14 exceeds unchanged100eps; unresolved"
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun3t_current_transform_cpu_20261017",
+              "predicate": 7,
+              "scope": "Bounded current-source constructor7 failure; native not rerun"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",

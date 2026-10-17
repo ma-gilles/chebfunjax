@@ -27,6 +27,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Review exact ten-page mapping of seven blank output slots and three count differences:72archive payloads/68snapshot files verified; no missing numerical print among these specific slots. Ten page ledger rows linked. [Evidence](output_slot_reconciliation_cpu_20261017.json).
+- [ ] Resolve those warning/environment/version differences with actual execution evidence; do not synthesize cached warning output.
+- [ ] Dense Chebfun3T original constructor7 still fails unchanged100eps after current shared transform changes; fresh error2.864e-14. [Current failure](chebfun3t_current_transform_cpu_20261017.json). Strict xfail retained.
+
+
 - [x] Fix coefficient-break scalar C2 Newton dispatch and merged-domain RHS sampling; preserve scalar callable broadcast. Child7joint controls and final4focused pass; actual Bloodhound233s/7iterations succeeds with zero actual warnings. Explicit source branch bridge retained. Parent20CI protocol checks preserve1079owners and append one selector. [Evidence](bloodhound_parent_cpu_20261017.json). Native convergence/warning, full API and page/figure parity remain open.
 
 

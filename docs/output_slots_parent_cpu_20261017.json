@@ -1,0 +1,47 @@
+{
+  "scope": "Parent-reviewed output-slot and negative-test tracking package; no scientific repair or full-page qualification",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
+  "audit": {
+    "scope": "Documentation-only reconciliation of scoped warning mappings and current strict failure",
+    "status_fields_preserved": 22035,
+    "changed_ledger_rows": {
+      "library_sources": [
+        "@chebfun3t/constructor.m"
+      ],
+      "original_tests": [
+        "tests/chebfun3t/test_constructor.m"
+      ],
+      "example_pages": [
+        "approx_EightShades",
+        "complex_ZetaZeros",
+        "geom_Ellipses",
+        "linalg_ConstrainedLeastSquares",
+        "linalg_TransientGrowth",
+        "ode-eig_Drum",
+        "ode-linear_DawsonIntegral",
+        "ode-nonlin_Bloodhound",
+        "ode-nonlin_LorenzAttractor",
+        "ode-nonlin_ThreePlanets"
+      ]
+    },
+    "counts_preserved": true,
+    "source_and_tests_unchanged": true,
+    "initial_tracking_driver_issue": "First attempt assumed page key instead of page_id; stopped before ledger write, corrected exact schema. No numerical failure inferred."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/output_slots_parent_cpu_20261017.tar.gz",
+    "sha256": "b7b70912ad8c705d947bf2f6068ef8f81793194036b2905b9645716a3fb2e250",
+    "verified_payloads": 88
+  },
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/output_slot_mapping_package_20261017.tar.gz",
+    "sha256": "76332bd4a0e5ab38c07a66372341a6358911f552e1e435ae93c208dcb6fb5645",
+    "verified_payloads": 72
+  },
+  "reports": [
+    "docs/output_slot_reconciliation_cpu_20261017.json",
+    "docs/chebfun3t_current_transform_cpu_20261017.json"
+  ],
+  "open": "Ten warning/environment/version output differences and Chebfun3T strict assertion remain unresolved; full API/tests/pages/figures/performance/latestCI still required"
+}

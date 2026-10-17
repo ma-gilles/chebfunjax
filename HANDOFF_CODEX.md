@@ -1,3 +1,17 @@
+# Latest output-slot and unresolved-test audit — 2026-10-17
+
+Parent reviewed72payloads and68unchanged per-file snapshot bindings for ten
+page/output discrepancies. All seven blanks and three count differences are
+warning/environment diagnostics; no omitted numerical print among these slots.
+Four JOGL graphics warning blocks remain unmatched; solver/constructor/plot
+warnings and version differences remain explicit. No warnings synthesized.
+Ten page ledger rows now link scoped mapping, preserving all item statuses.
+Separately, unchanged Chebfun3T constructor predicate7 still fails after shared
+inverse-FFT changes:2.864e-14 >2.220e-14, shape249/259/263;34.48s, stable/no
+survivors. Strict xfail retained; no numerical repair claimed by this audit.
+Evidence: docs/output_slot_reconciliation_cpu_20261017.json and
+ docs/chebfun3t_current_transform_cpu_20261017.json.
+
 # Latest Bloodhound scalar C2 corrections — 2026-10-17
 
 Coefficient-induced Jacobian breaks now use the existing JAX block correction;
