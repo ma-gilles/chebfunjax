@@ -1,0 +1,59 @@
+{
+  "scope": "CPU JAX Pad\u00e9 port and source-backed zero/tiny-complex repair; not full API or numerical parity",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "2843cf6e47170780970f14ce02830f86f7949b6d",
+  "native": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "which_test": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_padeapprox.m",
+    "which_source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/padeapprox.m",
+    "original_predicates": [
+      true,
+      true,
+      true
+    ],
+    "zero_mu_hex": "fff0000000000000",
+    "tiny_a_real_hex": "8000000000000000",
+    "tiny_a_imag_hex": "3bc79ca10c924223"
+  },
+  "baseline": {
+    "four_new_contracts": "4 failed in 5.37s",
+    "original_module_retained": "baseline_ratapprox.py"
+  },
+  "candidate": {
+    "tests": 17,
+    "pytest_seconds": 16.49,
+    "original_predicates": 3,
+    "new_contracts": 4,
+    "existing_authored_tests": 10,
+    "bounds_unchanged": true,
+    "declared_inputs_stable": true,
+    "surviving_processes": 0,
+    "sampled_peak_summed_rss_kib": 1282816
+  },
+  "changes": [
+    "JAX FFT, Toeplitz, SVD, reweighted complete QR, polynomial evaluation and roots; eager degree decisions",
+    "Zero numerator degree is negative infinity as in native source",
+    "Preserve genuine tiny complex Taylor data; callable FFT-only roundoff removal retained",
+    "Compute numerator before cancelling common leading powers; slice both vectors as in native source",
+    "Returned evaluation handle supports jit and complex JVP"
+  ],
+  "source_bridge": {
+    "library_files": 362,
+    "untouched_library_files_byte_equal": 361,
+    "other_module_top_level_AST_equal": true,
+    "existing_test_classes_AST_equal": true,
+    "new_core_selectors": 0
+  },
+  "limits": [
+    "No full alternate-parameter/API audit, bitwise FFT/SVD parity or matched native performance claim",
+    "Only declared source/test inputs guarded; this is not a full observed-import qualification",
+    "Legacy trigonometric fitting elsewhere in the module remains NumPy and is unchanged",
+    "Latest-main CI/coverage remains required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pade_jax_cpu_20261017.tar.gz",
+    "sha256": "39f22c6b9ea4f7b5435a547c82e9e21cb9a02b4ecee0c94967f7ec9bcb51be42",
+    "verified_payloads": 404
+  }
+}

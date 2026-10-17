@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Padé JAX FFT/Toeplitz/SVD/QR/roots/evaluation port; zero degree and tiny complex numerator repairs. Native original3true; final17checks pass, including four baseline failures and jit/complex-JVP evaluation. [Evidence](pade_jax_source_cpu_20261017.json). Full API, exact numerical and matched performance qualification remain open.
+
+
 - [x] Split actual90minute MATLAB-port chebfun-a/b deadline failures:3→9lanes preserve390files/eightroots, oldlaneancestry, runner/steps,900second tests and90minute job limits. YAML/directorycoverage/exactinventory/source-byte checks pass. [Evidence](ci_port_deadline_cpu_20261017.json). Latest-main runtime/scientific assertions/coverage remain required.
 
 

@@ -7,6 +7,8 @@ Mathematical properties verified:
   - trigratinterp: rational interpolation of 1/(sin(pi*x) - c)
 """
 
+import jax
+import jax.numpy as jnp
 import numpy as np
 import numpy.testing as npt
 import pytest
@@ -90,6 +92,52 @@ class TestPadeApprox:
         r_fn, _, _, _, _, _, _ = padeapprox(np.exp, 4, 4)
         val = r_fn(0.0)
         npt.assert_allclose(float(val), 1.0, atol=1e-14)
+
+
+class TestPadeJaxSource:
+    """Chebfun7574c77 padeapprox.m: zero degree, complex data and evaluation.
+
+    Native CPU controls are retained in pade_jax_native_20261017. These
+    independent contracts also require JAX arrays and differentiable evaluation.
+    """
+
+    def test_zero_degree_is_negative_infinity(self):
+        evaluate, a, b, mu, nu, poles, residues = padeapprox([0.0], 0, 0)
+        assert mu == -np.inf
+        assert nu == 0
+        npt.assert_array_equal(a, [0.0])
+        npt.assert_array_equal(b, [1.0])
+        assert poles.shape == residues.shape == (0,)
+        npt.assert_array_equal(evaluate(jnp.array([0.0, 1.0j])), [0.0, 0.0])
+
+    def test_tiny_complex_numerator_is_preserved(self):
+        evaluate, a, b, mu, nu, _, _ = padeapprox([1e-20j, 1e-20j], 0, 1)
+        assert (mu, nu) == (0, 1)
+        npt.assert_allclose(a, [1e-20j], rtol=1e-13, atol=0)
+        npt.assert_allclose(b, [1.0, -1.0], rtol=1e-13, atol=0)
+        npt.assert_allclose(evaluate(0.5), 2e-20j, rtol=1e-13, atol=0)
+
+    def test_fit_does_not_use_numpy_kernels(self, monkeypatch):
+        from chebfunjax.utils import ratapprox
+
+        class NoNumpy:
+            def __getattr__(self, name):
+                raise AssertionError(f"Padé called NumPy.{name}")
+
+        monkeypatch.setattr(ratapprox, "np", NoNumpy())
+        evaluate, a, b, _, _, poles, residues = padeapprox(
+            lambda z: 1 / (1 - 0.25j * z), 0, 1, N_fft=64
+        )
+        assert all(isinstance(x, jax.Array) for x in (a, b, poles, residues))
+        npt.assert_allclose(evaluate(0.25), 1 / (1 - 0.0625j), rtol=1e-13)
+
+    def test_returned_handle_supports_jit_and_complex_jvp(self):
+        evaluate, *_ = padeapprox([1.0, 1.0j], 0, 1)
+        z = jnp.array([0.125 + 0.25j, -0.5j])
+        direction = jnp.array([0.5j, 0.25 - 0.5j])
+        value, tangent = jax.jvp(jax.jit(evaluate), (z,), (direction,))
+        npt.assert_allclose(value, 1 / (1 - 1j * z), rtol=1e-13)
+        npt.assert_allclose(tangent, 1j * direction / (1 - 1j * z)**2, rtol=1e-13)
 
 
 # ============================================================================

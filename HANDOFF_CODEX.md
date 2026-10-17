@@ -1,3 +1,16 @@
+# Latest CPU Padé JAX port — 2026-10-17
+
+Padé array numerics now use JAX. Native original3predicates all true; final
+17Python checks pass with unchanged original bounds, stable declared inputs
+and no survivors. Four baseline contracts failed: zero degree (-Inf), tiny
+imaginary numerator preservation, NumPy-free fit and jit/complex-JVP evaluation.
+All four now pass. Source order forms numerator before cancelling shared leading
+powers; genuine complex Taylor data is never discarded by absolute threshold.
+Other module functions are AST-identical;361other library files byte-identical.
+Legacy trig fitting, full API/parameter audit, exact FFT/SVD and matched native
+performance remain open; latest-main CI/coverage still required.
+Evidence: docs/pade_jax_source_cpu_20261017.json.
+
 # Latest MATLAB-port CI deadline split — 2026-10-17
 
 Actual olderCI chebfun-a/b hit90minute job limits (last reported40%/90%nodes).

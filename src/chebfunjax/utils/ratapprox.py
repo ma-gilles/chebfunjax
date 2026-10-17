@@ -1,4 +1,4 @@
-# uses-numpy: legacy Pade and trigonometric rational fitting retain NumPy kernels.
+# uses-numpy: legacy trigonometric rational fitting retains NumPy kernels.
 # ratinterp fitting uses JAX kernels with eager degree and shape decisions.
 """Rational approximation: Padé, rational interpolation, trig rational interpolation.
 
@@ -65,18 +65,18 @@ def padeapprox(
     -------
     r_handle : callable
         Function handle evaluating the rational approximant.
-    a : np.ndarray, shape (mu+1,)
+    a : jnp.ndarray, shape (mu+1,)
         Numerator Taylor coefficients (ascending powers: a[0] + a[1]*z + ...).
-    b : np.ndarray, shape (nu+1,)
+    b : jnp.ndarray, shape (nu+1,)
         Denominator Taylor coefficients (ascending powers, b[0] = 1).
-    mu : int
-        Exact numerator degree.
+    mu : int or float
+        Exact numerator degree; negative infinity for the zero approximant.
     nu : int
         Exact denominator degree.
-    poles : np.ndarray, shape (nu,)
+    poles : jnp.ndarray, shape (nu,)
         Poles of the approximant (returned only if requested, always included
         in the return tuple here for consistency).
-    residues : np.ndarray, shape (nu,)
+    residues : jnp.ndarray, shape (nu,)
         Residues at the poles.
 
     Notes
@@ -98,8 +98,8 @@ def padeapprox(
     --------
     Padé (2, 2) approximant to exp(z):
 
-    >>> r_fn, a, b, mu, nu, poles, res = padeapprox(np.exp, 2, 2)
-    >>> abs(r_fn(0.5) - np.exp(0.5)) < 1e-10
+    >>> r_fn, a, b, mu, nu, poles, res = padeapprox(jnp.exp, 2, 2)
+    >>> abs(r_fn(0.5) - jnp.exp(0.5)) < 1e-10
     True
 
     Provenance
@@ -118,51 +118,51 @@ def padeapprox(
     # 1.  Extract Taylor coefficients if f is callable
     # ------------------------------------------------------------------
     if callable(f):
-        z = r * np.exp(2j * np.pi * np.arange(N_fft) / N_fft)
-        fvals = np.asarray(f(z), dtype=complex)
-        c_full = np.fft.fft(fvals) / N_fft
+        z = r * jnp.exp(2j * jnp.pi * jnp.arange(N_fft) / N_fft)
+        fvals = jnp.asarray(f(z), dtype=complex)
+        c_full = jnp.fft.fft(fvals) / N_fft
 
         # Discard near-zero coefficients
-        tc = 1e-15 * np.linalg.norm(c_full)
-        c_full[np.abs(c_full) < tc] = 0.0
+        tc = 1e-15 * jnp.linalg.norm(c_full)
+        c_full = jnp.where(jnp.abs(c_full) < tc, 0.0, c_full)
 
         # Make real functions real
-        if np.linalg.norm(np.imag(c_full), np.inf) < tc:
-            c_full = np.real(c_full)
+        if jnp.linalg.norm(jnp.imag(c_full), jnp.inf) < tc:
+            c_full = jnp.real(c_full)
 
         # Rescale for the radius
-        c_full = c_full / r ** np.arange(N_fft)
+        c_full = c_full / r ** jnp.arange(N_fft)
     else:
-        c_full = np.asarray(f, dtype=complex).ravel()
+        c_full = jnp.asarray(f).ravel()
+        c_full = c_full.astype(jnp.result_type(c_full, jnp.float64))
 
     # Ensure we have enough coefficients (zero-pad or truncate)
-    c = np.concatenate([c_full, np.zeros(max(0, m + n + 1 - len(c_full)))])
+    c = jnp.concatenate([c_full, jnp.zeros(max(0, m + n + 1 - len(c_full)))])
     c = c[: m + n + 1]
 
     # ------------------------------------------------------------------
     # 2.  Absolute tolerance
     # ------------------------------------------------------------------
-    ts = tol * np.linalg.norm(c)
+    ts = tol * jnp.linalg.norm(c)
 
     # ------------------------------------------------------------------
     # 3.  Special case: numerator is negligible → r = 0
     # ------------------------------------------------------------------
-    if np.linalg.norm(c[: m + 1], np.inf) <= tol * np.linalg.norm(c, np.inf):
-        a = np.array([0.0])
-        b = np.array([1.0])
-        mu = -1  # -inf in MATLAB notation; use -1 here
+    if jnp.linalg.norm(c[: m + 1], jnp.inf) <= tol * jnp.linalg.norm(c, jnp.inf):
+        a = jnp.array([0.0])
+        b = jnp.array([1.0])
+        mu = -float("inf")
         nu = 0
     else:
         # ------------------------------------------------------------------
         # 4.  Diagonal-hopping across the Padé table block structure
         # ------------------------------------------------------------------
-        row = np.zeros(n + 1, dtype=complex)
-        row[0] = c[0]
+        row = jnp.zeros(n + 1, dtype=c.dtype).at[0].set(c[0])
 
         while True:
             if n == 0:
                 a = c[: m + 1].copy()
-                b = np.array([1.0])
+                b = jnp.array([1.0])
                 break
 
             # Build Toeplitz matrix Z (rows = m+n+1, cols = n+1)
@@ -173,8 +173,8 @@ def padeapprox(
             C = Z[m + 1 : m + n + 1, : n + 1]
 
             # Numerical rank
-            sv = np.linalg.svd(C, compute_uv=False)
-            rho = int(np.sum(sv > ts))
+            sv = jnp.linalg.svd(C, compute_uv=False)
+            rho = int(jnp.sum(sv > ts))
 
             if rho == n:
                 break
@@ -183,61 +183,56 @@ def padeapprox(
             m_dec = n - rho
             m = m - m_dec
             n = rho
-            row = np.zeros(n + 1, dtype=complex)
-            row[0] = c[0]
+            row = jnp.zeros(n + 1, dtype=c.dtype).at[0].set(c[0])
 
         if n > 0:
             # Compute b from null vector with reweighted QR
             C = Z[m + 1 : m + n + 1, : n + 1]
-            _, _, Vh = np.linalg.svd(C, full_matrices=True)
+            _, _, Vh = jnp.linalg.svd(C, full_matrices=True)
             b_raw = Vh[-1, :].conj()  # null vector
 
-            D = np.diag(np.abs(b_raw) + np.sqrt(np.finfo(float).eps))
+            D = jnp.diag(jnp.abs(b_raw) + jnp.sqrt(jnp.finfo(float).eps))
             # Use full (complete) QR — MATLAB's qr returns full Q by default
             # MATLAB: qr((C*D)') with ' = CONJUGATE transpose; a plain
             # .T gave the wrong null vector for complex Taylor series
             # (found in the Fable 5 audit: pade of [1, 1i] returned
             # b = [1, +1i] instead of [1, -1i]).
-            Q, _ = np.linalg.qr((C @ D).conj().T, mode='complete')
+            Q, _ = jnp.linalg.qr((C @ D).conj().T, mode='complete')
             b_vec = D @ Q[:, n]
-            b_vec = b_vec / np.linalg.norm(b_vec)
+            b_vec = b_vec / jnp.linalg.norm(b_vec)
 
-            # Discard leading zeros of b
+            # Source order: form the numerator before cancelling common
+            # leading powers. Both vectors lose the same number of entries.
+            a_vec = Z[: m + 1, : n + 1] @ b_vec
             lam = 0
-            while lam < len(b_vec) and np.abs(b_vec[lam]) <= tol:
+            while lam < len(b_vec) and jnp.abs(b_vec[lam]) <= tol:
                 lam += 1
+            a_vec = a_vec[lam:]
             b_vec = b_vec[lam:]
 
-            # Discard trailing zeros of b
             last_b = len(b_vec) - 1
-            while last_b > 0 and np.abs(b_vec[last_b]) <= tol:
+            while last_b > 0 and jnp.abs(b_vec[last_b]) <= tol:
                 last_b -= 1
             b_vec = b_vec[: last_b + 1]
 
-            # Compute a = Z[0:m+1, 0:n+1] @ b
-            n_eff = len(b_vec)
-            a_vec = Z[: m + 1, :n_eff] @ b_vec
-
-            # Discard trailing zeros in a
             last_a = len(a_vec) - 1
-            while last_a > 0 and np.abs(a_vec[last_a]) <= ts:
+            while last_a > 0 and jnp.abs(a_vec[last_a]) <= ts:
                 last_a -= 1
-            a_vec = a_vec[: last_a + 1]
-
-            # Normalize: b[0] = 1
-            a_vec = a_vec / b_vec[0]
-            b_vec = b_vec / b_vec[0]
-
-            a = np.real(a_vec) if np.allclose(np.imag(a_vec), 0, atol=1e-14) else a_vec
-            b = np.real(b_vec) if np.allclose(np.imag(b_vec), 0, atol=1e-14) else b_vec
+            a = a_vec[: last_a + 1]
+            b = b_vec
         else:
             a = c[: m + 1].copy()
-            b = np.array([1.0])
+            b = jnp.array([1.0])
             # Discard trailing zeros in a
             last_a = len(a) - 1
-            while last_a > 0 and np.abs(a[last_a]) <= ts:
+            while last_a > 0 and jnp.abs(a[last_a]) <= ts:
                 last_a -= 1
             a = a[: last_a + 1]
+
+        # Native normalization does not remove imaginary components from
+        # numeric Taylor data, irrespective of their absolute magnitude.
+        a = a / b[0]
+        b = b / b[0]
 
         mu = len(a) - 1
         nu = len(b) - 1
@@ -249,19 +244,19 @@ def padeapprox(
     b_rev = b[::-1]
 
     def r_handle(z):
-        z = np.asarray(z)
-        return np.polyval(a_rev, z) / np.polyval(b_rev, z)
+        z = jnp.asarray(z)
+        return jnp.polyval(a_rev, z) / jnp.polyval(b_rev, z)
 
     # ------------------------------------------------------------------
     # 6.  Poles and residues
     # ------------------------------------------------------------------
     if nu > 0:
-        poles = np.roots(b_rev)
+        poles = jnp.roots(b_rev, strip_zeros=False)
         t = max(tol, 1e-7)
         residues = t * (r_handle(poles + t) - r_handle(poles - t)) / 2.0
     else:
-        poles = np.array([])
-        residues = np.array([])
+        poles = jnp.array([])
+        residues = jnp.array([])
 
     return r_handle, a, b, mu, nu, poles, residues
 
@@ -271,15 +266,15 @@ def padeapprox(
 # ---------------------------------------------------------------------------
 
 
-def _build_toeplitz(col: np.ndarray, row: np.ndarray) -> np.ndarray:
+def _build_toeplitz(col: jnp.ndarray, row: jnp.ndarray) -> jnp.ndarray:
     """Build a Toeplitz matrix with first column ``col`` and first row ``row``."""
     m_rows = len(col)
     n_cols = len(row)
-    indices = np.arange(m_rows)[:, None] - np.arange(n_cols)[None, :]
+    indices = jnp.arange(m_rows)[:, None] - jnp.arange(n_cols)[None, :]
     # Where index >= 0 use col, where < 0 use row
-    col_ext = np.concatenate([col, np.zeros(max(0, n_cols - 1))])
-    row_ext = np.concatenate([row, np.zeros(max(0, m_rows - 1))])
-    result = np.where(indices >= 0, col_ext[np.abs(indices)], row_ext[np.abs(indices)])
+    col_ext = jnp.concatenate([col, jnp.zeros(max(0, n_cols - 1))])
+    row_ext = jnp.concatenate([row, jnp.zeros(max(0, m_rows - 1))])
+    result = jnp.where(indices >= 0, col_ext[jnp.abs(indices)], row_ext[jnp.abs(indices)])
     return result
 
 
