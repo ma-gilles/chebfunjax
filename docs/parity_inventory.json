@@ -64,6 +64,11 @@
       "scope": "Core process scheduling/coverage integrity only; no scientific status promotion",
       "sha256": "167a5978c1007586cc86e7b6046430325c4ace923935d9cd84969f7033d11901"
     },
+    "ci_stable_core_cpu_20261017": {
+      "path": "docs/ci_stable_core_cpu_20261017.json",
+      "scope": "Stable recorded core CI ownership; scientific assertions, job/per-test deadlines and coverage requirements unchanged.",
+      "sha256": "6a09a42da8bbdc17765660d1294dc41fa2be5923fbcaf0ba3044cf4ab20d88fc"
+    },
     "colororder_20261017": {
       "path": "docs/colororder_cpu_20261017.json",
       "scope": "Color property versus LineSpec source ordering;21 controls and native metadata. Full graphics grammar/rendering remains unverified.",

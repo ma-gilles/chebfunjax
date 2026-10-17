@@ -1,3 +1,13 @@
+# Latest stable core CI ownership — 2026-10-17
+
+Recorded11lane ownership preserves all1072current selectors. A simulated new
+roots file moves0existing selections, versus1004with positional assignment.
+After adding/removing core selections run scripts/run_core_shard.py
+--update-baseline and review/stage scripts/core_shard_baseline.json with tests.
+The current-inventory protocol test enforces this checkpoint.20controls pass;
+scientific flags/deadlines/coverage are unchanged. Latest-main CI still required.
+Evidence: docs/ci_stable_core_cpu_20261017.json.
+
 # Latest real Hermite ASY source order — 2026-10-17
 
 Derivative scale now divides by phi before multiplying dval, matching native

@@ -1,0 +1,57 @@
+{
+  "scope": "Stable recorded core CI ownership; scientific assertions, job/per-test deadlines and coverage requirements unchanged.",
+  "base": "e650390926379fb066d6ad1bdb3a20540728322c",
+  "inventory": 1072,
+  "lanes": 11,
+  "ownership": {
+    "existing": 1072,
+    "old_positional_moved": 1004,
+    "new_moved": 0,
+    "new_selection_lane": 1,
+    "before_lane_sizes": [
+      134,
+      48,
+      48,
+      134,
+      134,
+      134,
+      48,
+      134,
+      86,
+      86,
+      86
+    ],
+    "after_lane_sizes": [
+      134,
+      49,
+      48,
+      134,
+      134,
+      134,
+      48,
+      134,
+      86,
+      86,
+      86
+    ]
+  },
+  "maintenance": "Run scripts/run_core_shard.py --update-baseline and review/stage its JSON alongside every core inventory change. Current-inventory coverage test enforces checkpointing.",
+  "validation": {
+    "nodes": 20,
+    "inputs_stable": true,
+    "survivors": [],
+    "wall_seconds": 4.689245229121298,
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_stable_core_run002/receipt.json"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_stable_core_cpu_20261017.tar.gz",
+    "sha256": "72c27e845fd9862c65d226a32983952b84264942711d6d77f5fbc0efab089414",
+    "verified_payloads": 29
+  },
+  "limits": [
+    "Counts balance new selections; this is not a runtime predictor.",
+    "The added roots selector is simulated here; not yet in this publication.",
+    "First successful protocol attempt retained; final attempt corrects a historical modulo test that would reject future inventory growth. Historical original partition equality is verified separately against frozen prechange capture.",
+    "Latest-main scientific CI, runtime and coverage>=79% remain required."
+  ]
+}

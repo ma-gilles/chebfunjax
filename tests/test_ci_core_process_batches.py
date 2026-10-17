@@ -152,21 +152,18 @@ def test_aggregate_rejects_incomplete_or_stale_batch_receipts(tmp_path, monkeypa
         core.validate_manifest(manifest, 0, selections, 'a'*40, tmp_path)
 
 
-def test_deadline_split_preserves_other_lanes_and_complete_processes():
-    selections = core.inventory()
-    old = [selections[i::core.BASE_PARTS] for i in range(core.BASE_PARTS)]
-    new = core.partition(selections)
-    assert len(new) == core.PARTS == core.BASE_PARTS+3
-    split = core.SPLIT_AFTER_BATCHES*core.BATCH_SIZE
-    for part in range(core.BASE_PARTS):
-        if part not in (6, 1, 2):
-            assert new[part] == old[part]
-    # Preserve the prior Core8 tail and give Core1/2 tails new lanes9/10.
-    for part, tail in ((6, 8), (1, 9), (2, 10)):
-        assert new[part] == old[part][:split]
-        assert new[tail] == old[part][split:]
-        assert core.batches(new[part])+core.batches(new[tail]) == core.batches(old[part])
-    flat = [name for group in new for name in group]
+def test_recorded_ownership_preserves_lanes_and_complete_processes():
+    baseline = json.loads(core.BASELINE_FILE.read_text())
+    selections = sorted(name for group in baseline['groups'] for name in group)
+    groups = core.partition(selections)
+    assert groups == baseline['groups']
+    assert len(groups) == core.PARTS == core.BASE_PARTS+3
+    for group in groups:
+        batches = core.batches(group)
+        assert [name for batch in batches for name in batch] == group
+        assert all(len(batch) == core.BATCH_SIZE for batch in batches[:-1])
+        assert 0 < len(batches[-1]) <= core.BATCH_SIZE
+    flat = [name for group in groups for name in group]
     assert len(flat) == len(set(flat)) == len(selections)
     assert sorted(flat) == selections
 
@@ -199,3 +196,39 @@ def test_aggregate_cannot_accept_original_eight_manifests_without_new_tail(tmp_p
     with pytest.raises(FileNotFoundError, match='core-manifest-8.json'):
         core.main()
     assert checked == list(range(core.BASE_PARTS))
+
+
+def test_new_core_selection_preserves_measured_lane_prefixes():
+    selections = core.inventory()
+    before = core.partition(selections)
+    added = 'tests/test_chebfun1d/test_future_added_root_control.py'
+    assert added not in selections
+    after = core.partition(sorted(selections + [added]))
+    for old, new in zip(before, after):
+        assert new[:len(old)] == old
+    assert sorted(name for group in after for name in group) == sorted(selections + [added])
+    # The actual next root-control file must leave every anchor in its lane.
+    actual_added = 'tests/test_chebfun1d/test_get_roots_for_breaks_source.py'
+    baseline = json.loads(core.BASELINE_FILE.read_text())['groups']
+    current = core.partition(sorted(set(selections + [actual_added])))
+    for part, group in enumerate(baseline):
+        retained = [name for name in group if name in selections]
+        assert current[part][:len(retained)] == retained
+
+
+def test_duplicate_core_baseline_fails_closed(tmp_path, monkeypatch):
+    baseline = json.loads(core.BASELINE_FILE.read_text())
+    baseline['groups'][1].append(baseline['groups'][0][0])
+    path = tmp_path / 'invalid-baseline.json'
+    path.write_text(json.dumps(baseline))
+    monkeypatch.setattr(core, 'BASELINE_FILE', path)
+    with pytest.raises(ValueError, match='baseline'):
+        core.partition(core.inventory())
+
+
+def test_core_baseline_covers_current_inventory():
+    baseline = json.loads(core.BASELINE_FILE.read_text())
+    anchors = [name for group in baseline['groups'] for name in group]
+    assert sorted(anchors) == core.inventory(), (
+        'Core inventory changed: run scripts/run_core_shard.py --update-baseline '
+        'and review/stage core_shard_baseline.json with the tests.')

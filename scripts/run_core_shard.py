@@ -1,4 +1,8 @@
-"""Partition core selections into fresh processes; retain aggregate coverage."""
+"""Partition core selections into fresh processes; retain aggregate coverage.
+
+After adding/removing core selections, run --update-baseline and stage the
+reviewable core_shard_baseline.json ownership changes with the tests.
+"""
 import argparse
 import ast
 import hashlib
@@ -14,6 +18,7 @@ BATCH_SIZE = 12
 SPLIT_PARTS = (6, 1, 2)
 SPLIT_AFTER_BATCHES = 4
 MIRROR_FILE = 'tests/test_coverage/test_port_mirrors.py'
+BASELINE_FILE = Path(__file__).resolve().with_name('core_shard_baseline.json')
 
 
 def mirror_selections():
@@ -50,16 +55,24 @@ def inventory():
 
 
 def partition(files):
-    # Preserve the original eight lanes, splitting only complete batches.
-    # Core6 was split earlier; run39059398761 also exhausted the90-minute
-    # limit in Core1/2. Their first four batches cost about50minutes each;
-    # give each remaining tail its own lane. Existing Core8 stays unchanged.
-    groups = [files[i::BASE_PARTS] for i in range(BASE_PARTS)]
-    split = BATCH_SIZE * SPLIT_AFTER_BATCHES
-    for part in SPLIT_PARTS:
-        remainder = groups[part][split:]
-        groups[part] = groups[part][:split]
-        groups.append(remainder)
+    # Keep the measured deadline lanes stable when the inventory grows.
+    # Positional modulo assignment redistributed1004existing selections on
+    # adding one new root-control file. Append new selectors after the
+    # baseline prefixes instead, balancing their counts deterministically.
+    baseline = json.loads(BASELINE_FILE.read_text())
+    groups = baseline.get('groups', [])
+    if (baseline.get('schema_version') != 1 or len(groups) != PARTS
+            or not all(isinstance(group, list) and group for group in groups)):
+        raise ValueError('invalid core ownership baseline schema')
+    anchors = [name for group in groups for name in group]
+    if (not all(isinstance(name, str) and name.startswith('tests/')
+                for name in anchors) or len(anchors) != len(set(anchors))):
+        raise ValueError('invalid duplicate or non-test core ownership baseline')
+    present = set(files)
+    groups = [[name for name in group if name in present] for group in groups]
+    for name in sorted(present - set(anchors)):
+        owner = min(range(PARTS), key=lambda part: (len(groups[part]), part))
+        groups[owner].append(name)
     flat = [name for group in groups for name in group]
     if not all(groups) or len(flat) != len(set(flat)) or sorted(flat) != files:
         raise ValueError('core partition is not nonempty, disjoint and exhaustive')
@@ -204,9 +217,20 @@ def main():
     parser.add_argument('--part', type=int, choices=range(PARTS))
     parser.add_argument('--verify-and-combine', type=Path)
     parser.add_argument('--inventory-only', action='store_true')
+    parser.add_argument('--update-baseline', action='store_true',
+                        help='record current selector ownership without running tests')
     args = parser.parse_args()
     files = inventory()
     groups = partition(files)
+    if args.update_baseline:
+        baseline = json.loads(BASELINE_FILE.read_text())
+        baseline['groups'] = groups
+        baseline['last_update_parent'] = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'], text=True).strip()
+        baseline['update_scope'] = 'Ownership only; includes current working-tree inventory.'
+        BASELINE_FILE.write_text(json.dumps(baseline, indent=2) + '\n')
+        print(json.dumps({'selections': len(files), 'lanes': len(groups)}))
+        return 0
     if args.inventory_only:
         print(json.dumps({'inventory': files, 'shards': groups}, indent=2))
         return 0

@@ -27,6 +27,8 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Preserve measured core CI lane ownership as tests are added; all1072current selections retain their lanes, simulated new roots file moves0existing selections versus1004previously.20protocol checks pass. [Evidence](ci_stable_core_cpu_20261017.json). Latest-main execution and coverage remain open.
+
 - [x] Hermite ASY derivative forms native scale before multiplying dval;17existing mapped, independent and normalization controls pass. [Evidence](hermite_derivative_order_cpu_20261017.json). Small-order complex ASY remains open.
 
 - [x] Restore all14default original minandmax predicates with exact source operands/bounds, retaining authored tests separately. Fix string gamma native real-pole convention and denominator jump-root discovery. Parent37 checks pass on current FFT source. [Evidence](minmax_original14_cpu_20261017.json).
@@ -38,7 +40,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Full current LaplaceBall script executes in34.994s with captured input, stable source/no survivors;11actual outputs retained and page refreshed. Three600x253 PNGs match published bytes; numerical/RNG/render parity gaps remain. [Evidence](laplaceball_current_cpu_20261017.json).
 
 - [x] Complex global extrema now preserve stored isolated point values and native left/right breakpoint repair; array columns follow scalar policy. Six baseline failures become passing; combined30 controls pass. [Evidence](complex_minmax_cpu_20261017.json).
-- [ ] Full original14 Python minandmax predicates, technology/preference/warning grammar and broader LU pivot fidelity.
+- [ ] Remaining minandmax technology/preference/warning grammar and broader LU pivot fidelity; all14default original predicates are verified above.
 
 - [x] Scalar33 real float64 CPU Fourier arithmetic follows observed native plan; exact-word and algebraic controls pass. Unchanged authored fixed48 PDE CI regression passes without tolerance/integrator changes; combined21 parent checks pass. [Evidence](fft64_pde_cpu_20261017.json).
 - [ ] Broader batched/complex FFT plans, inverse/Hermite/rational coefficient gaps, cold/warm overhead and matched native performance.
