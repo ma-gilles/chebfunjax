@@ -1689,13 +1689,18 @@ class Chebop:
                                              bvp_tol=tol, n_min=n_min, n_max=n_max)
                     except CoupledParameterVariables:
                         pass  # Preserve the existing parameter adapter below.
-            if self._n_params() > 0:
+            # Native solvebvp classifies the AD linearization before choosing
+            # its linear solve. Structural linop extraction can reject normal
+            # nonlinear syntax, so only use that optional route after this
+            # classification (including the supplied scalar-parameter init).
+            system_is_linear = self._system_is_linear()
+            if system_is_linear and self._n_params() > 0:
                 from chebfunjax.operators._mixed_linear import prepare, solve
                 mixed = prepare(self)
                 if mixed is not None:
                     return solve(self, f, mixed, n=n, n_min=n_min,
                                  n_max=n_max, tol=tol)
-            if self._system_is_linear():
+            if system_is_linear:
                 return self._solve_linear_system(f, n=n)
             if self._has_explicit_scalar_parameters():
                 from chebfunjax.operators.parameter_newton import solve_parameter

@@ -71,6 +71,13 @@ remaining-page count.
   integration controls pass in 30.48 seconds. Native FFT and inverse length
   parity remain open. See [scale evidence](happiness_representation_vscale_joint_cpu_20261017.json).
 
+- [x] Classify source AD linearity before optional mixed-linear preparation;
+  the original natural C2 nonlinear parameter setup now passes adaptively at
+  the unchanged bound. Final component13 nodes include11 routing controls,
+  fixed48 supplemental and one literal adaptive original. Root latest-source
+  routing11 and original-adaptive1 pass separately; C1/US remain open. See
+  [nonlinear dispatch evidence](nonlinear_parameter_dispatch_joint_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted

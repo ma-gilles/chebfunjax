@@ -1,0 +1,97 @@
+{
+  "scope": "Source dispatch correction; original adaptive C2 parameter predicate separately qualified, not full nonlinear API or native benchmark parity.",
+  "base": "af5f3828c38062008663e9ea588093d4a47a2300",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "diagnosis": "Optional mixed-linear preparation called public structural linop before nonlinear AD classification, rejecting exp on an unknown and preventing existing scalar-parameter Newton dispatch. Native solvebvp classifies linearize(N,N.init,x) before selecting linear/Newton solves.",
+  "candidate_distinct_nodes": 13,
+  "counts": {
+    "new_dispatch_error_controls": 5,
+    "genuine_mixed_linear_controls": 4,
+    "legacy_routing_controls": 2,
+    "unchanged_fixed48_supplemental": 1,
+    "unchanged_literal_default_adaptive_source_c2": 1
+  },
+  "receipts": {
+    "baseline_dispatch": {
+      "wall_seconds": 23.67379589099437,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 815996,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 30909,
+      "pytest_nodes": 6,
+      "pytest_failures": 3
+    },
+    "candidate_dispatch": {
+      "wall_seconds": 38.35764825111255,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 1542496,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 30910,
+      "pytest_nodes": 11,
+      "pytest_failures": 1
+    },
+    "baseline_adjacent": {
+      "wall_seconds": 28.692615794949234,
+      "supervisor_exit_code": 1,
+      "sampled_peak_summed_rss_kib": 1062256,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 30911,
+      "pytest_nodes": 2,
+      "pytest_failures": 1
+    },
+    "candidate_fixed48": {
+      "wall_seconds": 59.45614122506231,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2339868,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 30912,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    },
+    "qualification_routing": {
+      "wall_seconds": 39.10458150273189,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 1531900,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 34178,
+      "pytest_nodes": 11,
+      "pytest_failures": 0
+    },
+    "qualification_adaptive": {
+      "wall_seconds": 65.44084138516337,
+      "supervisor_exit_code": 0,
+      "sampled_peak_summed_rss_kib": 2500504,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "inputs_stable": true,
+      "guard_count": 34179,
+      "pytest_nodes": 1,
+      "pytest_failures": 0
+    }
+  },
+  "retained_failures": {
+    "baseline6": "3fail/3pass: nonlinear dispatch, ordering and original fixed48 error.",
+    "candidate11": "10pass/1fail: authored legacy-solver identity assumed mixed preparation declined.",
+    "baseline_adjacent2": "Same stale identity assertion fails on unchangedaf5;1otherpass.",
+    "repair": "Fresh qualification11 passes after explicit prepare=None at the legacy fallback seam; earlier versions remain immutable."
+  },
+  "adaptive_mapping": "test_parameter_source_newton_matlab.py::test_adaptive_source_c2_bound retains source natural operator, N.init=[x,-1], default/adaptive solve, native signed aggregate residual and factory1e3*bvpTol=5e-10; extra residual/metadata assertions retained.",
+  "legacy_mapping": "test_paramODE_nonlin_C2_matlab.py is an unchanged older adapted n96,pprime=0,1e-7 test and supplies no literal adaptive credit here.",
+  "limits": "Every group<=180s/3GiB, CPU36-39,JAX0.11/x64,noGPU; scientific timeouts unchanged.",
+  "static_check": "Scoped Ruff source/new controls/repaired authored routing controls passed before qualification.",
+  "remaining": [
+    "Full nonlinear parameter/backends/default API and matched native output/timing remain open.",
+    "No latest-main combined qualification claimed; frozenaf5 library differs from later root vscale publication.",
+    "Native inverse FFT9030vs8630 is unrelated and remains open."
+  ]
+}

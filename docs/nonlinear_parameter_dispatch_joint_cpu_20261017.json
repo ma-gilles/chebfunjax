@@ -1,0 +1,231 @@
+{
+  "base": "787922f8f579495a70be5d1e0107f47f64cb1a3b",
+  "source_hashes": {
+    "src/chebfunjax/operators/chebop.py": "4d27f68627ec8d9d3f4bd4a7984101b077a3c6326a6967c80e57809b3fd84667",
+    "tests/test_operators/test_nonlinear_parameter_dispatch_source.py": "a0ea861df6daa4444bc92b381c31c4c2375abb01f368e5c6633dd3ac61831b96",
+    "tests/test_operators/test_coupled_parameter_routing.py": "457cdff6125fd8632ef04d76c01c9bce1dd9df7ef34972313ceba6d68dec4531"
+  },
+  "scope": "Source AD classification occurs once before optional mixed-linear preparation; nonlinear parameter problems retain Newton route and callback exceptions remain visible. Root repeats11routing controls and1unchanged literal adaptive sourceC2 predicate on latest vscale source. Repeats add no distinct component credit.",
+  "component": {
+    "scope": "Source dispatch correction; original adaptive C2 parameter predicate separately qualified, not full nonlinear API or native benchmark parity.",
+    "base": "af5f3828c38062008663e9ea588093d4a47a2300",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "diagnosis": "Optional mixed-linear preparation called public structural linop before nonlinear AD classification, rejecting exp on an unknown and preventing existing scalar-parameter Newton dispatch. Native solvebvp classifies linearize(N,N.init,x) before selecting linear/Newton solves.",
+    "candidate_distinct_nodes": 13,
+    "counts": {
+      "new_dispatch_error_controls": 5,
+      "genuine_mixed_linear_controls": 4,
+      "legacy_routing_controls": 2,
+      "unchanged_fixed48_supplemental": 1,
+      "unchanged_literal_default_adaptive_source_c2": 1
+    },
+    "receipts": {
+      "baseline_dispatch": {
+        "wall_seconds": 23.67379589099437,
+        "supervisor_exit_code": 1,
+        "sampled_peak_summed_rss_kib": 815996,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 30909,
+        "pytest_nodes": 6,
+        "pytest_failures": 3
+      },
+      "candidate_dispatch": {
+        "wall_seconds": 38.35764825111255,
+        "supervisor_exit_code": 1,
+        "sampled_peak_summed_rss_kib": 1542496,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 30910,
+        "pytest_nodes": 11,
+        "pytest_failures": 1
+      },
+      "baseline_adjacent": {
+        "wall_seconds": 28.692615794949234,
+        "supervisor_exit_code": 1,
+        "sampled_peak_summed_rss_kib": 1062256,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 30911,
+        "pytest_nodes": 2,
+        "pytest_failures": 1
+      },
+      "candidate_fixed48": {
+        "wall_seconds": 59.45614122506231,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 2339868,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 30912,
+        "pytest_nodes": 1,
+        "pytest_failures": 0
+      },
+      "qualification_routing": {
+        "wall_seconds": 39.10458150273189,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 1531900,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 34178,
+        "pytest_nodes": 11,
+        "pytest_failures": 0
+      },
+      "qualification_adaptive": {
+        "wall_seconds": 65.44084138516337,
+        "supervisor_exit_code": 0,
+        "sampled_peak_summed_rss_kib": 2500504,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "inputs_stable": true,
+        "guard_count": 34179,
+        "pytest_nodes": 1,
+        "pytest_failures": 0
+      }
+    },
+    "retained_failures": {
+      "baseline6": "3fail/3pass: nonlinear dispatch, ordering and original fixed48 error.",
+      "candidate11": "10pass/1fail: authored legacy-solver identity assumed mixed preparation declined.",
+      "baseline_adjacent2": "Same stale identity assertion fails on unchangedaf5;1otherpass.",
+      "repair": "Fresh qualification11 passes after explicit prepare=None at the legacy fallback seam; earlier versions remain immutable."
+    },
+    "adaptive_mapping": "test_parameter_source_newton_matlab.py::test_adaptive_source_c2_bound retains source natural operator, N.init=[x,-1], default/adaptive solve, native signed aggregate residual and factory1e3*bvpTol=5e-10; extra residual/metadata assertions retained.",
+    "legacy_mapping": "test_paramODE_nonlin_C2_matlab.py is an unchanged older adapted n96,pprime=0,1e-7 test and supplies no literal adaptive credit here.",
+    "limits": "Every group<=180s/3GiB, CPU36-39,JAX0.11/x64,noGPU; scientific timeouts unchanged.",
+    "static_check": "Scoped Ruff source/new controls/repaired authored routing controls passed before qualification.",
+    "remaining": [
+      "Full nonlinear parameter/backends/default API and matched native output/timing remain open.",
+      "No latest-main combined qualification claimed; frozenaf5 library differs from later root vscale publication.",
+      "Native inverse FFT9030vs8630 is unrelated and remains open."
+    ]
+  },
+  "component_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonlinear_parameter_dispatch_cpu_20261017.tar.gz",
+  "component_archive_sha256": "bb27340e8b74454c716b1d6e09e134be9b0eaf7fd8f27d1285d9414a1587ee34",
+  "parent_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonlinear_parameter_dispatch_cpu_20261017.tar.gz",
+    "sha256": "bb27340e8b74454c716b1d6e09e134be9b0eaf7fd8f27d1285d9414a1587ee34",
+    "verified_payloads": 129,
+    "native_static_sources_verified": {
+      "@chebop/solvebvp.m": "83538b9af421eba0e90427ae7fb648ab52b863c2d2f79fc4864f3eaee7cc62b7",
+      "@chebop/linearize.m": "35ee0cb907a29e6293332bc8f90c998e4f54783291bcfa4b8ead2eb77f6d3c65",
+      "tests/chebop/test_paramODE_nonlin_C2.m": "d8f700f2c8b3bcb17ce298f362a03050ad48f8762212089ac6865069a92cdb0d"
+    },
+    "scope": "Independent payload and pinned native static source verification. Dependency guard-edge/runtime verification and latest-source integration remain separate."
+  },
+  "parent_guard_edges_review": {
+    "guard_edges": 191999,
+    "unique_guarded_versions": 9578,
+    "verified_preimage_versions": 9578,
+    "archives": 8,
+    "scope": "Every guarded edge resolves to full SHA-verified bytes from exact archive versions; no numerical rerun."
+  },
+  "runs": {
+    "routing": {
+      "cases": [
+        {
+          "classname": "tests.test_operators.test_nonlinear_parameter_dispatch_source",
+          "name": "test_nonlinear_exp_reaches_parameter_newton_without_linear_prepare",
+          "time": "6.488"
+        },
+        {
+          "classname": "tests.test_operators.test_nonlinear_parameter_dispatch_source",
+          "name": "test_linear_parameter_classification_runs_once_before_mixed_prepare",
+          "time": "0.026"
+        },
+        {
+          "classname": "tests.test_operators.test_nonlinear_parameter_dispatch_source",
+          "name": "test_callback_value_errors_remain_visible[operator]",
+          "time": "0.088"
+        },
+        {
+          "classname": "tests.test_operators.test_nonlinear_parameter_dispatch_source",
+          "name": "test_callback_value_errors_remain_visible[left]",
+          "time": "0.042"
+        },
+        {
+          "classname": "tests.test_operators.test_nonlinear_parameter_dispatch_source",
+          "name": "test_callback_value_errors_remain_visible[right]",
+          "time": "0.054"
+        },
+        {
+          "classname": "tests.test_operators.test_mixed_linear_source_controls",
+          "name": "test_analytic_numeric_column_order_and_complex_values[False-False]",
+          "time": "7.839"
+        },
+        {
+          "classname": "tests.test_operators.test_mixed_linear_source_controls",
+          "name": "test_analytic_numeric_column_order_and_complex_values[False-True]",
+          "time": "0.652"
+        },
+        {
+          "classname": "tests.test_operators.test_mixed_linear_source_controls",
+          "name": "test_analytic_numeric_column_order_and_complex_values[True-False]",
+          "time": "3.294"
+        },
+        {
+          "classname": "tests.test_operators.test_mixed_linear_source_controls",
+          "name": "test_analytic_numeric_column_order_and_complex_values[True-True]",
+          "time": "0.271"
+        },
+        {
+          "classname": "tests.test_operators.test_coupled_parameter_routing",
+          "name": "test_fewer_equation_parameter_uses_legacy_solver_when_mixed_prepare_declines",
+          "time": "0.021"
+        },
+        {
+          "classname": "tests.test_operators.test_coupled_parameter_routing",
+          "name": "test_exact_parameter_columns_delegate_public_and_solver",
+          "time": "0.167"
+        }
+      ],
+      "pytest_summary": "======================== 11 passed, 1 warning in 19.24s ========================",
+      "guarded_inputs": 8188,
+      "observed_runtime_imports": 1437,
+      "all_runtime_imports_preguarded": true,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 24.736888732761145,
+        "sampled_peak_summed_rss_kib": 1541812,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "adaptive": {
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebop.test_parameter_source_newton_matlab",
+          "name": "test_adaptive_source_c2_bound",
+          "time": "46.297"
+        }
+      ],
+      "pytest_summary": "======================== 1 passed, 1 warning in 46.55s =========================",
+      "guarded_inputs": 8188,
+      "observed_runtime_imports": 1425,
+      "all_runtime_imports_preguarded": true,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 53.683269266970456,
+        "sampled_peak_summed_rss_kib": 2507384,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    }
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonlinear_latest_root_integration_cpu_20261017.zip",
+  "archive_sha256": "86b6ce09178d2d9d43567805131476368ac60b5d101a409983efdd9127572dba",
+  "verified_payloads": 8098,
+  "limitations": [
+    "13distinct final component nodes comprise11routing, fixed48supplemental1 and literaladaptiveC2original1; not13originalMATLABpredicates.",
+    "Earliercandidate11gate failed pre-existing authored legacy-fallback identity unit; samefailure onbaseline retained. Fresh unit explicitly declines preferredmixed plan and assertscall, with genuinepreferredroute controls retained. No native predicate/norm/bound relaxed.",
+    "ExplicitC1 and ultraspherical natural typed-parameter/defaultsetup originals remain unqualified; adapted n96/functionparameter mappings do not establish parity.",
+    "Full nonlinear APIs/defaults/performance, allpages/figures and latestgreenCI remain open."
+  ]
+}

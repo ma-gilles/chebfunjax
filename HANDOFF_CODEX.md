@@ -1,3 +1,38 @@
+## Natural nonlinear parameter dispatch — 2026-10-17
+
+Chebop now computes its existing system AD classification once before the
+optional mixed-linear preparation, as native solvebvp does. Only linear
+systems enter that route; nonlinear scalar-parameter problems retain Newton.
+Normal exp syntax no longer reaches structural linear extraction first.
+Callback/BC ValueErrors remain visible, with no blanket exception fallback.
+
+Final component qualification:11 routing/analytic linear controls, unchanged
+fixed48 supplemental1 and separate literal adaptive originalC2 predicate1.
+The adaptive residual is5.788634498470987e-11<unchanged5e-10, with actual
+numeric parameter, native default tolerances and32/64 rectangular schedules.
+This is13pytest nodes, not13literal native predicates. No original norm,
+operand, degree, discretization preference or bound was changed.
+
+An authored legacy-fallback mock identity fails on both frozen baseline and
+first candidate, because typed mixed-linear preparation now has precedence.
+Both failures are retained. A fresh unit explicitly declines that optional
+plan and asserts its call before checking legacy fallback; genuine preferred
+mixed solves remain covered. This unit repair does not replace a native test.
+
+Root latest-vscale integration passes routing11 and literal adaptive1 in
+separate frozen processes; adaptive46.55s/2.39GiB. All8188input hashes stay
+stable, all1437/1425observed imports are preguarded, no survivors. Full static
+checks pass. Parent verified129component payloads,3exact pinned native source
+blobs and191999guard edges through9578full-byte versions across8archives.
+See docs/nonlinear_parameter_dispatch_joint_cpu_20261017.json.
+
+C1 and ultraspherical originals remain unqualified: existing adapted mappings
+add a'=0, use a function parameter,n96 and1e-7, whereas native uses a numeric
+parameter, adaptive defaults and5e-10. Explicit C1/US currently bypasses this
+values-route correction and promotes the scalar seed in altdisc; next work
+must implement source backend/typed-parameter behavior, not route to C2.
+Full nonlinear APIs/performance, pages/figures and latest greenCI remain open.
+
 ## Representation-based happinessCheck scale — 2026-10-17
 
 Native happinessCheck updates a local DATA.vscale copy from vscale(f), which
