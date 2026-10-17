@@ -1065,7 +1065,24 @@ class SeparableApprox(eqx.Module):
     @staticmethod
     def _slice_vals_jax(funs, t):
         """Evaluate each genuine slice without padding or NumPy dispatch."""
+        from chebfunjax.tech.chebtech import _clenshaw
         from chebfunjax.tech.trigtech import Trigtech
+
+        # Native CDR evaluates the column quasimatrix together. Equal genuine
+        # real C2 lengths share the same ordered Clenshaw kernel: stack the
+        # coefficients before evaluation instead of dispatching once per rank.
+        # Unequal lengths and other technologies retain their own evaluators.
+        if funs and all(
+                type(fn) is Chebtech2 and fn.coeffs.ndim == 1
+                and fn.coeffs.dtype == jnp.float64
+                and fn.coeffs.shape == funs[0].coeffs.shape for fn in funs):
+            # Bound the assembly fan-in without changing any coefficient or
+            # column order. A single large concatenate generates a compiler
+            # argument for every rank, even though the numerical kernel is shared.
+            blocks = [jnp.stack([fn.coeffs for fn in funs[start:start+32]], axis=1)
+                      for start in range(0, len(funs), 32)]
+            coeffs = blocks[0] if len(blocks) == 1 else jnp.concatenate(blocks, axis=1)
+            return _clenshaw(coeffs, _coordinate_array(t))
 
         # Trigtech's eager public call still has a host implementation. Its
         # traced evaluator and Chebtech's shared evaluator both use JAX.

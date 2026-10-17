@@ -48,6 +48,13 @@ remaining-page count.
   20 distinct controls include all three prior CI failures and complex/JIT/AD
   controls. See [joint integration](inverse_cdr_joint_cpu_20261017.json).
 
+- [x] Large-rank CDR evaluation used by Poisson: all nine original Poisson
+  assertions pass unchanged in 193.16 seconds, within the existing 900-second
+  timeout. Equal genuine C2 slices use ordered matrix Clenshaw; 32-column
+  stacks and a final block concatenation avoid the large assembly cost.
+  All 26 authored value/AD/fallback controls pass. See
+  [Poisson evidence](poisson_grid_chunk_cpu_20261017.json).
+
 ## Correctness and original test parity
 
 - [ ] Every original function and test predicate; remaining omissions, adapted

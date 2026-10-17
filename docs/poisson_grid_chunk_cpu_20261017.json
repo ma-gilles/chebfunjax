@@ -1,0 +1,1657 @@
+{
+  "base": "f45269ec8fdcfb51f14e8672a7fe2806a353fd63",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Equal genuine real C2 slices use existing ordered matrix Clenshaw. Coefficients assembled in32-column blocks with bounded concatenation fan-in, retaining all column order/degrees/values; other families/dtypes/lengths keep prior evaluator. Original Poisson9 predicates pass unchanged in193.16s within900s.",
+  "source_hashes": {
+    "src/chebfunjax/chebfun2d/separable_approx.py": "162586227a193521379677dfbf3bb6d5cadfa455931c43ef809d5026a2febf22",
+    "tests/test_chebfun2d/test_grid_slice_batch_source.py": "04bb9df1d3de197fa77797e46ae4c8b427e2ba9755850606c4d77edbbf4b5017"
+  },
+  "original_test_sha256": "69beef6eb4730db9c688078bcb93c5fed3a065f5287b19757bbf0882fa83d2c2",
+  "original_test_byte_unchanged": true,
+  "native_source_hashes": {
+    "tests/chebfun2/test_poisson.m": "59da76d72b6abf09c376a92fd908fc067ec7fc4c842e08a2cf5717b5526623f4",
+    "@separableApprox/feval.m": "5304e4a53a8a1105f0e69180c73bd39c3eb9da0da865b98d82bd88aeb0407d2c",
+    "@chebtech/clenshaw.m": "d165ed69200181304b446bdb0d5d3326a63b9982404777cef85c5d50b8fa3d7e"
+  },
+  "runs": {
+    "baseline_profile": {
+      "guarded_inputs": 8096,
+      "receipt": {
+        "command_exit_code": -15,
+        "supervisor_exit_code": 124,
+        "wall_seconds": 185.75407162774354,
+        "sampled_peak_summed_rss_kib": 1346820,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": "wall_timeout"
+      },
+      "runtime_limit": "No terminal import manifest from killed diagnostic; no complete-runtime or solve credit.",
+      "events": [
+        {
+          "event": "constructor_enter",
+          "seconds": 1.3315118849277496e-05
+        },
+        {
+          "event": "constructor_return",
+          "seconds": 8.034469346981496,
+          "rank": 15,
+          "lengths": [
+            149,
+            20
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 8.485593664925545,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.05280114384368,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.298467643093318,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.298864028882235,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.506153841968626,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 9.67487453809008,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 9.675417568068951,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.20845119189471,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 10.453118542674929,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.45354318106547,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 10.637426061090082,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 10.78582612471655,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "lap_return",
+          "seconds": 12.69578738603741,
+          "rank": 16
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 12.880163263063878,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 12.88442284008488,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 12.887079114094377,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 12.88725266000256,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 12.889045340940356,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 12.889651841018349,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 12.889921477995813,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 12.893488342873752,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 12.89565353281796,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 12.895821087993681,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 12.89781002793461,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 12.898350764065981,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "fadi_enter",
+          "seconds": 13.00051407609135,
+          "shapes": [
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              51
+            ],
+            [
+              51
+            ]
+          ]
+        },
+        {
+          "event": "fadi_return",
+          "seconds": 13.060425575822592,
+          "shapes": [
+            [
+              202,
+              1632
+            ],
+            [
+              1632,
+              1632
+            ],
+            [
+              202,
+              1632
+            ]
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 18.640054909978062,
+          "rank": 1632
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 19.07938419468701,
+          "rank": 1632,
+          "coordinate_shape": [
+            202
+          ],
+          "lengths": [
+            202
+          ]
+        }
+      ]
+    },
+    "plain_batch_controls": {
+      "guarded_inputs": 8097,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 22.633964945096523,
+        "sampled_peak_summed_rss_kib": 1085572,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "observed_runtime_imports": 1378,
+      "all_runtime_imports_preguarded": true,
+      "cases": [
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-1-3]",
+          "time": "0.410"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-2-3]",
+          "time": "0.831"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-17-33]",
+          "time": "1.085"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-202-33]",
+          "time": "1.183"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-1-3]",
+          "time": "0.106"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-2-3]",
+          "time": "0.256"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-17-33]",
+          "time": "0.256"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-202-33]",
+          "time": "0.307"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-1-3]",
+          "time": "0.082"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-2-3]",
+          "time": "0.116"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-17-33]",
+          "time": "0.242"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-202-33]",
+          "time": "0.220"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_column_batch_retains_coefficient_and_coordinate_derivatives",
+          "time": "1.045"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[unequal]",
+          "time": "0.385"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[complex]",
+          "time": "0.124"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[c1]",
+          "time": "0.136"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_polynomial_eager_jit_vmap[False]",
+          "time": "1.492"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_polynomial_eager_jit_vmap[True]",
+          "time": "0.667"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_coordinate_and_coefficient_jvp_vjp",
+          "time": "4.088"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_unequal_lengths_retains_traced_fallback",
+          "time": "0.327"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_scalar_and_matrix_broadcast[2.5-1.0]",
+          "time": "0.435"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_scalar_and_matrix_broadcast[x1-y1]",
+          "time": "0.789"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_empty_rank_retains_traced_result",
+          "time": "0.058"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_mixed_real_complex_family_keeps_individual_recurrences",
+          "time": "0.262"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_nonbinary_domain_mapping_keeps_traced_bits",
+          "time": "0.524"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_complex_coefficient_and_coordinate_jvp",
+          "time": "0.347"
+        }
+      ],
+      "pytest_summary": "======================== 26 passed, 1 warning in 16.05s ========================"
+    },
+    "plain_batch_profile": {
+      "guarded_inputs": 8097,
+      "receipt": {
+        "command_exit_code": -15,
+        "supervisor_exit_code": 124,
+        "wall_seconds": 184.3674251898192,
+        "sampled_peak_summed_rss_kib": 1337644,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": "wall_timeout"
+      },
+      "runtime_limit": "No terminal import manifest from killed diagnostic; no complete-runtime or solve credit.",
+      "events": [
+        {
+          "event": "constructor_enter",
+          "seconds": 1.2774020433425903e-05
+        },
+        {
+          "event": "constructor_return",
+          "seconds": 8.008955891244113,
+          "rank": 15,
+          "lengths": [
+            149,
+            20
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 8.479132959153503,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.084464631043375,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.448323185089976,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.448968739248812,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.734713945072144,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 9.899720667861402,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 9.900213715154678,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.448134366888553,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 10.77053873008117,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.77102574519813,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 11.144047857262194,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 11.292081933934242,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "lap_return",
+          "seconds": 13.11144467908889,
+          "rank": 16
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 13.299229674972594,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.303213735111058,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.30380470585078,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.303974954877049,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.304465277120471,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 13.306364968884736,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 13.306632000952959,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.31023095594719,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.310743620153517,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.310913009103388,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.311395626049489,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 13.313089821022004,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "fadi_enter",
+          "seconds": 13.424005998298526,
+          "shapes": [
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              51
+            ],
+            [
+              51
+            ]
+          ]
+        },
+        {
+          "event": "fadi_return",
+          "seconds": 13.484804214909673,
+          "shapes": [
+            [
+              202,
+              1632
+            ],
+            [
+              1632,
+              1632
+            ],
+            [
+              202,
+              1632
+            ]
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 19.267185104079545,
+          "rank": 1632
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 19.696477179881185,
+          "rank": 1632,
+          "coordinate_shape": [
+            202
+          ],
+          "lengths": [
+            202
+          ]
+        }
+      ]
+    },
+    "chunk_controls": {
+      "guarded_inputs": 8103,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 24.389061267022043,
+        "sampled_peak_summed_rss_kib": 1088956,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "observed_runtime_imports": 1378,
+      "all_runtime_imports_preguarded": true,
+      "cases": [
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-1-3]",
+          "time": "0.437"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-2-3]",
+          "time": "0.827"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-17-33]",
+          "time": "1.098"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[real-202-33]",
+          "time": "1.166"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-1-3]",
+          "time": "0.068"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-2-3]",
+          "time": "0.256"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-17-33]",
+          "time": "0.239"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[float32-202-33]",
+          "time": "0.292"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-1-3]",
+          "time": "0.084"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-2-3]",
+          "time": "0.112"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-17-33]",
+          "time": "0.259"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_batched_columns_preserve_individual_values[complex-202-33]",
+          "time": "0.209"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_column_batch_retains_coefficient_and_coordinate_derivatives",
+          "time": "1.009"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[unequal]",
+          "time": "0.395"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[complex]",
+          "time": "0.119"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_grid_slice_batch_source",
+          "name": "test_other_representations_keep_individual_evaluation[c1]",
+          "time": "0.145"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_polynomial_eager_jit_vmap[False]",
+          "time": "1.465"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_polynomial_eager_jit_vmap[True]",
+          "time": "0.654"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_coordinate_and_coefficient_jvp_vjp",
+          "time": "4.097"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_unequal_lengths_retains_traced_fallback",
+          "time": "0.320"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_scalar_and_matrix_broadcast[2.5-1.0]",
+          "time": "0.444"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_scalar_and_matrix_broadcast[x1-y1]",
+          "time": "0.808"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_empty_rank_retains_traced_result",
+          "time": "0.057"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_mixed_real_complex_family_keeps_individual_recurrences",
+          "time": "0.261"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_nonbinary_domain_mapping_keeps_traced_bits",
+          "time": "0.528"
+        },
+        {
+          "classname": "tests.test_chebfun2d.test_cdr_array_evaluation",
+          "name": "test_complex_coefficient_and_coordinate_jvp",
+          "time": "0.340"
+        }
+      ],
+      "pytest_summary": "======================== 26 passed, 1 warning in 16.06s ========================"
+    },
+    "chunk_profile": {
+      "guarded_inputs": 8103,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 33.617408296093345,
+        "sampled_peak_summed_rss_kib": 1429412,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "observed_runtime_imports": 1272,
+      "all_runtime_imports_preguarded": true,
+      "events": [
+        {
+          "event": "constructor_enter",
+          "seconds": 1.7582904547452927e-05
+        },
+        {
+          "event": "constructor_return",
+          "seconds": 8.06368330027908,
+          "rank": 15,
+          "lengths": [
+            149,
+            20
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 8.528708623256534,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.1117001962848,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                20
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.422868085093796,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 9.423601194284856,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                147
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 9.70333979697898,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 9.85418697213754,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 9.854752105195075,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.401137099135667,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                18
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 10.716975108254701,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 10.717517869081348,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                149
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 11.084020484238863,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 11.235570820979774,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "lap_return",
+          "seconds": 13.06984990928322,
+          "rank": 16
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 13.252506153192371,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.2567457430996,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                20
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.257341063115746,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.257583027239889,
+          "rank": 15,
+          "coordinate_shape": [
+            147
+          ],
+          "lengths": [
+            147
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                147
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.258104307111353,
+          "shape": [
+            147,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 13.25985856493935,
+          "value": 5126.188950377817
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 13.26013465411961,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.263826584909111,
+          "rank": 15,
+          "coordinate_shape": [
+            18
+          ],
+          "lengths": [
+            18
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                18
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.264341122005135,
+          "shape": [
+            18,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 13.264576034154743,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                149
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 13.265090491157025,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 13.266814461909235,
+          "value": 728.9999605669753
+        },
+        {
+          "event": "fadi_enter",
+          "seconds": 13.379214919172227,
+          "shapes": [
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              202
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              202,
+              32
+            ],
+            [
+              51
+            ],
+            [
+              51
+            ]
+          ]
+        },
+        {
+          "event": "fadi_return",
+          "seconds": 13.44080450432375,
+          "shapes": [
+            [
+              202,
+              1632
+            ],
+            [
+              1632,
+              1632
+            ],
+            [
+              202,
+              1632
+            ]
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 19.36914851795882,
+          "rank": 1632
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 19.8135278779082,
+          "rank": 1632,
+          "coordinate_shape": [
+            202
+          ],
+          "lengths": [
+            202
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                202
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "clenshaw_enter",
+          "seconds": 19.948850597254932,
+          "coefficient_shape": [
+            202,
+            1632
+          ],
+          "coordinate_shape": [
+            202
+          ]
+        },
+        {
+          "event": "clenshaw_return",
+          "seconds": 20.680566113907844,
+          "shape": [
+            202,
+            1632
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 20.681032391265035,
+          "shape": [
+            202,
+            1632
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 20.687648999039084,
+          "rank": 1632,
+          "coordinate_shape": [
+            202
+          ],
+          "lengths": [
+            202
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                202
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "clenshaw_enter",
+          "seconds": 20.702961617149413,
+          "coefficient_shape": [
+            202,
+            1632
+          ],
+          "coordinate_shape": [
+            202
+          ]
+        },
+        {
+          "event": "clenshaw_return",
+          "seconds": 21.105633268132806,
+          "shape": [
+            202,
+            1632
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 21.106089826207608,
+          "shape": [
+            202,
+            1632
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 21.243352513294667,
+          "value": 7.00715602513711e-16
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 21.24389257794246,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 21.42628331296146,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                20
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 21.42714773816988,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 21.427435969933867,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                149
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 21.428038913290948,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 21.501241490244865,
+          "value": 13.326574841017603
+        },
+        {
+          "event": "poisson_return",
+          "seconds": 22.813691708259284,
+          "rank": 15,
+          "lengths": [
+            404,
+            404
+          ]
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 22.844699299894273,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 23.2863337402232,
+          "rank": 15,
+          "coordinate_shape": [
+            404
+          ],
+          "lengths": [
+            17,
+            18,
+            19,
+            20,
+            404
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                17
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                18
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                19
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                20
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                404
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 24.370036493986845,
+          "shape": [
+            404,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 24.370526425074786,
+          "rank": 15,
+          "coordinate_shape": [
+            404
+          ],
+          "lengths": [
+            146,
+            148,
+            149,
+            404
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                146
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                148
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                149
+              ]
+            ],
+            [
+              "Chebtech2",
+              "float64",
+              [
+                404
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 24.996217411011457,
+          "shape": [
+            404,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 25.127712375018746,
+          "value": 13.341534744599473
+        },
+        {
+          "event": "vscale_enter",
+          "seconds": 25.128296443261206,
+          "rank": 15
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 25.131579393986613,
+          "rank": 15,
+          "coordinate_shape": [
+            20
+          ],
+          "lengths": [
+            20
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                20
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 25.132055349182338,
+          "shape": [
+            20,
+            15
+          ]
+        },
+        {
+          "event": "slices_enter",
+          "seconds": 25.132279931101948,
+          "rank": 15,
+          "coordinate_shape": [
+            149
+          ],
+          "lengths": [
+            149
+          ],
+          "representations": [
+            [
+              "Chebtech2",
+              "float64",
+              [
+                149
+              ]
+            ]
+          ]
+        },
+        {
+          "event": "slices_return",
+          "seconds": 25.1327071338892,
+          "shape": [
+            149,
+            15
+          ]
+        },
+        {
+          "event": "vscale_return",
+          "seconds": 25.134322721976787,
+          "value": 13.326574841017603
+        },
+        {
+          "event": "comparison",
+          "seconds": 25.887108269147575,
+          "error": 0.0,
+          "bound": 2.220446049250313e-12
+        }
+      ]
+    },
+    "original_poisson9": {
+      "guarded_inputs": 8104,
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 205.11501935403794,
+        "sampled_peak_summed_rss_kib": 5465432,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "observed_runtime_imports": 1430,
+      "all_runtime_imports_preguarded": true,
+      "cases": [
+        {
+          "classname": "tests.test_matlab_port.chebfun2.test_poisson_matlab.TestChebfun2Poisson",
+          "name": "test_all_matlab_assertions",
+          "time": "192.993"
+        }
+      ],
+      "pytest_summary": "================== 1 passed, 2 warnings in 193.16s (0:03:13) ==================="
+    }
+  },
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poisson_grid_chunk_cpu_20261017.zip",
+  "archive_sha256": "5990213291905ec7f2efe23310732323dbc8f1e847a440c68d8bf84ae3b92297",
+  "verified_payloads": 8082,
+  "actual_factor_identity": {
+    "all_three_actual_FADI_output_arrays_bitidentical": true,
+    "serialization": "UncompressedNPY members include unchanged shape/dtype header and every tensor byte; NumPy-version identical across allthree frozen processes.",
+    "hashes": {
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poisson_fadi_profile_gate_20261017/actual_fadi_outputs.npz": {
+        "UX.npy": "dd240a72b14616c95dcda9d6069570897442672c13946cb55eeaf50a2ee88a36",
+        "DX.npy": "6bf58835b12bceb10aa8de230624a96b44d61e19851128d81ba1e4290ffcaf22",
+        "VX.npy": "4207b0db767f62e9adcddb0ba52d9dd7ca8f216a1a35f1bb4b18ace63671afa7"
+      },
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poisson_grid_batch_profile_gate_v2_20261017/actual_fadi_outputs.npz": {
+        "UX.npy": "dd240a72b14616c95dcda9d6069570897442672c13946cb55eeaf50a2ee88a36",
+        "DX.npy": "6bf58835b12bceb10aa8de230624a96b44d61e19851128d81ba1e4290ffcaf22",
+        "VX.npy": "4207b0db767f62e9adcddb0ba52d9dd7ca8f216a1a35f1bb4b18ace63671afa7"
+      },
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/poisson_grid_chunk_profile_gate_20261017/actual_fadi_outputs.npz": {
+        "UX.npy": "dd240a72b14616c95dcda9d6069570897442672c13946cb55eeaf50a2ee88a36",
+        "DX.npy": "6bf58835b12bceb10aa8de230624a96b44d61e19851128d81ba1e4290ffcaf22",
+        "VX.npy": "4207b0db767f62e9adcddb0ba52d9dd7ca8f216a1a35f1bb4b18ace63671afa7"
+      }
+    }
+  },
+  "limitations": [
+    "26 authored operation/AD/fallback controls are repeated across candidates; not52 distinct controls or original predicates. The original Poisson9 assertions are one aggregate pytest node.",
+    "Both original and plain-matrix candidate profiles censored180s at actualrank1632; no completed solve or timing ratio credited to them.",
+    "Final literal lastcase25.887s/error0.0<unchanged2.220446e-12; assembly.135s, largeClenshaw.73/.40s. Descriptive shared-host serial diagnostics, not matched native performance parity.",
+    "Plain-matrix first26 controls preceded two-import sorting; exact-byte bridge retained. Final chunk candidate controls and original aggregate use identical production bytes.",
+    "Existing Poisson NumPy/provider numerical paths and ComplexWarning remain; this change is JAX-only but does not establish repository-wide JAX-only implementation.",
+    "Exceptional/nonfinite coefficient corpus and everytechnology/performance/API contract are not fully qualified. Full pages/figures/known gaps/latestgreenCI remain open."
+  ]
+}

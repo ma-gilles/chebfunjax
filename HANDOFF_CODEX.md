@@ -1,3 +1,35 @@
+## Poisson large-rank CDR evaluation — 2026-10-17
+
+All nine original tests/chebfun2/test_poisson.m assertions pass in 193.16
+seconds under the unchanged 900-second timeout. The mapped Python test file
+is byte-identical to the parent. Peak sampled RSS was 5.21 GiB under a 6 GiB
+cap; 8,104 frozen inputs stayed stable, all 1,430 observed runtime imports
+were preguarded, and no child processes survived.
+
+The final FADI case constructs 1,632 genuine length-202 C2 slices. The matrix
+solve itself takes about 0.06 seconds. Both the old evaluator and a plain
+coefficient-matrix candidate stalled during slice evaluation and reached the
+180-second diagnostic limit. The accepted candidate stacks coefficients in
+32-column blocks, concatenates those blocks, and uses the existing ordered
+matrix Clenshaw kernel. It preserves every coefficient, degree and column
+order; other lengths, technologies and dtypes keep their previous evaluator.
+The literal final case completes in 25.887 seconds at the unchanged error
+bound. All retained FADI factor arrays are bit-identical across the three
+diagnostics. These are descriptive shared-host timings, not native benchmark
+parity or a ratio against a completed baseline.
+
+The same 26 authored value, derivative and fallback controls pass on final
+production bytes. Repeated candidate runs add no distinct-test credit.
+Evidence: docs/poisson_grid_chunk_cpu_20261017.json, including an archive with
+8,082 verified payloads and the pinned native test/evaluation sources.
+Full lint/F821/provenance checks pass. Existing Poisson NumPy/provider paths
+and ComplexWarning remain; the new evaluation helper uses JAX only.
+
+Next: original Subsref clauses and native FFT parity. The exact inverse gap
+now begins inside FFT/IFFT, with identical mirrors before that boundary.
+Full tests/APIs/pages/figures, matched CPU performance and green latest-main
+CI remain unresolved. This local Poisson pass needs confirmation in CI.
+
 ## Native inverse endpoints and real CDR output dtype — 2026-10-17
 
 Inverse callbacks now return each algorithm's raw result, as all six native
