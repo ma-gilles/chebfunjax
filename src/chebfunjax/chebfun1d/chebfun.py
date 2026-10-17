@@ -277,6 +277,17 @@ def _map_piece_roots(roots, a, b):
     return _linear_forward_map(roots, a, b)
 
 
+def _evaluate_tech_component_last(tech, x):
+    """Keep internal samples unpacked until Chebfun formats its own output.
+
+    Trigtech's public feval packs explicit matrix/tensor inputs according to
+    @trigtech/feval.m; Chebfun has a separate @chebfun/feval.m packing rule.
+    """
+    from chebfunjax.tech.trigtech import Trigtech
+
+    return tech._call_traced(x) if isinstance(tech, Trigtech) else tech(x)
+
+
 @eqx.filter_jit
 def _evaluate_piece_interval(tech, x, a, b, width):
     """Evaluate with dynamic interval values rather than static JIT keys.
@@ -289,7 +300,8 @@ def _evaluate_piece_interval(tech, x, a, b, width):
     each division and subtraction follows the source inverse-map expression.
     """
     mapped = (x - a) / width - (b - x) / width
-    return _preserve_nonfinite_piece_values(mapped, tech(mapped))
+    return _preserve_nonfinite_piece_values(
+        mapped, _evaluate_tech_component_last(tech, mapped))
 
 
 @jax.jit
@@ -2281,7 +2293,8 @@ class Chebfun(eqx.Module):
                     # inline affine map — an Unbndfun piece owns its
                     # (nonlinear, infinite-interval) map.
                     tn = _linear_inverse_map(xn, a_, b_)
-                    result = _preserve_nonfinite_piece_values(tn, p.tech(tn))
+                    result = _preserve_nonfinite_piece_values(
+                        tn, _evaluate_tech_component_last(p.tech, tn))
                 else:
                     result = p(jnp.asarray(_np.atleast_1d(xn)))
                     if scalar_input:
@@ -2319,7 +2332,7 @@ class Chebfun(eqx.Module):
                         and _np.isfinite(b_):
                     tn = _linear_inverse_map(xn[sel], a_, b_)
                     out_np[sel] = _np.asarray(_preserve_nonfinite_piece_values(
-                        tn, p.tech(tn)))
+                        tn, _evaluate_tech_component_last(p.tech, tn)))
                 else:
                     # Unbndfun (or other) pieces own their map.
                     out_np[sel] = _np.asarray(p(jnp.asarray(xn[sel])))

@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "bc0849e67c0fd49993b1de4a1444a988547fd796",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Shared array-only JAX public Trigtech Horner and explicit MATLAB-shaped feval layouts; restore14 original clauses. Python scalar/rank1 adapter documented. Not full trigtech/module/native-bit/performance parity.",
+  "qualification": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 88.4178572408855,
+    "sampled_peak_summed_rss_kib": 3019292,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "passed": 128,
+  "groups": {
+    "new_public_analytic_no_host_AD": 23,
+    "existing_complex_point_controls": 16,
+    "restored_original_feval_clauses": 14,
+    "new_explicit_layout_and_Chebfun_controls": 6,
+    "existing_real_columns_metadata": 45,
+    "existing_public_2D": 24
+  },
+  "original_assertions": "Original seed7681 uniform1000x1 stream, column-major reshapes, literal2x9 pass12 and original global/sourcevscale bounds restored. No original assertion dropped or relaxed.",
+  "new_supplementary_control_correction": "Initial fixed64eps criterion failed2 newly authored1025complex sparse-series cases; identical baseline values also fail. Initial source/tests/results preserved. Complex Horner repeated products and degree-dependent prefactor have O(n*eps) error; additional analytic controls use conservative gamma32n*sumabscoeff budget; real controls retain64eps. This corrects a newly introduced unsupported criterion, not an original MATLAB bound.",
+  "source_files": {
+    "src/chebfunjax/tech/trigtech.py": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+    "src/chebfunjax/chebfun1d/chebfun.py": "4fa97873f76840690cb1a00fc9e10271263c666ea8deb04c369d92036bc1117d",
+    "tests/test_matlab_port/trigtech/test_feval_matlab.py": "039d8d69616e681a57d11bb94fb7c84ea44ca4558500611fb1b18b9839193513",
+    "tests/test_tech/test_trigtech_feval_source_shapes.py": "fbdfad61e3a47af1e966785e21f003d81f0a98efe4e4a1ca710b63196e13814e",
+    "tests/test_tech/test_trigtech_public_jax_evaluation.py": "3df30e03e1743cc4e43c9c6434782743a2c12b4780b89736ebcc236a54525666"
+  },
+  "remaining": [
+    "Legacy private NumPy Horner adapter and other host numerical paths remain in the library.",
+    "Python scalar/rank1 output conventions are explicit adapters; MATLAB scalar rank identity not claimed.",
+    "Empty query/object behavior and all original trigtech methods not covered by this scope.",
+    "Concrete/compiled schedules can differ byulps; no new native-bit or performance comparison.",
+    "Default advection/chemical PDE and fullCI/pages/performance remain open."
+  ],
+  "receipts": [
+    "trig_public_jax_combined_gate_20261017/run001/receipt.json",
+    "trig_long_complex_diagnostic_v2_20261017/result.json"
+  ],
+  "failed_attempts": [
+    "trig_public_jax_gate_20261017/run001:51pass/2failed supplementary longcomplex controls",
+    "trig_long_complex_diagnostic_20261017/run001:launcher taskset spacing error before Python"
+  ],
+  "shape_agent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/trig_feval_source_shapes_cpu_20261017.tar.gz",
+    "sha256": "beb1bb890882767ddc92cc300c5b2e47b77f8bbcc5c6767f870fcf24f80fda38",
+    "scope": "20original/shape cases subset of128; unchanged original source corpus, no new native run."
+  }
+}

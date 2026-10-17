@@ -22,8 +22,10 @@ evaluation, while coefficient dtype controls polynomial eig dispatch.
 
 from __future__ import annotations
 
-# uses-numpy: legacy concrete Horner evaluation and construction helpers.
+# uses-numpy: legacy private Horner adapter and construction helpers.
+# Public Trigtech evaluation uses the shared JAX Horner kernel.
 # The Fourier transforms use JAX for concrete and traced arrays.
+import math
 import warnings
 from functools import partial
 from typing import Callable
@@ -343,6 +345,7 @@ def _sample_callable_trig_grid(f, n, *, source_global=False):
     return values[:-1], is_real
 
 
+@partial(jax.jit, static_argnames=("is_real",))
 def _trig_eval(coeffs: jax.Array, x: jax.Array, is_real: bool = True) -> jax.Array:
     r"""Evaluate a trigonometric series at points x.
 
@@ -1644,39 +1647,49 @@ class Trigtech(eqx.Module):
 
         Parameters
         ----------
-        x : jax.Array, scalar or shape (m,)
+        x : jax.Array
+            Scalar, vector, or explicit MATLAB-shaped array of coordinates.
 
         Returns
         -------
         y : jax.Array, float64 if is_real else complex128
+            Scalar and rank-one Python inputs retain component-last layout.
+            Explicit rank-two and higher inputs follow MATLAB feval packing:
+            scalar-valued output preserves the query shape; array-valued
+            output joins column-major component blocks as in trigtech/feval.
 
         Notes
         -----
-        JIT-safe: yes. vmap-safe: yes. grad-safe: yes.  Concrete inputs
-        (with concrete coefficients) run a numpy mirror of the same
-        Horner scheme -- every distinctly-shaped Trigtech otherwise
-        compiles its own XLA program, and object-heavy pipelines
-        exhaust the LLVM JIT code arena.
+        JIT-safe: yes. vmap-safe: yes. grad-safe: yes. Concrete and
+        traced calls share an array-only JAX Horner kernel, with dynamic
+        coefficients and a static real/complex evaluation flag.
 
         Provenance
         ----------
         MATLAB source : @trigtech/feval.m, @trigtech/horner.m
         Chebfun commit: 7574c77
         """
-        if not jnp.iscomplexobj(jnp.asarray(x)) and \
-                not isinstance(x, jax.core.Tracer) and \
-                not isinstance(self.coeffs, jax.core.Tracer) and \
-                self.coeffs.shape[0] <= 1024:
-            # The numpy Horner mirror loops once per coefficient in
-            # Python; past ~1k coefficients the XLA scan (compiled once
-            # per length) is far faster, and huge-length Trigtechs are
-            # rare enough not to threaten the JIT code arena.
-            return jnp.asarray(_trig_eval_np(self.coeffs, np.asarray(x),
-                                             is_real=self.is_real))
-        return self._call_traced(x)
+        # Python scalar/rank-one queries keep scalar/component-last output,
+        # an explicit adapter used by vmap and the public Python API. Explicit
+        # MATLAB-shaped queries follow @trigtech/feval.m column-major layout.
+        x = jnp.asarray(x)
+        if x.ndim < 2:
+            return self._call_traced(x)
+        values = self._call_traced(jnp.reshape(x, (-1,), order="F"))
+        columns = self.coeffs.shape[1] if self.coeffs.ndim == 2 else 1
+        if columns == 1:
+            return jnp.reshape(values, x.shape, order="F")
+        # MATLAB ndims ignores trailing singleton dimensions (minimum two).
+        ndims = x.ndim
+        while ndims > 2 and x.shape[ndims - 1] == 1:
+            ndims -= 1
+        if ndims == 2 or x.shape[1] > 1:
+            width = columns * math.prod(x.shape[1:])
+            return jnp.reshape(values, (x.shape[0], width), order="F")
+        return jnp.reshape(values, (x.size, columns), order="F")
 
-    @eqx.filter_jit
     def _call_traced(self, x: jax.Array) -> jax.Array:
+        """Raw component-last evaluation for Chebfun's own output packing."""
         x = jnp.asarray(x)
         x = x.astype(jnp.complex128 if jnp.iscomplexobj(x) else jnp.float64)
         return _trig_eval(self.coeffs, x, is_real=self.is_real)

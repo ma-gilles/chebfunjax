@@ -17,9 +17,11 @@ import jax.numpy as jnp
 import numpy as np
 
 from chebfunjax.tech.trigtech import Trigtech
+from chebfunjax.utils._matlab_twister import init_matlab_twister, matlab_rand_uniform
 
 EPS = float(np.finfo(np.float64).eps)
-X = jnp.asarray(np.linspace(-1.0, 1.0, 1000, endpoint=False))
+_uniform, _state = matlab_rand_uniform(init_matlab_twister(7681), (1000, 1))
+X = 2 * _uniform - 1
 
 
 def _tt(f):
@@ -90,7 +92,7 @@ class TestTrigtechFeval:
             jnp.array([2, 0.25j, 5, -0.25j]) + jnp.array([2j, 0.25, 5j, 0.25])
         ).astype(jnp.complex128)
         f = Trigtech.from_coeffs(coeffs)
-        xm = X.reshape(100, 10)
+        xm = jnp.reshape(X, (100, 10), order="F")
         f_exact = (
             2 * (1 + 1j) * jnp.cos(2 * jnp.pi * xm)
             + 0.5 * (jnp.cos(jnp.pi * xm) + jnp.sin(jnp.pi * xm))
@@ -105,7 +107,7 @@ class TestTrigtechFeval:
             jnp.array([2, 0.25j, 5, -0.25j]) + jnp.array([2j, 0.25, 5j, 0.25])
         ).astype(jnp.complex128)
         f = Trigtech.from_coeffs(coeffs)
-        xm = X.reshape(10, 10, 10)
+        xm = jnp.reshape(X, (10, 10, 10), order="F")
         f_exact = (
             2 * (1 + 1j) * jnp.cos(2 * jnp.pi * xm)
             + 0.5 * (jnp.cos(jnp.pi * xm) + jnp.sin(jnp.pi * xm))
@@ -127,13 +129,12 @@ class TestTrigtechFeval:
             axis=-1,
         )
         f = Trigtech.from_function(fun)
-        assert _ninf(f(X) - fun(X)) < 10 * f.vscale * EPS
+        err = f(X) - fun(X[:, 0])
+        assert bool(jnp.all(jnp.max(jnp.abs(err), axis=0)
+                            < 10 * jnp.max(f.vscale_columns() * EPS)))
 
     def test_array_valued_matrix_args(self):
-        # pass(12): array-valued trigtech evaluated at a matrix argument.
-        # FIXED (Fable 5, Big-Three array-valued epic).  chebfunjax returns
-        # shape (x_rows, x_cols, m); MATLAB horzcat's the m columns into
-        # (x_rows, x_cols*m) but the values are identical.
+        # Literal source pass(12): each component occupies a full column block.
         fun = lambda x: jnp.stack(
             [jnp.sin(jnp.pi * x), jnp.cos(jnp.pi * x), jnp.exp(1j * jnp.pi * x)],
             axis=-1,
@@ -141,8 +142,14 @@ class TestTrigtechFeval:
         f = Trigtech.from_function(fun)
         x2 = jnp.array([[-1.0, 0.0, 1.0], [0.25, 0.5, 0.75]], dtype=jnp.float64)
         fx = f(x2)
-        assert fx.shape == (2, 3, 3)
-        assert _ninf(fx - fun(x2)) < 10 * f.vscale * EPS
+        f_exact = jnp.array([
+            [0, 0, 0, -1, 1, -1, jnp.exp(-1j*jnp.pi), 1, jnp.exp(1j*jnp.pi)],
+            [1/jnp.sqrt(2.), 1, 1/jnp.sqrt(2.), 1/jnp.sqrt(2.), 0, -1/jnp.sqrt(2.),
+             jnp.exp(.25j*jnp.pi), jnp.exp(.5j*jnp.pi), jnp.exp(.75j*jnp.pi)],
+        ])
+        assert fx.shape == (2, 9)
+        assert bool(jnp.all(jnp.abs(fx - f_exact)
+                            < 10 * jnp.max(f.vscale_columns() * EPS)))
 
     def test_chebfun_trig_trunc(self):
         # pass(13): even truncated expansion of an array-valued complex
@@ -164,5 +171,5 @@ class TestTrigtechFeval:
         # pass(14): constant complex trig chebfun at multiple points.
         from chebfunjax.chebfun1d.chebfun import chebfun
         f = chebfun(1 + 1j, trig=True)
-        out = f(jnp.asarray([0.3, 0.4]))
-        assert _ninf(out - (1 + 1j)) < EPS
+        out = f(jnp.asarray([[0.3, 0.4]]))
+        assert _ninf(out - (1 + 1j)) < f.vscale * EPS

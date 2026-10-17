@@ -1,3 +1,24 @@
+## Public Trigtech JAX/feval checkpoint — 2026-10-17
+
+Public concrete/traced Trigtech evaluation now shares an array-only JAX
+Horner kernel; the public NumPy mirror dispatch is removed. Explicit matrix
+and higher-rank inputs follow source column-major layouts. Chebfun retains
+its own packing through raw component-last tech calls. Python scalar/rank-one
+output conventions remain explicit API adapters.
+
+All 128 focused checks pass, including 14 original feval clauses restored to
+seed 7681 uniform probes, Fortran reshapes, literal expected matrix and source
+bounds; 6 direct/outer layout controls, 23 new analytic/AD/no-host controls,
+16 complex-point, 45 real-column metadata and 24 public 2D controls. The agent's
+20-case gate is a subset, not additional distinct tests. One newly authored
+unsupported degree-independent long-complex error criterion was corrected
+to a degree-dependent Horner roundoff budget after byte-identical baseline
+failures; initial failures/preimages are preserved. Original MATLAB bounds
+were not changed. Evidence:`docs/trig_public_jax_cpu_20261017.json`.
+
+Private legacy host evaluators, other module methods, empty edge cases,
+exact native bits/performance and full CI/page parity remain unresolved.
+
 ## Full Tricky execution and source plotting checkpoint — 2026-10-17
 
 Actual modified-script CPU execution completes all12output slots and9figures

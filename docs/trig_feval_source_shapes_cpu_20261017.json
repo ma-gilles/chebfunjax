@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-17",
+  "base_commit": "bc0849e67c0fd49993b1de4a1444a988547fd796",
+  "scope": "Shape adapter on top of parent shared JAX Horner candidate, plus restoration of14 literal native assertions. No new native run.",
+  "parent_candidate_sha256": "2de7be9871f52eb36ecb2bfb1afe366acbffce28b97e5f2741d1923d8092d9ca",
+  "changes": [
+    "Public Trigtech explicit rank>=2 uses native column-major feval layout, including native higher-rank predicate.",
+    "Private _call_traced remains component-last; three Chebfun piece-evaluation sites use raw Trigtech path before Chebfun-specific output formatting.",
+    "Python scalar/rank1 conventions are explicit API adapters: scalar/(m,) and(n,)/(n,m), preserving vmap/JVP; no literal scalar-output shape assertion exists in sourcepass13.",
+    "Original seed7681 uniform1000x1 stream restored with existing qualified explicit MatlabTwisterState; no global RNG mutation.",
+    "Column-major100x10 and10x10x10 reshapes restored; exact2x9 expected table restored in pass12; sourcevscale*eps restored in pass14.",
+    "Pass11 columnwise max/all and pass12 elementwise all use literal10*max(vscale_columns*eps), matching original global threshold."
+  ],
+  "qualification": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "censored_limit": null,
+    "wall_seconds": 25.814708502963185,
+    "sampled_peak_summed_rss_kib": 1703648,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "tests": {
+    "total": 20,
+    "original_feval_clauses": 14,
+    "shape_controls": 6,
+    "result": "20 passed in21.34s",
+    "control_scope": "Four direct Trigtech layouts and two Chebfun layouts; each eager and JIT. Existing scalar/rank1 adapter unchanged.",
+    "excluded": "Parent newly authored1025 complex fixed64eps diagnostic is not an original source bound; parent identified same baseline errors and owns qualification."
+  },
+  "source_hashes": {
+    "@trigtech/feval.m": "91edb32057da5875bb73eab4c1ae3c5a5c5a5177a62fda227d990dc922b23b09",
+    "tests/trigtech/test_feval.m": "b96e34f2da1146f9c55205446e47d18e036ebad8011ebbad03fa3b51a2e95c0c",
+    "seedRNG.m": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c"
+  },
+  "changed_file_hashes": {
+    "src/chebfunjax/tech/trigtech.py": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+    "src/chebfunjax/chebfun1d/chebfun.py": "4fa97873f76840690cb1a00fc9e10271263c666ea8deb04c369d92036bc1117d",
+    "tests/test_matlab_port/trigtech/test_feval_matlab.py": "039d8d69616e681a57d11bb94fb7c84ea44ca4558500611fb1b18b9839193513",
+    "tests/test_tech/test_trigtech_feval_source_shapes.py": "389e0bfd8f44655f75a85c3367e23983932e56e3d118305027b69331c3278a8a"
+  },
+  "guard_input_count": 3217,
+  "limits": "Does not qualify entire trigtech library or MATLAB scalar rank identity. Empty query/empty object behavior was not broadened by this scope. Full source suite remains separate."
+}
