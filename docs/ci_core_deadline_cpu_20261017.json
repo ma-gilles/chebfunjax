@@ -1,0 +1,47 @@
+{
+  "scope": "Core1/2 deadline split after observed90minute cancellations; no scientific assertion/per-test/job deadline/coverage changes.",
+  "base": "dc3bf53a87d4b1990852622fcfe889e26e5efd18",
+  "observed_run": 39059398761,
+  "observed_source": "d365d541fa85837910eef34bb802e11ad4df72cb",
+  "observed_results": {
+    "core1": "Cancelled in process11of12 after ten completed passing batches;90minute job limit.",
+    "core2": "Cancelled in process9of12 after eight completed passing batches;90minute job limit.",
+    "core7": "Only scientific failure in log is unchanged authored fixed48 PDE initialization; ca59f753 local source correction passes it.",
+    "lint": "Historical executable builder lint failure fixed by d0b7ffe0.",
+    "chebfun3d_d": "Cancelled at90minute limit; ca97ff24 already changes3D5to8shards, still needs currentCI confirmation."
+  },
+  "split": {
+    "before_parts": 9,
+    "after_parts": 11,
+    "selected_paths_and_mirror_cases": 1072,
+    "prefix_selections": 48,
+    "preserved_prior_lane8": true,
+    "new_lane9": "OriginalCore1 tail after fourth12-selection process batch",
+    "new_lane10": "OriginalCore2 tail after fourth12-selection process batch",
+    "first_four_batch_pytest_seconds": {
+      "core1": 2937.15,
+      "core2": 2983.43
+    },
+    "limits": "~50minute observed prefixes support splitting; new tail runtime remains unmeasured untilCI."
+  },
+  "validation": {
+    "nodes": 17,
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_core_deadline_run001/receipt.json",
+    "wall_seconds": 5.741397168952972,
+    "inputs_stable": true,
+    "survivors": [],
+    "scope": "Exhaustive/disjoint selector union, exact original process-batch preservation, actual mirror collection, workflow matrix, coverage data integrity and aggregate rejection controls."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_core_deadline_cpu_20261017.tar.gz",
+    "sha256": "ba49c40d859164b4af9abe340bf40917bf4f74a4333424fdfc468f3829c4c89f",
+    "verified_payloads": 24
+  },
+  "limits": [
+    "No cancelled run counted passing.",
+    "No manual workflow cancellation/restart.",
+    "No full scientific suite rerun locally for scheduling-only edit.",
+    "Latest-main actualCI/runtime and coverage>=79% still required.",
+    "Failed GH cached log request was retried using direct job log API; complete rawCore1 log retained."
+  ]
+}

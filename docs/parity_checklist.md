@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Split Core1/2 at unchanged process boundaries after observed90minute cancellations;9to11lanes preserve all1072selectors, priorCore8 and scientific/coverage limits.17protocol checks pass. [Evidence](ci_core_deadline_cpu_20261017.json).
+- [ ] Actual latest-main core/3D runtime, scientific assertions and coverage>=79%.
+
 - [x] Full current LaplaceBall script executes in34.994s with captured input, stable source/no survivors;11actual outputs retained and page refreshed. Three600x253 PNGs match published bytes; numerical/RNG/render parity gaps remain. [Evidence](laplaceball_current_cpu_20261017.json).
 
 - [x] Complex global extrema now preserve stored isolated point values and native left/right breakpoint repair; array columns follow scalar policy. Six baseline failures become passing; combined30 controls pass. [Evidence](complex_minmax_cpu_20261017.json).

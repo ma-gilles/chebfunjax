@@ -156,13 +156,19 @@ def test_deadline_split_preserves_other_lanes_and_complete_processes():
     selections = core.inventory()
     old = [selections[i::core.BASE_PARTS] for i in range(core.BASE_PARTS)]
     new = core.partition(selections)
-    assert len(new) == core.PARTS == core.BASE_PARTS+1
+    assert len(new) == core.PARTS == core.BASE_PARTS+3
+    split = core.SPLIT_AFTER_BATCHES*core.BATCH_SIZE
     for part in range(core.BASE_PARTS):
-        if part != core.SPLIT_PART:
+        if part not in (6, 1, 2):
             assert new[part] == old[part]
-    assert new[core.SPLIT_PART]+new[-1] == old[core.SPLIT_PART]
-    assert len(new[core.SPLIT_PART]) == core.SPLIT_AFTER_BATCHES*core.BATCH_SIZE
-    assert core.batches(new[core.SPLIT_PART])+core.batches(new[-1]) == core.batches(old[core.SPLIT_PART])
+    # Preserve the prior Core8 tail and give Core1/2 tails new lanes9/10.
+    for part, tail in ((6, 8), (1, 9), (2, 10)):
+        assert new[part] == old[part][:split]
+        assert new[tail] == old[part][split:]
+        assert core.batches(new[part])+core.batches(new[tail]) == core.batches(old[part])
+    flat = [name for group in new for name in group]
+    assert len(flat) == len(set(flat)) == len(selections)
+    assert sorted(flat) == selections
 
 
 def test_workflow_core_matrix_and_disk_ball_inventory_match_protocol():

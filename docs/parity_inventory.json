@@ -59,6 +59,11 @@
       "sha256": "697d1933c3661f9aca4f349dee4238d56c06f117c4f0d91da0aa6cb7c2718800",
       "source_bridge": "chebtech_ndct_cpu_20261017"
     },
+    "ci_core_deadline_cpu_20261017": {
+      "path": "docs/ci_core_deadline_cpu_20261017.json",
+      "scope": "Core process scheduling/coverage integrity only; no scientific status promotion",
+      "sha256": "167a5978c1007586cc86e7b6046430325c4ace923935d9cd84969f7033d11901"
+    },
     "colororder_20261017": {
       "path": "docs/colororder_cpu_20261017.json",
       "scope": "Color property versus LineSpec source ordering;21 controls and native metadata. Full graphics grammar/rendering remains unverified.",

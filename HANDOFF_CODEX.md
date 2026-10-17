@@ -1,3 +1,14 @@
+# Latest core CI deadline scope — 2026-10-17
+
+Run39059398761 reached90minute limits in Core1/2 after passing batches.
+Core scheduling now uses11lanes, preserving all1072selectors and every original
+12-selection process batch. PriorCore8 is unchanged; Core1/2 tails become9/10.
+Their observed first four batches cost about50minutes each.17protocol checks
+pass; scientific flags, per-test/job deadlines and coverage>=79% remain unchanged.
+Latest-main execution/runtime/coverage remains required. The old fixed48 PDE
+failure is addressed locally by ca59f753, not credited as greenCI.
+Evidence: `docs/ci_core_deadline_cpu_20261017.json`.
+
 # Latest LaplaceBall whole-script scope — 2026-10-17
 
 The complete unchanged script now runs on current CPU source, including its
