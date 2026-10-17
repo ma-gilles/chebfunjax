@@ -1,5 +1,28 @@
 ## 2026-10-16: correct the diffmat CI scope probe and attribute roots CPU cost
 
+## QZ CPU updates and exhaustive CI scheduling — 2026-10-16
+
+Qualified source/test package on baseline `d6639b6e`; full parity remains open.
+QZ keeps full vectors by default; resultant eigenvalues omit their accumulation.
+Small row-pair updates preserve arithmetic and remove dense loop copies. All
+91 broader pencils and the saved231pencil match baseline bits (six full/four
+value outputs); warm saved-case median11.54663->3.00672s, one input only.
+Across three complete CPU processes,86distinct Python tests pass:60source,
+25original roots and the separate original stress. Stress driver765.03s is
+below the unchanged900s CI limit; peak6.21GiB. Source guards stable/no survivors.
+No full-workload paired speedup or complete QZ range/balancing claim.
+
+Older CI Core0 delivered the same stress timeout; Core3scope repair is already
+published. Core2shutdown remains unexplained. Two MATLAB-tree jobs have explicit
+90minute deadline annotations. The workflow now partitions the same3D files
+five ways and2D files two ways. Exact file-union/disjointness and YAML review
+pass;90minute jobs and900second tests remain. Actual latest-main CI is pending.
+Evidence: `docs/qz_copy_updates_cpu_20261016.json` and
+`docs/ci_port_shard_deadlines_20261016.json`; immutable scratch archives/receipts
+are linked there. All broader source/assertion/page/figure/JAX-only and matched
+performance gaps remain on the active goal checklist.
+
+
 The preceding CI Core3 traceback identifies a stale provider-scope test:
 size130 now belongs to the source CPU path qualified through514. Its generic
 probe now uses515. No production numerics or accuracy bounds change. The

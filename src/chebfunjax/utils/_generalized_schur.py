@@ -13,6 +13,8 @@ See the accompanying LAPACK_LICENSE.txt for the upstream license.
 This translation uses JAX arrays and rotations; it does not call host SciPy.
 """
 
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 
@@ -57,8 +59,8 @@ def cols(a, i, j, c, s, mask):
     return jax.lax.dynamic_update_slice(a, out, (0, lo))
 
 
-@jax.jit
-def reduce(a, b):
+@partial(jax.jit, static_argnames=("compute_vectors",))
+def reduce(a, b, *, compute_vectors=True):
     a, b = jnp.asarray(a, dtype=jnp.complex128), jnp.asarray(b, dtype=jnp.complex128)
     n = a.shape[0]
     if n == 0:
@@ -67,7 +69,13 @@ def reduce(a, b):
     idx = jnp.arange(n)
     q, t = jnp.linalg.qr(b)
     h = q.conj().T @ a
-    z = jnp.eye(n, dtype=a.dtype)
+    if compute_vectors:
+        z = jnp.eye(n, dtype=a.dtype)
+    else:
+        # Initial QR Q is still required for H above. Subsequent Q/Z are
+        # unused by eigenvalue consumers; empty internal carries omit them.
+        q = jnp.empty((0, 0), dtype=a.dtype)
+        z = jnp.empty((0, 0), dtype=a.dtype)
 
     def column(j, state):
         def row(k, state):
@@ -75,11 +83,27 @@ def reduce(a, b):
             i = n - 1 - k
             c, s, r = rotation(h[i - 1, j], h[i, j])
             h = rows(h, i - 1, i, c, s, idx > j).at[i - 1, j].set(r).at[i, j].set(0)
-            t = rows(t, i - 1, i, c, s, idx >= i - 1)
-            q = cols(q, i - 1, i, c, jnp.conj(s), idx >= 0)
-            c, s, r = rotation(t[i, i], t[i, i - 1])
-            h = cols(h, i, i - 1, c, s, idx < n)
-            t = cols(t, i, i - 1, c, s, idx < i).at[i, i].set(r).at[i, i - 1].set(0)
+            if n >= 2:
+                # Preserve the post-row T pair used by the next rotation.
+                t_pair = jax.lax.dynamic_slice(t, (i - 1, 0), (2, n))
+                tx, ty = t_pair[0], t_pair[1]
+                txx = jnp.where(idx >= i - 1, c * tx + s * ty, tx)
+                tyy = jnp.where(idx >= i - 1, -jnp.conj(s) * tx + c * ty, ty)
+                t_pair = jnp.stack((txx, tyy))
+                q = cols(q, i - 1, i, c, jnp.conj(s), idx >= 0)
+                c, s, r = rotation(t_pair[1, i], t_pair[1, i - 1])
+                # The subsequent column rotation selects rows < i only, so
+                # these exact row-i overwrites commute with that update.
+                t_pair = t_pair.at[1, i].set(r).at[1, i - 1].set(0)
+                t = jax.lax.dynamic_update_slice(t, t_pair, (i - 1, 0))
+                h = cols(h, i, i - 1, c, s, idx < n)
+                t = cols(t, i, i - 1, c, s, idx < i)
+            else:
+                t = rows(t, i - 1, i, c, s, idx >= i - 1)
+                q = cols(q, i - 1, i, c, jnp.conj(s), idx >= 0)
+                c, s, r = rotation(t[i, i], t[i, i - 1])
+                h = cols(h, i, i - 1, c, s, idx < n)
+                t = cols(t, i, i - 1, c, s, idx < i).at[i, i].set(r).at[i, i - 1].set(0)
             z = cols(z, i, i - 1, c, s, idx >= 0)
             return h, t, q, z
 
@@ -92,9 +116,9 @@ def abs1(x):
     return jnp.abs(x.real) + jnp.abs(x.imag)
 
 
-@jax.jit
-def _qz_iteration(a, b):
-    h, t, q, z = reduce(a, b)
+@partial(jax.jit, static_argnames=("compute_vectors",))
+def _qz_iteration(a, b, *, compute_vectors=True):
+    h, t, q, z = reduce(a, b, compute_vectors=compute_vectors)
     n = a.shape[0]
     idx = jnp.arange(n)
     if n == 0:
@@ -127,7 +151,8 @@ def _qz_iteration(a, b):
                 .set(jnp.where(mag > tiny, mag, 0.0))
             )
             h = h.at[:, last].set(h[:, last] * phase)
-            z = z.at[:, last].set(z[:, last] * phase)
+            if compute_vectors:
+                z = z.at[:, last].set(z[:, last] * phase)
             return h, t, q, z, last - 1, jnp.int64(0), jnp.complex128(0), total, status
 
         def sweep(state):
@@ -182,18 +207,50 @@ def _qz_iteration(a, b):
             def chase(j, state):
                 h, t, q, z, c, s = state
 
-                def next_rotation(args):
-                    h, c, s = args
-                    c, s, r = rotation(h[j, j - 1], h[j + 1, j - 1])
-                    h = h.at[j, j - 1].set(r).at[j + 1, j - 1].set(0)
-                    return h, c, s
+                if n >= 2:
+                    h_pair = jax.lax.dynamic_slice(h, (j, 0), (2, n))
 
-                h, c, s = jax.lax.cond(j > start, next_rotation, lambda args: args, (h, c, s))
-                h = rows(h, j, j + 1, c, s, idx >= j)
-                t = rows(t, j, j + 1, c, s, idx >= j)
-                q = cols(q, j, j + 1, c, jnp.conj(s), idx >= 0)
-                c, s, r = rotation(t[j + 1, j + 1], t[j + 1, j])
-                t = t.at[j + 1, j + 1].set(r).at[j + 1, j].set(0)
+                    def next_pair_rotation(args):
+                        pair, c, s = args
+                        c, s, r = rotation(pair[0, j - 1], pair[1, j - 1])
+                        pair = pair.at[0, j - 1].set(r).at[1, j - 1].set(0)
+                        return pair, c, s
+
+                    h_pair, c, s = jax.lax.cond(
+                        j > start, next_pair_rotation, lambda args: args, (h_pair, c, s)
+                    )
+                    hx, hy = h_pair[0], h_pair[1]
+                    hxx = jnp.where(idx >= j, c * hx + s * hy, hx)
+                    hyy = jnp.where(idx >= j, -jnp.conj(s) * hx + c * hy, hy)
+                    h_pair = jnp.stack((hxx, hyy))
+                    h = jax.lax.dynamic_update_slice(h, h_pair, (j, 0))
+                else:
+                    def next_rotation(args):
+                        h, c, s = args
+                        c, s, r = rotation(h[j, j - 1], h[j + 1, j - 1])
+                        h = h.at[j, j - 1].set(r).at[j + 1, j - 1].set(0)
+                        return h, c, s
+
+                    h, c, s = jax.lax.cond(j > start, next_rotation, lambda args: args, (h, c, s))
+                    h = rows(h, j, j + 1, c, s, idx >= j)
+                if n >= 2:
+                    # Stage this adjacent T row pair locally. Preserve rows()'s
+                    # arithmetic and mask; the next rotation reads POST-row values.
+                    t_pair = jax.lax.dynamic_slice(t, (j, 0), (2, n))
+                    tx, ty = t_pair[0], t_pair[1]
+                    txx = jnp.where(idx >= j, c * tx + s * ty, tx)
+                    tyy = jnp.where(idx >= j, -jnp.conj(s) * tx + c * ty, ty)
+                    t_pair = jnp.stack((txx, tyy))
+                    q = cols(q, j, j + 1, c, jnp.conj(s), idx >= 0)
+                    c, s, r = rotation(t_pair[1, j + 1], t_pair[1, j])
+                    t_pair = t_pair.at[1, j + 1].set(r).at[1, j].set(0)
+                    t = jax.lax.dynamic_update_slice(t, t_pair, (j, 0))
+                else:
+                    # Preserve scalar-pencil tracing of the unreachable sweep.
+                    t = rows(t, j, j + 1, c, s, idx >= j)
+                    q = cols(q, j, j + 1, c, jnp.conj(s), idx >= 0)
+                    c, s, r = rotation(t[j + 1, j + 1], t[j + 1, j])
+                    t = t.at[j + 1, j + 1].set(r).at[j + 1, j].set(0)
                 h = cols(h, j + 1, j, c, s, idx <= jnp.minimum(j + 2, last))
                 t = cols(t, j + 1, j, c, s, idx <= j)
                 z = cols(z, j + 1, j, c, s, idx >= 0)
@@ -311,9 +368,12 @@ def _qz_iteration(a, b):
     return h, t, q, z, status, total
 
 
-@jax.jit
-def qz(a, b):
+@partial(jax.jit, static_argnames=("compute_vectors",))
+def qz(a, b, *, compute_vectors=True):
     """Complex generalized Schur factors, convergence status and sweep count.
+
+    The default retains full Q/Z. Internal compute_vectors=False returns
+    empty Q/Z placeholders and omits their accumulation after initial QR.
 
     Input scaling follows LAPACK ZGGES: scale each pencil matrix separately
     into [sqrt(safmin)/eps, eps/sqrt(safmin)], then undo scaling on its factor.
@@ -347,7 +407,7 @@ def qz(a, b):
 
     a, sa = scale(a)
     b, sb = scale(b)
-    h, t, q, z, status, steps = _qz_iteration(a, b)
+    h, t, q, z, status, steps = _qz_iteration(a, b, compute_vectors=compute_vectors)
 
     def undo(matrix, factor):
         # Real scalar division avoids an intermediate squared complex divisor.
@@ -359,3 +419,15 @@ def qz(a, b):
         )
 
     return undo(h, sa), undo(t, sb), q, z, status, steps
+
+
+@jax.jit
+def _qz_eigenvalue_factors(a, b):
+    """Return H/T/status/sweeps without Schur-vector accumulation.
+
+    Provenance: @chebfun2v/roots.m eig(A,B), Chebfun commit7574c77;
+    same LAPACK ZGGHRD/ZHGEQZ translation as qz. Initial QR Q remains
+    necessary to form H; internal empty Q/Z carries omit later accumulators.
+    """
+    h, t, _, _, status, sweeps = qz(a, b, compute_vectors=False)
+    return h, t, status, sweeps

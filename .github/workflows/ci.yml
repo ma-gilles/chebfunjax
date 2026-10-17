@@ -236,27 +236,49 @@ jobs:
               tests/test_matlab_port/unbndfun
               tests/test_matlab_port/singfun
               tests/test_matlab_port/deltafun
-          - name: chebfun2d
+          - name: chebfun2d-a
+            part: 0
+            parts: 2
+            paths: >-
+              tests/test_matlab_port/chebfun2
+              tests/test_matlab_port/chebfun2v
+          - name: chebfun2d-b
+            part: 1
+            parts: 2
             paths: >-
               tests/test_matlab_port/chebfun2
               tests/test_matlab_port/chebfun2v
           - name: chebfun3d-a
             part: 0
-            parts: 3
+            parts: 5
             paths: >-
               tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-b
             part: 1
-            parts: 3
+            parts: 5
             paths: >-
               tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t
               tests/test_matlab_port/chebfun3v
           - name: chebfun3d-c
             part: 2
-            parts: 3
+            parts: 5
+            paths: >-
+              tests/test_matlab_port/chebfun3
+              tests/test_matlab_port/chebfun3t
+              tests/test_matlab_port/chebfun3v
+          - name: chebfun3d-d
+            part: 3
+            parts: 5
+            paths: >-
+              tests/test_matlab_port/chebfun3
+              tests/test_matlab_port/chebfun3t
+              tests/test_matlab_port/chebfun3v
+          - name: chebfun3d-e
+            part: 4
+            parts: 5
             paths: >-
               tests/test_matlab_port/chebfun3
               tests/test_matlab_port/chebfun3t

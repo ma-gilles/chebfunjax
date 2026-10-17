@@ -76,3 +76,16 @@ def test_default_engine_selection_and_vector_forwarding(monkeypatch):
     low.roots(low, method="ms")
     high.roots(low, method="resultant")
     assert calls == ["resultant", "resultant", "ms", "ms", "resultant"]
+
+
+def test_generalized_pencil_nonconvergence_is_not_silenced(monkeypatch):
+    import pytest
+
+    from chebfunjax.chebfun2d import resultant
+
+    def failed_factors(a, b):
+        return a, b, jnp.int64(1), jnp.int64(0)
+
+    monkeypatch.setattr(resultant, "_qz_eigenvalue_factors", failed_factors)
+    with pytest.raises(RuntimeError, match="did not converge"):
+        resultant._generalized_eigvals(jnp.eye(2), jnp.eye(2))

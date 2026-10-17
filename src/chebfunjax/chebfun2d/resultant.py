@@ -40,7 +40,7 @@ from __future__ import annotations
 
 import jax.numpy as jnp
 
-from chebfunjax.utils._generalized_schur import qz
+from chebfunjax.utils._generalized_schur import _qz_eigenvalue_factors
 
 __all__ = ["resultant_common_zeros"]
 
@@ -745,7 +745,7 @@ def _generalized_eigvals(a, b):
     MATLAB source: @chebfun2v/roots.m (chebT1rtsmatgep eig(A,B))
     Chebfun commit: 7574c77
     """
-    h, t, _, _, status, _ = qz(a, b)
+    h, t, status, _ = _qz_eigenvalue_factors(a, b)
     if int(status) != 0:
         raise RuntimeError("Resultant generalized Schur iteration did not converge")
     alpha, beta = jnp.diag(h), jnp.diag(t)

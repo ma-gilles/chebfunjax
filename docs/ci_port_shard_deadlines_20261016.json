@@ -1,0 +1,68 @@
+{
+  "title": "Exhaustive MATLAB-port CI reshard after confirmed 90-minute job deadlines",
+  "baseline_head": "d6639b6e4b4105f77d8d3664dc6a0edb56c8b59d",
+  "status": "QUALIFIED_CANDIDATE_PENDING_PUBLICATION_AND_CI",
+  "old_run": 38981927801,
+  "changes": {
+    "chebfun2d_parts": [
+      1,
+      2
+    ],
+    "chebfun3d_parts": [
+      3,
+      5
+    ]
+  },
+  "unchanged_limits": {
+    "job_timeout_minutes": 90,
+    "per_test_timeout_seconds": 900
+  },
+  "exhaustiveness": "Actual existing selector exercised with subprocess.run mocked; no pytest process launched. Old/new file unions equal; new parts disjoint. Candidate YAML parsed and all other matrix entries/steps match.",
+  "scope": "Scheduling change only; no dropped files, assertion or tolerance changes. Runtime success awaits actual CI.",
+  "evidence": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/RESHARD_ASSESSMENT.json",
+      "sha256": "bf3f014600bf7c1ea9429e8866a26c5024e3fe320a0041760a7964f75756b82c"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/CANDIDATE_REVIEW.json",
+      "sha256": "3eb5afe43b48e4e900ab35899324e4426c2064df5f02c412b8a92f8aad88843e"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/CANDIDATE_WORKFLOW.json",
+      "sha256": "8ec193919c45f72878de219f23744182489ae6bd65c689fbd255cc62e62c99e4"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/selector_driver.py",
+      "sha256": "be521b3e6c8fb408a493053760c2ca711c29bb5e7412d1f7e27af29cdc0541df"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/selector_validation.json",
+      "sha256": "76028cffca5b0e9690b1b2c0c2489020257236e13e3a8451c94b387845e523a0"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/partition_proof.json",
+      "sha256": "649b10907ab2c6027987c1be4264d57a94e287dd5231f9687c016d29c6434704"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/workflow.diff",
+      "sha256": "42e8602745e9e92a78496b43c85565053dddc26e7f68b4f9da7b7ed4ecadec97"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_exhaustive_reshard_prepare_20261016/candidate_ci.yml",
+      "sha256": "99203ed0e36b549556c7686d46a3c151666d54e65787c5fadf41bcca45b9da0a"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_d6_terminal_failures_20261016/job_117247977897_annotations.json",
+      "sha256": "5b79c673fa19f6a69f42293a1159ba7c8ef1b967d237e9185b13fc8cae019304"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_d6_terminal_failures_20261016/job_117247978118_annotations.json",
+      "sha256": "adac4f25fc03b2265916d5f43f1614ce0ba5484bbbf7529fcaadacd02b271758"
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_d6_terminal_failures_20261016/FETCH_AND_FAILURES.json",
+      "sha256": "6a576c9e08fc47022ca0fdd172017067c9f4c44d829319c5c5ba21c5119513c2"
+    }
+  ]
+}
