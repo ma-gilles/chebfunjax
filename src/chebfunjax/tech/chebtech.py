@@ -201,6 +201,97 @@ def _clenshaw(coeffs: jax.Array, x: jax.Array) -> jax.Array:
         coeffs, x, cpu=source_clenshaw, default=_clenshaw_generic)
 
 
+@jax.custom_jvp
+def _large_chebtech_feval_raw(coeffs, x):
+    """Uncoerced NDCT for real-node polynomial differentiation.
+
+    This uses the existing transform kernel and the same source angle map.
+    Raw values keep imaginary derivative coefficients imaginary even when a
+    mixed series loses its real constant during differentiation.
+    """
+    from chebfunjax.utils.ndct_fast import _ndct_fast
+
+    theta = jnp.real(jnp.arccos(x.astype(jnp.complex128)))
+    return _ndct_fast(coeffs, theta)
+
+
+@_large_chebtech_feval_raw.defjvp
+def _large_chebtech_feval_raw_jvp(primals, tangents):
+    coeffs, x = primals
+    dcoeffs, dx = tangents
+    values = _large_chebtech_feval_raw(coeffs, x)
+    dc_values = _large_chebtech_feval_raw(dcoeffs, x)
+    derivative = _large_chebtech_feval_raw(_diff_coeffs_once(coeffs), x)
+    # Real exterior nodes have a constant source angle. At +/-1 the
+    # derivative is the interior polynomial continuation, at every order.
+    dx = jnp.where(jnp.abs(x) <= 1, dx, 0.)
+    if coeffs.ndim == 2:
+        dx = dx[:, None]
+    return values, dc_values + derivative * dx
+
+
+@jax.custom_jvp
+def _large_chebtech_feval(coeffs, x):
+    """Source NDCT values with underlying-polynomial AD for real queries.
+
+    Provenance
+    ----------
+    MATLAB source: @chebtech/feval.m and @chebfun/ndct.m.
+    Chebfun commit: 7574c77.
+    """
+    from chebfunjax.utils.transforms import ndct
+
+    return ndct(x, coeffs)
+
+
+@_large_chebtech_feval.defjvp
+def _large_chebtech_feval_jvp(primals, tangents):
+    coeffs, x = primals
+    from chebfunjax.utils.transforms import ndct
+
+    if jnp.issubdtype(x.dtype, jnp.complexfloating):
+        # Preserve the source nonholomorphic angle projection. No general
+        # directional derivative exists at the complex acos branch points.
+        return jax.jvp(lambda c, z: ndct(z, c), primals, tangents)
+
+    values = _large_chebtech_feval(coeffs, x)
+    _, tangent = jax.jvp(_large_chebtech_feval_raw, primals, tangents)
+    # This is the selected source branch convention, not a mathematical
+    # derivative across its discontinuous pure-imaginary coefficient branch.
+    # Use ORIGINAL coefficients: differentiating a mixed series can remove
+    # its only real coefficient, without changing the original source branch.
+    if jnp.issubdtype(coeffs.dtype, jnp.complexfloating):
+        tangent = jnp.where(jnp.all(jnp.real(coeffs) == 0),
+                            jnp.imag(tangent), tangent)
+    return values, tangent
+
+
+def _chebtech_feval(coeffs, x):
+    """Evaluate using the native size heuristic and Python component layout.
+
+    The Python vector adaptation keeps coefficient columns on a trailing
+    axis. Query coordinates are flattened in source column order before
+    NDCT and restored afterward; neither the query nor degree is padded.
+
+    Provenance
+    ----------
+    MATLAB source: @chebtech/feval.m.
+    Chebfun commit: 7574c77.
+    """
+    x = jnp.asarray(x)
+    x = x.astype(jnp.complex128 if jnp.iscomplexobj(x) else jnp.float64)
+    columns = coeffs.shape[1] if coeffs.ndim == 2 else 1
+    if coeffs.shape[0] and columns > 1 and x.ndim > 2:
+        raise _TechOperationError(
+            "CHEBFUN:CHEBTECH:feval:evalArrayAtNDArray",
+            "Evaluation of a multi-column CHEBTECH at inputs with more "
+            "than two dimensions is not supported.")
+    if coeffs.shape[0] <= 4000 or x.size <= 4000:
+        return _clenshaw(coeffs, x)
+    values = _large_chebtech_feval(coeffs, x.reshape(-1, order="F"))
+    return values.reshape(x.shape + coeffs.shape[1:], order="F")
+
+
 # ============================================================================
 # Helper: values / coefficients conversion (private aliases)
 # ============================================================================
@@ -3151,7 +3242,8 @@ class Chebtech2(eqx.Module):
     def __call__(self, x: jax.Array) -> jax.Array:
         """Evaluate the Chebyshev interpolant at point(s) x in [-1, 1].
 
-        Uses Clenshaw's algorithm.
+        Uses Clenshaw when either dimension is at most 4000; otherwise
+        uses the source nonuniform DCT.
 
         Parameters
         ----------
@@ -3167,8 +3259,14 @@ class Chebtech2(eqx.Module):
         -----
         This method is JIT-safe, grad-safe, and vmap-safe. Eager and traced
         calls share an array-only JAX kernel, specialized by coefficient and
-        query shapes. Real binary64 CPU evaluation preserves source operation
-        order; complex and other backends use the generic JAX recurrence.
+        query shapes. Clenshaw preserves source operation order on real
+        binary64 CPU inputs. Large evaluations use the source NDCT angle
+        projection and pure-imaginary coefficient convention. Real query AD
+        differentiates the underlying polynomial, including the interior
+        continuation at +/-1; exterior real query derivatives are zero.
+        Coefficient AD retains the selected coercion branch; the pure-imaginary
+        branch is discontinuous under arbitrary real coefficient perturbations.
+        Complex acos branch-point derivatives are not defined generally.
 
         Provenance
         ----------
@@ -3178,15 +3276,7 @@ class Chebtech2(eqx.Module):
         return self._call_traced(x)
 
     def _call_traced(self, x: jax.Array) -> jax.Array:
-        # Preserve a complex argument (MATLAB evaluates a real Chebyshev
-        # series at complex points via Clenshaw with a complex recurrence);
-        # everything else is promoted to float64.
-        x = jnp.asarray(x)
-        if jnp.issubdtype(x.dtype, jnp.complexfloating):
-            x = x.astype(jnp.complex128)
-        else:
-            x = x.astype(jnp.float64)
-        return _clenshaw(self.coeffs, x)
+        return _chebtech_feval(self.coeffs, x)
 
     # ------------------------------------------------------------------
     # Static methods: vals2coeffs / coeffs2vals
@@ -5480,22 +5570,16 @@ class Chebtech1(eqx.Module):
 
         Notes
         -----
-        JIT-safe, grad-safe, vmap-safe.
+        JIT-safe, grad-safe, vmap-safe. Uses the same source size dispatch,
+        angle projection and underlying-polynomial real-query AD as
+        Chebtech2. Coefficient AD follows the selected source coercion branch.
 
         Provenance
         ----------
         MATLAB source : @chebtech/clenshaw.m, @chebtech/feval.m
         Chebfun commit: 7574c77
         """
-        # Preserve a complex argument (MATLAB evaluates a real Chebyshev
-        # series at complex points via Clenshaw with a complex recurrence);
-        # everything else is promoted to float64.
-        x = jnp.asarray(x)
-        if jnp.issubdtype(x.dtype, jnp.complexfloating):
-            x = x.astype(jnp.complex128)
-        else:
-            x = x.astype(jnp.float64)
-        return _clenshaw(self.coeffs, x)
+        return _chebtech_feval(self.coeffs, x)
 
     # ------------------------------------------------------------------
     # Static methods: vals2coeffs / coeffs2vals (1st-kind specific)

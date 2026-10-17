@@ -119,3 +119,21 @@ now has a `verified_scopes` entry bound to source hashes and
 API statuses remain unverified: alternate preferences, unsupported inputs,
 and broader semantics are outside these invocations. This gate observes
 external runtime origins without claiming every dependency was preguarded.
+
+## NDCT and exact-seeded Chebtech evaluation — 2026-10-17
+
+The original Chebtech feval row now records another paired scope: all 18
+default predicates pass using MATLAB's actual seeded vector, with unchanged
+strict bounds and Fortran-order reshapes. Native also confirms that the
+fixture matches its draw bit-for-bit. Existing linspace controls remain
+supplemental. [Seeded evidence](chebtech_feval_seeded_cpu_20261017.json).
+
+The missing strict large-input NDCT dispatch is restored for both kinds.
+Eight same-word native captures agree within 2.45e-15; 23 authored JAX controls
+qualify the real-node polynomial differentiation convention and first-import
+JIT fix. BestApprox completes in 151.93s versus about 201s in the retained local
+baseline; these are descriptive shared-host observations. Its five figures
+match 600×269 reference sizes and all still differ in pixels. The rational8
+curve discrepancy remains 8.86e-8. Per-page observations are appended without
+promoting full computation, graphics, API or matched-performance statuses.
+[Integrated evidence](chebtech_ndct_cpu_20261017.json).

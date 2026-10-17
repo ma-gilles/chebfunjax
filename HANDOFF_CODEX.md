@@ -1,3 +1,36 @@
+## Source NDCT dispatch and exact-seeded evaluation — 2026-10-17
+
+Both Chebtech kinds now use native NDCT when coefficient AND query counts
+exceed 4000; existing Python component-last layout remains. A literal Bessel
+table fixes first-import-inside-JIT tracer leakage. Native forward values
+retain the real-acos projection and pure-imaginary coercion. Real-node AD
+now differentiates the underlying polynomial, with endpoint continuation
+and zero exterior derivative; the discontinuous coefficient coercion uses
+the selected source branch. This is a JAX convention, not native MATLAB AD.
+
+All 23 new controls pass, including strict 2e-12 first/second derivative tests.
+Eight same-word 65537-by-65537 native comparisons agree within 2.45e-15. The
+first 28/30 attempt and two endpoint/algorithmic-AD failures are retained;
+the final corrected gate passes without relaxing its analytic bounds.
+All 18 original feval predicates also pass on the actual MATLAB-seeded
+vector; native confirms fixture equality bit-for-bit. Linspace tests remain
+supplemental. A reviewed primal AST bridge carries whole-example and
+seeded results across the separately tested JVP correction.
+
+Whole BestApprox completes in 151.93s versus about 201s in the retained local
+baseline; post-r88 processing before plotting falls from 72.7s to 17.79s.
+These are descriptive timings, not matched performance acceptance. All five
+figures remain 600×269; figures 1/2 are refreshed, and all differ from reference
+pixels. Rational8 sampled error-curve discrepancy remains 8.86e-8; native
+solver differences, graphics, broader API and latest-main CI/coverage remain
+open. Printed diagnostics align and the generated page is unchanged.
+
+Evidence: [integrated review](docs/chebtech_ndct_cpu_20261017.json),
+[seeded originals](docs/chebtech_feval_seeded_cpu_20261017.json). Selected
+source/evidence preimages are archived; full external runtime dependencies
+are not all embedded. The authoritative failed-run guard is preserved as
+guard_original001.json; a later mutable-guard copy mismatch is disclosed.
+
 ## Paired original test scopes — 2026-10-17
 
 At source c0a1bca9, five default MATLAB original-test invocations pass all

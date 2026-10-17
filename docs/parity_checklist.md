@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest implementation: `c0a1bca9`; the paired original-test scopes below are now reconciled. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** This update adds NDCT dispatch and paired exact-seeded Chebtech predicates; source-bound scopes are recorded below. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -15,7 +15,7 @@ Checked items certify only their stated scope.
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
 | Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
-| Final acceptance | Implementation `c0a1bca9` pushed; documentation deployment passed | Latest implementation CI run 39047694207 is pending at this update; coverage ≥79%, final provenance/lint and full objective audit |
+| Final acceptance | Published packages linked below; prior documentation deployment passed | Pre-update CI run39050813118 is pending; this publication also requires CI; coverage ≥79%, final provenance/lint and full objective audit |
 
 ### Active work, not yet credited as complete
 
@@ -26,6 +26,11 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Restore strict C1/C2 large-input NDCT dispatch; fix first-import JIT tracer leak; 23 authored forward/AD/shape controls pass, eight same-input native captures agree within 2.45e-15. Real-node polynomial derivatives preserve strict 2e-12 controls. [Evidence](chebtech_ndct_cpu_20261017.json).
+- [x] Pair all 18 original Chebtech feval predicates with exact MATLAB-seeded points; native fixture-word check passes; old linspace tests retained. Forward source bridge carries the passing scope to final candidate. [Evidence](chebtech_feval_seeded_cpu_20261017.json).
+- [x] Whole BestApprox CPU rerun 151.93s, stable source/no survivors, stdout aligned, generated page unchanged and five reference-sized figures.
+- [ ] BestApprox rational accuracy (8.86e-8 sampled curve gap), reference pixel/layout parity, matched performance and latest-main CI/coverage.
 
 - [x] Pair five default original MATLAB invocations (141 predicates) with 133 passing Python nodes at c0a1bca9; attach source-bound scopes to individual inventory rows. GET38/interp135/ratinterp23/compose44/std3one. [Evidence](original_five_predicates_cpu_20261017.json). Full API and alternate preferences remain open.
 

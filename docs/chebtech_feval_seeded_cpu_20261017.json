@@ -1,0 +1,204 @@
+{
+  "artifact_kind": "paired_original_chebtech_feval_seeded_predicates",
+  "attempts": [
+    {
+      "command_exit_code": 127,
+      "guard_sha256": "7d97243b8a36e6d5fb934e9a4207e47f2932d3654e73e5ca697b248bdcefa1ee",
+      "id": "python_run001",
+      "reason": "taskset could not execute an incorrect CRYOEM path for the Python 3.12 pixi interpreter; no tests ran, sampled RSS 0, no survivors. Preserved as a failed setup attempt.",
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run001/receipt.json",
+      "receipt_sha256": "fa0d77c6428f05eeafd748116d085e5714d62b40efc1eedbc31dad3f20e1fede",
+      "status": "failed_before_python_start_uncredited",
+      "stderr_sha256": "eb8e285c41c03e9d4aba2a2ea2d32de4adabb224a676d1ec4df1da3931b23d81"
+    },
+    {
+      "command_exit_code": 0,
+      "failed": 0,
+      "id": "python_run002",
+      "passed": 18,
+      "pytest_nodes": 18,
+      "receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run002/receipt.json",
+      "receipt_sha256": "884b464a2e5a80879e1845598319c2bf3c9f7688cbd06f67ba458820188088b2",
+      "skipped": 0,
+      "status": "terminal_pass"
+    }
+  ],
+  "date": "2026-10-17",
+  "limitations": [
+    "Native result confirms all 18 original predicates and exact binary64 word equality between its seedRNG(7681) draw and the shared captured fixture.",
+    "Python run used the source-mapped 18 assertions and candidate import origin. Existing linspace-based test_feval_matlab.py remains supplemental.",
+    "Candidate source is bound to listed hashes; an Astra JVP-only source edit is pending and not covered without a byte/AST bridge.",
+    "All query sizes are below the native NDCT cutoff of 4001; this gate does not qualify NDCT numerical behavior.",
+    "No full third-party runtime freeze, public API completeness, exhaustive preferences/shapes, performance, or full-library parity claim."
+  ],
+  "native_gate": {
+    "fixture_binary64_words_equal": true,
+    "guard_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_feval_original_native_20261017/guard.json",
+    "guard_sha256": "446304b94b4b722da1ce830aa1d3a4ed626c37eaed0860f80bf2bde878564025",
+    "matlab_release": "25.2.0.3055257 (R2025b) Update 2",
+    "original_invocation": "test_feval() after factory defaults reset; native test loops C1 then C2",
+    "probe_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_feval_original_native_20261017/probe_feval_original.m",
+    "probe_sha256": "bdceea4c59dcd3a473daa37c49a7d2a35e779183833aff171b06adbf5ee1e567",
+    "result_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_feval_original_native_20261017/result.json",
+    "result_sha256": "2fc0ab650996514706217811742b63309b2d72a288d33d985913f8a3552af530",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "source_predicates": {
+      "C1": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "C2": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "count": 18,
+      "native_seconds": 0.4661
+    },
+    "source_repository": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref",
+    "supervisor": {
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1337932,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 78.42401301674545
+    },
+    "supervisor_receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_feval_original_native_20261017_run001/receipt.json",
+    "supervisor_receipt_sha256": "37fff42fbf7a1528ef71c08f6e6649cd0bd95fc0e28eacdf6db5ef93b618ed58"
+  },
+  "proposed_inventory_verified_scope": {
+    "candidate_implementation_sha256": "93dd231bd29cbde4aa7dfa872997ef9048087251c69d5b55ad1b5231258e0045",
+    "fixture_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+    "invocation": "test_feval() with factory defaults; native RNG seeded with 7681",
+    "native_result_ref": "native_gate.result_path",
+    "native_source": "tests/chebtech/test_feval.m",
+    "native_source_sha256": "010d78a299d1bfab1cc31200f09578d584e5a4f550a765bfc20db98b999e2522",
+    "original_ids": "C1 and C2, clauses 1-9 each",
+    "predicates_native": 18,
+    "predicates_python_mapped": 18,
+    "python_junit_ref": "python_gate.junit_path",
+    "python_source": "tests/test_matlab_port/chebtech/test_feval_seeded_original18_source.py",
+    "python_source_sha256": "3126388e4c11c5a4519ddf418a7d1c8f79eb7a19245053cc8bd44cdcd3090985",
+    "qualification_limit": "The default original test invocation and its 18 predicates with the captured seed vector only. Query sizes are at most 1000 (fixed x2 has 6), so this does not qualify the NDCT path, derivative behavior, broader public API, performance, or all Chebtech inputs. Source hash binds the pre-JVP-correction candidate; carry-forward to later source requires an explicit source bridge.",
+    "scope_id": "native_default_original_test_feval_seedRNG7681_18_predicates",
+    "status": "paired_native_python_pass"
+  },
+  "python_gate": {
+    "candidate_head": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+    "candidate_source_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src",
+    "fixture_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_seeded_feval_20261017/tests/test_matlab_port/chebfun/data/feval_seedRNG_7681_xr.mat",
+    "fixture_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+    "guard_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_seeded_feval_gate_20261017/guard.json",
+    "guard_sha256": "14b9483e05b932c7299ee456d6c982fcbe0bc02d761767dcdb467a9ac7114806",
+    "junit_errors": 0,
+    "junit_failures": 0,
+    "junit_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run002/junit.xml",
+    "junit_sha256": "ce3c0968255359f8923f80be6fcfc74bcae1bfb9f49fdbbb46f832e5f3ad53ea",
+    "junit_skipped": 0,
+    "junit_tests": 18,
+    "output_manifest_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run002/manifest.json",
+    "output_manifest_sha256": "6a5a08e0269da2cf71dd010ff255e89104392b8e0fdf236721a3d42c867968a0",
+    "pytest_seconds": 32.22,
+    "runtime": {
+      "checks": {
+        "cpu_only": true,
+        "jax_0110": true,
+        "jaxlib_0110": true,
+        "ml_dtypes_054": true,
+        "package_origin": true,
+        "python_312": true,
+        "tech_origin": true,
+        "transforms_origin": true,
+        "x64": true
+      },
+      "default_backend": "cpu",
+      "devices": [
+        "cpu:0"
+      ],
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "origins": {
+        "chebfunjax": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src/chebfunjax/__init__.py",
+        "chebfunjax.tech.chebtech": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src/chebfunjax/tech/chebtech.py",
+        "chebfunjax.utils.transforms": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src/chebfunjax/utils/transforms.py"
+      },
+      "python_version": "3.12.13",
+      "x64_enabled": true
+    },
+    "runtime_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run002/runtime.json",
+    "runtime_sha256": "9b32c39d73f4484d169afc3c23cddaff76eb8d02d74ad2597b5d67e0afbd6252",
+    "selectors": "All nodes in the standalone module; 9 original clauses x Chebtech1/Chebtech2. Existing linspace module remains unchanged and supplemental.",
+    "stderr_sha256": "9d0e356f3a75097ac423f153433736a2ef1a35adb7aa2bbc1d9957edb1ed614b",
+    "stdout_sha256": "e7a78e3fc1b92c5b7e3aee7209a2e7bd3afd80ef411b50b3e67cf557ec07ae3c",
+    "supervisor": {
+      "command_exit_code": 0,
+      "guard_file_sha256": "14b9483e05b932c7299ee456d6c982fcbe0bc02d761767dcdb467a9ac7114806",
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1818980,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 37.539688747841865
+    },
+    "supervisor_receipt_path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_seeded_feval_cpu_20261017_run002/receipt.json",
+    "supervisor_receipt_sha256": "884b464a2e5a80879e1845598319c2bf3c9f7688cbd06f67ba458820188088b2",
+    "test_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_seeded_feval_20261017/tests/test_matlab_port/chebtech/test_feval_seeded_original18_source.py",
+    "test_sha256": "3126388e4c11c5a4519ddf418a7d1c8f79eb7a19245053cc8bd44cdcd3090985",
+    "warning_only": "PytestAssertRewriteWarning for already-imported jaxtyping; optional JAX CUDA plugin 0.11.2 incompatibility warning while CPU-only runtime checks passed.",
+    "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_seeded_feval_20261017",
+    "worktree_head": "7a8d3be22c7b9ff41ac60d7eb0b40f8135df10bd"
+  },
+  "scope_summary": {
+    "broad_api_or_full_NDCT_branch_claim": false,
+    "native_failed": 0,
+    "native_passed": 18,
+    "native_predicate_count": 18,
+    "python_failed": 0,
+    "python_junit_nodes": 18,
+    "python_passed": 18,
+    "python_skipped": 0,
+    "source_operands_and_strict_bounds_preserved": true
+  },
+  "source_hashes": {
+    "candidate_python_source": {
+      "head": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+      "src/chebfunjax/__init__.py": "3cf00f6ff7dabc06cc4acaff718bdc47569586cb6320b95070e5b0de3784c205",
+      "src/chebfunjax/tech/__init__.py": "9ccf2d840b7c5ca48048ec38caf037d7c335b158eb4ebb3c23515247544fe5d6",
+      "src/chebfunjax/tech/chebtech.py": "93dd231bd29cbde4aa7dfa872997ef9048087251c69d5b55ad1b5231258e0045",
+      "src/chebfunjax/utils/ndct_fast.py": "fba29e078ea5be0921c78190f55e9f699888484100ca549d9482e61b46a6909a",
+      "src/chebfunjax/utils/transforms.py": "9529f96e6ef88799eb4d9762f212e5401acc85ce621f7fe3da27d3a3a7c75eae",
+      "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017"
+    },
+    "fixture": {
+      "capture_helper_sha256": "1d29f9db45c583ca3dd052b6516d739ebb77158c1145fe9d0931327a187407cd",
+      "mat_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+      "native_result_asserts_same_binary64_words": true,
+      "path_in_publication": "tests/test_matlab_port/chebfun/data/feval_seedRNG_7681_xr.mat",
+      "provenance_sha256": "ea04906ed7974534b89d89ebc1b562829b330eb2c9f12bb88fb08a8e571dba53"
+    },
+    "native": {
+      "pin": "7574c77680d7e82b79626300bf255498271a72df",
+      "seedRNG.m": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+      "tests/chebtech/test_feval.m": "010d78a299d1bfab1cc31200f09578d584e5a4f550a765bfc20db98b999e2522"
+    },
+    "python_test": {
+      "pyproject.toml": "95f79ae45be4eebbf0885891020e9e206dc4b80f6dd0b1f9cd10d77c5fae957c",
+      "supplemental_existing_test_feval_matlab.py": "0e6a5228d8c9ccf4ba91a5abf76b676f669efd0ed036f41db35a24258563a889",
+      "tests/test_matlab_port/chebtech/test_feval_seeded_original18_source.py": "3126388e4c11c5a4519ddf418a7d1c8f79eb7a19245053cc8bd44cdcd3090985"
+    }
+  }
+}

@@ -15,6 +15,27 @@
     "test_file_count_is_assertion_coverage": false
   },
   "evidence_register": {
+    "chebtech_ndct_cpu_20261017": {
+      "archive": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_integration_cpu_20261017.zip",
+        "bytes": 23548992,
+        "payloads": 166,
+        "review_referenced_hashes_verified": 14,
+        "scope": "Selected source preimages, original tests/fixture, native captures, numerical outputs, images, guards and receipts. External runtime dependencies and full repository preimages are not all embedded; source base commit and hashes bind those references.",
+        "sha256": "72fe8423837d04501cb8d91ff6942abad038780157e2fe98ef5e2c172e11a03e"
+      },
+      "final_chebtech_sha256": "48329b87786e36ece52f3df6ae45d96fccacdab8b8d4b750049177f2b0cf7be4",
+      "path": "docs/chebtech_ndct_cpu_20261017.json",
+      "scope": "Strict source NDCT dispatch;8same-word native captures;23authored JAX controls; wholeBestApprox forward run via reviewed primal bridge. Rational accuracy/raster/API/performance acceptance remains open.",
+      "sha256": "d2f2ca6fe58eb8ee751e0615d806fe43c4175d7656bf80b8a2b0dabfbe60561f",
+      "source_base": "7a8d3be22c7b9ff41ac60d7eb0b40f8135df10bd"
+    },
+    "chebtech_seeded_original18_20261017": {
+      "path": "docs/chebtech_feval_seeded_cpu_20261017.json",
+      "scope": "18default original Chebtech feval predicates paired with native seeded inputs; no large-NDCT or AD claim.",
+      "sha256": "697d1933c3661f9aca4f349dee4238d56c06f117c4f0d91da0aa6cb7c2718800",
+      "source_bridge": "chebtech_ndct_cpu_20261017"
+    },
     "colororder_20261017": {
       "path": "docs/colororder_cpu_20261017.json",
       "scope": "Color property versus LineSpec source ordering;21 controls and native metadata. Full graphics grammar/rendering remains unverified.",
@@ -6072,6 +6093,102 @@
             "url": "https://www.chebfun.org/examples/approx/BestApprox.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "chebtech_ndct_cpu_20261017",
+          "figure_count": 5,
+          "figures": [
+            {
+              "baseline_sha256": "89abc22de52fab0b2f17dd5fece328f40b5b3f2d3ae521656a8a0087996a9330",
+              "decoded_rgba_exact": false,
+              "different_pixel_fraction": 0.07285625774473359,
+              "different_pixels": 11759,
+              "figure": 1,
+              "local_sha256": "89abc22de52fab0b2f17dd5fece328f40b5b3f2d3ae521656a8a0087996a9330",
+              "local_size": [
+                600,
+                269
+              ],
+              "reference_sha256": "12f7e237194f9cc3559860f6a377015c73132209476c00182b468f7888861120",
+              "reference_size": [
+                600,
+                269
+              ]
+            },
+            {
+              "baseline_sha256": "f1b5d2814a01c2eaaeca50b6c35300f80c3d4d6a715ed9019e56837211e40972",
+              "decoded_rgba_exact": false,
+              "different_pixel_fraction": 0.05301115241635688,
+              "different_pixels": 8556,
+              "figure": 2,
+              "local_sha256": "49c8b1cf9ab2614e0654ed96b089bbb119dffc223d9057a107aeb9d332956b63",
+              "local_size": [
+                600,
+                269
+              ],
+              "reference_sha256": "838cf02e3e9acd4ec7a0a35c31f734d211942dd0e1204dcf9bc1bd4642edc9e2",
+              "reference_size": [
+                600,
+                269
+              ]
+            },
+            {
+              "baseline_sha256": "2dc2b93384b6268ef70998a616694a4d96fc1589bbe8b9306c044a94895e6a66",
+              "decoded_rgba_exact": false,
+              "different_pixel_fraction": 0.07592317224287484,
+              "different_pixels": 12254,
+              "figure": 3,
+              "local_sha256": "2dc2b93384b6268ef70998a616694a4d96fc1589bbe8b9306c044a94895e6a66",
+              "local_size": [
+                600,
+                269
+              ],
+              "reference_sha256": "5aa22ba543e2459d6e3d4480bb11890066faa0c68748050234ab4d887cdc5a59",
+              "reference_size": [
+                600,
+                269
+              ]
+            },
+            {
+              "baseline_sha256": "2a9ac27f416e25f5e6d7bc5eaba546e0f978f76374834ced5790bb1f9aa1cd99",
+              "decoded_rgba_exact": false,
+              "different_pixel_fraction": 0.06366171003717472,
+              "different_pixels": 10275,
+              "figure": 4,
+              "local_sha256": "2a9ac27f416e25f5e6d7bc5eaba546e0f978f76374834ced5790bb1f9aa1cd99",
+              "local_size": [
+                600,
+                269
+              ],
+              "reference_sha256": "2b31d7e5eb519777c44e0648b2e4342675d693c92885d54744ab0909a757b22e",
+              "reference_size": [
+                600,
+                269
+              ]
+            },
+            {
+              "baseline_sha256": "d8392d8eddb385cd70cbd8157408d69f288f11a69572d63fbd49504b89f4c7aa",
+              "decoded_rgba_exact": false,
+              "different_pixel_fraction": 0.05726146220570012,
+              "different_pixels": 9242,
+              "figure": 5,
+              "local_sha256": "d8392d8eddb385cd70cbd8157408d69f288f11a69572d63fbd49504b89f4c7aa",
+              "local_size": [
+                600,
+                269
+              ],
+              "reference_sha256": "c484438459ffd3e3c5693272c017692b42b490c8dce42e84575700d93a885404",
+              "reference_size": [
+                600,
+                269
+              ]
+            }
+          ],
+          "inputs_stable": true,
+          "kind": "whole_CPU_source_bound_observation",
+          "remaining_owned_processes": 0,
+          "status_note": "Primal AST bridge to final source reviewed; final AD separately qualified. All reference sizes match600x269, all reference pixels differ. Rational native curve discrepancies remain. No page dimension promoted to full verified status.",
+          "wall_seconds": 151.9264365909621
         }
       ],
       "figure_content_status": "unverified",
@@ -52464,7 +52581,15 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebtech_ndct_cpu_20261017",
+          "kind": "scoped_native_dispatch_and_JAX_extension",
+          "native_cases": 8,
+          "python_authored_controls": 23,
+          "status_note": "No full source/API assertion status promotion. Real-node polynomial differentiation is a Python/JAX convention; native has no AD oracle here."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -68524,7 +68649,15 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebtech_ndct_cpu_20261017",
+          "kind": "scoped_native_dispatch_and_JAX_extension",
+          "native_cases": 8,
+          "python_authored_controls": 23,
+          "status_note": "No full source/API assertion status promotion. Real-node polynomial differentiation is a Python/JAX convention; native has no AD oracle here."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -114616,7 +114749,30 @@
       "sha256": "010d78a299d1bfab1cc31200f09578d584e5a4f550a765bfc20db98b999e2522",
       "source": "tests/chebtech/test_feval.m",
       "source_status": "unverified",
-      "tolerance_status": "unverified"
+      "tolerance_status": "unverified",
+      "verified_scopes": [
+        {
+          "candidate_implementation_sha256": "93dd231bd29cbde4aa7dfa872997ef9048087251c69d5b55ad1b5231258e0045",
+          "evidence": "chebtech_seeded_original18_20261017",
+          "final_implementation_sha256": "48329b87786e36ece52f3df6ae45d96fccacdab8b8d4b750049177f2b0cf7be4",
+          "fixture_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+          "invocation": "test_feval() with factory defaults; native RNG seeded with 7681",
+          "native_result_ref": "native_gate.result_path",
+          "native_source": "tests/chebtech/test_feval.m",
+          "native_source_sha256": "010d78a299d1bfab1cc31200f09578d584e5a4f550a765bfc20db98b999e2522",
+          "original_ids": "C1 and C2, clauses 1-9 each",
+          "predicates_native": 18,
+          "predicates_python_mapped": 18,
+          "python_junit_ref": "python_gate.junit_path",
+          "python_source": "tests/test_matlab_port/chebtech/test_feval_seeded_original18_source.py",
+          "python_source_sha256": "3126388e4c11c5a4519ddf418a7d1c8f79eb7a19245053cc8bd44cdcd3090985",
+          "qualification_limit": "The default original test invocation and its 18 predicates with the captured seed vector only. Query sizes are at most 1000 (fixed x2 has 6), so this does not qualify the NDCT path, derivative behavior, broader public API, performance, or all Chebtech inputs. Source hash binds the pre-JVP-correction candidate; carry-forward to later source requires an explicit source bridge.",
+          "scope_id": "native_default_original_test_feval_seedRNG7681_18_predicates",
+          "source_bridge": "chebtech_ndct_cpu_20261017",
+          "source_bridge_reviewed": true,
+          "status": "paired_native_python_pass"
+        }
+      ]
     },
     {
       "api_assertion_status": "unverified",

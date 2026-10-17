@@ -1,0 +1,406 @@
+{
+  "artifact_kind": "parent_review_chebtech_ndct_integration_evidence",
+  "candidate": {
+    "base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d",
+    "change_summary": [
+      "Restore native strict dispatch condition coeff_count > 4000 and query_count > 4000 for both Chebtech kinds.",
+      "Keep component-last public layout and native multicolumn rank rejection.",
+      "Materialize Bessel constants inside JAX kernel to avoid first-import JIT tracer leakage.",
+      "Use underlying-polynomial real-node JVP/VJP with endpoint continuation and zero exterior derivatives; retain native pure-imaginary coercion and complex angle projection behavior."
+    ],
+    "final_files": [
+      {
+        "path": "src/chebfunjax/tech/chebtech.py",
+        "sha256": "48329b87786e36ece52f3df6ae45d96fccacdab8b8d4b750049177f2b0cf7be4"
+      },
+      {
+        "path": "src/chebfunjax/utils/ndct_fast.py",
+        "sha256": "fba29e078ea5be0921c78190f55e9f699888484100ca549d9482e61b46a6909a"
+      },
+      {
+        "path": "tests/test_tech/test_chebtech_feval_ndct.py",
+        "sha256": "34ea2c6cfdbd862bc022e55b38b452a20605edbffdef5ae115bd71c6f6d9a7da"
+      }
+    ],
+    "final_gate": {
+      "authored_controls": 23,
+      "backend": "cpu",
+      "inputs_stable": true,
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "pytest_seconds": 20.017,
+      "remaining_owned_pids": [],
+      "runtime_unqualified_paths": [],
+      "sampled_peak_summed_rss_kib": 1330832,
+      "status": "pass",
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.723802871070802,
+      "x64": true
+    },
+    "final_gate_paths": {
+      "junit": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/attempt002/junit.xml",
+        "sha256": "a11d93970aaccd6c27bdfa733bd89112d2b49d75c23a46c23d9c94b35811d12e"
+      },
+      "large_comparison": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/large_comparison.json",
+        "sha256": "02074fd87266a4dcceeee659292887c0714a4519e2e7a617b57226220fe457b7"
+      },
+      "native_large_values": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/native_large_values.json",
+        "sha256": "86de4841369e5bcdc47098f977edcde618b37cb407a56b99f129b9584d7353d9"
+      },
+      "receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/chebtech_ndct_gate_20261017_run002/receipt.json",
+        "sha256": "da18167fa6261689e3fe037e0576a372e0e4f7800153e9cdfa83754bec71ad6e"
+      },
+      "review_json": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/FINAL_REVIEW.json",
+        "sha256": "0d748480c6cc5962a8818fdacda4d81e5a735fd4631124479ddf6d36376d543c"
+      },
+      "runtime": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/attempt002/gate_runtime.json",
+        "sha256": "f5607bd941505f5b405d3142c166215f7f86feaa6bddc64a66e766f91d0073ef"
+      }
+    },
+    "final_source_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src",
+    "forward_source_bridge": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_gate_20261017/PRIMAL_AST_BRIDGE.json",
+      "scope": "Forward evaluation only. ASTs for _large_chebtech_feval, _chebtech_feval, _clenshaw, _diff_coeffs_once, Chebtech1/2 __call__, and Chebtech2._call_traced match ignoring docstrings; ndct_fast.py bytes match exactly. The whole-example integration snapshot uses the old-JVP chebtech.py hash 93dd231bd29cbde4aa7dfa872997ef9048087251c69d5b55ad1b5231258e0045; final candidate uses 48329b...7be4. The named AD helpers were excluded and changed. Thus the bridge supports forward behavior for the whole-example observation, not AD equivalence.",
+      "sha256": "63443ab2a4b7d8be32f6f69842e77b917ed6f3ca47a8f0d7e0bd6799098412a1"
+    },
+    "initial_failed_attempt": {
+      "duplicate_mutable_guard": {
+        "interpretation": "This later copied mutable E guard differs because it was captured after replacement. It is not the supervisor-bound pre-run guard. The authoritative guard_original001.json hash matches the run001 receipt guard hash and the captured original guard; the mismatch is disclosed, not treated as clean CAS evidence.",
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_failed_gate001_snapshot_20261017/guard.json",
+        "sha256": "b5d7e3868e3a90ce6573fc09b8ab50d900351f231a93276eee5e3da3a0cdfd52"
+      },
+      "original_supervisor_guard": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_failed_gate001_snapshot_20261017/guard_original001.json",
+        "sha256": "7a9c169fd4989d4c644efe73a971437e532a72757d753288ea904920c9245a90"
+      },
+      "summary": "Initial AD gate passed 28/30; two newly authored reverse-AD analytic checks failed. Retained as failed evidence, with no qualification credit."
+    },
+    "large_numeric_comparisons": {
+      "array_shape": [
+        65537
+      ],
+      "count": 8,
+      "max_absolute_error": 2.4424906541753444e-15,
+      "max_relative_sup_error": 3.020567257572396e-15,
+      "same_inputs": true
+    }
+  },
+  "date": "2026-10-17",
+  "limitations": [
+    "No AD bridge to the whole-example old-JVP snapshot; final AD semantics qualified only by the final standalone 23-control gate.",
+    "No public API completeness, exhaustive threshold/shape/type/derivative coverage, full runtime dependency freeze, or full page parity claim.",
+    "No minimax parameter/curve discrepancy resolution; the R88 curve maximum remains about 8.86e-8.",
+    "All five reference figure rasters are nonexact; no pixel parity claim.",
+    "No complete page status closure; this is one example-level observation."
+  ],
+  "paired_seeded_original_test_feval": {
+    "fixture_sha256": "5bda37bcb3a3994f75dfa2e624ffadc1c391fdd1968be1e5fec626ae906b513b",
+    "native_result_sha256": "2fc0ab650996514706217811742b63309b2d72a288d33d985913f8a3552af530",
+    "native_source_sha256": "010d78a299d1bfab1cc31200f09578d584e5a4f550a765bfc20db98b999e2522",
+    "preserved_setup_failure": "Python run001 exited 127 before interpreter/test startup (bad interpreter path), zero tests and zero RSS; retained, uncredited.",
+    "python_junit_sha256": "ce3c0968255359f8923f80be6fcfc74bcae1bfb9f49fdbbb46f832e5f3ad53ea",
+    "python_run002_receipt_sha256": "884b464a2e5a80879e1845598319c2bf3c9f7688cbd06f67ba458820188088b2",
+    "python_source_sha256": "3126388e4c11c5a4519ddf418a7d1c8f79eb7a19245053cc8bd44cdcd3090985",
+    "report_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_seeded_feval_20261017_report/REPORT.json",
+    "report_sha256": "697d1933c3661f9aca4f349dee4238d56c06f117c4f0d91da0aa6cb7c2718800",
+    "scope": "Native test_feval() default invocation, C1 then C2, clauses 1-9 each (18 predicates), seeded fixture inputs only; Python maps 18 original predicates. Native result has all 18 true and the seedRNG(7681) captured fixture matches binary64 words exactly. Python run002 has 18/18 pass on Astra pre-final-JVP source. Query sizes stay below NDCT threshold (maximum 1000); this is supplemental small-path evidence, not NDCT/AD qualification."
+  },
+  "review_status": "scoped_evidence_reconciled_for_parent_review",
+  "root_integration": {
+    "archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_integration_cpu_20261017.zip",
+      "bytes": 23548992,
+      "payloads": 166,
+      "review_referenced_hashes_verified": 14,
+      "scope": "Selected source preimages, original tests/fixture, native captures, numerical outputs, images, guards and receipts. External runtime dependencies and full repository preimages are not all embedded; source base commit and hashes bind those references.",
+      "sha256": "72fe8423837d04501cb8d91ff6942abad038780157e2fe98ef5e2c172e11a03e"
+    },
+    "baseline_image_observation": [
+      {
+        "different_pixels_vs_pre_ndct": 0,
+        "figure": 1
+      },
+      {
+        "different_pixels_vs_pre_ndct": 120,
+        "figure": 2
+      },
+      {
+        "different_pixels_vs_pre_ndct": 0,
+        "figure": 3
+      },
+      {
+        "different_pixels_vs_pre_ndct": 0,
+        "figure": 4
+      },
+      {
+        "different_pixels_vs_pre_ndct": 0,
+        "figure": 5
+      }
+    ],
+    "comparison": {
+      "images": [
+        {
+          "baseline_sha256": "89abc22de52fab0b2f17dd5fece328f40b5b3f2d3ae521656a8a0087996a9330",
+          "decoded_rgba_exact": false,
+          "different_pixel_fraction": 0.07285625774473359,
+          "different_pixels": 11759,
+          "figure": 1,
+          "local_sha256": "89abc22de52fab0b2f17dd5fece328f40b5b3f2d3ae521656a8a0087996a9330",
+          "local_size": [
+            600,
+            269
+          ],
+          "reference_sha256": "12f7e237194f9cc3559860f6a377015c73132209476c00182b468f7888861120",
+          "reference_size": [
+            600,
+            269
+          ]
+        },
+        {
+          "baseline_sha256": "f1b5d2814a01c2eaaeca50b6c35300f80c3d4d6a715ed9019e56837211e40972",
+          "decoded_rgba_exact": false,
+          "different_pixel_fraction": 0.05301115241635688,
+          "different_pixels": 8556,
+          "figure": 2,
+          "local_sha256": "49c8b1cf9ab2614e0654ed96b089bbb119dffc223d9057a107aeb9d332956b63",
+          "local_size": [
+            600,
+            269
+          ],
+          "reference_sha256": "838cf02e3e9acd4ec7a0a35c31f734d211942dd0e1204dcf9bc1bd4642edc9e2",
+          "reference_size": [
+            600,
+            269
+          ]
+        },
+        {
+          "baseline_sha256": "2dc2b93384b6268ef70998a616694a4d96fc1589bbe8b9306c044a94895e6a66",
+          "decoded_rgba_exact": false,
+          "different_pixel_fraction": 0.07592317224287484,
+          "different_pixels": 12254,
+          "figure": 3,
+          "local_sha256": "2dc2b93384b6268ef70998a616694a4d96fc1589bbe8b9306c044a94895e6a66",
+          "local_size": [
+            600,
+            269
+          ],
+          "reference_sha256": "5aa22ba543e2459d6e3d4480bb11890066faa0c68748050234ab4d887cdc5a59",
+          "reference_size": [
+            600,
+            269
+          ]
+        },
+        {
+          "baseline_sha256": "2a9ac27f416e25f5e6d7bc5eaba546e0f978f76374834ced5790bb1f9aa1cd99",
+          "decoded_rgba_exact": false,
+          "different_pixel_fraction": 0.06366171003717472,
+          "different_pixels": 10275,
+          "figure": 4,
+          "local_sha256": "2a9ac27f416e25f5e6d7bc5eaba546e0f978f76374834ced5790bb1f9aa1cd99",
+          "local_size": [
+            600,
+            269
+          ],
+          "reference_sha256": "2b31d7e5eb519777c44e0648b2e4342675d693c92885d54744ab0909a757b22e",
+          "reference_size": [
+            600,
+            269
+          ]
+        },
+        {
+          "baseline_sha256": "d8392d8eddb385cd70cbd8157408d69f288f11a69572d63fbd49504b89f4c7aa",
+          "decoded_rgba_exact": false,
+          "different_pixel_fraction": 0.05726146220570012,
+          "different_pixels": 9242,
+          "figure": 5,
+          "local_sha256": "d8392d8eddb385cd70cbd8157408d69f288f11a69572d63fbd49504b89f4c7aa",
+          "local_size": [
+            600,
+            269
+          ],
+          "reference_sha256": "c484438459ffd3e3c5693272c017692b42b490c8dce42e84575700d93a885404",
+          "reference_size": [
+            600,
+            269
+          ]
+        }
+      ],
+      "native_models": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_four_bestapprox_native_20261017/bestapprox.json",
+      "native_models_sha256": "168a6519197199f934b02ccf3c9b1ff48a52e7cf0ffd1458e1cf3e13706e444c",
+      "python_figures_sha256": "35968f26041bb61450bd6c9e0866c63eb1a47f1ade0d27a18f32faea612de8f2",
+      "python_models_sha256": "719cf2e35c95cb8e6d25607984f3519098d765ac9117af7bad60d2fe725907ca",
+      "rows": [
+        {
+          "curves": [
+            {
+              "compared_points": 1002,
+              "figure": 1,
+              "max_abs_y_difference": 3.2699537522162814e-15,
+              "native_points": 1004,
+              "python_points": 1004,
+              "same_input_x_after_nan_null_normalization": true
+            }
+          ],
+          "err_abs_difference": 8.708311849403572e-16,
+          "name": "polynomial",
+          "native_err": 0.01610568229275568,
+          "native_iter": 7,
+          "python_err": 0.01610568229275655,
+          "python_iter": 7,
+          "xk_count": 18,
+          "xk_max_abs_difference": 1.0035650088724424e-10
+        },
+        {
+          "curves": [
+            {
+              "compared_points": 131074,
+              "figure": 2,
+              "max_abs_y_difference": 8.859664846899706e-08,
+              "native_points": 131076,
+              "python_points": 131076,
+              "same_input_x_after_nan_null_normalization": true
+            }
+          ],
+          "err_abs_difference": 3.9652648016214737e-10,
+          "name": "r88",
+          "native_err": 0.0007929827581626887,
+          "native_iter": 3,
+          "python_err": 0.0007929831546891688,
+          "python_iter": 3,
+          "xk_count": 18,
+          "xk_max_abs_difference": 0.00016777805343598517
+        },
+        {
+          "curves": [
+            {
+              "compared_points": 3000,
+              "figure": 3,
+              "max_abs_y_difference": 7.640028030792695e-11,
+              "native_points": 3000,
+              "python_points": 3000,
+              "same_input_x_after_nan_null_normalization": true
+            },
+            {
+              "compared_points": 3000,
+              "figure": 4,
+              "max_abs_y_difference": 8.248545910975041e-11,
+              "native_points": 3000,
+              "python_points": 3000,
+              "same_input_x_after_nan_null_normalization": true
+            },
+            {
+              "compared_points": 3000,
+              "figure": 5,
+              "max_abs_y_difference": 8.253169426087476e-11,
+              "native_points": 3000,
+              "python_points": 3000,
+              "same_input_x_after_nan_null_normalization": true
+            }
+          ],
+          "err_abs_difference": 7.099683959222586e-11,
+          "name": "r16",
+          "native_err": 2.04102409860343e-05,
+          "native_iter": 4,
+          "python_err": 2.0410169989194707e-05,
+          "python_iter": 4,
+          "xk_count": 34,
+          "xk_max_abs_difference": 1.0862863652233434e-05
+        }
+      ],
+      "scope": "Observed retained values and reference raster differences. No tolerance or whole-page scientific/pixel parity is inferred."
+    },
+    "independent_root_primal_bridge": {
+      "entire_module_ast_equal_excluding_AD_helpers_and_docstrings": true,
+      "excluded_helpers": [
+        "_large_chebtech_feval_jvp",
+        "_large_chebtech_feval_raw",
+        "_large_chebtech_feval_raw_jvp"
+      ],
+      "final_source": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_20261017/src/chebfunjax/tech/chebtech.py",
+      "final_source_sha256": "48329b87786e36ece52f3df6ae45d96fccacdab8b8d4b750049177f2b0cf7be4",
+      "kind": "independent_root_primal_source_review",
+      "ndct_fast_bytes_equal": true,
+      "old_source_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_failed_gate001_snapshot_20261017/src/chebfunjax/tech/chebtech.py",
+      "old_source_sha256": "93dd231bd29cbde4aa7dfa872997ef9048087251c69d5b55ad1b5231258e0045",
+      "scope": "Forward computation only. Final23AD controls separately qualify changed differentiation. Main primal returns same ndct(x,coeffs); BestApprox arithmetic uses coefficient differentiation, without requesting this JVP.",
+      "small_branch_seeded_test_bridge": "Same source branch for <=1000queries; forward module AST equal. No AD requested by seeded assertions.",
+      "whole_run": "bestapprox_ndct_whole_20261017_run001"
+    },
+    "page_postprocessing": {
+      "figure_count": 5,
+      "generated_page_unchanged": true,
+      "generator_sha256": "d7c44d6095960e006ad3eaf3ff92880cf521cf3b8d5c199b4ecadfe0e09e39fb",
+      "generator_source": "scripts/gen_example_pages.py",
+      "stdout_file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_ndct_whole_gate_20261017/stdout/approx_best_approx.txt",
+      "stdout_sha256": "8189583b69523a553bb4177601a283bae2822e45b5c9dfc4f24f73147ce43a56",
+      "unmatched_output_blocks": 0,
+      "unmatched_tool_imports_correct_checkout": true
+    },
+    "publication_base": "7a8d3be22c7b9ff41ac60d7eb0b40f8135df10bd",
+    "remaining_acceptance": "Rational solver native differences, reference raster differences, API completeness, matched CPU benchmarks and latest-main CI/coverage remain open.",
+    "root_static_gate": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_ndct_root_static_20261017.json",
+      "sha256": "0cb8954ef4657c375ab8efecc2f250867b817d5294ba8595a83ad3122c77caaf"
+    }
+  },
+  "scope": "Forward Chebtech evaluation: original small test_feval predicates, new NDCT dispatch/AD controls, eight large same-input comparisons, and one BestApprox whole-example observation. This is not whole-library parity or all-page closure.",
+  "whole_example": {
+    "comparisons": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_ndct_whole_gate_20261017/comparison.json",
+      "sha256": "37c65b10e4876f5713c59bad6323d7ee1154c8bd8ba52d6085d4eb1d2ca24d49",
+      "source_native_models_sha256": "168a6519197199f934b02ccf3c9b1ff48e2a7cf0ffd1458e1cf3e13706e444c",
+      "summary": {
+        "polynomial_max_curve_y_abs": 3.2699537522162814e-15,
+        "r16_curve_y_abs": [
+          7.640028030792695e-11,
+          8.248545910975041e-11,
+          8.253169426087476e-11
+        ],
+        "r16_err_abs_difference": 7.099683959222586e-11,
+        "r88_err_abs_difference": 3.9652648016214737e-10,
+        "r88_max_curve_y_abs": 8.859664846899706e-08
+      }
+    },
+    "gate": {
+      "command_exit_code": 0,
+      "guard_sha256": "a8b76bf1e0de08621e9dc4a019b42522e3036c5007ec94f080c278d7f5a93ff5",
+      "head": "7a8d3be22c7b9ff41ac60d7eb0b40f8135df10bd",
+      "inputs_stable": true,
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_ndct_whole_gate_20261017",
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 4288660,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 151.9264365909621
+    },
+    "name": "BestApprox page / native BestApprox example",
+    "performance_note": "The parent-provided baseline/candidate wall comparison (~201s to ~152s) and R88 post-solver/pre-curve timing (~72.7s to ~17.79s) are descriptive observations, not a matched benchmark. They do not establish parity or a performance claim. The pixel and curve residuals above remain.",
+    "pixel_comparison": {
+      "all_sizes_match": [
+        600,
+        269
+      ],
+      "baseline_image_comparison_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_ndct_whole_gate_20261017/baseline_image_comparison.json",
+      "baseline_image_comparison_sha256": "85aa9b9d1cdb7fbeafe1b3ccea9121ac45aca942fd64eb048d3a7cc98b799c11",
+      "different_pixel_fractions": [
+        0.07285625774473359,
+        0.05301115241635688,
+        0.07592317224287484,
+        0.06366171003717472,
+        0.05726146220570012
+      ],
+      "five_reference_figures_nonexact": true,
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bestapprox_ndct_whole_gate_20261017/comparison.json"
+    },
+    "receipt": {
+      "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bestapprox_ndct_whole_20261017_run001/receipt.json",
+      "sha256": "ea21ab0d380916eb8f9a35e5808c24465fa6790300cb8b29c30fcb6abefc35b7"
+    },
+    "runtime_json_sha256": "7aeea40651f3f8c0e824586ca6dfd5987a1584f4f9e1b7970b7bcd4224ec7bb0"
+  }
+}
