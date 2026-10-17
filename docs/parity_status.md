@@ -1,3 +1,51 @@
+## Latest CPU integration and complete figure references — 2026-10-17
+
+The ThreeBody example now calls the public six/seven-output rational API,
+public plotregion, and numeric point-quiver adapter. The residue polynomial
+recurrence uses a fixed-shape JAX scan; 168 retained cases and 24,205 recurrence
+states match the prior implementation exactly, with 105 component regressions.
+Optimized CPU HLO removes the explicit barrier: this is evidence for the pinned
+CPU cases, not a universal compiler-rounding guarantee.
+
+The combined-source gate passes 135 tests with no skips or failures. All 1,421
+loaded runtime files were frozen before execution. The whole example exits
+successfully in 94.622 seconds, with all 1,290 runtime imports covered, stable
+inputs and no surviving owned processes. Its saved rational inputs, p/q,
+poles/residues and pole grouping are byte-identical to the prior Python
+observation. This is not MATLAB accuracy or matched performance parity. Four
+regenerated figures have the required 600 × 270 dimensions; all differ in
+pixels. The cached pole discrepancy, automatic axes, color cycle, subplot
+layout, fonts and raster parity remain open.
+
+GET now covers all 38 original predicates plus 45 existing value controls and
+one singleton control. The production correction preserves native per-column
+delta cells and collapses a singleton to its matrix. Broader GET API and type
+coverage remain open. Plotregion now draws source artists by default; optional
+`decorate=True` retains the earlier presentation. Complex Chebtech curves use
+the paired real/imaginary source plotting route. Numeric point quiver uses
+native scaling with readable compatibility heads; eight native metadata cases
+and 54 component tests qualify that scope. Native automatic limits and opaque
+renderer equivalence remain open.
+
+All 322 official HTML pages and 1,305 official reference PNGs are now archived;
+current HTML is byte-identical to the cached target. At source 43e5a5b7 all
+1,305 committed PNG dimensions match the reference, and none is decoded-pixel
+identical. The new four ThreeBody images have their own source-bound audit.
+Reference acquisition and matching dimensions do not verify figure content or
+computations. Latest-main CI and coverage acceptance remain required.
+
+Evidence: [combined CPU review](residue_render_joint_cpu_20261017.json),
+[GET](get_remaining_cpu_20261017.json),
+[residue scan](residue_poly_scan_cpu_20261017.json),
+[plotregion](plotregion_native_cpu_20261017.json),
+[point quiver](quiver_points_cpu_20261017.json),
+[complex plotting](complex_plot_cpu_20261017.json),
+[reference archive](official_example_figures_cpu_20261017.json),
+[dimensions](reference_figure_dimensions_cpu_20261017.json),
+[pixels](reference_figure_pixels_cpu_20261017.json).
+
+Earlier entries below retain their historical source and evidence scopes.
+
 ## Running parity checklist and complete source inventory — 2026-10-17
 
 Tracking now has a repository [completed/to-complete checklist](parity_checklist.md),

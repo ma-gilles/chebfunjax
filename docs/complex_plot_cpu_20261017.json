@@ -1,0 +1,20 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_plot_complete_cpu_20261017.zip",
+  "sha256": "c9692fddcad7da2f96a915e037f1c56edd74dfae8193061fa006c54a800a4e4c",
+  "verified_payloads": 8673,
+  "guard_edges": 31205,
+  "unique_full_byte_preimages": 8637,
+  "native_pinned_sources": 2,
+  "qualified_tests": 43,
+  "all_actual_imports_preguarded": 1413,
+  "guard_inputs": 15863,
+  "inputs_stable": true,
+  "survivors": [],
+  "source_sha256": "266473ddbeb89c651b394924d041f3f3ad0ca14e60452357451ad7ce0f03e9ba",
+  "test_sha256": "f93aff95a443b6791284d84b72ff66c55bcbfd1fa29e386d6abd19cc6831087d",
+  "limits": [
+    "Earlier43pass run lacked one stdlib preguard; not credited as full runtime gate. Final run preguards complete pinned stdlib.",
+    "No full native ticks/auto-axis renderer or pixel parity claim.",
+    "Historical failed plotregion runtime paths absent during preparation were excluded; no closure claim for them."
+  ]
+}

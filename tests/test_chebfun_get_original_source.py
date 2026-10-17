@@ -5,6 +5,8 @@ explicit: level0 outer row of column-cells; level1 rectangular [piece][column];
 ragged level1/2 outer row of column-cells. Quasimatrix is the existing public
 structural adapter to source classarrays. Its columns come from actual public
 column extraction, following cheb2quasi.m; no ONEFUN data are supplied.
+This file retains literal original predicates31 and35-38, including their
+native delta matrix norm and Gamma/exponent operands.
 """
 import jax.numpy as jnp
 import numpy as np
@@ -52,7 +54,7 @@ def source_objects():
     return fs1, fs2, fa1, fa2, fq1, fq2, fq3
 
 
-@pytest.mark.parametrize('native_id', list(range(1, 31)))
+@pytest.mark.parametrize('native_id', list(range(1, 32)))
 def test_original_get_predicate(source_objects, native_id):
     fs1, fs2, fa1, fa2, fq1, fq2, fq3 = source_objects
     objects = source_objects
@@ -93,7 +95,7 @@ def test_original_get_predicate(source_objects, native_id):
             assert _matrix_cell(c) == (2, 1)
             assert _column_cell(c[0][0]) == (1, 1)
             assert _column_cell(c[1][0]) == (2, 1)
-    else:
+    elif native_id in (29, 30):
         x = cj.chebfun(lambda t: t)
         if native_id == 29:
             fd = fs1 + x.dirac()
@@ -105,6 +107,30 @@ def test_original_get_predicate(source_objects, native_id):
         assert c.shape == want.shape
         # Literal native matrix infinity norm (row sums), original5eps.
         assert float(jnp.max(jnp.sum(jnp.abs(c-want), axis=1))) < 5*jnp.finfo(jnp.float64).eps
+    else:
+        # Native source: fd3 = [fd1 fd2]; use the public quasimatrix adapter.
+        x = cj.chebfun(lambda t: t)
+        fd1 = fs1 + x.dirac()
+        fd2 = fs2 + (x-.5).dirac() + (x+.5).dirac()
+        fd3 = Quasimatrix([fd1, fd2], Domain((-1., 0., 1.)))
+        c = get(fd3, 'deltas')
+        wants = (jnp.asarray([[0.], [1.]]),
+                 jnp.asarray([[-.5, .5], [1., 1.]]))
+        assert isinstance(c, list) and len(c) == 2
+        for actual, want in zip(c, wants):
+            assert actual.shape == want.shape
+            # Literal native matrix infinity norm (row sums), original5eps.
+            assert float(jnp.max(jnp.sum(jnp.abs(actual-want), axis=1))) < 5*jnp.finfo(jnp.float64).eps
+
+
+def test_quasimatrix_single_delta_column_collapses_like_native_get():
+    x = cj.chebfun(lambda t: t)
+    fd = cj.chebfun(jnp.sin, domain=(-1., 1.)) + x.dirac()
+    one_column = Quasimatrix([fd], Domain((-1., 1.)))
+    actual = get(one_column, 'deltas')
+    want = jnp.asarray([[0.], [1.]])
+    assert hasattr(actual, 'shape') and actual.shape == want.shape
+    assert float(jnp.max(jnp.sum(jnp.abs(actual-want), axis=1))) < 5*jnp.finfo(jnp.float64).eps
 
 
 @pytest.fixture(scope='module')
@@ -124,3 +150,45 @@ def test_original_get_scalar_exponents(fse1, native_id):
         c = get(fse1, 'exponents', 0)
         assert _outer_cells(c) == (1, 1)
         assert _column_cell(c[0]) == (1, 1)
+
+
+@pytest.fixture(scope='module')
+def gamma_exponent_objects(fse1):
+    from jax.scipy.special import gamma
+
+    fse2 = cj.chebfun(gamma, domain=(-2., -1., 0., 2.),
+                      exps=(-1., -1., -1., -1., -1., 0.))
+    fqe1 = Quasimatrix([fse2, fse2], Domain((-2., 2.)))
+    fqe2 = Quasimatrix([fse1, fse2], Domain((-2., 2.)))
+    return fse2, fqe1, fqe2
+
+
+@pytest.mark.parametrize('native_id', [35, 36, 37, 38])
+def test_original_get_gamma_exponent_cells(gamma_exponent_objects, native_id):
+    fse2, fqe1, fqe2 = gamma_exponent_objects
+    want = (jnp.asarray([[-1., -1.]]),
+            jnp.asarray([[-1., -1.]]),
+            jnp.asarray([[-1., 0.]]))
+
+    if native_id == 35:
+        actual = get(fse2, 'exponents')
+        assert actual.shape == (3, 2)
+        np.testing.assert_array_equal(actual, jnp.concatenate(want, axis=0))
+    elif native_id == 36:
+        actual = get(fse2, 'exponents', 1)
+        assert _matrix_cell(actual) == (3, 1)
+        for row, expected in zip(actual, want):
+            np.testing.assert_array_equal(row[0], expected)
+    elif native_id == 37:
+        actual = get(fqe1, 'exponents')
+        assert _matrix_cell(actual) == (3, 2)
+        for row, expected in zip(actual, want):
+            np.testing.assert_array_equal(row[0], expected)
+            np.testing.assert_array_equal(row[1], expected)
+    else:
+        actual = get(fqe2, 'exponents')
+        assert isinstance(actual, list) and len(actual) == 2
+        assert [len(column) for column in actual] == [1, 3]
+        np.testing.assert_array_equal(actual[0][0], jnp.asarray([[-1., 0.]]))
+        for leaf, expected in zip(actual[1], want):
+            np.testing.assert_array_equal(leaf, expected)

@@ -252,3 +252,38 @@ def test_complex_point_values_route_plot_but_do_not_replace_curve_data(fmt):
             _close_data(my[finite], np.zeros(finite.sum()))
     finally:
         plt.close(fig)
+
+
+def test_supported_complex_curve_uses_parametric_source_limits_and_markers():
+    """Complex Chebtech rendering shares the real/imag plotData contract."""
+    # f(t) = t + i*t**2 on [-1, 1], represented directly in Chebyshev form.
+    f = _cf([0.5j, 1.0, 0.5j])
+    fig_complex, ax_complex = matlab_plot(f, "-o", lw=2)
+    fig_pair, ax_pair = matlab_plot(f.real(), f.imag(), "-o", lw=2)
+    try:
+        for ax in (ax_complex, ax_pair):
+            lines = _line_artists(ax)
+            markers = _marker_artists(ax)
+            assert len(lines) == len(markers) == 1
+            x, y = map(np.asarray, lines[0].get_data())
+            finite = np.isfinite(x) & np.isfinite(y)
+            _close_data(x[finite] ** 2, y[finite])
+            assert lines[0].get_linewidth() == 2
+            assert not ax.get_autoscalex_on()
+            assert ax.get_autoscaley_on()
+            np.testing.assert_allclose(ax.get_xlim(), (-1.0, 1.0),
+                                       rtol=0.0, atol=128*np.finfo(float).eps)
+
+        cx, cy = map(np.asarray, _line_artists(ax_complex)[0].get_data())
+        px, py = map(np.asarray, _line_artists(ax_pair)[0].get_data())
+        np.testing.assert_array_equal(cx, px)
+        np.testing.assert_array_equal(cy, py)
+        cmx, cmy = map(np.asarray, _marker_artists(ax_complex)[0].get_data())
+        pmx, pmy = map(np.asarray, _marker_artists(ax_pair)[0].get_data())
+        np.testing.assert_array_equal(cmx, pmx)
+        np.testing.assert_array_equal(cmy, pmy)
+        np.testing.assert_allclose(ax_complex.get_ylim(), ax_pair.get_ylim(),
+                                   rtol=0.0, atol=0.0)
+    finally:
+        plt.close(fig_complex)
+        plt.close(fig_pair)

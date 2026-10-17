@@ -1,0 +1,127 @@
+{
+  "base_commit": "43e5a5b7bf3e1daa7bf9b83034789dec247f58c4",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/residue_render_joint_complete_cpu_20261017.zip",
+  "archive_sha256": "cf6f8d0af0ab5f08dd78840e7a912b04de94feb2da1103a645054d5da3996f61",
+  "verified_payloads": 9186,
+  "guard_edges": 18518,
+  "unique_input_preimages": 9120,
+  "source_hashes": {
+    "src/chebfunjax/utils/_residue_source.py": "301ad7a22e85a8b68a8bf8b56cfc877f9885e81c5f0ecb7a220d1dc2389141fa",
+    "src/chebfunjax/chebfun1d/chebfun.py": "254f0ab1ff36ad6229028ba2b7103417a746b86d12d4a411c6fa3da5df7d90a7",
+    "src/chebfunjax/plotting.py": "cd0271ca403ae842738bb5eec2d823e2bd9a839f2fd509871fa901ffbe1083e1",
+    "src/chebfunjax/__init__.py": "1c6dd2b976c7d5bab9a8e905a2a0b4ce54095502c8a42363373047eaf5f63742",
+    "src/chebfunjax/_quiver_points.py": "155debab0b61c666349c27e2fe3fffb459455b4f48184242c5c420f8f6543318",
+    "examples/ode-nonlin/three_body_problem.py": "8be9d1399b6d2c50a8ff48ec5a0a9cb56d2a7a8a7403017343fa1af87d348867"
+  },
+  "runs": {
+    "whole": {
+      "supervisor_output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_render_whole_20261017_run001",
+      "wall_seconds": 94.62243575416505,
+      "sampled_peak_summed_rss_kib": 3810196,
+      "actual_runtime_imports_all_preguarded": 1290,
+      "guard_inputs": 9259,
+      "inputs_stable": true,
+      "exit_code": 0,
+      "survivors": []
+    },
+    "integration": {
+      "supervisor_output": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_render_integration_20261017_run001",
+      "wall_seconds": 33.691547269932926,
+      "sampled_peak_summed_rss_kib": 1770040,
+      "actual_runtime_imports_all_preguarded": 1421,
+      "guard_inputs": 9259,
+      "inputs_stable": true,
+      "exit_code": 0,
+      "survivors": [],
+      "tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "135",
+        "time": "28.287",
+        "timestamp": "2026-10-17T10:55:12.550786-04:00",
+        "hostname": "della-mol.princeton.edu"
+      }
+    }
+  },
+  "prior_observation_numerical_byte_bridges": {
+    "rational_calls.json": "96c4c32c8b454b4511ce441b8a277f197abe8d9a01e082f12112d2c117a332d2",
+    "mpoles_input.json": "f586a51da1ab7cf0de8deb3feb023bc49e9d509f57e79ecebb570e4b393f7efb",
+    "mpoles_output.json": "3986e87da2498b7318aeefefb59db61149fb2154696af88db034d2d5407b3d50"
+  },
+  "rational_output_counts": [
+    6,
+    7
+  ],
+  "degrees": [
+    [
+      151,
+      8
+    ],
+    [
+      157,
+      156
+    ]
+  ],
+  "all_poles_and_residues_finite": true,
+  "point_quiver_calls": 5,
+  "figure_audits": [
+    {
+      "name": "ThreeBodyProblem_01.png",
+      "sha256": "a56ed04b3c945c9e54a8404f16e41bc64e978b2e33037017acd19fd86a51c8a3",
+      "reference_sha256": "3393367f8b4b0fb24c5b51127084bbba8af22a55a1c7f62e972588ad6cf15866",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.12990740740740742,
+      "mean_absolute_channel_difference": 7.584702160493827
+    },
+    {
+      "name": "ThreeBodyProblem_02.png",
+      "sha256": "39c429ebc32c7131837566661a95b07610f3b09b298fcac4723b2616e38962db",
+      "reference_sha256": "0eaa0beac904a7e965dfc357bdbfced1896ab8b3bcf0a9b433ddb01c7010b074",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.07467901234567902,
+      "mean_absolute_channel_difference": 4.966308641975309
+    },
+    {
+      "name": "ThreeBodyProblem_03.png",
+      "sha256": "902eba4f9110fb0ccded61a0c7d4d2826627ec9a6a0c55bd6362481aa29f654f",
+      "reference_sha256": "2b8041306a5689e44dd827343ccd0c437f96bd713f2b1e5bc3529d59a5304ff3",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.25949382716049385,
+      "mean_absolute_channel_difference": 22.134432098765433
+    },
+    {
+      "name": "ThreeBodyProblem_04.png",
+      "sha256": "9f82087a1066ef49c85c7bc55d23b24db4e829c0006f6667c8920b98608270e9",
+      "reference_sha256": "4a23f113f7cdeffc037d86b9cd02cbf90e2f8a6b3466bd5e96f62c703dd38dc0",
+      "dimensions": [
+        600,
+        270
+      ],
+      "decoded_rgba_equal": false,
+      "different_pixel_fraction": 0.06338271604938271,
+      "mean_absolute_channel_difference": 4.222496913580247
+    }
+  ],
+  "limits": [
+    "Numerical byte equality to the prior Python observation is not full MATLAB accuracy parity; the prior cached pole discrepancy remains open.",
+    "Whole-script timing is a descriptive combined-source CPU observation, not a matched MATLAB or isolated optimization speed claim.",
+    "All four figure dimensions match; decoded pixels differ. Color-cycle, automatic-axis, subplot layout, fonts and renderer parity remain open.",
+    "The 135-test integration is scoped to GET, plotregion, complex-plot controls and numeric-point quiver; component packets cover other regression selections.",
+    "Component caveats, including optimized HLO barrier removal and the malformed delivered quiver patch repaired by exact-file composition, remain in the archived parent reviews.",
+    "Latest-main CI and repository-wide parity remain required."
+  ]
+}

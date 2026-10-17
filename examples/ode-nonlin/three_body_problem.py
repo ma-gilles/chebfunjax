@@ -24,10 +24,9 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-import chebfunjax as cj
 from chebfunjax import ratinterp
 from chebfunjax.chebfun1d.chebfun import ode113
-from chebfunjax.plotting import chebfun_style, matlab_plot
+from chebfunjax.plotting import chebfun_style, matlab_plot, plotregion
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 
 chebfun_style()
@@ -40,9 +39,9 @@ FIG = [0]
 def _save(fig):
     FIG[0] += 1
     fig.set_facecolor("white")
-    fig.tight_layout()
     _savefig(fig, os.path.join(
-        _IMG, f"ThreeBodyProblem_{FIG[0]:02d}.png"))
+        _IMG, f"ThreeBodyProblem_{FIG[0]:02d}.png"),
+        layout="matlab" if len(fig.axes) == 1 else None)
     plt.close(fig)
 
 
@@ -52,35 +51,11 @@ def _at(u, t, cols):
 
 
 def _quiver(ax, z, w, scale):
-    """quiver(real(z), imag(z), real(w), imag(w), scale, 'k', 'linewidth', 2)."""
-    ax.quiver(z.real, z.imag, scale * w.real, scale * w.imag, color="k",
-              angles="xy", scale_units="xy", scale=1, width=0.006)
-    # MATLAB's axis limits include the arrows
-    tips = z + scale * w
-    x0, x1 = ax.get_xlim()
-    y0, y1 = ax.get_ylim()
-    ax.set_xlim(min(x0, tips.real.min()), max(x1, tips.real.max()))
-    ax.set_ylim(min(y0, tips.imag.min()), max(y1, tips.imag.max()))
+    """Native numeric fitting and readable compatibility open arrowheads."""
+    from chebfunjax import quiver_points
 
-
-def _plotregion(ax, f):
-    """plotregion(f): the Bernstein ellipse of Chebfun's plotregion.m,
-    rho = exp(|log(eps)| / length(simplify(f))), with the domain drawn
-    as a black '+-' line.
-
-    chebfunjax.plotting.plotregion estimates rho from the coefficient
-    tail instead, which gives a much thinner ellipse."""
-    f = f.simplify()
-    a, b = (float(v) for v in f.domain.support)
-    rho = np.exp(abs(np.log(np.finfo(float).eps)) / len(f))
-    c = np.exp(2j * np.pi * np.linspace(0, 1, 101))
-    ek = .5 * (a + b) + .5 * (b - a) * .5 * (rho * c + 1 / (rho * c))
-    ax.plot(ek.real, ek.imag)
-    ax.plot([a, b], [0, 0], "k+-")
-    A, B = rho + 1 / rho, rho - 1 / rho
-    ax.set_xlim(.5 * (a + b) - .5 * (b - a) * 1.1 * A,
-                .5 * (a + b) + .5 * (b - a) * 1.1 * A)
-    ax.set_ylim(-.5 * (b - a) * 1.1 * B, .5 * (b - a) * 1.1 * B)
+    return quiver_points(z.real, z.imag, w.real, w.imag, ax=ax,
+                         autoscale_factor=scale, color="k", linewidth=2)
 
 
 def _cplx(z):
@@ -89,18 +64,11 @@ def _cplx(z):
     return f"{z.real:19.15f} {sign} {abs(z.imag):.15f}i"
 
 
-def _ratinterp(v, m, n, tol, dom):
-    """[p,q,rh,mu,nu,poles] = ratinterp(v, m, n, [], [], tol).
-
-    Our ratinterp returns the numerator/denominator coefficients; p and q
-    are the chebfuns they define.  poles = roots(q, 'all') as in
-    Chebfun's ratinterp.m (our ratinterp's own pole list drops the
-    imaginary part of a complex denominator's coefficients)."""
-    rh, a, b, mu, nu = ratinterp(v, m, n, None, None, tol, domain=dom)[:5]
-    p = cj.chebfun(jnp.asarray(a), domain=dom, coeffs=True)
-    q = cj.chebfun(jnp.asarray(b), domain=dom, coeffs=True)
-    poles = np.asarray(q.roots(all_roots=True))
-    return p, q, rh, mu, nu, poles
+def _ratinterp(v, m, n, tol, dom, outputs):
+    """Call ratinterp with the same explicit output count as MATLAB."""
+    return ratinterp(
+        v, m, n, None, None, tol, domain=dom, outputs=outputs
+    )
 
 
 def run():
@@ -143,7 +111,7 @@ def run():
     print("v =")
     print(repr(v))
 
-    p, q, rh, mu, nu, poles = _ratinterp(v, 151, 150, 1e-12, dom)
+    p, q, rh, mu, nu, poles = _ratinterp(v, 151, 150, 1e-12, dom, 6)
     print("mu =")
     print(f"{mu:6d}")
     print("nu =")
@@ -169,7 +137,7 @@ def run():
     ax.plot(zp.real, zp.imag, "ok", markersize=5, markerfacecolor="none")
     ax.set_aspect("equal")
     ax.grid(True)
-    _plotregion(ax, v)
+    plotregion(v, ax=ax)
     ax.set_title("Poles, Zeros of Rational Interpolant and Bernstein "
                  "Ellipse For v")
     ax.plot([0, 4 * np.pi], [np.finfo(float).eps] * 2, "-r")
@@ -191,7 +159,9 @@ def run():
         ax.set_title(f"Configuration At t={c[j]:d}pi/3")
     _save(fig)
 
-    p, q, rh, mu, nu, poles = _ratinterp(v, 157, 156, 0.0, dom)
+    p, q, rh, mu, nu, poles, res = _ratinterp(
+        v, 157, 156, 0.0, dom, 7
+    )
     fig, ax = plt.subplots()
     ax.plot([0, 4 * np.pi], [np.finfo(float).eps] * 2, "-r")
     zq = np.asarray(q.roots(complex_roots=True))
@@ -201,7 +171,7 @@ def run():
     ax.plot(zp.real, zp.imag, "ok", markersize=5, markerfacecolor="none")
     ax.set_aspect("equal")
     ax.grid(True)
-    _plotregion(ax, v)
+    plotregion(v, ax=ax)
     ax.set_title("Without Robustness")
     _save(fig)
 

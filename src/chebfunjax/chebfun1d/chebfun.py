@@ -10173,6 +10173,12 @@ def get(f, prop: str, simplevel: int = 2):
     if isinstance(f, Chebfun):
         return f.get(prop, simplevel)
     cols = list(f)
+    if prop == "deltas":
+        # @chebfun/get.m returns one merged numeric matrix per quasimatrix
+        # column inside a 1-by-n cell array. Python lists represent those
+        # outer cells; each Chebfun owns its already-merged delta rows.
+        merged = [column.get("deltas", simplevel) for column in cols]
+        return merged[0] if len(merged) == 1 else merged
     transposed = bool(getattr(cols[0], "is_transposed", False))
     out0 = []
     for c in cols:

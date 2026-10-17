@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated2026-10-17. **Active, incomplete; CPU only.** Main45c04b29; reference7574c77.
+Updated2026-10-17. **Active, incomplete; CPU only.** Integration source base43e5a5b7; reference7574c77.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -28,6 +28,9 @@ Checked items certify only their stated scope.
 
 ## Current pending package
 
+- [x] Qualify combined GET/plotregion/complex plotting/point-quiver package:135integration checks pass, all1421actualimports preguarded; wholeThreeBody completes with unchanged retained numerical bytes.
+- [x] Review residue scan exact-case bridge and105regressions; optimizedHLO barrier limitation explicit.
+- [ ] Resolve remaining native automatic-axis/color-cycle/subplot/renderer differences; latest-main CI still required.
 - [x] Qualify affine polynomial conversion optimization; identical retained coefficient bytes,105 component regressions and43 root integration checks pass.
 - [x] Complete root import/evidence review and publish optimization5bbf557c; observed2.77x shared-host polynomial pair is not final performance parity.
 - [x] Qualify/publish selective 3D per-file CI process lifecycle controls5bbf557c;6 protocol checks and exact workflow bridge pass.
@@ -40,10 +43,12 @@ Checked items certify only their stated scope.
 - [x] Finish24 additional interp1 controls, archive/review, integrate and publish5105d431; root48repeatpass26.607s.
 - [x] GET candidate qualification:120distinct controls/33original predicates. Rational output candidate:57distinct controls/all23original clauses; rational parent archive review passes.
 - [x] Complete GET source/archive review and fresh combined interp1/GET/rational integration; publish5105d431. Root48/78/57allpass; fullstatic/remote/clean/bundleverified.
-- [ ] GET remaining originals31/35–38, broader cell/type behavior and empty/API cases.
+- [x] Restore and qualify GET originals31/35–38; all38original predicates plus45value controls and1singleton control pass. [Evidence](get_remaining_cpu_20261017.json).
+- [ ] Broader GET cell/type behavior and empty/API cases.
 - [x] Publish pdeset factory/native metadata qualification and recursive 3D selector fixes f3285a81; combined20 checks pass.
 - [ ] Integrate pdeset with PDE solver consumers; spincomp remains unimplemented.
-- [ ] Run actual ThreeBody adapter alone after library publication; verify outputs/figures against available native evidence.
+- [x] Run combined ThreeBody adapter alone: exit0/94.622s,1290imports preguarded, finite6/7output poles/residues,4figures600×270; saved numerical artifacts byte-identical to prior Python observation. [Evidence](residue_render_joint_cpu_20261017.json).
+- [ ] Close ThreeBody MATLAB accuracy/stdout/figure-content and raster differences.
 
 
 - [x] Review/archive/publish all44literal compose predicates +6scalarcolumn controls and source-supported resampling/error/shape corrections (main66bb7dea). Root8integration repeats pass; fullpublicpref/API scope remains open.
@@ -71,7 +76,7 @@ Checked items certify only their stated scope.
 - [x] Publish CI local-classification AD-skip and numericBC wording correction601f9da2:15unchangedtests pass,8148archivepayloads verified, fullstatic/cleanremote/bundleverified. Older3d-e runner shutdown tracked separately.
 - [x] Publish naturalUS backend4d4c2259:15componentnodes including unchangedliteralUS/C1/C2 originals, rootlatestUS1pass41.351s;173payloads/33pinnednativesources/422590guardedges independentlyreviewed. BroaderbackendAPIs open.
 - [x] Publish numeric-result recursion4d4c2259:194distinctcontrols, rootlatest72pass15.955s andmetadata6pass19.167s;8108payloads/129952guardedges reviewed. No cell/GET-value/nativeconstructorbit closure.
-- [ ] Remaining GET original31/35–38 plus broader cells/types/empty/family behavior; scoped metadata/localvalues are published5105d431.
+- [ ] Broader GET cells/types/empty/family behavior; all38 original predicates are now covered, without whole-API closure.
 - [x] Publish rational explicit six/seven output source semantics and arbitrary-node symmetry5105d431; unchanged original23 clauses covered.
 - [ ] High-degree complex fitting/poles/residue accuracy and actualThreeBody scientific parity.
 - [ ] C2 factor eligibility and newly retained positive-order manufactured Newton convergence failure (unpublished diagnostic; native behavior not yet compared, not a confirmed parity bug).
@@ -86,6 +91,8 @@ Checked items certify only their stated scope.
 
 ## Pages, output and figures
 
+- [x] Cache/archive all322officialHTML and1305referencePNGs; HTML matches cached target. [Receipt](official_example_figures_cpu_20261017.json).
+- [x] Audit all1305committed figure dimensions at43e5a5b7: allmatch. All1305decoded pixels differ; no content/parity credit. New4ThreeBody images separately audited.
 - [ ] Qualify all322actual computations/stdout and all12handoff example scripts on final affected source.
 - [ ] Complete current Tricky/Krylov execution and native scientific/representation parity.
 - [ ] DDE exactDDESDmesh/stdout and figure17clipping; no unprovedepsilon fix.

@@ -1,0 +1,32 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/residue_poly_scan_complete_cpu_20261017.zip",
+  "sha256": "ae5a131d505ea2acb01b5b6951133dac0c29d79bdff1abb7c2292c24f98219e0",
+  "verified_payloads": 9137,
+  "artifact_payloads": 877,
+  "guard_edges": 17469,
+  "unique_full_byte_preimages": 8600,
+  "exact_byte_cases": 168,
+  "exact_diagnostic_recurrence_states": 24205,
+  "source_sha256": "301ad7a22e85a8b68a8bf8b56cfc877f9885e81c5f0ecb7a220d1dc2389141fa",
+  "component_base": "45c04b294107ee1b4b5155650b39fa760a63af70",
+  "baseline_source_matches_git": true,
+  "regressions": {
+    "passed": 105,
+    "seconds": 108.32,
+    "selection": "Same 8 unchanged polynomial/residue/ratinterp files as the affine package",
+    "stdout": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/residue_poly_scan_tests_v1_20261017_run001/stdout"
+  },
+  "all_actual_imports_preguarded": [
+    1243,
+    1443
+  ],
+  "compiler_scope": "StableHLO contains optimization_barrier; optimized CPU HLO removes barrier and groups multiply/subtract into loop fusion. Exact-byte bridge qualifies pinned JAX/JAXlib0.11 CPU x64 arithmetic for these cases, not universal prevention of backend fusion/FMA. Both HLO forms retained.",
+  "limits": [
+    "No native high-degree residue parity claim.",
+    "No full ThreeBody or all 322 page qualification of this candidate.",
+    "Other numerical residue algorithms, grouping thresholds and plotting remain unchanged.",
+    "No broader dtype/platform or differentiation/batching contract claimed.",
+    "No separate synchronized baseline/candidate timing was recorded. Bridge duration includes both implementations, trace capture, comparisons and I/O; it is not a speed measurement.",
+    "State comparisons use instrumented trace scan; actual production scan final bytes are separately compared. No universal compiler equivalence asserted."
+  ]
+}

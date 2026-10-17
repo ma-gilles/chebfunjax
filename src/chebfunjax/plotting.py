@@ -3820,18 +3820,22 @@ def spy(
 def plotregion(
     f,
     ax=None,
-    title: str = "Region of analyticity",
-    color: str = CHEBFUN_BLUE,
+    title: str | None = None,
+    color=None,
     n_pts: int = 101,
     *,
     eps: float | None = None,
+    decorate: bool = False,
     **kw,
 ):
-    """Plot the Bernstein ellipse region for a bounded smooth Chebfun.
+    """Plot the estimated regions of analyticity for a Chebfun.
 
-    For Chebtech1/2 pieces, the radius follows MATLAB Chebfun's
+    Bounded scalar Chebtech1/2 pieces use the native ellipse radius
     ``exp(abs(log(userEps))/length(u))`` after simplifying each piece.
-    ``eps=None`` uses binary64 machine epsilon. The public default is 101 points, matching MATLAB ``plotregion``.
+    Scalar Trigtech pieces use the native horizontal strip and dotted period
+    edges. The default draws the source artists only: boundaries, auxiliary
+    lines, the black ``'+-'`` domain line, and source limits. It leaves the
+    caller's axes decoration and layout alone.
 
     Parameters
     ----------
@@ -3839,12 +3843,20 @@ def plotregion(
         Scalar-valued Chebfun on a finite domain.
     ax : optional
         Matplotlib axes.
-    title, color : str
-        Axes title and ellipse color.
+    title : str, optional
+        Explicitly set the axes title. The default leaves it unchanged.
+    color : matplotlib color, optional
+        Explicit ellipse color. By default Matplotlib's current axes color
+        cycle is used, as in the native ``plot`` call.
     n_pts : int
         Number of points used to draw each ellipse (default 101).
     eps : float or None
         User tolerance used in the Bernstein-ellipse radius.
+    decorate : bool
+        Opt in to the previous Python styling: blue boundaries when no color
+        is supplied, translucent fill, a gray real-axis line, equal aspect,
+        title and axis labels, white figure background, and tight layout.
+        Defaults to ``False`` for native rendering behavior.
 
     Returns
     -------
@@ -3852,16 +3864,16 @@ def plotregion(
 
     Notes
     -----
-    This source-shaped branch covers bounded scalar Chebtech1/2 pieces only.
-    Scalar bounded Trigtech pieces use the source horizontal strip and
-    dotted period edges. Singfun, unbounded and array-valued inputs remain
-    outside this adapter. Omitting eps
-    preserves the legacy heuristic for those unsupported representations.
+    For bounded scalar Chebtech1/2 and Trigtech inputs, the default boundary
+    and domain-breakpoint artists follow the pinned sources. Other
+    representations retain a legacy coefficient-tail ellipse fallback when
+    ``eps`` is omitted; piece selection and other representation-specific
+    behavior are not part of this source-parity claim.
 
     Provenance
     ----------
-    MATLAB sources: ``@chebtech/plotregionData.m``, ``@trigtech/plotregionData.m``,
-    ``@classicfun/plotregionData.m``, ``@chebfun/plotregion.m``.
+    MATLAB sources: ``@chebfun/plotregion.m``, ``@chebtech/plotregionData.m``,
+    ``@trigtech/plotregionData.m``, ``@classicfun/plotregionData.m``.
     Chebfun commit: 7574c77.
     """
     from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
@@ -3876,10 +3888,32 @@ def plotregion(
     else:
         fig = ax.get_figure()
 
+    # The old Python presentation remains available only by explicit opt-in.
+    line_color = CHEBFUN_BLUE if decorate and color is None else color
+    line_kw = dict(kw)
+    if line_color is not None:
+        line_kw["color"] = line_color
+
+    def finish():
+        if decorate:
+            ax.axhline(0, color="gray", linewidth=0.5, alpha=0.5)
+            ax.set_aspect("equal")
+            _apply_style(
+                ax,
+                title="Region of analyticity" if title is None else title,
+                xlabel="Re(z)",
+                ylabel="Im(z)",
+            )
+            fig.set_facecolor("white")
+            fig.tight_layout()
+        elif title is not None:
+            ax.set_title(title)
+        return fig, ax
+
     pieces = getattr(f, "funs", ())
     if not pieces:
         ax.plot([])
-        return fig, ax
+        return finish()
     from chebfunjax.tech.trigtech import Trigtech
 
     if all(isinstance(piece.tech, Trigtech) for piece in pieces):
@@ -3903,8 +3937,24 @@ def plotregion(
             y = height * jnp.asarray([1., 1., jnp.nan, -1., -1.])
             aux_x = jnp.asarray([-1., -1., jnp.nan, 1., 1.])
             aux_y = height * jnp.asarray([1., -1., jnp.nan, 1., -1.])
-            ax.plot(np.asarray(midpoint + halfwidth * x), np.asarray(halfwidth * y), color=color, **kw)
-            ax.plot(np.asarray(midpoint + halfwidth * aux_x), np.asarray(halfwidth * aux_y), ':', color=color)
+            boundary_line, = ax.plot(
+                np.asarray(midpoint + halfwidth * x),
+                np.asarray(halfwidth * y),
+                **line_kw,
+            )
+            ax.plot(
+                np.asarray(midpoint + halfwidth * aux_x),
+                np.asarray(halfwidth * aux_y),
+                ":",
+                color=boundary_line.get_color(),
+            )
+            if decorate:
+                ax.fill_between(
+                    np.asarray(midpoint + halfwidth * x),
+                    np.asarray(halfwidth * y),
+                    alpha=0.08,
+                    color=boundary_line.get_color(),
+                )
             xlimits.extend([midpoint - 1.1 * halfwidth, midpoint + 1.1 * halfwidth])
             ylimits.extend([-1.1 * halfwidth * height, 1.1 * halfwidth * height])
         ends = np.asarray(f.domain.breakpoints)
@@ -3913,8 +3963,7 @@ def plotregion(
         # Constants have N=0 and an infinite strip in source data. Do not
         # substitute an arbitrary finite strip; Matplotlib rejects its limits.
         ax.set_ylim(float(min(ylimits)), float(max(ylimits)))
-        fig.set_facecolor("white")
-        return fig, ax
+        return finish()
     source_supported = bool(pieces) and all(
         isinstance(piece.tech, (Chebtech1, Chebtech2))
         and piece.tech.coeffs.ndim == 1
@@ -3932,7 +3981,9 @@ def plotregion(
         x_lims = []
         y_lims = []
         for piece in smooth.funs:
-            n = int(piece.tech.n)
+            # @classicfun/plotregionData delegates to chebtech/plotregionData,
+            # which simplifies the tech again after the outer fun simplify.
+            n = int(piece.tech.simplify().n)
             if n <= 0:
                 continue
             rho = jnp.exp(jnp.abs(jnp.log(eps_value)) / n)
@@ -3947,14 +3998,20 @@ def plotregion(
             x_lims.append(jnp.asarray([midpoint - halfwidth * major, midpoint + halfwidth * major]))
             y_lims.append(jnp.asarray([-halfwidth * minor, halfwidth * minor]))
         if not x_parts:
-            ax.plot([], color=color, linewidth=1.8, **kw)
+            ax.plot([], **line_kw)
         else:
             # Conversion is confined to Matplotlib's rendering boundary.
             for x_part, y_part in zip(x_parts, y_parts):
                 x_host = np.asarray(x_part)
                 y_host = np.asarray(y_part)
-                ax.plot(x_host, y_host, color=color, linewidth=1.8, **kw)
-                ax.fill_between(x_host, y_host, alpha=0.08, color=color)
+                boundary_line, = ax.plot(x_host, y_host, **line_kw)
+                if decorate:
+                    ax.fill_between(
+                        x_host,
+                        y_host,
+                        alpha=0.08,
+                        color=boundary_line.get_color(),
+                    )
             xlim = jnp.stack(x_lims)
             ylim = jnp.stack(y_lims)
             ax.set_xlim(float(jnp.min(xlim)), float(jnp.max(xlim)))
@@ -3984,15 +4041,19 @@ def plotregion(
         b = float(f.domain.b)
         x_host = 0.5 * (b - a) * np.real(boundary) + 0.5 * (a + b)
         y_host = np.imag(boundary)
-        ax.plot(x_host, y_host, color=color, linewidth=1.8, **kw)
-        ax.fill_between(x_host, y_host, alpha=0.08, color=color)
+        boundary_line, = ax.plot(x_host, y_host, **line_kw)
+        if decorate:
+            ax.fill_between(
+                x_host,
+                y_host,
+                alpha=0.08,
+                color=boundary_line.get_color(),
+            )
 
-    ax.axhline(0, color="gray", linewidth=0.5, alpha=0.5)
-    ax.set_aspect("equal")
-    _apply_style(ax, title=title, xlabel="Re(z)", ylabel="Im(z)")
-    fig.set_facecolor("white")
-    fig.tight_layout()
-    return fig, ax
+    # @chebfun/plotregion draws u.domain against zero after all region lines.
+    domain = np.asarray(f.domain.breakpoints)
+    ax.plot(domain, np.zeros_like(domain), "k+-")
+    return finish()
 
 
 # ---------------------------------------------------------------------------
@@ -5093,6 +5154,26 @@ def matlab_plot(*args, ax=None, numpts: int = 2001, interval=None,
                 object_is_complex = any(not f.isreal() for f in cols)
                 for f in cols:
                     was_complex = object_is_complex
+                    paired_data = (
+                        _source_parametric_plot_data(f.real(), f.imag())
+                        if was_complex and interval is None else None
+                    )
+                    if paired_data is not None:
+                        line_x, line_y, point_x, point_y, limits = paired_data
+                        if _marker_requested(fmt, kw):
+                            _source_plot_line_and_points(
+                                ax, line_x, line_y, point_x, point_y, fmt, kw
+                            )
+                        else:
+                            _plot_curve(ax, line_x, line_y, fmt, kw)
+                        _draw_jumplines(ax, f, jumpline, kw)
+                        _draw_deltas(ax, f, deltaline, kw)
+                        saw_plain = True
+                        agg_x = [min(agg_x[0], limits[0][0]),
+                                 max(agg_x[1], limits[0][1])]
+                        agg_y = [min(agg_y[0], limits[1][0]),
+                                 max(agg_y[1], limits[1][1])]
+                        continue
                     pieces = _sample_pieces(f, numpts, interval, _source_grid=True)
                     if pieces:
                         xs, ys = _join_plot_pieces(pieces)
@@ -6007,3 +6088,7 @@ def matlab_axis_equal(ax):
         ax.set_ylim(center-span/2, center+span/2)
         ax.set_autoscaley_on(True)
     return ax
+
+
+# Numeric sampled-point adapter, sharing the source quiver helpers above.
+from chebfunjax._quiver_points import quiver_points as quiver_points

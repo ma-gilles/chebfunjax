@@ -1,0 +1,63 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/quiver_points_complete_cpu_20261017.zip",
+  "sha256": "e16a477a8a4825ffc83fd24ef61786c62b2c674eac9941c7ff9b6a777b535138",
+  "verified_payloads": 12122,
+  "logical_artifact_paths": 54,
+  "guard_edges": 29706,
+  "unique_full_byte_preimages": 12070,
+  "source_hashes": {
+    "src/chebfunjax/__init__.py": "1c6dd2b976c7d5bab9a8e905a2a0b4ce54095502c8a42363373047eaf5f63742",
+    "src/chebfunjax/plotting.py": "4b066c55bc49f6f5f8c88b5415229f915574bb057e4e81369572acdc91ddad5f",
+    "src/chebfunjax/_quiver_points.py": "2fe71ea553bca7b562338bd56a06183c46305f75e9c4c90044561f52b8a6bf18",
+    "tests/test_matlab_port/chebfun2v/test_quiver_points.py": "23c2ba1b2150a697efd1ceca6d74d29caf73d6b31e7b6da99500074c1054f950",
+    "tests/fixtures/quiver_points_preflush_2025b/case1.json": "efd58b9e94f1269509543a85f325f4230a8dbdd6b2bab32d643e2cef79f936b1",
+    "tests/fixtures/quiver_points_preflush_2025b/case2.json": "db62b9188627d70bb75d5c5778e55876abd570bb4112d18044b2834fc63bf759",
+    "tests/fixtures/quiver_points_preflush_2025b/case3.json": "efcd6f94e48c5288703953e4160882dccef198d8bc84807e9b70f0873578371d",
+    "tests/fixtures/quiver_points_preflush_2025b/case4.json": "23e87f9de8650e3ca43eb53bb350564d19b4661fc85de48cfc57301d398ce0d4",
+    "tests/fixtures/quiver_points_preflush_2025b/case5.json": "60fa6f315dff6032edbea6072014d67a3f2d809bd19d5215462f4eea754874e4",
+    "tests/fixtures/quiver_points_preflush_2025b/case6.json": "ee824ad5d5ed0ff72b9a78d8f99cb050f8c2ce3aa4753ad50d22dc48cb6c2160",
+    "tests/fixtures/quiver_points_preflush_2025b/case7.json": "37ddc56964cb57dfc1d04060693d748b6592c5c5c613022fbefd5786058e3a2f",
+    "tests/fixtures/quiver_points_preflush_2025b/case8.json": "89938b8abcc806121f1e9e3a954e9468ebcc8a3fa9dda39dd66cdbff82173d0d"
+  },
+  "qualified_gates": [
+    "quiver_points_native_20261017",
+    "quiver_points_tests_v3_20261017"
+  ],
+  "receipts": [
+    {
+      "label": "quiver_points_native_20261017",
+      "exit": 0,
+      "peak_rss_kib": 1502732
+    },
+    {
+      "label": "quiver_points_tests_v2_20261017",
+      "exit": 1,
+      "peak_rss_kib": 1388880
+    },
+    {
+      "label": "quiver_points_tests_v3_20261017",
+      "exit": 0,
+      "peak_rss_kib": 1388112
+    }
+  ],
+  "native_pinned_wrapper_sources": 2,
+  "native_fixture_files_byte_identical": 8,
+  "native_three_body_scale": 0.36285147965836784,
+  "tests": {
+    "passed": 54,
+    "seconds": 24.78,
+    "supervision": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/quiver_points_tests_v3_20261017_run001",
+    "actual_runtime_files": 1391,
+    "unpreguarded": {},
+    "geometry_bound": "4eps absolute, rtol0, equal_nan for literal readable compatibility zero-vector behavior",
+    "scale_bound": "one ULP native ScaleFactor"
+  },
+  "limits": [
+    "MATLAB automatic axes limits not implemented: Matplotlib autoscale_view policy retained; manual limits and aspect preserved",
+    "Readable compatibility line geometry only; opaque R2025b renderer and pixels unqualified",
+    "Whole ThreeBody/ODE not run in this package",
+    "Existing manual upstream plotting limits can clip arrowheads; adapter intentionally does not widen them",
+    "Native licensed preferences/temp/cache excluded; full licensed runtime identity not claimed"
+  ],
+  "review_note": "New public function lacks required own Provenance heading in component; parent will add docstring-only provenance and prove executable AST identity before integration."
+}

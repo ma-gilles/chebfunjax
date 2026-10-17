@@ -38,11 +38,17 @@ to the specific function/assertion/page dimension before any status changes.
 
 The [completed/to-complete checklist](parity_checklist.md) is the running human
 work list. This inventory supplies the denominator and per-item evidence slots.
-Historical scoped evidence is attached to the interpolation, GET and rational
-tests and the ThreeBody page; it does not promote full-item qualification.
-The ThreeBody observation explicitly records numerical differences and one
-missing pre-run standard-library guard entry. Other historical evidence still
-needs reconciliation into these rows; this is a baseline, not a finished audit.
+Scoped GET evidence for original predicates 31 and 35–38 is attached to the
+native `@chebfun/get.m` and `tests/chebfun/test_get.m` rows. It comes from an
+isolated candidate based on `43e5a5b7`, and does not qualify the complete GET
+function, test file or public API.
+The earlier ThreeBody observation records numerical differences and one
+missing pre-run standard-library guard entry. A newer combined-source run
+completed with all 1,290 actual imports preguarded; its numerical artifacts
+match the earlier Python observation exactly, leaving the MATLAB discrepancy
+open. See [combined review](residue_render_joint_cpu_20261017.json).
+Other historical evidence still needs reconciliation into these rows; this
+is an evidence ledger, not a finished parity audit.
 
 
 See the [repository parity status](parity_status.md), the
@@ -57,9 +63,19 @@ are not universal library, test, or page evidence, so all corresponding
 inventory statuses remain unverified until reviewed at the relevant
 source/function/assertion level.
 
-Page output dimensions are independent: prose, computation, stdout, figure
-content, figure size, and performance each require their own evidence. Cached
-HTML structure or port presence does not qualify those dimensions.
+Per-page rows now link the official reference archive plus all 1,305 PNG
+dimension and decoded-pixel observations across 322 pages. All 1,305 local PNG
+dimensions match their recorded references; decoded RGBA comparisons are exact
+for 0 and differ for 1,305. These are observations, not page qualification:
+all prose, computation, stdout, figure content, figure size, and performance
+statuses remain `unverified`. The reference binding and image measurements do
+not establish computation or raster parity.
+
+The evidence register in `parity_inventory.json` records artifact paths,
+SHA-256 values, source commits and scope limitations, including the current
+ThreeBody image observation. The original global dimension/pixel artifacts
+remain linked to their historical 43e5a5b7 image binding. Cached HTML structure or
+port presence does not qualify those dimensions.
 
 ## Regeneration
 

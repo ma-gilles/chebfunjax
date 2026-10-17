@@ -1,0 +1,107 @@
+{
+  "attempt_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_attempt_results_v3.tar.gz",
+  "attempt_archive_sha256": "52681fb6b4721b0f1df8cdfee05c17e2f7c2af4a2562f85566d17fb52ac314d5",
+  "verified_attempt_payloads": 33,
+  "cas_dependencies": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_gate_preimage_cas_20261017.tar.gz",
+      "sha256": "0b59166574336c28165d6ff9806974e046e79ebe33b4c13268723d61c448d63b",
+      "objects": 8081,
+      "required_unique_input_preimages": 8081,
+      "extra_verified_historical_objects": 0
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_gate_preimage_cas_20261017_v2.tar.gz",
+      "sha256": "8cc7dc7e847fa990f10bfc33410f293cec6c49c70b94136291f36d649fa05473",
+      "objects": 8086,
+      "required_unique_input_preimages": 8082,
+      "extra_verified_historical_objects": 4
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_gate_preimage_cas_20261017_v3.tar.gz",
+      "sha256": "e314476e3ed8a62af286dce7946b4ff79f5ce68114c64f098549f19411ec1a90",
+      "objects": 8100,
+      "required_unique_input_preimages": 8100,
+      "extra_verified_historical_objects": 0
+    }
+  ],
+  "verified_cas_objects_across_archives": 24267,
+  "unique_full_byte_preimages_across_archives": 8105,
+  "verified_guard_edges": 25194,
+  "native_pinned_sources": 4,
+  "current_qualified": {
+    "actual_imports": 1382,
+    "focused_files": [
+      "tests/test_plotregion_native_rendering.py",
+      "tests/test_plotregion_source_controls.py",
+      "tests/test_trig_plotregion_source.py"
+    ],
+    "inputs_stable": true,
+    "remaining_owned_pids": 0,
+    "runtime_guard_changed": 0,
+    "runtime_guard_missing": 0,
+    "sampled_peak_summed_rss_kib": 948280,
+    "static_gate": "passed",
+    "supervisor_wall_seconds": 15.6693,
+    "tests": "16 passed",
+    "v3_cas_unique_bytes": 310285553,
+    "v3_cas_unique_objects": 8100,
+    "v3_guard_inputs": 8493
+  },
+  "candidate_artifacts": {
+    "candidate_plotregion": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/src/chebfunjax/plotting.py",
+      "sha256": "cd9e9e7d30c7007b1464d9db09a3b4103ab0659427a9837ca1aca3c77b27b9bc",
+      "size": 225286
+    },
+    "candidate_three_body_adapter": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/examples/ode-nonlin/three_body_problem.py",
+      "sha256": "42edf7b21fc2ea6749b2deee1b051bc8d456932e8219f2632f3eb9bd941cd43c",
+      "size": 6000
+    },
+    "focused_tests": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/tests/test_plotregion_native_rendering.py",
+      "sha256": "080c2bf10c513aa61052883564245be8ed1e752da582609ac400c0dadd0cb4ac",
+      "size": 5994
+    },
+    "native_source_review": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/PLOTREGION_SOURCE_REVIEW.json",
+      "sha256": "5090f49f7344bda2761fd760c50cbb2eafdaa60c77f24d76122e364f5e0e8706",
+      "size": 4155
+    },
+    "v3_attempt_bundle": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_attempt_results_v3.tar.gz",
+      "sha256": "52681fb6b4721b0f1df8cdfee05c17e2f7c2af4a2562f85566d17fb52ac314d5",
+      "size": 4665829
+    },
+    "v3_cas": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_gate_preimage_cas_20261017_v3.tar.gz",
+      "sha256": "e314476e3ed8a62af286dce7946b4ff79f5ce68114c64f098549f19411ec1a90",
+      "size": 159039363
+    },
+    "v3_guard": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_gate_guard_v3.json",
+      "sha256": "cf2f91c1a216c648b2246aee23db4a1c6ebb8bfac1affcb4bcf31af2a8c09e96",
+      "size": 1697451
+    },
+    "v3_payload_manifest": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_attempt_results_v3/PAYLOAD_MANIFEST.json",
+      "sha256": "9226fbbafba32cf796b3624a119c63af01e586e85a3b127d733ec87610d0e388",
+      "size": 5358
+    },
+    "v3_static_gate": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/plotregion_native_20261017/plotregion_static_gate_v3.json",
+      "sha256": "8582c61f064f5ea0099a0dfc564d44bbe881d72ac360915b14f3f49283e018ef",
+      "size": 378
+    }
+  },
+  "only_plotting_function_ast_changed": "plotregion",
+  "limitations": [
+    "The first failed gate runtime import manifest was overwritten before preservation; its exact test stdout and supervisor artifacts remain archived. V2 actual imports are preserved; V3 is the qualified complete-runtime run.",
+    "No MATLAB native rendering or whole ThreeBody execution.",
+    "Official reference PNG inspection indicates broader axes/quiver/raster differences outside this focused rendering change.",
+    "V2 candidate test gate passed 16 tests but lacked two imported Agg preimages; V3 fixes this qualification gap.",
+    "Earlier prelaunch environment mismatch has summary only; no scientific credit.",
+    "No full native plotregion input grammar, unsupported-family behavior, or actual pixel/whole-page parity claim."
+  ]
+}

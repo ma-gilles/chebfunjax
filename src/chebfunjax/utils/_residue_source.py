@@ -7,6 +7,7 @@ separate from the MIT Chebfun wrapper @chebfun/residue.m (7574c77).
 
 import math
 
+import jax
 import jax.numpy as jnp
 
 
@@ -15,11 +16,26 @@ def _trim(c):
     return c[int(indices[0]) :] if indices.size else c
 
 
+def _poly_step(c, item):
+    index, root = item
+    # The source recurrence multiplies before subtracting. Keep their
+    # rounding boundary when compiling the fixed-shape scan.
+    product, old_tail = jax.lax.optimization_barrier((root * c[:-1], c[1:]))
+    difference = old_tail - product
+    tail = jnp.where(jnp.arange(c.size - 1) <= index, difference, old_tail)
+    return jnp.concatenate((c[:1], tail)), None
+
+
+@jax.jit
+def _poly_finite(roots):
+    c = jnp.zeros(roots.size + 1, dtype=jnp.result_type(roots, 1.0)).at[0].set(1)
+    c, _ = jax.lax.scan(_poly_step, c, (jnp.arange(roots.size), roots))
+    return c
+
+
 def _poly(roots):
     roots = roots[jnp.isfinite(roots)]
-    c = jnp.zeros(roots.size + 1, dtype=jnp.result_type(roots, 1.0)).at[0].set(1)
-    for index in range(roots.size):
-        c = c.at[1 : index + 2].set(c[1 : index + 2] - roots[index] * c[: index + 1])
+    c = _poly_finite(roots)
     if jnp.iscomplexobj(roots):
         positive = roots[jnp.imag(roots) > 0]
         negative = jnp.conj(roots[jnp.imag(roots) < 0])

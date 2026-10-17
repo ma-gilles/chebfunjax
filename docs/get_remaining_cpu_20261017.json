@@ -1,0 +1,26 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun_get_delivery_seal_v2_20261017/chebfun_get_delivery_20261017.tar.zst",
+  "sha256": "5c2950910a1dc0a58e5b444bb90aca08a506012cc1d5e04ee48af89bafbb17a8",
+  "verified_payloads": 19285,
+  "base_commit": "43e5a5b7bf3e1daa7bf9b83034789dec247f58c4",
+  "qualified_tests": 84,
+  "original_predicates": 38,
+  "authored_existing_values_controls": 45,
+  "additional_singleton_control": 1,
+  "runtime_imports": 1408,
+  "all_runtime_imports_preguarded": true,
+  "guard_inputs": 8228,
+  "unique_full_byte_preimages": 8012,
+  "native_pinned_sources": 2,
+  "native_reference_scope": "Pinned source snapshots archived independently; they are not executed inputs of the final Python gate and are not in its pre-run guard.",
+  "inputs_stable": true,
+  "survivors": [],
+  "peak_rss_kib": 1592264,
+  "source_sha256": "254f0ab1ff36ad6229028ba2b7103417a746b86d12d4a411c6fa3da5df7d90a7",
+  "test_sha256": "0cbfa66a5152498cb338acaf04a4ddb09d4e1644f2f55dffc4e0b11651a36b02",
+  "limitations": [
+    "Legacy gates1/3/4 imported historical home source; gate2 failed plugin setup, all zero credit. No claim of full pre-run closure for those wrong-source attempts.",
+    "Correct-source v3 passed but had8 unpreguarded imports; v4 supersedes it.",
+    "Original38 predicate coverage does not establish complete GET API/family/type/invalid grammar or full library parity."
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
+  "sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
+  "verified_payloads": 1631,
+  "reference_html_pages": 322,
+  "all_current_html_matches_cached_target_bytes": true,
+  "reference_pngs": 1305,
+  "failed": 0,
+  "asset_bytes": 33886458,
+  "retrieved_utc": "2026-10-17T14:17:58.958194+00:00",
+  "figure_dimensions_counts": {
+    "(500, 400)": 11,
+    "(510, 388)": 1,
+    "(520, 180)": 6,
+    "(598, 273)": 20,
+    "(600, 253)": 66,
+    "(600, 268)": 36,
+    "(600, 269)": 59,
+    "(600, 270)": 1051,
+    "(600, 400)": 1,
+    "(600, 420)": 9,
+    "(600, 450)": 1,
+    "(600, 480)": 5,
+    "(608, 271)": 5,
+    "(610, 276)": 26,
+    "(612, 279)": 6,
+    "(680, 680)": 2
+  },
+  "reference_manifest": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017/MANIFEST.json",
+  "reference_manifest_sha256": "a055168bb75ee3e0f6d56e94b6c3d3a9c8dc5dffbd6121465020b1cf0b0e851b",
+  "scope": "Direct currently served official HTML and PNG assets, recorded response headers and bytes. Hash matches bind current HTML to cached target; no historical asset timestamp claim beyond response headers. Reference acquisition alone is not computation or raster parity.",
+  "limitations": [
+    "Reference acquisition and source binding do not verify JAX computations, printed output, figure content or raster parity.",
+    "Current PNG bytes are recorded with response headers; asset historical timestamp not claimed."
+  ]
+}
