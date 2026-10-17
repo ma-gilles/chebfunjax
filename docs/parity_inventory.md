@@ -183,3 +183,8 @@ Both complex-fit diagnostic scopes attach to native root-level `ratinterp.m`.
 Earlier attachment code incorrectly looked for `@chebfun/ratinterp.m`; that
 nonexistent target attached no row. The evidence register was present and is
 now linked to the actual source row; full-item status remains unverified.
+
+[Subspace empty/rank-zero evidence](subspace_empty_rank0_cpu_20261017.json)
+records native-matched values/errors and preserves the unrelated moving-HEAD
+guard failure. Exact tested function/source bridges carry the scoped Python
+gates; broader API and near-rank quantitative fidelity remain open.

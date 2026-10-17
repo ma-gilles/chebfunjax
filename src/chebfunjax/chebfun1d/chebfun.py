@@ -13299,6 +13299,12 @@ def subspace(
 
     def operand_columns(value):
         if isinstance(value, Chebfun):
+            # Native subspace() accepts an empty Chebfun through its initial
+            # domainCheck.  Keep it distinct from a zero-column Quasimatrix:
+            # the former is an empty Chebfun object, while the latter is not
+            # part of @chebfun/subspace.m's input grammar.
+            if value.isempty():
+                return []
             return list(value.mat2cell())
         if isinstance(value, Quasimatrix):
             return list(value.cols)
@@ -13307,6 +13313,21 @@ def subspace(
         raise TypeError("Both A and B must be Chebfun or quasimatrix operands.")
 
     acols, bcols = operand_columns(A), operand_columns(B)
+    a_empty = isinstance(A, Chebfun) and A.isempty()
+    b_empty = isinstance(B, Chebfun) and B.isempty()
+    if a_empty or b_empty:
+        if a_empty != b_empty:
+            raise ValueError(
+                "CHEBFUN:CHEBFUN:subspace:domain: Domain mismatch."
+            )
+        # With two empty Chebfuns, MATLAB passes domainCheck and reaches the
+        # empty QR/SVD path, which raises this built-in spdiags size error.
+        raise ValueError(
+            "MATLAB:spdiags:InvalidSizeBFourInput: For the syntax "
+            "spdiags(B,d,m,n), B must be a matrix of size min(m,n)-by-length(d), "
+            "a row vector of length length(d), a column vector of length "
+            "min(m,n), or a scalar."
+        )
     a_was_row = (bool(getattr(A, "is_transposed", False)) or
                  (isinstance(A, (list, tuple)) and bool(acols) and
                   all(c.is_transposed for c in acols)))
@@ -13461,6 +13482,18 @@ def subspace(
 
     qA, qB = orth(acols, array_input=a_array), orth(bcols, array_input=b_array)
     pA, pB = len(qA), len(qB)
+    if pA == 0 or pB == 0:
+        if pA == 0 and pB == 0:
+            # The native zero Chebfun has an empty orthogonal basis; the
+            # captured self-subspace result is exactly zero.
+            return jnp.asarray(0.0, dtype=jnp.float64)
+        # The pinned native scalar-zero/nonzero case fails during its overlap
+        # path, before a rank-based angle can be formed.  Preserve that source
+        # failure instead of leaking an empty-stack/JAX error here.
+        raise ValueError(
+            "CHEBFUN:CHEBFUN:overlap:domains: Inconsistent domains; "
+            "domain(f) ~= domain(g)."
+        )
     C = jnp.stack([jnp.stack([a.inner(b) for b in qB]) for a in qA])
     singular = jnp.linalg.svd(C, compute_uv=False)
     cos_theta = jnp.min(singular)

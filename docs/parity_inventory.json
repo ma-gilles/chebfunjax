@@ -230,6 +230,11 @@
       "sha256": "4863087e1ad61f2521afb10e25815f6ba2ced9f715163f93201f3a1681d6b0bd",
       "source_base": "99f2bdb4af175a2b39c5dd76c7bf20924839bbea"
     },
+    "subspace_empty_rank0_cpu_20261017": {
+      "path": "docs/subspace_empty_rank0_cpu_20261017.json",
+      "scope": "Source-backed empty/rankzero behavior and four rankdeficient orderings; original16/final9 gates; native broad guard failure explicitly reconciled, no clean native supervisor claim",
+      "sha256": "b48c26688d1d6869a9747c0158351c626214e25577f0069f8c7fcef2aba9dfd1"
+    },
     "subspace_unbnd_inner_cpu_20261017": {
       "path": "docs/subspace_unbnd_inner_cpu_20261017.json",
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
@@ -54744,6 +54749,10 @@
         {
           "artifact": "subspace_unbnd_inner_cpu_20261017",
           "scope": "Source-bound originals and stated authored controls only; full-item status unverified"
+        },
+        {
+          "artifact": "subspace_empty_rank0_cpu_20261017",
+          "scope": "Empty and rankzero clauses only, broader API/near-rank quantitative fidelity still open"
         }
       ],
       "functions": [

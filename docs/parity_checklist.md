@@ -27,13 +27,15 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Subspace empty/rank-zero handling and four rank-deficient orderings: final nine controls pass; earlier16-node gate includes original predicates. Native values/errors source-bound, with unrelated moving-main HEAD guard failure preserved and reconciled. [Evidence](subspace_empty_rank0_cpu_20261017.json).
+
 - [x] Localize retained complex-fit assembly difference: native/JAX matched product and mirroring are bit-identical; same-input normalized IFFT differs1.11e-16. Independent native public call proves capture neutrality. [Diagnosis](ratinterp_preifft_cpu_20261017.json); correctness remains open.
 
 - [x] Genuine first-kind Chebfun2 callable preference/grid/refinement/factor path; three original technology predicates pass. Restore all seven no-dots predicates, including exact inner-dimension marker and meaningful operator adapters. Joint15 focused nodes pass. [Evidence](c1_nodots_cpu_20261017.json).
 - [ ] Full Chebfun2 C1 algebra/preference grammar and source sample-test order, broader raw division/power/string grammar and global JAX conversion; latest-main CI/coverage.
 
 - [x] JAX subspace QR/SVD, complex inner products and spectral residual norm; six original predicates and affected API/fallback controls pass. Unbounded inner product conjugates its first operand; three originals and two complex controls pass. Joint19 nodes pass, plus final domain-check selector. [Evidence](subspace_unbnd_inner_cpu_20261017.json).
-- [ ] Remaining subspace rank-zero/orientation/noncollatable API cases and near-rank quantitative fidelity; broader unbounded input grammar.
+- [ ] Remaining subspace orientation/noncollatable API cases and near-rank quantitative fidelity; broader unbounded input grammar.
 
 - [x] Pair all ten original sphere optimization predicates; four Python nodes include two bounded even-polynomial controls. Same maximum antipode in both captures, no code/tolerance change. [Evidence](sphere_extrema_tie_cpu_20261017.json). Historical unspecified operand remains unqualified.
 - [ ] Resolve transform-sensitive PDE, Hermite and complex-rational paths; [source-bound diagnosis](numerical_parity_gaps_20261017.md) records what is known and which evidence is missing.

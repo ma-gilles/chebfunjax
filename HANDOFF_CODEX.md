@@ -1,3 +1,14 @@
+# Latest subspace empty/rank-zero scope — 2026-10-17
+
+Subspace now matches captured empty/rank-zero outcomes and preserves four
+rank-deficient column/argument orderings. Final nine focused controls pass;
+the earlier16-node gate includes the original subspace predicates. Native
+command returned0 but its broad guard failed because moving main was guarded;
+actual native input/source hashes remain equal. This is a reconciled source-bound
+observation, not a clean native supervisor pass. Tested function/test bytes are
+retained with an explicit current-source bridge. Broader API and near-rank
+quantitative fidelity remain open. See docs/subspace_empty_rank0_cpu_20261017.json.
+
 # Latest first-kind Chebfun2 and string-operator scope — 2026-10-17
 
 Genuine first-kind grids, transforms, factors and native tripling/pivot nesting

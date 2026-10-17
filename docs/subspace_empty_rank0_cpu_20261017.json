@@ -1,0 +1,305 @@
+{
+  "candidate_base": "7feb97de1219b62c23cdf9f6296daef60b628be1",
+  "candidate_source_test_sha256": {
+    "src/chebfunjax/chebfun1d/chebfun.py": "409a4b7fd17c95ce2002c55b61cb341514ad240910589b44a57eba26e3f1c4cd",
+    "tests/test_matlab_port/chebfun/test_subspace_empty_rank0.py": "e484995bc1d2dd130a940ff18d6b10294366351d490f91c90a96aef25cc3faa5",
+    "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py": "b5000470590cdb46eed36e67405e48bdf203b01f0514bb598040acaad09ba776"
+  },
+  "candidate_worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/W",
+  "native_capture": {
+    "command_exit_code": 0,
+    "driver_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/native/capture_empty_rank0.m",
+    "driver_sha256": "7ababa6975b321060573d83d63210a6df36e1417937035e699bbb305aeebab18",
+    "guard_error": "RuntimeError('HEAD guard mismatch')",
+    "inputs_stable": false,
+    "qualification_note": "MATLAB returned exit 0 and output was captured. Supervisor did not report a clean guard pass because the guarded publication checkout HEAD moved during execution from 7feb97de to fcfa2b66; the pinned native library HEAD and driver hashes match, and every preguarded MATLAB source hash was rechecked unchanged. Do not count this as a clean supervisor pass.",
+    "remaining_owned_pids": [],
+    "result_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/native/result.json",
+    "result_sha256": "42cb94b1b3b1e6ec140282d9b7a5428a7ff82329ba962426295261bfa2e9292a",
+    "sampled_peak_summed_rss_kib": 1318968,
+    "supervision_receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/native/supervision/receipt.json",
+    "supervision_receipt_sha256": "5b6f2c14266639ab2a8679003d47dfbcc34782b40bb8024d26641ee0fbb41e03",
+    "supervisor_exit_code": 1,
+    "wall_seconds": 77.29797969572246
+  },
+  "native_cases": [
+    {
+      "class": "double",
+      "name": "subspace_zero_zero",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 0
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:overlap:domains",
+      "message": "Inconsistent domains; domain(f) ~= domain(g).",
+      "name": "subspace_zero_nonzero",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:overlap:domains",
+      "message": "Inconsistent domains; domain(f) ~= domain(g).",
+      "name": "subspace_nonzero_zero",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:overlap:domains",
+      "message": "Inconsistent domains; domain(f) ~= domain(g).",
+      "name": "subspace_zero_scaled_nonzero",
+      "ok": false
+    },
+    {
+      "class": "chebfun",
+      "name": "orth_zero",
+      "ok": true,
+      "size": [
+        null,
+        0
+      ]
+    },
+    {
+      "class": "double",
+      "name": "svd_zero_econ",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 0
+    },
+    {
+      "identifier": "MATLAB:spdiags:InvalidSizeBFourInput",
+      "message": "For the syntax spdiags(B,d,m,n), B must be a matrix of size min(m,n)-by-length(d), a row vector of length length(d), a column vector of length min(m,n), or a scalar.",
+      "name": "subspace_empty_empty",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:subspace:domain",
+      "message": "Domain mismatch.",
+      "name": "subspace_empty_nonzero",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:subspace:domain",
+      "message": "Domain mismatch.",
+      "name": "subspace_nonzero_empty",
+      "ok": false
+    },
+    {
+      "identifier": "MATLAB:spdiags:InvalidSizeBFourInput",
+      "message": "For the syntax spdiags(B,d,m,n), B must be a matrix of size min(m,n)-by-length(d), a row vector of length length(d), a column vector of length min(m,n), or a scalar.",
+      "name": "subspace_empty_numeric_empty",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:subspace:domain",
+      "message": "Domain mismatch.",
+      "name": "subspace_empty_numeric_nonzero",
+      "ok": false
+    },
+    {
+      "class": "chebfun",
+      "name": "construct_numeric_zero_columns",
+      "ok": true,
+      "size": [
+        null,
+        0
+      ]
+    },
+    {
+      "identifier": "MATLAB:spdiags:InvalidSizeBFourInput",
+      "message": "For the syntax spdiags(B,d,m,n), B must be a matrix of size min(m,n)-by-length(d), a row vector of length length(d), a column vector of length min(m,n), or a scalar.",
+      "name": "subspace_numeric_zero_columns_self",
+      "ok": false
+    },
+    {
+      "identifier": "CHEBFUN:CHEBFUN:subspace:domain",
+      "message": "Domain mismatch.",
+      "name": "subspace_numeric_zero_columns_nonzero",
+      "ok": false
+    },
+    {
+      "class": "double",
+      "name": "subspace_zero_then_f_vs_f",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 1.975656351854947e-16
+    },
+    {
+      "class": "double",
+      "name": "subspace_f_then_zero_vs_f",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 1.8129866073473578e-16
+    },
+    {
+      "class": "double",
+      "name": "subspace_f_vs_zero_then_f",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 1.975656351854947e-16
+    },
+    {
+      "class": "double",
+      "name": "subspace_f_vs_f_then_zero",
+      "ok": true,
+      "size": [
+        1,
+        1
+      ],
+      "value": 1.8129866073473578e-16
+    }
+  ],
+  "native_cases_note": "The four zero-column rank-deficient subspace outcomes are now directly checked in the follow-up Python gate.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source_sha256": {
+    "@chebfun/domainCheck.m": "3968cfab0943793e9db2c29f2386e52a0390f050802193e2a12481951039bf76",
+    "@chebfun/innerProduct.m": "be4aafb4d702aec2bcfbcf20937513a235aad8f4e5acc23e42cfe316ca2b8208",
+    "@chebfun/orth.m": "050c09bcc2585c54dd6a2f9bce01c192b3844208be81d8f05d176ef39afc3038",
+    "@chebfun/overlap.m": "00695e32d302473400235bb29ad0b2ffbe685d1429ea4cd6a4b9cec7da8baec8",
+    "@chebfun/qr.m": "d8af502750ee08f67dae776d753ed90dc238d3bea3fb38a92683a3f17c38f2dc",
+    "@chebfun/subspace.m": "89b675f704411fe7830377b19f5d57976a378c43aa928f5bb766c08f77437882",
+    "@chebfun/svd.m": "2286d82765f275dcb77eb15f035d8b43954bc78d601066bc746d59c539719048"
+  },
+  "prior_guard_attempt": {
+    "note": "A first launch before the successful follow-up failed pre-execution because the copied launcher still referenced the first gate directory; supervisor reported an input-hash guard mismatch. No Python test process ran. The corrected launcher and successful receipt are in python_gate_rank/.",
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_rank/supervision"
+  },
+  "python_gate": {
+    "command_exit_code": 0,
+    "guard_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate/guard.json",
+    "guard_sha256": "6fc1194fdc9339183c64d5e980c8705bec53c096212194f1cb757904d31e0cf6",
+    "inputs_stable": true,
+    "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate/supervision/receipt.json",
+    "receipt_sha256": "1783e0c6a8bf92dddc6f4972e6e0b905a3a49d13096a805f8241a81fa562b3ad",
+    "result": "Initial combined gate: 16 passed (8 new focused cases and 8 existing original-breaks/source controls), 1 existing Singfun warning. The focused empty/rank-zero module was subsequently extended with the zero-column rank-deficient control and rerun as 9 tests; all 9 passed.",
+    "runner_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate/runner.py",
+    "runtime": {
+      "backend": "cpu",
+      "import_origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/W/src/chebfunjax/__init__.py",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "x64": true
+    },
+    "sampled_peak_summed_rss_kib": 2778348,
+    "selectors": [
+      "tests/test_matlab_port/chebfun/test_subspace_empty_rank0.py",
+      "tests/test_matlab_port/chebfun/test_subspace_original_breaks.py"
+    ],
+    "stdout_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate/supervision/stdout",
+    "stdout_sha256": "b3b8635aa0fb3df81b363dab746ad0ac5e3eb13560773ef5eb95f05c6d8bcc1a",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 112.85171757405624
+  },
+  "python_gate_final": {
+    "command_exit_code": 0,
+    "guard_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_final/guard.json",
+    "guard_sha256": "8d2bc2409585acba464b17f78c2334d20631003753ca7251081dac64aff469fb",
+    "inputs_stable": true,
+    "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_final/supervision/receipt.json",
+    "receipt_sha256": "063cec8c5739aa3e4c77f77882b24bfbf5f6ccf6db8e8a4369c4b0ca3f08a5b0",
+    "result": "9 passed; current test bytes and production source passed.",
+    "runner_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_final/runner.py",
+    "runtime": {
+      "backend": "cpu",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "x64": true
+    },
+    "sampled_peak_summed_rss_kib": 847940,
+    "selector": "tests/test_matlab_port/chebfun/test_subspace_empty_rank0.py",
+    "stdout_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_final/supervision/stdout",
+    "stdout_sha256": "1f96a2034fad1eae405f0a5d8f3fec446170a19bbb786976aedf6aa6405b9ff0",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 9.925113040022552
+  },
+  "python_gate_followup": {
+    "command_exit_code": 0,
+    "guard_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_rank/guard.json",
+    "guard_sha256": "01693c54652cbb824cff2406258a29649244ede007d6e8e11bfe7a4d95473991",
+    "inputs_stable": true,
+    "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_rank/supervision/receipt.json",
+    "receipt_sha256": "de53606efd2beb38760f954830b712ab984289c2b6eb8b3b7ab66ea8bb85b5f8",
+    "result": "9 passed (pre-ruff import-order version); superseded for current test-file bytes by python_gate_final.",
+    "runner_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_rank/runner.py",
+    "runtime": {
+      "backend": "cpu",
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "ml_dtypes": "0.5.4",
+      "x64": true
+    },
+    "sampled_peak_summed_rss_kib": 852132,
+    "selector": "tests/test_matlab_port/chebfun/test_subspace_empty_rank0.py",
+    "stdout_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_rank0_20261017/python_gate_rank/supervision/stdout",
+    "stdout_sha256": "08aba37509acb432b59b48408dd4eb8908975ce9bc36281178ffec7ca23746ad",
+    "supervisor_exit_code": 0,
+    "wall_seconds": 9.87461565900594
+  },
+  "scope_limits": [
+    "No claim for empty Quasimatrix behavior; MATLAB @chebfun/subspace.m accepts Chebfun objects only.",
+    "The clean Python domain mismatch branch is tested for one empty Chebfun against a nonempty different-domain Chebfun; source ordering is domain check before orientation.",
+    "The native scalar-zero versus nonzero overlap failure is preserved through empty versus nonempty orthogonal-basis handling. It is not a general rank-error contract.",
+    "No full subspace API or original whole-test-file completion claim.",
+    "The four native rank-deficient zero-column orientations are now included in the focused Python gate; no broader rank or subspace API claim is made."
+  ],
+  "source_flow": [
+    {
+      "claim": "domainCheck precedes orth; orthogonalizes both inputs; innerProduct forms C; zero-basis empty residual path is handled before a singular-value stack.",
+      "path": "@chebfun/subspace.m"
+    },
+    {
+      "claim": "both empty passes; exactly one empty fails.",
+      "path": "@chebfun/domainCheck.m"
+    },
+    {
+      "claim": "calls svd(A,0), then extracts columns above tolerance; zero scalar has empty orthogonal basis.",
+      "path": "@chebfun/orth.m"
+    },
+    {
+      "claim": "scalar-column path calls overlap before piece inner products.",
+      "path": "@chebfun/innerProduct.m"
+    },
+    {
+      "claim": "domainCheck failure raises CHEBFUN:CHEBFUN:overlap:domains.",
+      "path": "@chebfun/overlap.m"
+    }
+  ],
+  "static_checks": {
+    "ruff": [
+      "/home/mg6942/.local/bin/ruff check W/src/chebfunjax/chebfun1d/chebfun.py W/tests/test_matlab_port/chebfun/test_subspace_empty_rank0.py",
+      "passed"
+    ]
+  },
+  "title": "Subspace empty and rank-zero source behavior",
+  "parent_review": {
+    "base": "588183dca7ea13497ab77f26ec2e8965f417e824",
+    "source_deltas": [
+      "src/chebfunjax/chebfun2d/separable_approx.py",
+      "src/chebfunjax/chebfun2d/chebfun2.py",
+      "src/chebfunjax/utils/matlab_expr.py",
+      "src/chebfunjax/chebfun1d/_construction_context.py",
+      "src/chebfunjax/chebfun1d/chebfun.py"
+    ],
+    "review_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_parent_gate_20261017/review.json",
+    "review_sha256": "ea02033df7aa6e8b877be6242cd68efc9d033b65d27a9312e06c8a5f2cc1f9e1",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/subspace_empty_parent_cpu_20261017.tar.gz",
+    "archive_sha256": "7443255b1bef7a4b6c1fdc0d0e0844e85acbf4b4cb0bc0ae2e7c9c62c0f0a3b6",
+    "manifest_payloads_verified": 49,
+    "scientific_bridge": "Exact tested function/new test retained; unrelated C1/string changes unexercised by the numeric/callable subspace controls. No optional repeated native/whole-module run."
+  }
+}
