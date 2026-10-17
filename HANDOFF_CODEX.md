@@ -16,8 +16,8 @@ Evidence:`docs/clenshaw_instruction_inverse_cpu_20261017.json`.
 
 CI remains unresolved. Older352ad369 now has actual numerical failures in
 original coupled-system clause02 (right boundary residual above1e-10) and
-a Python advection PDE control (early tolerance failure, repeated initial
-outputs), separately from runner shutdowns. Both reproduce locally and are
+a Python advection PDE control (early tolerance failure, only one initial
+output), separately from runner shutdowns. Both reproduce locally and are
 under source/native investigation. Do not weaken assertions or assume the
 CI batching/performance fixes resolve these correctness gaps.
 
