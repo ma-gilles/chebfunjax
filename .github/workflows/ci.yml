@@ -100,7 +100,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        part: [0, 1, 2, 3, 4, 5, 6, 7]
+        part: [0, 1, 2, 3, 4, 5, 6, 7, 8]
     steps:
       - uses: actions/checkout@v4
       - uses: prefix-dev/setup-pixi@v0.8.1
@@ -297,10 +297,14 @@ jobs:
           - name: sphere-vector
             paths: >-
               tests/test_matlab_port/spherefunv
-          - name: disk-ball
+          # The combined job exceeded 90 minutes. Historical file output
+          # accounts for about 48 minutes of disk and 40 minutes of ball work.
+          - name: disk
             paths: >-
               tests/test_matlab_port/diskfun
               tests/test_matlab_port/diskfunv
+          - name: ball
+            paths: >-
               tests/test_matlab_port/ballfun
               tests/test_matlab_port/ballfunv
           # The chebop shard reached only57% before the90-minute cap.

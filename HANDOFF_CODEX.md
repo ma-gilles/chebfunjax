@@ -1,3 +1,24 @@
+## CI deadline repartition — 2026-10-17
+
+Historical Core6 exceeded90minutes during its9th12-unit child batch;93% was
+child progress, not whole-job progress. Preserve the original8-lane assignment,
+split Core6 after4completebatches (48selections), append its82-selection tail
+asCore8. Other7lanes remain unchanged for the same inventory. Disk-ball also
+exceeded90minutes; separate disk/diskfunv and ball/ballfunv jobs. Historical
+cost projections are approximately43/36minutes and48/40minutes respectively;
+actual latest-head CI runtime still needs qualification.
+
+Fresh b16-based collect-only proof maps12498core+445affectedportnodes
+(12943unique, includingall11newC2controls) identically through old/new schedules.
+No omission/duplicate; all1309portfile assignments remain disjoint/exhaustive,
+with only disk/ball jobs repartitioned. This is not full-repository node
+collection or scientific test execution.17protocol checks pass. Preserve90min
+jobs,600/900s per-test limits,12-unit child processes and79%coverage threshold.
+
+Evidence:docs/ci_deadline_repartition_cpu_20261017.json and
+ docs/ci_deadline_current_inventory_cpu_20261017.json. Freshgreen CI, actual
+runtime, remaining scientific issues and full parity are unresolved.
+
 ## Source composition/error reporting and PDE scope — 2026-10-17
 
 C2 default nested composition now uses native prolonged-coefficient transforms,

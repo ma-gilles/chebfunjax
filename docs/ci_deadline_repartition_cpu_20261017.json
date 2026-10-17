@@ -1,0 +1,131 @@
+{
+  "scope": "Evidence-backed CI scheduling correction; collection/schema qualification only, no scientific test or final CI runtime claim.",
+  "base": "0b5efb98c34e98b90f3261a0432222f7cf1f6892",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_deadline_repartition_cpu_20261017.tar.gz",
+  "archive_sha256": "4bcd4719f625317da94f44834144bad330ff1099a2375e48f7f407b20ec7cd02",
+  "verified_payload_files": 5109,
+  "guard_edges": 10003,
+  "runtime_postimport_edges": 5758,
+  "unique_blobs": 5003,
+  "collection": {
+    "scope": "One real collect-only inventory, mapped through unchanged baseline and candidate selection protocols; no scientific tests executed.",
+    "collection_returncode": 0,
+    "core_nodes": 12487,
+    "port_nodes": 445,
+    "total_nodes": 12932,
+    "unique_nodes": 12932,
+    "core_old_counts": [
+      1976,
+      1554,
+      1652,
+      1650,
+      1339,
+      1217,
+      1422,
+      1677
+    ],
+    "core_new_counts": [
+      1976,
+      1554,
+      1652,
+      1650,
+      1339,
+      1217,
+      441,
+      1677,
+      981
+    ],
+    "disk_ball_old_counts": [
+      445
+    ],
+    "disk_ball_new_counts": [
+      187,
+      258
+    ],
+    "core_selection_units": 1040,
+    "core_old_selection_counts": [
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130
+    ],
+    "core_new_selection_counts": [
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      48,
+      130,
+      82
+    ],
+    "exact_node_union_equal": true,
+    "duplicate_or_omitted_nodes": 0,
+    "note": "Current test tree includes three new CI protocol controls. Scientific test files/predicates and timeouts are unchanged; both mapping algorithms see this same collected inventory."
+  },
+  "static": {
+    "scope": "Workflow/schema/static file inventory proof; no numerical tests.",
+    "all_port_files_old": 1309,
+    "all_port_files_new": 1309,
+    "exact_port_file_union_and_disjointness": true,
+    "port_jobs_old": 19,
+    "port_jobs_new": 20,
+    "changed_port_file_counts": {
+      "old_disk_ball": 154,
+      "new_disk": 74,
+      "new_ball": 80
+    },
+    "unaffected_port_jobs_exactly_equal": true,
+    "unchanged_core_functions_except_partition": true,
+    "core_child_batch_size": 12,
+    "core_test_timeout_seconds": 600,
+    "port_test_timeout_seconds": 900,
+    "job_timeout_minutes": 90,
+    "coverage_threshold_percent": 79,
+    "coverage_aggregation_job_byte_semantics_equal": true
+  },
+  "protocol_tests_passed": 17,
+  "scientific_tests_executed": 0,
+  "runs": {
+    "protocol": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.630131694022566,
+      "sampled_peak_summed_rss_kib": 429228,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "collection": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 37.76774169597775,
+      "sampled_peak_summed_rss_kib": 790180,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "static": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.268856809940189,
+      "sampled_peak_summed_rss_kib": 412160,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    }
+  },
+  "limitations": [
+    "Buffered file-output intervals are approximate historical cost evidence, not measured latest-head runtimes.",
+    "Individual mirror case costs are unavailable and were estimated by equally dividing their batch file cost.",
+    "One currentCore6selection has no historical cost estimate; unknown is not zero.",
+    "Real latest-head CI must qualify runtime and full scientific correctness. Existing unrelated assertion failures and runner shutdowns remain separate.",
+    "One full affected-node collection maps identical current test inventory through baseline/candidate mappings;3newCIprotocolnodes are intentional additions, not scientific predicate changes. The union of all1309portfiles and every unaffected job assignment are statically equal; only affected445portnodes were collected.",
+    "Runtime module paths/hashes are actual end-process sys.modules snapshots taken after imports, not pre-execution dependency guards."
+  ]
+}

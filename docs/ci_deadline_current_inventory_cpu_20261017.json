@@ -1,0 +1,116 @@
+{
+  "scope": "Current published-base CI collection/union and protocol qualification only; no scientific reruns or actual CI runtime claim.",
+  "base": "b16ad79596449a1dfe56704f8656e41766b0f301",
+  "archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_deadline_current_inventory_cpu_20261017.tar.gz",
+  "archive_sha256": "91c3cccda5313f49495625ac72096720a23a7c6265d71781ec943825c3ceae4a",
+  "verified_payload_files": 5045,
+  "guard_edges": 6644,
+  "runtime_postimport_edges": 4503,
+  "unique_blobs": 4970,
+  "collection": {
+    "base_commit": "b16ad79596449a1dfe56704f8656e41766b0f301",
+    "C2_new_test_nodes": [
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_unary_analytic_square_without_point_sampling[False]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_unary_analytic_square_without_point_sampling[True]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_binary_analytic_columns_without_point_sampling[False-False]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_binary_analytic_columns_without_point_sampling[True-False]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_binary_analytic_columns_without_point_sampling[False-True]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_binary_analytic_columns_without_point_sampling[True-True]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_nested_refinement_reuses_samples_and_skips_extrapolated_endpoints[False]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_nested_refinement_reuses_samples_and_skips_extrapolated_endpoints[True]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_initial_max_length_cap_and_later_give_up",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_actual_complex_extrapolation_matches_polynomial[False]",
+      "tests/test_tech/test_chebtech2_compose_coeff_grid.py::test_actual_complex_extrapolation_matches_polynomial[True]"
+    ],
+    "scope": "One real collect-only inventory, mapped through unchanged baseline and candidate selection protocols; no scientific tests executed.",
+    "collection_returncode": 0,
+    "core_nodes": 12498,
+    "port_nodes": 445,
+    "total_nodes": 12943,
+    "unique_nodes": 12943,
+    "core_old_counts": [
+      1845,
+      1607,
+      1718,
+      1515,
+      1474,
+      1221,
+      1420,
+      1698
+    ],
+    "core_new_counts": [
+      1845,
+      1607,
+      1718,
+      1515,
+      1474,
+      1221,
+      441,
+      1698,
+      979
+    ],
+    "disk_ball_old_counts": [
+      445
+    ],
+    "disk_ball_new_counts": [
+      187,
+      258
+    ],
+    "core_selection_units": 1041,
+    "core_old_selection_counts": [
+      131,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130,
+      130
+    ],
+    "core_new_selection_counts": [
+      131,
+      130,
+      130,
+      130,
+      130,
+      130,
+      48,
+      130,
+      82
+    ],
+    "exact_node_union_equal": true,
+    "duplicate_or_omitted_nodes": 0,
+    "note": "Current test tree includes three new CI protocol controls. Scientific test files/predicates and timeouts are unchanged; both mapping algorithms see this same collected inventory."
+  },
+  "protocol_tests_passed": 17,
+  "scientific_tests_executed": 0,
+  "runs": {
+    "collection": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 34.62546292413026,
+      "sampled_peak_summed_rss_kib": 792368,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    },
+    "protocol": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.472838064655662,
+      "sampled_peak_summed_rss_kib": 434788,
+      "remaining_owned_pids": [],
+      "inputs_stable": true,
+      "guard_error": null
+    }
+  },
+  "previous_scheduling_archive": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/ci_deadline_repartition_cpu_20261017.tar.gz",
+  "previous_scheduling_archive_sha256": "4bcd4719f625317da94f44834144bad330ff1099a2375e48f7f407b20ec7cd02",
+  "limitations": [
+    "Node counts come from one real collection on b16ad795 and include all11newC2controls. These are collected nodes, not passed scientific tests.",
+    "Old/new mappings use the same current inventory, including3newCIprotocoltests; no scientific assertions or bounds changed.",
+    "The implementation is byte-identical to the prior qualified scheduling patch. Historical estimates and full port-file mapping evidence remain scoped in the previous archive.",
+    "No actual workflow runtime qualification or green-CI claim.",
+    "Actual sys.modules file hashes were captured after import/execution; they are not pre-execution dependency guards."
+  ]
+}

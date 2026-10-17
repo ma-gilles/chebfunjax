@@ -8,8 +8,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-PARTS = 8
+BASE_PARTS = 8
+PARTS = 9
 BATCH_SIZE = 12
+SPLIT_PART = 6
+SPLIT_AFTER_BATCHES = 4
 MIRROR_FILE = 'tests/test_coverage/test_port_mirrors.py'
 
 
@@ -47,7 +50,15 @@ def inventory():
 
 
 def partition(files):
-    groups = [files[i::PARTS] for i in range(PARTS)]
+    # Core 6 exceeded the 90-minute job limit. Preserve the other original
+    # lanes and split this lane at a complete process-batch boundary.
+    # Historical file timings put its first 48 of the current 130 selections near
+    # half the known cost; the remaining selections become Core 8.
+    groups = [files[i::BASE_PARTS] for i in range(BASE_PARTS)]
+    split = BATCH_SIZE * SPLIT_AFTER_BATCHES
+    remainder = groups[SPLIT_PART][split:]
+    groups[SPLIT_PART] = groups[SPLIT_PART][:split]
+    groups.append(remainder)
     flat = [name for group in groups for name in group]
     if not all(groups) or len(flat) != len(set(flat)) or sorted(flat) != files:
         raise ValueError('core partition is not nonempty, disjoint and exhaustive')

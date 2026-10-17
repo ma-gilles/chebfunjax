@@ -28,7 +28,9 @@ def test_inventory_partitions_every_selection_once():
     assert len(selections) == len(set(selections))
     mirrors = set(core.mirror_selections())
     assert core.MIRROR_FILE not in selections
-    assert all(mirrors.intersection(group) for group in groups)
+    # The appended tail of Core6 has no mirrors. They remain distributed
+    # over the original eight lanes rather than concentrated in one job.
+    assert all(mirrors.intersection(group) for group in groups[:core.BASE_PARTS])
     for group in groups:
         pieces = core.batches(group)
         assert [unit for piece in pieces for unit in piece] == group
@@ -148,3 +150,46 @@ def test_aggregate_rejects_incomplete_or_stale_batch_receipts(tmp_path, monkeypa
         Path('.coverage.core-0').write_bytes(b'wrong coverage')
     with pytest.raises(AssertionError):
         core.validate_manifest(manifest, 0, selections, 'a'*40, tmp_path)
+
+
+def test_deadline_split_preserves_other_lanes_and_complete_processes():
+    selections = core.inventory()
+    old = [selections[i::core.BASE_PARTS] for i in range(core.BASE_PARTS)]
+    new = core.partition(selections)
+    assert len(new) == core.PARTS == core.BASE_PARTS+1
+    for part in range(core.BASE_PARTS):
+        if part != core.SPLIT_PART:
+            assert new[part] == old[part]
+    assert new[core.SPLIT_PART]+new[-1] == old[core.SPLIT_PART]
+    assert len(new[core.SPLIT_PART]) == core.SPLIT_AFTER_BATCHES*core.BATCH_SIZE
+    assert core.batches(new[core.SPLIT_PART])+core.batches(new[-1]) == core.batches(old[core.SPLIT_PART])
+
+
+def test_workflow_core_matrix_and_disk_ball_inventory_match_protocol():
+    import ast
+    import re
+
+    workflow = Path('.github/workflows/ci.yml').read_text()
+    parts = ast.literal_eval(re.search(r'^        part: (\[[^\n]+\])$', workflow, re.M)[1])
+    assert parts == list(range(core.PARTS))
+    disk = workflow.split('- name: disk\n', 1)[1].split('- name: ball\n', 1)[0]
+    ball = workflow.split('- name: ball\n', 1)[1].split('- name:', 1)[0]
+    assert re.findall(r'tests/test_matlab_port/(\w+)', disk) == ['diskfun', 'diskfunv']
+    assert re.findall(r'tests/test_matlab_port/(\w+)', ball) == ['ballfun', 'ballfunv']
+
+
+def test_aggregate_cannot_accept_original_eight_manifests_without_new_tail(tmp_path, monkeypatch):
+    monkeypatch.setenv('GITHUB_SHA', 'a'*40)
+    for part in range(core.BASE_PARTS):
+        (tmp_path/f'core-manifest-{part}.json').write_text('{}')
+    checked = []
+    monkeypatch.setattr(core, 'validate_manifest', lambda manifest, part, *args: checked.append(part))
+    monkeypatch.setattr(sys, 'argv', ['run_core_shard.py', '--verify-and-combine', str(tmp_path)])
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('Coverage combined before all nine manifests were present')
+
+    monkeypatch.setattr(core.subprocess, 'run', forbidden)
+    with pytest.raises(FileNotFoundError, match='core-manifest-8.json'):
+        core.main()
+    assert checked == list(range(core.BASE_PARTS))
