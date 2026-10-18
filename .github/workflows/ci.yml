@@ -411,8 +411,9 @@ jobs:
             paths: >-
               tests/test_matlab_port/ballfun
               tests/test_matlab_port/ballfunv
-          # The chebop shard reached only57% before the90-minute cap.
-          # Three disjoint file partitions keep every assertion and timeout.
+          # The third chebop partition reached93% before the90-minute cap.
+          # Keep the first two partitions; split the third into its even/odd
+          # subsequences. Every original file/assertion/timeout is retained.
           - name: operators-a
             part: 0
             parts: 3
@@ -425,7 +426,12 @@ jobs:
               tests/test_matlab_port/chebop
           - name: operators-c
             part: 2
-            parts: 3
+            parts: 6
+            paths: >-
+              tests/test_matlab_port/chebop
+          - name: operators-d
+            part: 5
+            parts: 6
             paths: >-
               tests/test_matlab_port/chebop
           - name: operators-2

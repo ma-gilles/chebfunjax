@@ -1,0 +1,150 @@
+{
+  "scope": "source_numeric=True tolerance arithmetic port and native-source scalar-power repair. The defaultFalse body, every other Diskfun method/module function, original fixtures/assertions/bounds remain unchanged. Numeric input real projection unchanged. Generic NaN payloads, AD and whole constructor JIT not claimed; host input projection/metadata still present.",
+  "qualification": {
+    "base": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+    "immutable_paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+      "src/chebfunjax/diskfun/_numeric_tolerance.py": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+      "tests/test_diskfun/test_numeric_tolerance_jax.py": "afa5db73d0eed03819225efd1e22496bd898e65a25397c1dacc1984d24082a76",
+      "tests/fixtures/disk_gettol_native_20261018.json": "1be777d5f4971e3d9be9137fa0e96e27f6e6be2fc1793b36bf4d31b5a883eea8"
+    },
+    "patch_sha256": "0d4ba1bc6f941721bab687b78af423fb3106624fa77714077763e86795594bc2",
+    "final_assertions": {
+      "new_native_source_controls": 339,
+      "affected_existing_source_and_protected_controls": 321,
+      "final_pytest_PASS": 657,
+      "unchanged_existing_strict_XFAIL": 3,
+      "original_unmodified_k7_PASS": 1,
+      "total_final_PASS": 658,
+      "total_final_strict_XFAIL": 3,
+      "complete_legacy_objects_errors_words_exact": 15,
+      "complete_preserveTrue_objects_errors_words_exact": 28,
+      "native_effective_tolerance_words_classes_exact": 63,
+      "native_forward_gradient_words_classes_exact": 55,
+      "native_GE_rank_pivots_indices_plus_minus_pole_happy_words_exact": 63,
+      "native_larger_grid_scalar_power_controls": 26
+    },
+    "bounds": "Original tests/fixtures/assertions/bounds unchanged. All new native comparisons strict finite words/classes/Inf signs; generic NaN payloads not a promise. Seven historical baseline tolerance words change exactly to native; zero final new xfails. Three existing inactive-GEMM-zero/post-GE-transform strict xfails unchanged.",
+    "receipts": {
+      "focused_run": {
+        "supervisor_exit_code": 1,
+        "command_exit_code": 1,
+        "censored_limit": null,
+        "wall_seconds": 61.13299586996436,
+        "sampled_peak_summed_rss_kib": 2377772,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "ef2a8f3c07f5db01eeb4d644480568d6752721805da5af0c70d0f6bec9ea2eec"
+      },
+      "qualified_run": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 118.48269367031753,
+        "sampled_peak_summed_rss_kib": 3219268,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "979b9b5bb1bb1a791f83a3d68eecf48e626e18da4fda1a635ba3723fabc0eae7"
+      },
+      "fdlibm_run": {
+        "supervisor_exit_code": 1,
+        "command_exit_code": 1,
+        "censored_limit": null,
+        "wall_seconds": 6.597893211990595,
+        "sampled_peak_summed_rss_kib": 602200,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "1523407bb5d7044a0609f3afcb5bb5f5aef0b5aae4367a30fd8b2425a5fcef2b"
+      },
+      "fdlibm_run_v2": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 55.86062903283164,
+        "sampled_peak_summed_rss_kib": 2386044,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "c1564aa0f333fa5a8693ccb9bfaa67baabb29bb369718892767c61ba7cb9153b"
+      },
+      "native_large_power_run": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 78.75925986515358,
+        "sampled_peak_summed_rss_kib": 1264000,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "f78e9865855723b761093e050b826aed58c7a6e9c82cb434894750aab9210b2c"
+      },
+      "final_run": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 124.154043818824,
+        "sampled_peak_summed_rss_kib": 3312404,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "3dc2f5875e6d8dfa084e4a74b6dedb5b7c16a65641874e7fa77b940b87aa1e29"
+      },
+      "original_k7_run": {
+        "supervisor_exit_code": 0,
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 87.72069349186495,
+        "sampled_peak_summed_rss_kib": 3212928,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "error": null,
+        "guard_file_sha256": "3dc2f5875e6d8dfa084e4a74b6dedb5b7c16a65641874e7fa77b940b87aa1e29"
+      }
+    },
+    "limits": "JAX CPU0.11.0 x64 only; no whole-constructor JIT/AD, generic complex getTol, exception flag or NaN payload guarantee. DefaultFalse host path remains. No performance qualification/claim in this package.",
+    "readonly_Q_apply_check": true,
+    "remaining_owned_scientific_processes": 0,
+    "heavy_slot_released": true,
+    "native_slot_released": true,
+    "verification_corrections": [
+      "Initial authored AST hash schema normalization: Python3.12 empty type_params vsPython3.10; no runtime or numerical oracle change. Raw301PASS7XF1FAIL retained.",
+      "Initial fdlibm diagnostic decoder did not handle empty native records; v2 corrects decoder only. Runtime unchanged at this stage; raw failed receipt/source retained.",
+      "Initial pure JSON provenance verifier assumed missing stages={}, but fixture usesNone for8un-staged records. V2 uses exactNone; all63native records and26power controls verified exact raw copies. Raw initial script retained."
+    ]
+  },
+  "source_review": {
+    "base": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "diagnosis_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_gettol_candidate_20261018.tar.gz",
+    "diagnosis_archive_sha256": "7d068b772c1059a53013d36a89b728316ac8b9db4fbf134b46f9703c1e2c1b8c",
+    "paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+      "src/chebfunjax/diskfun/_numeric_tolerance.py": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+      "tests/test_diskfun/test_numeric_tolerance_jax.py": "afa5db73d0eed03819225efd1e22496bd898e65a25397c1dacc1984d24082a76",
+      "tests/fixtures/disk_gettol_native_20261018.json": "1be777d5f4971e3d9be9137fa0e96e27f6e6be2fc1793b36bf4d31b5a883eea8"
+    },
+    "scope": "source_numeric=True tolerance arithmetic port and native-source scalar-power repair. The defaultFalse body, every other Diskfun method/module function, original fixtures/assertions/bounds remain unchanged. Numeric input real projection unchanged. Generic NaN payloads, AD and whole constructor JIT not claimed; host input projection/metadata still present.",
+    "no_host_numerics_gate": "Local np binding trap catches legacy diff; new source path executes and produces callback-free make_jaxpr. New helper and transitive arithmetic/extrema dependencies import only JAX.",
+    "initial_authored_test_failure": "301PASS7strictXF1FAIL; numerical assertions passed. AST hash generated on Python3.10 differed from Python3.12 empty type_params schema. Final test removes only empty type_params fields before hashing; exact within-runtime module AST bridge independently passes. Initial source and receipt retained.",
+    "infrastructure_first_attempt": "python3 launcher resolved runtime without pidfd; supervisor rejected before any child launch. Successful runs use /usr/bin/python3 supervisor.",
+    "initial_translation": "Literal JAX power preserves all63 baseline tolerance words but retains7native gaps. Initial source/fixture/tests/receipts and initial 7 strictXF observations retained.",
+    "power_provider": "Unchanged preexisting utils/_source_real.source_pow_jit, original Netlib fdlibm e_pow.c mathematical coefficients/license. No generated table, native buffers or correction. https://netlib.org/fdlibm/e_pow.c",
+    "power_contract": "Positive integer shapegrid1..sys.maxsize; binary64 conversion in[1,2^63], exponent rounded2/3, normal result, abs(y*log2(grid))<=42<1000 and abs(y)<=32. No test-grid cutoff/fallback. Generic transcendental API remains out of scope.",
+    "power_diagnosis": "55/55 captured native power stages and63/63 native effective tolerance words/classes matched existing fdlibm. Exactly7old baseline tolerance words change, no native GE decision/output words change. Native grid4 pow differs1ulp from rigorous correctly-rounded exact-real result: provider compatibility is intended, no correctly-rounded general pow claim.",
+    "broader_native_capture": "26positive integer shape-grid operands through rounded2^63; exact before-call words/full-real double storage; scalar^,elementwise.^,runtime exponent and vector outputs all internally identical. No large arrays in nativecapture. Final tests also cover vector/outerJIT provider use and2x2048/4097x2 constant input tolerance staging."
+  },
+  "archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_gettol_jax_candidate_20261018.tar.gz",
+    "sha256": "f1046d316c3cf09d67bec00753e5893142a4aef4c2fe2f13db8e09af16e18133",
+    "root_stream_verified_payloads": 107,
+    "scope": "Source numeric getTol JAX translation and existing fdlibm source power; generic pow/API/JIT/AD not qualified.",
+    "initial_review_reader_failure": "Expected text manifest but package uses prefixed payload_manifest.json. Read-only discovery corrected, no artifacts modified."
+  },
+  "limits": [
+    "Generic NaN payloads, whole-constructor JIT/AD/API and full projection host arithmetic remain open.",
+    "Matched performance,322pages/1305figures and latest-mainCI remain required."
+  ]
+}

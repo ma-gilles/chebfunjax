@@ -93,6 +93,28 @@ def _sin_cos_complex_axis(value, cosine):
                      & (magnitude(product) <= tiny))
         result = jax.lax.complex(
             jnp.real(result), jnp.where(supported, product, jnp.imag(result)))
+
+        # Above log(maxfinite), exp(|y|) can overflow although cosh(y) and
+        # sinh(y) are finite. Their exponentially small reciprocal terms
+        # do not affect this source scaling: h = (exp(|y|/2)/2)*exp(|y|/2).
+        # Retain all prior words when the scaled hyperbolic factor overflows.
+        result = barrier(result)
+        half_exponential = jnp.exp(jnp.abs(imag) * 0.5)
+        large_factor = barrier(half_exponential * 0.5) * half_exponential
+        factor_magnitude = magnitude(large_factor)
+        log_max_magnitude = magnitude(jnp.log(jnp.finfo(real.dtype).max))
+        sin_real = jnp.sin(real)
+        large_supported = ((imag_magnitude >= log_max_magnitude)
+                           & (imag_magnitude < infinity) & (magnitude(real) < infinity)
+                           & (factor_magnitude >= tiny) & (factor_magnitude < infinity)
+                           & (magnitude(sin_real) < infinity) & (slope_magnitude < infinity))
+        large_real = gradual_signed_multiply(sin_real, large_factor)
+        # Preserve the existing zero-real representation for both input signs.
+        large_real = jnp.where(real_sign(real) == 0, jnp.real(result), large_real)
+        large_imag = gradual_signed_multiply(slope, jnp.copysign(large_factor, imag))
+        result = jax.lax.complex(
+            jnp.where(large_supported, large_real, jnp.real(result)),
+            jnp.where(large_supported, large_imag, jnp.imag(result)))
     return result
 
 
@@ -113,11 +135,12 @@ def _sin_cos_numeric(value, *, cosine=False):
     Independent R2025b scalar and mixed-array direct-component captures
     establish positive imaginary zero on the exact real axis, including
     both input zero signs, finite real controls and nonfinite real inputs.
-    Preserve the original real component. For binary64 SIN, retain the
-    separately rounded cos(x)*sinh(y) product when its magnitude is at most
-    minimum normal, with finite operands and normal cos(x). Use the bounded
-    source cosine only for |x| <= pi and the primitive provider elsewhere.
-    Other off-axis words are unchanged. The exact-axis test is word-aware.
+    For binary64 SIN, retain the separately rounded cos(x)*sinh(y) product
+    near underflow. Above rounded log(maxfinite), finite scaled hyperbolic
+    factors retain both components through gradual coefficient products.
+    Preserve prior zero-real words and all words outside these source classes.
+    Use the bounded source cosine only for |x| <= pi and the primitive
+    provider elsewhere. The exact-axis test is word-aware.
     The complex helper supplies the ordinary analytic derivative explicitly
     so the boundary representation retains transverse real-linear tangents.
     """

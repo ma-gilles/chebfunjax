@@ -1926,6 +1926,118 @@ def _roots_filter_real(roots, htol):
     return values[:int(count)].copy()
 
 
+@partial(jax.jit, static_argnames=("complex_input",))
+def _roots_affine_jax(real_input_words, imag_input_words, offset, scale, *, complex_input):
+    """Literal recursive root map with native binary64 component boundaries.
+
+    Source: @chebtech/roots.m351/352 and379/380, Chebfun7574c77.
+    Native scalar-real times complex uses zero cross-products before adding
+    the real offset. Direct captures qualify zero axes, gradual products and
+    nonfinite component classes. NaN signs/payloads remain unqualified.
+    """
+    component_dtype = jnp.float64 if real_input_words.dtype == jnp.uint64 else jnp.float32
+    real = jax.lax.bitcast_convert_type(real_input_words, component_dtype)
+    imag = jax.lax.bitcast_convert_type(imag_input_words, component_dtype)
+    if component_dtype != jnp.float64:
+        roots = jax.lax.complex(real, imag) if complex_input else real
+        mapped = offset + scale * roots
+        return (jax.lax.bitcast_convert_type(jnp.real(mapped), jnp.uint32),
+                jax.lax.bitcast_convert_type(jnp.imag(mapped), jnp.uint32))
+    from chebfunjax.utils._signed_gradual import gradual_signed_multiply
+
+    # For the two source maps, |offset| and scale are about 1/2. Flushing
+    # a tiny real product cannot affect rounding after adding that offset;
+    # cancellation of normal rounded operands is at least 2**-54. A scan
+    # materializes the literal multiply then add, without FMA contraction.
+    operands = jnp.stack(jnp.broadcast_arrays(scale, offset, real)[:2])
+    def real_step(value, instruction):
+        opcode, operand = instruction
+        value = jax.lax.cond(opcode == 0, lambda: value * operand,
+                             lambda: operand + value)
+        return value, None
+    mapped_real = jax.lax.scan(
+        real_step, real, (jnp.asarray([0, 1], jnp.int32), operands), unroll=False)[0]
+    if not complex_input:
+        return (jax.lax.bitcast_convert_type(mapped_real, jnp.uint64),
+                jnp.zeros_like(mapped_real, dtype=jnp.uint64))
+    barrier = jax.lax.optimization_barrier
+    mask = jnp.uint64(0x7fffffffffffffff)
+    real_magnitude = barrier(real_input_words & mask)
+    imag_magnitude = barrier(imag_input_words & mask)
+    # The implicit zero cross-product has the real component's zero sign.
+    # Adding a signed zero to a nonzero product is exactly the identity;
+    # two zeros retain a negative sign only when both signs are negative.
+    # Express that IEEE identity on words, avoiding an unnecessary floating
+    # zero-add that can flush a subnormal in a fused CPU computation.
+    sign = real_input_words & jnp.uint64(1 << 63)
+    product = gradual_signed_multiply(imag, scale)
+    imag_words = barrier(jax.lax.bitcast_convert_type(product, jnp.uint64))
+    product_magnitude = barrier(imag_words & mask)
+    imag_words = jnp.where(product_magnitude == 0, imag_words & sign, imag_words)
+    # Native exact imaginary-zero inputs have positive imaginary zero.
+    imag_words = jnp.where(imag_magnitude == 0, jnp.uint64(0), imag_words)
+    # NaNs couple components only off the corresponding exact zero axis;
+    # infinities do not contaminate the opposite component for this real scale.
+    infinity = jnp.uint64(0x7ff0000000000000)
+    imag_words = jnp.where((real_magnitude > infinity) & (imag_magnitude > 0),
+                           real_input_words, imag_words)
+    real_words = barrier(jax.lax.bitcast_convert_type(mapped_real, jnp.uint64))
+    input_imag_words = imag_input_words
+    real_words = jnp.where((imag_magnitude > infinity) & (real_magnitude > 0),
+                           input_imag_words, real_words)
+    # The host adapter assembles storage from JAX-computed component words.
+    return real_words, imag_words
+
+
+@lru_cache(maxsize=8)
+def _roots_affine_constants(component_dtype):
+    """Cache source constants outside the host-driven recursive computation."""
+    split = -0.004849834917525
+    offset = jnp.asarray([[(split - 1.0) / 2.0],
+                          [(split + 1.0) / 2.0]], dtype=component_dtype)
+    scale = jnp.asarray([[(split + 1.0) / 2.0],
+                         [(1.0 - split) / 2.0]], dtype=component_dtype)
+    return offset, scale
+
+
+def _roots_map_children(left, right):
+    """JAX affine arithmetic with fixed-capacity writable host transfer storage.
+
+    Source: @chebtech/roots.m recursive concatenation, Chebfun7574c77.
+    NumPy only allocates/copies transfer buffers; it performs no arithmetic.
+    Sixty-four-element lanes avoid recompilation for every retained count.
+    """
+    left, right = np.asarray(left), np.asarray(right)
+    nl, nr = left.size, right.size
+    dtype = np.result_type(left.dtype, right.dtype)
+    result = np.empty(nl + nr, dtype=dtype)
+    complex_input = np.issubdtype(dtype, np.complexfloating)
+    component_size = dtype.itemsize // 2 if complex_input else dtype.itemsize
+    component_dtype = jnp.float64 if component_size == 8 else jnp.float32
+    offset, scale = _roots_affine_constants(component_dtype)
+    for start in range(0, max(nl, nr), 64):
+        count_left, count_right = min(64, max(0, nl - start)), min(64, max(0, nr - start))
+        buffer = np.zeros((2, 64), dtype=dtype)
+        buffer[0, :count_left] = left[start:start + count_left]
+        buffer[1, :count_right] = right[start:start + count_right]
+        word_dtype = np.uint64 if component_dtype == jnp.float64 else np.uint32
+        input_real_words = buffer.real.view(word_dtype)
+        input_imag_words = (buffer.imag.view(word_dtype) if complex_input
+                            else np.zeros((2, 64), dtype=word_dtype))
+        real_words, imag_words = jax.device_get(_roots_affine_jax(
+            jax.device_put(input_real_words), jax.device_put(input_imag_words),
+            offset, scale, complex_input=complex_input))
+        # Assign component storage directly, without floating-point arithmetic
+        # or a complex multiply/add on the host.
+        mapped = np.empty((2, 64), dtype=dtype)
+        mapped.real.view(word_dtype)[...] = real_words
+        if np.issubdtype(dtype, np.complexfloating):
+            mapped.imag.view(word_dtype)[...] = imag_words
+        result[start:start + count_left] = mapped[0, :count_left]
+        result[nl + start:nl + start + count_right] = mapped[1, :count_right]
+    return result
+
+
 def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
                 prune: bool = False, recurse: bool = True, zero_fun: bool = True):
     import numpy as np
@@ -1938,7 +2050,6 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
     - Otherwise form the colleague matrix and compute eigenvalues, then
       filter (real roots in [-1, 1]), prune, or keep all per the options.
     """
-    SPLIT_POINT = -0.004849834917525
     MAX_EIG_SIZE = 50
 
     # Trim small trailing coefficients
@@ -1998,11 +2109,8 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
     r_right = _roots_main(c_right, 2.0 * htol, qz=qz, all_roots=all_roots,
                           prune=prune, recurse=recurse, zero_fun=zero_fun)
 
-    # Map back to original interval
-    r_left_mapped = (SPLIT_POINT - 1.0) / 2 + (SPLIT_POINT + 1.0) / 2 * r_left
-    r_right_mapped = (SPLIT_POINT + 1.0) / 2 + (1.0 - SPLIT_POINT) / 2 * r_right
-
-    return np.concatenate([r_left_mapped, r_right_mapped])
+    # Map and concatenate through JAX arithmetic and writable host storage.
+    return _roots_map_children(r_left, r_right)
 
 
 # ============================================================================

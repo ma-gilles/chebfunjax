@@ -219,6 +219,9 @@ def _get_tol(F: np.ndarray, hx: float, hy: float, pseudo_level: float, *,
     MATLAB source : @diskfun/constructor.m  (getTol subfunction)
     Chebfun commit: 7574c77
     """
+    if source_numeric:
+        from ._numeric_tolerance import numeric_tolerance
+        return numeric_tolerance(F, hx, hy, pseudo_level)
     m, n = F.shape
     grid = max(m, n)
     dfdx = np.diff(F[: m - 1, :], axis=1) / hx

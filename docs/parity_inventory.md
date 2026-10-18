@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [root mapping, SIN overflow and disk tolerance qualification](roots_sin_tolerance_parent_cpu_20261018.json): 795 scientific parent passes / 3 strict expected failures, with a separate targeted TAN preservation gate and exact CI file-partition audit. Specific native rows carry scoped evidence; whole-item statuses remain unverified.
+
 Latest [SIN output-underflow and JAX disk PhaseOne qualification](sin_disk_jax_parent_cpu_20261018.json):387parentPASS/3strictXFAIL; child full unary and disk gates are separate scopes. Native disk constructor evidence is attached without promoting complete source/API/test statuses.
 
 The [completed/to-complete checklist](parity_checklist.md) is the running human

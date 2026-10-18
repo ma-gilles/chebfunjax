@@ -1,0 +1,511 @@
+{
+  "scope": "Binary64 complex SIN finite scaled hyperbolic source interval. Bounded native component and array-storage qualification; no whole IEEE, scalar-context, API, page, performance or extreme derivative closure.",
+  "base": "46823f267a588ef0e8dd58aebf689c3634df080b",
+  "published_bridge": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "R2025b Update2",
+  "cpu": [
+    36,
+    37,
+    38,
+    39
+  ],
+  "production": {
+    "formula": "h=(exp(abs(y)/2)/2)*exp(abs(y)/2), protected intermediate; real=gradual(sin(x)*h), imag=gradual(cos(x)*copysign(h,y)). At these magnitudes the reciprocal exponential terms are negligible. This is an independently stated exponential identity/scaling, not a claim about MATLAB built-in internals.",
+    "mask": "complex128 SIN only; magnitude-word |y| >= magnitude-word(JAX log(maxfinite)), finite x/y/coefficient words, and finite normal h. hInf stays on complete prior result. This is a general source/IEEE exponent interval, not y710 equality or a prior-failure mask.",
+    "lower_boundary_word": "40862e42fefa39ef, rounded log(maxfinite), exercised with four adjacent binary64 words on either side. Upper boundary follows computed finite h, also exercised with four neighbors around log(maxfinite)+log(2).",
+    "cosine": "Previously qualified source kernel only within |x|<=pi; primitive fallback outside its contract.",
+    "zero_real": "For word-exact-zero real input, retain complete prior real word. Native both input zero signs/both imaginary signs return positive real zero throughout48 selected array-context controls. No new general zero canonicalization.",
+    "preservation": "Complete prior result is protected. All real/imaginary words outside this source mask unchanged. Original904 underflow native assertions and original fixtures/bounds unchanged.",
+    "derivative": "Exact analytic SIN JVP AST unchanged; existing independent real-coordinate first/second and transverse ordinary-range derivative controls retained. Inherited large-y analytic complex-cosine derivative overflow is not repaired or qualified."
+  },
+  "evidence": {
+    "total_input_contexts": 4320,
+    "original_input_contexts": 2664,
+    "new_native_contexts": 1656,
+    "selected_contexts": 864,
+    "selected_distinct_input_word_pairs": 792,
+    "selected_by_case": [
+      72,
+      0,
+      792
+    ],
+    "selected_both_component_native_word_differences_per_mode": 0,
+    "selected_class_differences_per_mode": 0,
+    "all_nonselected_prior_component_word_differences_per_mode": 0,
+    "selected_coefficients": {
+      "SIN_zero": 48,
+      "SIN_subnormal": 48,
+      "SIN_normal": 768,
+      "COS_normal": 864
+    },
+    "signed_h_vs_native_SINH_word_differences": 0,
+    "h_vs_native_COSH_word_differences": 0,
+    "exp_half_operand_JAX_vs_native_word_differences": 0,
+    "old_y710_classes_before": {
+      "imaginary": {
+        "infinity/native_normal": 72
+      },
+      "real": {
+        "infinity/native_normal": 64,
+        "zero/native_normal": 4,
+        "zero/native_zero": 4
+      }
+    },
+    "old_component_words_repaired": {
+      "real": 68,
+      "imaginary": 72
+    },
+    "storage": "All three captured arrays retain native dimensions, complex double storage; direct component words asserted before every native call and extracted before complex flatten/repacking. No universal scalar-context claim.",
+    "high_precision": "2048/4096-bit exact-dyadic mpmath1.4.1 calculation, no JAX import; explicit Fraction binary64 RNE with overflow threshold. Both precision outputs converge. Native finite separate SIN*COSH and COS*SINH products match complex native SIN wherever nonzero; real zero sign convention separately preserved.",
+    "native_vs_mathematical_SIN": "Native complexSIN has728real/1028imag word differences from correctly-rounded mathematical SIN on1656 new controls. These include staged rounding and native overflow conventions; not used to substitute mathematical values for native targets. Native COSH20/SINH20nonzero stage-word differences and EXP2/EXP-half1 provider differences against highprecision remain. EXP differences occur outside the selected large window; native hyperbolic staged-rounding differences inside it are deliberately reproduced, not replaced by mathematical RNE."
+  },
+  "authored_preservation_exception": {
+    "file": "tests/test_matlab_port/treeVar/test_sin_output_underflow_source.py",
+    "function": "test_sin_near_underflow_preserves_prior_words",
+    "modes": [
+      "eager",
+      "jit"
+    ],
+    "changed_prior_expectations_per_mode": {
+      "real": 68,
+      "imaginary": 72
+    },
+    "inventory": "AUTHORED_ORACLE_140_COMPONENT_WORD_EXCEPTIONS.json,280entries plus exact source preimage",
+    "preserved": "All2664 old input words, original904 selected native imaginary assertions, original native fixture bytes/bounds, and every word outside new source mask. New native864 both-component assertions separate."
+  },
+  "limits": {
+    "original_metadata_records": 13,
+    "original_expected_failures": 26,
+    "old2664_remaining_native_word_gaps": {
+      "real": 204,
+      "imaginary": 120
+    },
+    "new1656_remaining_outside_word_gaps": {
+      "real": 48,
+      "imaginary": 24
+    },
+    "negative_overflow_control": "At y750 with nonzero minimum-subnormal real phase, true mathematical real SIN is finite but native returns signed infinity. All hInf cases remain on prior source path; no folded complex scaling beyond finite hyperbolic factor was introduced.",
+    "other_components": "Other provider, signedzero and subnormal classes outside mask remain unchanged; six other unary subnormal methods unchanged. No full API/page closure."
+  },
+  "baseline": {
+    "tests": "45",
+    "failures": "4",
+    "errors": "0",
+    "skipped": "0",
+    "time": "28.809"
+  },
+  "focused": {
+    "tests": "45",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "32.076"
+  },
+  "final": {
+    "tests": "1953",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "26",
+    "time": "466.288"
+  },
+  "runtime": {
+    "stages": {
+      "observed_files": 1343,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "high_precision_repeat": {
+      "observed_files": 188,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "scaling": {
+      "observed_files": 1342,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "baseline": {
+      "observed_files": 1483,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_evidence_20261018/source_preimages/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_20261018/tests/test_matlab_port/treeVar/test_sin_output_underflow_source.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_evidence_20261018/source_preimages/test_sin_output_underflow_source.py"
+      }
+    },
+    "focused": {
+      "observed_files": 1483,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "final": {
+      "observed_files": 1544,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    }
+  },
+  "native_runtime": {
+    "before_mapped_files": 880,
+    "after_mapped_files": 889,
+    "late_stable_files": [
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/matlabdata/startupplugin/libmwmda_startupplugin.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/prefdirwarning/libmw_prefdirwarning.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/shared_deviceplugindetection/mwdevicepluginstartup.so"
+    ],
+    "all_stable_code_data_mappings_outer_preguarded": true,
+    "excluded": "Mutable /var/lib/sss/mc/passwd identitycache; generated/transient mappings enumerated separately.",
+    "limitations": "Sampled main-process maps only; no exhaustive installed-runtime, subprocess, transient/generated or future-library coverage claim.",
+    "dispatch_origin_detail": "Collector restores default MATLAB path, adds pinned Chebfun source, checks treeVar origin, double input class and pinned version; records SIN/SINH/EXP which origins. COSH was dispatched by recorded str2func method but its which string was omitted from the inherited origins list. No Chebfun root/CWD/capture-folder cosh.m or @double override exists; no exhaustive MATLAB builtin origin claim."
+  },
+  "supervision": {
+    "sin_overflow_range_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 34.43087808787823,
+      "sampled_peak_summed_rss_kib": 1366872,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_final_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 471.81591218104586,
+      "sampled_peak_summed_rss_kib": 1826464,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_focused_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 37.59092812612653,
+      "sampled_peak_summed_rss_kib": 1417296,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_hp_repeat_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.065245711710304,
+      "sampled_peak_summed_rss_kib": 34680,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_hp_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 2.425097160972655,
+      "sampled_peak_summed_rss_kib": 26580,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_hp_run002_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.7471684929914773,
+      "sampled_peak_summed_rss_kib": 33236,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_native_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 96.41270217485726,
+      "sampled_peak_summed_rss_kib": 1323676,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_scaling_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.909158022142947,
+      "sampled_peak_summed_rss_kib": 1021308,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_stages_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 2.078874438069761,
+      "sampled_peak_summed_rss_kib": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_overflow_range_stages_run002_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.213476604782045,
+      "sampled_peak_summed_rss_kib": 1017348,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_bridge": {
+    "src/chebfunjax/utils/elementary.py": {
+      "published_base_sha256": "38c4e0c309158069b522ef31444a6235c453cb141d5be1dfc2ffd4a2f317165e",
+      "candidate_sha256": "d2578ac8706b5e01ab81dfacfd540047702dddc228a213790b84ae97eb39b1a4"
+    },
+    "src/chebfunjax/utils/_signed_gradual.py": {
+      "published_base_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+      "candidate_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748"
+    },
+    "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": {
+      "published_base_sha256": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "candidate_sha256": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696"
+    },
+    "tests/test_matlab_port/treeVar/data/sin_subnormal_native_20261018.json": {
+      "published_base_sha256": "cadab1b7d5471324941fa2d48ff6074bd82d02e4e9d52ca0e7f6ebb37049fc96",
+      "candidate_sha256": "cadab1b7d5471324941fa2d48ff6074bd82d02e4e9d52ca0e7f6ebb37049fc96"
+    },
+    "tests/test_matlab_port/treeVar/data/sin_output_underflow_native_20261018.json": {
+      "published_base_sha256": "ec54d8d0fc4f43ea755e26cb25354dee7a261c0376f453e7f32976fc487935bb",
+      "candidate_sha256": "ec54d8d0fc4f43ea755e26cb25354dee7a261c0376f453e7f32976fc487935bb"
+    },
+    "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": {
+      "published_base_sha256": "4de750c403e03bb8a08b1ebb272d18aa6cc480c0e05b90771d142a0bc310e631",
+      "candidate_sha256": "4de750c403e03bb8a08b1ebb272d18aa6cc480c0e05b90771d142a0bc310e631"
+    }
+  },
+  "all_component_class_word_counts": {
+    "normal_imaginary_and_underflow_grid": {
+      "eager": {
+        "real": {
+          "before_word_differences": 232,
+          "after_word_differences": 164,
+          "before_class_pairs": {
+            "zero/zero": 108,
+            "zero/subnormal": 88,
+            "normal/normal": 1536,
+            "zero/normal": 12,
+            "infinity/normal": 64,
+            "zero/infinity": 8,
+            "infinity/infinity": 128
+          },
+          "after_class_pairs": {
+            "zero/zero": 108,
+            "zero/subnormal": 88,
+            "normal/normal": 1604,
+            "zero/normal": 8,
+            "zero/infinity": 8,
+            "infinity/infinity": 128
+          }
+        },
+        "imag": {
+          "before_word_differences": 184,
+          "after_word_differences": 112,
+          "before_class_pairs": {
+            "zero/zero": 116,
+            "subnormal/subnormal": 368,
+            "normal/normal": 1244,
+            "infinity/normal": 72,
+            "infinity/infinity": 144
+          },
+          "after_class_pairs": {
+            "zero/zero": 116,
+            "subnormal/subnormal": 368,
+            "normal/normal": 1316,
+            "infinity/infinity": 144
+          }
+        }
+      },
+      "jit": {
+        "real": {
+          "before_word_differences": 232,
+          "after_word_differences": 164,
+          "before_class_pairs": {
+            "zero/zero": 108,
+            "zero/subnormal": 88,
+            "normal/normal": 1536,
+            "zero/normal": 12,
+            "infinity/normal": 64,
+            "zero/infinity": 8,
+            "infinity/infinity": 128
+          },
+          "after_class_pairs": {
+            "zero/zero": 108,
+            "zero/subnormal": 88,
+            "normal/normal": 1604,
+            "zero/normal": 8,
+            "zero/infinity": 8,
+            "infinity/infinity": 128
+          }
+        },
+        "imag": {
+          "before_word_differences": 184,
+          "after_word_differences": 112,
+          "before_class_pairs": {
+            "zero/zero": 116,
+            "subnormal/subnormal": 368,
+            "normal/normal": 1244,
+            "infinity/normal": 72,
+            "infinity/infinity": 144
+          },
+          "after_class_pairs": {
+            "zero/zero": 116,
+            "subnormal/subnormal": 368,
+            "normal/normal": 1316,
+            "infinity/infinity": 144
+          }
+        }
+      }
+    },
+    "zero_and_normal_output_transition_neighbors": {
+      "eager": {
+        "real": {
+          "before_word_differences": 40,
+          "after_word_differences": 40,
+          "before_class_pairs": {
+            "zero/zero": 40,
+            "zero/subnormal": 40,
+            "normal/normal": 640
+          },
+          "after_class_pairs": {
+            "zero/zero": 40,
+            "zero/subnormal": 40,
+            "normal/normal": 640
+          }
+        },
+        "imag": {
+          "before_word_differences": 8,
+          "after_word_differences": 8,
+          "before_class_pairs": {
+            "zero/zero": 168,
+            "subnormal/subnormal": 316,
+            "normal/normal": 236
+          },
+          "after_class_pairs": {
+            "zero/zero": 168,
+            "subnormal/subnormal": 316,
+            "normal/normal": 236
+          }
+        }
+      },
+      "jit": {
+        "real": {
+          "before_word_differences": 40,
+          "after_word_differences": 40,
+          "before_class_pairs": {
+            "zero/zero": 40,
+            "zero/subnormal": 40,
+            "normal/normal": 640
+          },
+          "after_class_pairs": {
+            "zero/zero": 40,
+            "zero/subnormal": 40,
+            "normal/normal": 640
+          }
+        },
+        "imag": {
+          "before_word_differences": 8,
+          "after_word_differences": 8,
+          "before_class_pairs": {
+            "zero/zero": 168,
+            "subnormal/subnormal": 316,
+            "normal/normal": 236
+          },
+          "after_class_pairs": {
+            "zero/zero": 168,
+            "subnormal/subnormal": 316,
+            "normal/normal": 236
+          }
+        }
+      }
+    },
+    "complex_sin_exponential_boundaries": {
+      "eager": {
+        "real": {
+          "before_word_differences": 732,
+          "after_word_differences": 48,
+          "before_class_pairs": {
+            "zero/zero": 92,
+            "zero/normal": 68,
+            "normal/normal": 448,
+            "infinity/normal": 640,
+            "zero/infinity": 24,
+            "infinity/infinity": 384
+          },
+          "after_class_pairs": {
+            "zero/zero": 92,
+            "zero/normal": 24,
+            "normal/normal": 1132,
+            "zero/infinity": 24,
+            "infinity/infinity": 384
+          }
+        },
+        "imag": {
+          "before_word_differences": 748,
+          "after_word_differences": 24,
+          "before_class_pairs": {
+            "normal/normal": 504,
+            "infinity/normal": 720,
+            "infinity/infinity": 432
+          },
+          "after_class_pairs": {
+            "normal/normal": 1224,
+            "infinity/infinity": 432
+          }
+        }
+      },
+      "jit": {
+        "real": {
+          "before_word_differences": 732,
+          "after_word_differences": 48,
+          "before_class_pairs": {
+            "zero/zero": 92,
+            "zero/normal": 68,
+            "normal/normal": 448,
+            "infinity/normal": 640,
+            "zero/infinity": 24,
+            "infinity/infinity": 384
+          },
+          "after_class_pairs": {
+            "zero/zero": 92,
+            "zero/normal": 24,
+            "normal/normal": 1132,
+            "zero/infinity": 24,
+            "infinity/infinity": 384
+          }
+        },
+        "imag": {
+          "before_word_differences": 748,
+          "after_word_differences": 24,
+          "before_class_pairs": {
+            "normal/normal": 504,
+            "infinity/normal": 720,
+            "infinity/infinity": 432
+          },
+          "after_class_pairs": {
+            "normal/normal": 1224,
+            "infinity/infinity": 432
+          }
+        }
+      }
+    }
+  },
+  "failed_attempts": {
+    "stages_run001": "SyntaxError before imports or computation; exact script preimage/guard/receipt retained. Corrected run002 fully qualified.",
+    "hp_run001": "Incorrect broad large-argument guard applied also to SIN phase triggered explicit assertion before producing report. Preimage/runtime/receipt retained; fixed non-SIN overflow shortcut in run002.",
+    "hp_run002_runtime_gap": "Initial successful highprecision calculation had53observed mpmath files absent from copied guard. Raw guard/runtime/receipt and explicit missing-file inventory retained. Repeat with all188observed imports preguarded gives byte-identical mathematical report; only repeat qualifies supplementary highprecision evidence."
+  },
+  "analytic_jvp_AST_exact": true,
+  "authored_oracle_parent_preimage_nonimport_AST_exact": true,
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_package_20261018.tar.gz",
+    "sha256": "26cc180fff469a106c2b07d9bc3eb4e1f9276d42d2fce58ff403e86e4dce6d51",
+    "bytes": 47135249,
+    "payloads": 3630
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_overflow_range_stream_hashes_20261018.json",
+    "sha256": "94a3e8fcbe3c0b02a5406c4064c3229ca10d69943ae3c182cd0de54a1b92da4a"
+  }
+}

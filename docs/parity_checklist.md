@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Hermite normalization/grid arithmetic, ASINH axis behavior, generalized eigensolvers and disk Helmholtz assembly/solves. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover recursive root mapping, SIN near-overflow staging and numeric disk tolerance. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,18 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** SIN output-underflow product and JAX disk PhaseOne/pole location; **387 parent PASS / 3 strict XFAIL**. Child full unary1,914PASS26XFAIL and disk319PASS3XFAIL are separate overlapping scopes. [Evidence](sin_disk_jax_parent_cpu_20261018.json).
-
-- **Latest root filtering:** JAX strict acceptance/stable word-preserving sort/clipping, actualparent37PASS. Expanded run79sciencePASS+21protocolPASS/2ownershipFAIL; ownership corrected and23protocolPASS. Warm public-root cost3–9%higher in one descriptive pair; full performance remains open. [Evidence](roots_filter_jax_cpu_20261018.json).
-
-- **Latest verified integration:** SIN subnormal imaginary component and numeric Diskfun branches; **2,052 parent PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
-- **Unary work:**13original records remain (6other subnormal methods,7TANphase/sign);26unaryxfail cases include repeated inputs. New904selected SIN native words match, including the prior92extension gaps.192outside imaginary word differences remain, including72near-y710finite/Inf cases; real-component and overflow staging diagnosis continues.
-- **Disk work:** JAX numeric PhaseOne and source pole locations qualified.3strict word xfails now cover2post-GE transform cases and1inactive outer signed zero; prior subnormal GE gap fixed. getTol host arithmetic/tolerance power, FFT/projection/provider words and broader API/JAX/AD remain.
-- **Roots:** source QZ pencil/eigensolver leaf now JAX,43checksPASS; full recursive JAX/API/provider words/AD/performance remain. [Evidence](roots_qz_jax_cpu_20261018.json).
-- **Original tests:**88default native inv/roots/minmax return slots mapped;61Python cases plus3supplementals and17providerchecks. Complete function/assertion coverage remains open.
-- **Pages and figures:** final-source computations/stdout/scientific figures for322pages/1305figures remain; historical dimension/structural checks do not close them.
-- **CPU performance:** known inverse/Hermite/Checkmark/QR/LU/BVP/roots gaps still need matched native measurements and repairs.
-- **CI:**a9d5461a passed all46jobs; only that source qualifies. Newer main remains queued. Latest-main scientificCI and coverage≥79%remain required; no manual cancellation.
+- **Latest scientific integration:** recursive root mapping, SIN finite-hyperbolic overflow staging and JAX disk getTol. Three disjoint parent gates: **795 PASS / 3 strict XFAIL**. [Evidence](roots_sin_tolerance_parent_cpu_20261018.json).
+- **CI repair:** same-runtime frozen-prior TAN preservation test; all byte assertions retained. Older operators-c partition split after a 90-minute cancellation at 93%; all 118 chebop files remain covered exactly once. Latest-main CI and coverage ≥79% remain required.
+- **Unary worker:** four-method tiny-component staging (ATAN, EXP, EXPM1, SINH); full final-source qualification underway. TAN/TANH and phase/sign gaps remain separate open work. Current published metadata still has 13 original records / 26 expected-failure cases.
+- **Disk worker:** non-scalar JAX constructor/projection packet sealed; 376 child PASS / 3 unchanged XFAIL plus 43 exact complete replay records. Root integration/publication pending. Actual 1x1 adaptive route is a separate investigation.
+- **Numerical gaps:** complex rational poles, dense Chebfun3T representation/provider words, Hermite printed values/representation, external elementary providers, disk transform words and broader API/JAX/AD remain. [Detailed gaps](numerical_parity_gaps_20261017.md).
+- **Original tests:** scoped native return-slot maps and passing counterparts are linked below; complete function/assertion coverage across 2,333 library files and 1,102 original test files remains open.
+- **Pages and figures:** final-source computations/stdout and scientific/raster qualification for all 322 pages / 1,305 figures remain open. Historical structural and dimension checks do not close these items.
+- **CPU performance:** inverse, Hermite, Checkmark, QR/LU, BVP and roots need matched native qualification and remaining repairs; recursive root mapping has observed 9–20% warm overhead in one descriptive pair.
 
 ### Active work, not yet credited as complete
 
@@ -46,6 +42,10 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Recursive root affine mapping, finite-hyperbolic SIN staging and source numeric disk getTol in JAX. Scientific parent **795 PASS / 3 strict XFAIL**, with a separate TAN preservation gate **446 PASS / 22 XFAIL**; disjoint scopes and all raw evidence retained. [Joint evidence](roots_sin_tolerance_parent_cpu_20261018.json).
+- [x] Repair authored TAN preservation oracle portability without changing any assertion AST; split the timed-out operators-c CI file partition without removing any file or changing test/job limits. GitHub reproduction remains required.
+- [ ] Remaining disk/unary/provider/API/JAX/AD issues, full original assertion coverage, all 322 final-source pages / 1,305 figures, matched CPU speed and green latest-main CI remain open.
 
 - [x] SIN output-underflow904selectednative words and JAX numeric Diskfun PhaseOne/pole-location correction. Actualparent387PASS3strictXFAIL; childfullunary1914PASS26XFAIL anddisk319PASS3XFAIL separately scoped. Final originalk7PASS78.42s; archive3593payloads verified;1117CIowners. [Evidence](sin_disk_jax_parent_cpu_20261018.json).
 - [ ] Remaining13originalunaryrecords/26unaryxfailcases,192outsideimaginaryworddifferences,3diskwordxfails, getTol/projection/provider/API/JAX/AD/matchedspeed,322pages/1305figures and latest-mainCI remain open.

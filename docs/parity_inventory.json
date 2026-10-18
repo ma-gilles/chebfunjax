@@ -834,6 +834,26 @@
       "report_sha256": "9a9d22208b865f378082c1e661af466d4e7d4de9ef5537abd4e3854134264114",
       "scope": "Replace Chebtech roots QZ pencil/eigensolver leaf with JAX; not full roots/API/native-provider-word/performance qualification."
     },
+    "roots_sin_tolerance_parent_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3666,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_sin_tolerance_parent_cpu_20261018.tar.gz",
+        "sha256": "d94dbd34f5b5709de451f8fd8b63ccccec3e524896fc2d6100d83a6d547c7979"
+      },
+      "limits": [
+        "Full library function/API/original assertion coverage and transformations remain open.",
+        "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+        "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+        "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+        "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+        "Known CPU slow paths and matched native measurements remain required.",
+        "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+        "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+      ],
+      "report": "docs/roots_sin_tolerance_parent_cpu_20261018.json",
+      "report_sha256": "6ec82fdce831ba6ef19e32b91d217059d03572461dd806a40f4f48b6d22eb8e5",
+      "scope": "JAX recursive affine root mapping, finite hyperbolic SIN overflow staging, numeric Diskfun getTol; authored TAN preservation uses frozen prior source on same runtime."
+    },
     "scalar_simplify_parent_cpu_20261017": {
       "path": "docs/scalar_simplify_parent_cpu_20261017.json",
       "scope": "Omitted scalar simplify session tolerance;4baseline failures repaired,91unique scoped scientific/protocol nodes; full API/test-file statuses unchanged",
@@ -71609,6 +71629,20 @@
             "All322final-sourcepages/1305scientificfigures, other numerical gaps, matched CPU slowpaths and latest-mainCI/79%coverage remain open."
           ],
           "scope": "JAX eigenvalue-leaf real-root filter for Chebtech roots_main; no complete roots/API/performance closure."
+        },
+        {
+          "artifact": "roots_sin_tolerance_parent_cpu_20261018",
+          "limits": [
+            "Full library function/API/original assertion coverage and transformations remain open.",
+            "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+            "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+            "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+            "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+            "Known CPU slow paths and matched native measurements remain required.",
+            "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+            "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+          ],
+          "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
         }
       ],
       "functions": [
@@ -75649,6 +75683,20 @@
             "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
           ],
           "scope": "Native numeric PhaseOne arithmetic and source pole location; bounded controls/final k7 only. Whole-file status unchanged."
+        },
+        {
+          "artifact": "roots_sin_tolerance_parent_cpu_20261018",
+          "limits": [
+            "Full library function/API/original assertion coverage and transformations remain open.",
+            "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+            "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+            "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+            "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+            "Known CPU slow paths and matched native measurements remain required.",
+            "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+            "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+          ],
+          "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
         }
       ],
       "functions": [
@@ -90248,6 +90296,20 @@
         {
           "artifact": "tan_imaginary_nan_parent_cpu_20261018",
           "scope": "TAN exact-zero-real/imaginaryquietNaN realcomponent class and canonical word; preserve prior real/imag words outside approved mask and all analyticJVPs. CPU only, no fullIEEE/API/pages/performanceclosure. Full semantic/API status remains unverified."
+        },
+        {
+          "artifact": "roots_sin_tolerance_parent_cpu_20261018",
+          "limits": [
+            "Full library function/API/original assertion coverage and transformations remain open.",
+            "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+            "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+            "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+            "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+            "Known CPU slow paths and matched native measurements remain required.",
+            "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+            "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+          ],
+          "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
         }
       ],
       "functions": [
@@ -119479,6 +119541,20 @@
         {
           "artifact": "original_inv_roots_minmax_cpu_20261018",
           "scope": "Every default native return slot mapped/passing with explicit stronger predicates/adapters and rawcomplex-order checks. No fullAPI/alternateprefs/providerword/warning/performanceclosure."
+        },
+        {
+          "artifact": "roots_sin_tolerance_parent_cpu_20261018",
+          "limits": [
+            "Full library function/API/original assertion coverage and transformations remain open.",
+            "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+            "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+            "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+            "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+            "Known CPU slow paths and matched native measurements remain required.",
+            "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+            "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+          ],
+          "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
         }
       ],
       "functions": [
@@ -121469,6 +121545,20 @@
             "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
           ],
           "scope": "Native numeric PhaseOne arithmetic and source pole location; bounded controls/final k7 only. Whole-file status unchanged."
+        },
+        {
+          "artifact": "roots_sin_tolerance_parent_cpu_20261018",
+          "limits": [
+            "Full library function/API/original assertion coverage and transformations remain open.",
+            "Thirteen original unary metadata records and26unary expected failures remain at this source; TAN/TANH, remaining SIN provider/component gaps and NaN payloads are not generally qualified.",
+            "Three strict disk word expected failures remain; projection/FFT/providers, scalar adaptive route and full constructor/JIT/AD are open.",
+            "Root host trim/norm/pruning/control/top-level normalization remain; binary32/provider words/full API/JIT/AD and matched speed open. A descriptive pair retains9\u201320% warm overhead.",
+            "All322final-source computations/stdout pages and1305scientific/raster figures remain required.",
+            "Known CPU slow paths and matched native measurements remain required.",
+            "Latest-main CI/coverage>=79%remain required. Same-runtime TAN preservation passes locally; GH runner result not yet available.",
+            "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
+          ],
+          "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
         }
       ],
       "functions": [

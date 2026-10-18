@@ -8,6 +8,7 @@ R2025b scalar/array builtin captures establish storage behavior; builtin
 arithmetic is opaque. JIT/AD checks are Python adapter contracts.
 """
 import json
+import runpy
 import struct
 from pathlib import Path
 
@@ -817,6 +818,10 @@ def _tan_imaginary_nan_word_context(dtype, cohort, shape):
 
 TAN_IMAGINARY_NAN_PRIOR_CAPTURE = json.loads((DATA/'tan_imaginary_nan_prior_words_20261018.json').read_text())
 TAN_IMAGINARY_NAN_PRIOR_WORDS = {r['label']:r for r in TAN_IMAGINARY_NAN_PRIOR_CAPTURE['rows']}
+# Historical output words are CPU/compiler observations, not portable NaN sign
+# expectations. Keep the captured input words; evaluate the frozen prior source
+# on this runtime for the strict outside-mask and imaginary-word contract.
+TAN_IMAGINARY_NAN_RUNTIME_PRIOR = runpy.run_path(str(DATA/'tan_prior_9aa37701.py'))['_tan_numeric']
 
 
 def _decode_tan_nan_prior_words(row, mode):
@@ -842,9 +847,9 @@ def test_tan_imaginary_nan_signed_payload_and_offaxis_word_scope(dtype, cohort, 
     input_value = _decode_tan_nan_prior_words(row, 'input')
     assert input_value.real.tobytes() == value.real.tobytes()
     assert input_value.imag.tobytes() == value.imag.tobytes()
-    for mode, current_fn in (('eager', _UNARY_FNS_RAW['tan']),
-                              ('jit', jax.jit(_UNARY_FNS_RAW['tan']))):
-        prior = _decode_tan_nan_prior_words(row, mode)
+    for prior_fn, current_fn in ((TAN_IMAGINARY_NAN_RUNTIME_PRIOR, _UNARY_FNS_RAW['tan']),
+                                 (jax.jit(TAN_IMAGINARY_NAN_RUNTIME_PRIOR), jax.jit(_UNARY_FNS_RAW['tan']))):
+        prior = np.asarray(prior_fn(argument))
         expected = _tan_tanh_expected_axis_words('tan', value, prior)
         got = np.asarray(current_fn(argument))
         assert got.dtype == expected.dtype and got.shape == expected.shape

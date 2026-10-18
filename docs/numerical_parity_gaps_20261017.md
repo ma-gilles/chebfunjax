@@ -1,3 +1,32 @@
+# Recursive root mapping, SIN overflow and disk tolerance — 2026-10-18
+
+Three scientific parent gates pass **795 tests with 3 strict expected failures**:
+93 roots, 45 SIN, and 657 disk plus 3 expected failures. Recursive child-root
+mapping and source numeric disk getTol now use JAX; finite hyperbolic SIN
+staging closes the targeted near-overflow component differences. Child native
+captures, final-source bridges and failed trials remain in the linked reports.
+No original MATLAB test assertion, fixture or bound was changed.
+
+A separate targeted TAN preservation gate passes **446 tests with 22
+expected failures. All component-byte assertions remain. The authored test now
+evaluates verbatim frozen prior source on the same runtime, rather than treating
+local-CPU NaN sign snapshots as portable. Three failures on older GitHub CI
+motivated this change; local AVX2 did not reproduce them. GitHub qualification
+of the repair remains required. An initial full storage observation hit its
+240-second supervisor limit and is retained without a full-gate pass claim.
+
+An older operators-c CI job reached 93% at its 90-minute limit. Its 39 files
+are split into two disjoint jobs; the other two partitions, all assertions,
+900-second per-test timeout and 90-minute job cap remain unchanged. The complete
+118-file union is checked. Prior 1,117 core lane prefixes remain; there are now
+1,119 owners, 13 lanes, dedicated Hermite lane 12 and the unchanged 79% gate.
+
+Three disk word expected failures, broader unary/API/JAX/AD gaps, host root
+control/trim/norm, and matched CPU speed remain open. Root warm overhead was
+9–20% in one descriptive pair. All 322 final-source pages and 1,305 scientific
+figures still require full qualification. Latest-main CI remains required.
+Evidence: docs/roots_sin_tolerance_parent_cpu_20261018.json.
+
 # SIN output underflow and JAX numeric disk PhaseOne — 2026-10-18
 
 SIN now preserves the separately rounded cos(real)*sinh(imag) product through

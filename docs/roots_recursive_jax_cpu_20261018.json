@@ -1,0 +1,142 @@
+{
+  "scope": "JAX recursive affine roots mapping with native component storage/conventions; full recursive driver is still host-controlled.",
+  "base": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_review": {
+    "all_module_AST_exact_except_three_helpers_and_main_final_map_and_unused_local_constant": true,
+    "paths": {
+      "src/chebfunjax/tech/chebtech.py": "11307c888a4ab8be1cd19625611b7b495a8e93a4b75a0d3e29e5e89cccee0bc8",
+      "tests/test_tech/test_roots_recursive_affine_source.py": "5417c6622076cf76f466a71e06aece2e881241b4e64b154fedd7da8ec868c0fa",
+      "tests/fixtures/roots_recursive_affine_native_20261018.json": "02d209a6ccfd2ccd0e7c190908bf04dc1bf6e0925ac1605ae22034778af87496"
+    },
+    "real_rounding_proof": {
+      "scope": "Two fixed source recursive real maps only",
+      "proof": "Offsets are normal around +/-1/2, scales positive around1/2. A product affected by CPU gradual underflow has magnitude at most minimum normal and cannot affect rounding when added to these offsets. Near cancellation, the rounded product/offset are in the same normal binade and any nonzero difference is at least2^-54. Two source operations are materialized by an unrolled=False scan to prevent FMA.",
+      "cache": "Constants created only after np.asarray establishes eager host inputs; no traced call can populate cache. Datatype only cache key; fixed default CPU device under CPU-only session.",
+      "prior_hypotheses": "Magnitude barriers, output words and packed-complex removal alone did not resolve all failures. Raw integer component inputs plus gradual imag product did; no claim of a fully isolated compiler root cause."
+    },
+    "host_adapter": "NumPy allocates, views and copies transfer storage only. JAX kernel accepts uint component words and returns words; all data-dependent arithmetic/classification occurs in JAX. Fixed64element lanes avoid length-specific compilation; constants cached outside tracing.",
+    "complex_boundary": "Native exact-zero imaginary inputs map to+0; nonzero tiny products retain zero-cross-product addition sign; infinities do not contaminate opposite components, while off-axis NaNs couple them. Defined only for the two literal source maps; no universal complex multiply claim."
+  },
+  "native_controls": {
+    "captures": 2,
+    "contexts": 3150,
+    "finite_component_word_and_nonfinite_class_differences_final": 0,
+    "nan_word_policy": "Signs/payloads deliberately unqualified; original raw payloads retained.",
+    "old_map": "Initial1050capture finds35finite zero-sign differences and32imaginary class differences in existingNumPy mapping. No whole public-input reachability claim for these supplemental nonfinite controls."
+  },
+  "cohorts": [
+    {
+      "kind": "focused",
+      "passed": 93,
+      "pytest_seconds": "8.380",
+      "observed_imports": {
+        "count": 1539,
+        "missing_or_changed": []
+      },
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 14.983334463089705,
+        "sampled_peak_summed_rss_kib": 894132
+      }
+    },
+    {
+      "kind": "public",
+      "passed": 38,
+      "pytest_seconds": "80.023",
+      "observed_imports": {
+        "count": 1518,
+        "missing_or_changed": []
+      },
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 90.67396027920768,
+        "sampled_peak_summed_rss_kib": 3135844
+      }
+    }
+  ],
+  "distinct_final_passes": 131,
+  "overlap_note": "93focused+38public disjoint nodes; earlier gates/performance observations are not added. Final public gate includes24original counterpart cases and source-regime513/514/4000/4001 plus trim/linear controls.",
+  "performance": [
+    {
+      "coefficient_count": 51,
+      "roots": 50,
+      "all_output_words_equal": true,
+      "first_call_seconds": [
+        1.1599587076343596,
+        1.3981983368285
+      ],
+      "warm_median_seconds": [
+        0.003152247052639723,
+        0.0034345819149166346
+      ],
+      "warm_ratio": 1.0895662229394367
+    },
+    {
+      "coefficient_count": 129,
+      "roots": 128,
+      "all_output_words_equal": true,
+      "first_call_seconds": [
+        1.4001827277243137,
+        1.4862464307807386
+      ],
+      "warm_median_seconds": [
+        0.017521566012874246,
+        0.0209370122756809
+      ],
+      "warm_ratio": 1.194928139430979
+    },
+    {
+      "coefficient_count": 513,
+      "roots": 512,
+      "all_output_words_equal": true,
+      "first_call_seconds": [
+        1.9146191687323153,
+        1.9287687600590289
+      ],
+      "warm_median_seconds": [
+        0.08071801322512329,
+        0.09664464043453336
+      ],
+      "warm_ratio": 1.1973119329014028
+    }
+  ],
+  "performance_scope": "One descriptive same-CPU fresh-process pair; first call per input shares earlier input compilation state in each arm. No native speed or statistical claim.",
+  "failed_trials": {
+    "runs1_to_5": "Each79PASS8FAIL in identical87node gate; mask/output barriers and packedcomplex/outputword variants did not fix all errors.",
+    "run6": "80PASS7FAIL; exact IEEE zero-add word identity removes some gaps, tiny products still lost in fused context.",
+    "run7": "83PASS4FAIL after existing gradual product; remaining tiny-real/NaNimag coupling failures.",
+    "run8": "87PASS after raw integer component inputs.",
+    "run9": "93PASS final cached/ordered-real revision plus6asymmetric tests.",
+    "empty_reader": "First native comparison aborted on MATLAB empty-array JSON field containing empty string; raw retained, reader uses recordedshape, fresh comparison terminal0.",
+    "hypothesis_limit": "No fully isolated compiler bug/root-cause claim. Debug stages/strictfastmathFalse and optimized HLO retained. Private test transport changed only to match new component-word ABI; all native scientific expected values/assertions remain exact."
+  },
+  "isolated_ownership": {
+    "owners": 1118,
+    "prior1117prefixes_retained": true,
+    "lanes": 13,
+    "hermite_lane": 12,
+    "coverage": 79
+  },
+  "limits": [
+    "Host trim/norm/pruning/top-level sorting/normalization and recursive control remain; no full roots/API/JIT/AD/backend qualification.",
+    "NaN sign/payload bits, binary32 numeric word parity and device-context changes unqualified.",
+    "No fitted source/provider buffers, native runtime fixtures or altered original assertions/bounds.",
+    "9\u201320% warmed overhead remains in one descriptive CPU pair despite improved revision; no native/statistical speed or regression-free claim.",
+    "322final-sourcepages/1305scientificfigures, broader correctness/API/assertion coverage, known CPU slowpaths and latest-main CI/79%coverage remain required.",
+    "Observed imported module files guarded; native installed library/subprocess mappings not exhaustively audited."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_recursive_jax_cpu_20261018.tar.gz",
+    "sha256": "6834d9bd9fbff3c18cbe1a4b5c7fd025cc670e3f23521a5fc75fd4e8f2d34728",
+    "manifest_payloads_stream_verified": 3754
+  }
+}

@@ -31,6 +31,15 @@ def test_sin_near_underflow_preserves_prior_words(row,mode):
     fn=_sin_cos_numeric if mode=='eager' else jax.jit(_sin_cos_numeric)
     actual=fn(_input(row))
     prior=row['prior_modes'][mode]
-    assert _words(jnp.real(actual))==prior['actual_real_words']
+    # Supersede only the independently captured finite-hyperbolic source mask:
+    # 68 real and 72 imaginary prior words per mode. Original 904 native
+    # underflow assertions, all inputs and all other prior words remain fixed.
+    large=json.loads((Path(__file__).with_name('data')/
+        'sin_large_hyperbolic_native_20261018.json').read_text())
+    extension=next(r['mask_F'] for r in large['rows'] if r['name']==row['name'])
+    assert not any(a and b for a,b in zip(extension,row['mask_F']))
+    expected_real=[n if k else p for n,p,k in zip(row['native']['real'],prior['actual_real_words'],extension)]
+    expected_imag=[n if k else p for n,p,k in zip(row['native']['imag'],prior['actual_imaginary_words'],extension)]
+    assert _words(jnp.real(actual))==expected_real
     imag=_words(jnp.imag(actual))
-    assert [w for w,k in zip(imag,row['mask_F']) if not k]==[w for w,k in zip(prior['actual_imaginary_words'],row['mask_F']) if not k]
+    assert [w for w,k in zip(imag,row['mask_F']) if not k]==[w for w,k in zip(expected_imag,row['mask_F']) if not k]
