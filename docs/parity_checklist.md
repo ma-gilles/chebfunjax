@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest published evidence through `be0b7958` covers all six default original system2 predicates, all eight default original L1 predicates, three nonfinite transform repairs and bounded cosine derivatives. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest verified integration adds native two-column FFT/compose repair and all14default original unbounded differentiation predicates; publication and CI status are recorded in the current status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -26,6 +26,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Native CPU two-column n33 inverse:660independent native words, two actual compose failures repaired, full96checks pass. Original unbounded default14predicates restored and pass in native/Python. Combined48parent checks pass;1090prior core owners retained+1. [Evidence](fft64_unbounded_parent_cpu_20261017.json).
+- [ ] Disk32 remains failing and worsens under this native-correct plan; supplemental unbounded endpoint failures, broader APIs/JAX/speed and latestCI remain open.
+
 
 - [x] Scalar simplify now honors the current session tolerance:4baseline failures repaired;6new+64existing scientific checks and21parent protocol checks pass,91unique nodes. All1089prior core owners retained+1new. [Evidence](scalar_simplify_parent_cpu_20261017.json).
 - [ ] Complete simplify API/empty/pref-object/globaltol/JAX/performance and final Checkmark page qualification remain required.

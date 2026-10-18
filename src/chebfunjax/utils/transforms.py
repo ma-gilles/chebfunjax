@@ -123,6 +123,20 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
             tmp, cpu=real_even_inverse64,
             default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0)),
         )
+    elif (n == 33 and values.ndim == 2 and values.shape[1] == 2
+          and values.dtype == jnp.float64):
+        # Native two-column length64 real-even inverse uses the same
+        # scalar arithmetic per column; retain the existing nonfinite path.
+        def two_columns(a):
+            return jax.lax.cond(
+                jnp.all(jnp.isfinite(a)),
+                lambda z: jax.lax.map(real_even_inverse64, z.T).T,
+                lambda z: jnp.real(source_ifft(z)), a,
+            )
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=two_columns,
+            default=lambda a: jnp.real(source_ifft(a)),
+        )
     elif (values.dtype == jnp.float64 and values.ndim in (1, 2)
           and (2 * (n - 1) & (2 * (n - 1) - 1)) == 0):
         # The source real IFFT sees a circular-even vector. Its first half

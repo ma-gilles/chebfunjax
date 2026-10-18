@@ -1,0 +1,58 @@
+{
+  "archives": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_two_columns_package_20261017.tar.gz",
+      "sha256": "feba7b261c7734123651aa7065268c8400a80cba700bbb65b06d828927eb37b0",
+      "verified_payloads": 6307
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_original14_package_20261017.tar.gz",
+      "sha256": "846276ab90a337a7b3d9de82c153519a6b698b147b326b1fe9ba73add3d5b323",
+      "verified_payloads": 433
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_unbounded_parent_cpu_20261017.tar.gz",
+      "payloads": 72,
+      "sha256": "28ec144133671bbc515d0bc4b8dba9bf410f2ef74e53478b78f511c087b84427",
+      "verified_payloads": 72
+    }
+  ],
+  "child_scopes": {
+    "fft": "10 independent native matrices/660 coefficient words; same11 baseline9FAIL2PASS then full96PASS138.78s; actual compose native44clauses true",
+    "unbounded": "unmodified native original14true; same literal Python14PASS57.77s on frozen native three-draw seed6178 inputs; no expected-output injection"
+  },
+  "core_ownership": "All1090 existing core owners retained; new FFT owner group6 makes1091. Original14 module uses automatic MATLAB-port shard.",
+  "limits": [
+    "Disk original32 remains failing: baseline2.3016510451495274e-16, candidate3.912300188344396e-16, unchanged eps2.220446049250313e-16.",
+    "Both supplemental unbounded endpoint failures retained; they use endpoint-including adapted grids, unlike original random source vectors. Native also fails adapted exp endpoint.",
+    "External cos4 warning, full transform/API/JAX qualification, matched CPU performance, all final pages/figures and latest-main CI/coverage remain unresolved.",
+    "New FFT shape/dtype/CPU dispatch is qualified only in stated scope; other shape and forward-transform low-word gaps remain."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_base": "afe8eca43c1e6fafd40d177c9116f293ae0ae9b8",
+  "parent_gate": {
+    "composition": "11 new FFT + 2 actual unchanged compose CI + 14 literal original unbounded + 21 CI protocol checks; overlaps child gates",
+    "pytest_seconds": 74.27,
+    "raw_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_unbounded_parent_run001/receipt.json",
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2947944,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 85.97774309199303
+    },
+    "result": "48 passed"
+  },
+  "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only",
+  "source_bridge": {
+    "all_AST_identical_except_method": "Chebfun.simplify",
+    "different_library_files": [
+      "src/chebfunjax/chebfun1d/chebfun.py"
+    ],
+    "executed_base": "25160101f6da2c8169d3c19dc98072458e77d254",
+    "parent_base": "afe8eca43c1e6fafd40d177c9116f293ae0ae9b8",
+    "scope": "Child96 low-level Tech/transform controls use no scalar Chebfun.simplify. Parent48 actual-current checks additionally validate combined integration and original14unbounded predicates. No full main regression or page claim."
+  }
+}

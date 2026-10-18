@@ -1,0 +1,26 @@
+{
+  "source": "@chebtech2/vals2coeffs.m",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "capture_sha256": "919b99e3e079cb247dec5b61a761d0d7ea5c61fc8fdf87535eb5809796f16051",
+  "generator": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fft64_two_columns_native_20261017/fft64_two_columns_native.m",
+  "cases": 10,
+  "shape": [
+    33,
+    2
+  ],
+  "native_batch_equals_independent_scalar_columns_words": [
+    66,
+    66,
+    66,
+    66,
+    66,
+    66,
+    66,
+    66,
+    66,
+    66
+  ],
+  "scope": "Independent fixed actual native input/output oracle; never injected into library computation",
+  "fixture_sha256": "eaf457abfa8b4c3927d651754622c255d598ea9d00db9c0bb0d6763356faa2f7"
+}

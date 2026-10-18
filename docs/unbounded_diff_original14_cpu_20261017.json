@@ -1,0 +1,293 @@
+{
+  "scope": "The fourteen default original test_diff.m predicates on pinned native input words. Additional exact source coverage; no library changes, test replacements or whole API closure.",
+  "base": "25160101f6da2c8169d3c19dc98072458e77d254",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_literal_evidence_20261017",
+  "publication_paths": [
+    "tests/test_matlab_port/unbndfun/test_diff_original_source.py",
+    "tests/test_matlab_port/unbndfun/test_diff_native_rng_20261017.npz",
+    "tests/test_matlab_port/unbndfun/test_diff_native_rng_20261017.json",
+    "docs/unbounded_diff_original14_cpu_20261017.json"
+  ],
+  "new_matlabport_owner": "tests/test_matlab_port/unbndfun/test_diff_original_source.py",
+  "new_selectors": 14,
+  "library_changes": [],
+  "native": {
+    "unmodified_default_test_invocation": true,
+    "all14_true": true,
+    "test_function_seconds": 1.788625,
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 81.61009045271203,
+      "sampled_peak_summed_rss_kib": 1331140,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "capture": "native_original.mat",
+    "seed": 6178,
+    "call_sequence": "seedRNG(6178), then three successive rand(100,1) draws with original affine maps. First both-inf, second right-inf, third left-inf. Native clauses 10\u201314 share the third vector.",
+    "seed_implementation": "seedRNG.m modern branch calls rng('default'); rng(s).",
+    "proof": "The final original-function RNG state equals the exact three-draw replay state. Raw states and all three vectors are retained.",
+    "source_test_sha256": "63897bc5655e03f788bd8cdb147a556c33ae404f6a6163b60ac8204369c8c3a9",
+    "source_seed_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c"
+  },
+  "fixture": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+    "seed": 6178,
+    "seed_function": "seedRNG.m: rng(default);rng(6178)",
+    "source_draws": "test_diff.m22,68,113: three successive rand(100,1) and literal source affine maps",
+    "final_original_vs_replay_rng_equal": true,
+    "native_original_all14": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "native_source_sha256": "63897bc5655e03f788bd8cdb147a556c33ae404f6a6163b60ac8204369c8c3a9",
+    "native_seed_source_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+    "native_capture_sha256": "ce40b3c7c38cdd0ff333a7d20c37900d27b8802047575df932a5e8fd7abf895e",
+    "npz_sha256": "ac3ef01fa1061c7187737e15b5c2f0a95fc95b1a40573cd5ec7624949d80e684",
+    "arrays": {
+      "x_both": {
+        "shape": [
+          100,
+          1
+        ],
+        "dtype": "float64",
+        "words_sha256": "b97e7ad73101f6cfc5d47265c615d414a62f427b72af9149584b235354b86edb"
+      },
+      "x_right": {
+        "shape": [
+          100,
+          1
+        ],
+        "dtype": "float64",
+        "words_sha256": "2a6d5b1249d0d0ecd6b95e1af88b5f718d9b78f41ca6b8ba032718eb70c33bcf"
+      },
+      "x_left": {
+        "shape": [
+          100,
+          1
+        ],
+        "dtype": "float64",
+        "words_sha256": "f53ebabce820d4282932b0f9c3102cd6fba19c7f74139c8f93c0c12325215243"
+      }
+    },
+    "scope": "Actual pinned native seeded input words, not Python RNG equivalence, expected output lookup or substituted function values."
+  },
+  "current_JAX": {
+    "all14_passed": true,
+    "pytest_seconds_sum": 57.77,
+    "cohorts": {
+      "both": {
+        "predicates": 4,
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 33.79990354599431,
+          "sampled_peak_summed_rss_kib": 1969104,
+          "inputs_stable": true,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        }
+      },
+      "right": {
+        "predicates": 5,
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 21.6689276448451,
+          "sampled_peak_summed_rss_kib": 1406204,
+          "inputs_stable": true,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        }
+      },
+      "left": {
+        "predicates": 5,
+        "receipt": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 16.08896543364972,
+          "sampled_peak_summed_rss_kib": 1143724,
+          "inputs_stable": true,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        }
+      }
+    },
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "backend": "cpu",
+    "x64": true,
+    "affinity": [
+      36,
+      37,
+      38,
+      39
+    ],
+    "guards": "All library Python sources, new tests, fixture NPZ/JSON, pyproject, conftests, drivers, pinned environment script and native reference data are guarded. Drivers assert versions, CPU, x64, affinity and worktree module origin.",
+    "clauses": [
+      {
+        "clause": 1,
+        "error": 1.3489209749195652e-14,
+        "bound": 4.440892098500626e-13,
+        "native_slot": 1,
+        "source_operation": "exp(-x^2), second derivative",
+        "source_bound": "1e3*eps*g.vscale",
+        "native_grid": "x_both"
+      },
+      {
+        "clause": 2,
+        "error": 6.661338147750939e-16,
+        "bound": 2.5705245182170475e-15,
+        "native_slot": 2,
+        "source_operation": "x^2*exp(-x^2), first derivative",
+        "source_bound": "2e1*eps*g.vscale",
+        "native_grid": "x_both"
+      },
+      {
+        "clause": 3,
+        "error": 1.887379141862766e-15,
+        "bound": 2.2204460492503e-14,
+        "native_slot": 3,
+        "source_operation": "(1-exp(-x^2))/x, first derivative",
+        "source_bound": "1e2*eps*g.vscale",
+        "native_grid": "x_both"
+      },
+      {
+        "clause": 4,
+        "error": 6.35679953120416e-10,
+        "bound": 5.551115123129918e-08,
+        "native_slot": 4,
+        "source_operation": "x^2*(1-exp(-x^2)), first derivative, exponents [2,2]",
+        "source_bound": "1e7*eps*f.vscale",
+        "native_grid": "x_both"
+      },
+      {
+        "clause": 5,
+        "error": 3.3306690738754696e-16,
+        "bound": 8.168564517495421e-16,
+        "native_slot": 5,
+        "source_operation": "exp(-x), FEVAL",
+        "source_bound": "1e1*eps*f.vscale",
+        "native_grid": "x_right"
+      },
+      {
+        "clause": 6,
+        "error": 7.632783294297951e-17,
+        "bound": 8.16856451749542e-16,
+        "native_slot": 6,
+        "source_operation": "x*exp(-x), FEVAL",
+        "source_bound": "10*eps*f.vscale",
+        "native_grid": "x_right"
+      },
+      {
+        "clause": 7,
+        "error": 1.1102230246251565e-16,
+        "bound": 1.4035895975007716e-15,
+        "native_slot": 7,
+        "source_operation": "(1-exp(-x))/x, FEVAL",
+        "source_bound": "1e1*eps*f.vscale",
+        "native_grid": "x_right"
+      },
+      {
+        "clause": 8,
+        "error": 5.551115123125783e-16,
+        "bound": 2.2204460492503127e-15,
+        "native_slot": 8,
+        "source_operation": "1/x, FEVAL",
+        "source_bound": "1e1*eps*f.vscale",
+        "native_grid": "x_right"
+      },
+      {
+        "clause": 9,
+        "error": 1.1368683772161603e-13,
+        "bound": 3.3306690738754696e-12,
+        "native_slot": 9,
+        "source_operation": "x*(5+exp(-x^3)), FEVAL, exponents [0,1]",
+        "source_bound": "1e2*eps*f.vscale",
+        "native_grid": "x_right"
+      },
+      {
+        "clause": 10,
+        "error": 9.317362419797304e-21,
+        "bound": 1.7918892496538908e-20,
+        "native_slot": 10,
+        "source_operation": "exp(x), FEVAL",
+        "source_bound": "eps*f.vscale",
+        "native_grid": "x_left"
+      },
+      {
+        "clause": 11,
+        "error": 6.098637220230962e-20,
+        "bound": 1.6888158308277575e-19,
+        "native_slot": 11,
+        "source_operation": "x*exp(x), FEVAL",
+        "source_bound": "eps*f.vscale",
+        "native_grid": "x_left"
+      },
+      {
+        "clause": 12,
+        "error": 1.543569315605193e-17,
+        "bound": 2.3557763053593457e-17,
+        "native_slot": 12,
+        "source_operation": "(1-exp(x))/x, FEVAL",
+        "source_bound": "eps*f.vscale",
+        "native_grid": "x_left"
+      },
+      {
+        "clause": 13,
+        "error": 1.360673726469308e-17,
+        "bound": 2.3559664307137165e-17,
+        "native_slot": 13,
+        "source_operation": "1/x, FEVAL",
+        "source_bound": "eps*f.vscale",
+        "native_grid": "x_left"
+      },
+      {
+        "clause": 14,
+        "error": 1.7763568394002505e-15,
+        "bound": 2.2204460492503134e-14,
+        "native_slot": 14,
+        "source_operation": "x*(5+exp(x^3))/(b-x), FEVAL, exponents [0,-1]",
+        "source_bound": "1e1*eps*f.vscale",
+        "native_grid": "x_left"
+      }
+    ]
+  },
+  "retained_supplements": {
+    "file": "tests/test_matlab_port/unbndfun/test_diff_matlab.py",
+    "sha256": "d2bc8a878a784add83facb8f936a2dc72fea2921d0c9e3bea67cbed4bf1a764f",
+    "body_byte_identical_to_base": true,
+    "endpoint_cases_still_fail_on_base": true,
+    "native_exp_also_fails_extra_endpoint_grid": true,
+    "no_xfail_delete_or_bound_change": true,
+    "classification": "Existing linspace checks use endpoint-inclusive authored grids. Native source uses seeded random vectors. Adding literal tests does not turn these scientific failures into passes.",
+    "diagnostic_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_unbounded_disk_stage_package_20261017.tar.gz",
+    "diagnostic_archive_sha256": "776f1c3c38a8bdde4784054d764292ca54ff2c13b8f4804fc8dc380a718772d6"
+  },
+  "constructor_adapter_scope": "Python uses its scalar-function 100-vector query layout with the exact native 100x1 coordinate words. Native explicit exponents in clauses 4/9/14 use the existing from_function(exps=) path, which constructs Singfun directly. No new preference or API grammar.",
+  "limits": [
+    "Only the default original fourteen predicates are qualified; custom preferences and other API behavior remain open.",
+    "No expected function output lookup, endpoint memoization, clipping, root filtering, tolerance change or output substitution.",
+    "The native query fixture is reference input only. No claim that NumPy/Python RNG equals MATLAB.",
+    "NumPy/SciPy.io serve only fixture/native reference serialization and loading. All new test numerical array math uses JAX.",
+    "The stronger endpoint supplements and disk failure remain unresolved. The disk prototype worsened an already failing strict predicate.",
+    "Selected source/config guards and runtime assertions do not establish exhaustive external module immutability."
+  ]
+}

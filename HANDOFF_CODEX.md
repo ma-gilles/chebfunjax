@@ -1,3 +1,15 @@
+# Two-column native transform and original unbounded tests — 2026-10-17
+
+CPU real float64 n33 two-column inverse now uses the independently qualified
+native scalar plan per column. Both actual compose CI shape failures are fixed;
+10native matrices/660words, new11tests and full96-node cohort pass. Original
+unbounded test_diff default14predicates are restored using exact seeded native
+input words; native14true and Python14pass. Combined parent48checks pass.
+All1090prior core owners retained+1. Disk32 worsens under this source-correct
+plan and remains failing; supplemental unbounded endpoint checks are retained.
+Full APIs/JAX/speed/pages/figures and latestCI/coverage remain open.
+Evidence: docs/fft64_unbounded_parent_cpu_20261017.json.
+
 # Scalar simplify honors session tolerance — 2026-10-17
 
 Omitted scalar Chebfun.simplify tolerance now uses existing global ChebfunPref,

@@ -187,6 +187,11 @@
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
       "sha256": "6f18e18e049871f89dcab2685e48c500c6485a628beec04f94a16a4e3db1afa9"
     },
+    "fft64_unbounded_parent_cpu_20261017": {
+      "path": "docs/fft64_unbounded_parent_cpu_20261017.json",
+      "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only",
+      "sha256": "e24b70caedca2ce26430082de48cc783f1b2ff9c557a9a619cf9e02b807f6d9b"
+    },
     "fro_delta_cpu_20261017": {
       "path": "docs/fro_delta_cpu_20261017.json",
       "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged",
@@ -71820,6 +71825,17 @@
         {
           "artifact": "inverse_c2r_parent_cpu_20261017",
           "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
+        },
+        {
+          "artifact": "fft64_unbounded_parent_cpu_20261017",
+          "limits": [
+            "Disk original32 remains failing: baseline2.3016510451495274e-16, candidate3.912300188344396e-16, unchanged eps2.220446049250313e-16.",
+            "Both supplemental unbounded endpoint failures retained; they use endpoint-including adapted grids, unlike original random source vectors. Native also fails adapted exp endpoint.",
+            "External cos4 warning, full transform/API/JAX qualification, matched CPU performance, all final pages/figures and latest-main CI/coverage remain unresolved.",
+            "New FFT shape/dtype/CPU dispatch is qualified only in stated scope; other shape and forward-transform low-word gaps remain."
+          ],
+          "report": "docs/fft64_unbounded_parent_cpu_20261017.json",
+          "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only"
         }
       ],
       "functions": [
@@ -116524,7 +116540,19 @@
         "tests/test_matlab_port/trigtech/test_compose_matlab.py",
         "tests/test_matlab_port/unbndfun/test_compose_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "fft64_unbounded_parent_cpu_20261017",
+          "limits": [
+            "Disk original32 remains failing: baseline2.3016510451495274e-16, candidate3.912300188344396e-16, unchanged eps2.220446049250313e-16.",
+            "Both supplemental unbounded endpoint failures retained; they use endpoint-including adapted grids, unlike original random source vectors. Native also fails adapted exp endpoint.",
+            "External cos4 warning, full transform/API/JAX qualification, matched CPU performance, all final pages/figures and latest-main CI/coverage remain unresolved.",
+            "New FFT shape/dtype/CPU dispatch is qualified only in stated scope; other shape and forward-transform low-word gaps remain."
+          ],
+          "report": "docs/fft64_unbounded_parent_cpu_20261017.json",
+          "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -128676,7 +128704,19 @@
         "tests/test_matlab_port/trigtech/test_diff_matlab.py",
         "tests/test_matlab_port/unbndfun/test_diff_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "fft64_unbounded_parent_cpu_20261017",
+          "limits": [
+            "Disk original32 remains failing: baseline2.3016510451495274e-16, candidate3.912300188344396e-16, unchanged eps2.220446049250313e-16.",
+            "Both supplemental unbounded endpoint failures retained; they use endpoint-including adapted grids, unlike original random source vectors. Native also fails adapted exp endpoint.",
+            "External cos4 warning, full transform/API/JAX qualification, matched CPU performance, all final pages/figures and latest-main CI/coverage remain unresolved.",
+            "New FFT shape/dtype/CPU dispatch is qualified only in stated scope; other shape and forward-transform low-word gaps remain."
+          ],
+          "report": "docs/fft64_unbounded_parent_cpu_20261017.json",
+          "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

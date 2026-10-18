@@ -708,7 +708,8 @@
       "tests/test_operators/test_fourier_scalar_coefficient_layout.py",
       "tests/test_utils/test_ratinterp_inherited_domain_source.py",
       "tests/test_operators/test_system_eigs_projection_source.py",
-      "tests/test_utils/test_bounded_cosine_derivatives_source.py"
+      "tests/test_utils/test_bounded_cosine_derivatives_source.py",
+      "tests/test_utils/test_fft64_two_columns_native.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1118,6 +1119,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "25160101f6da2c8169d3c19dc98072458e77d254",
+  "last_update_parent": "afe8eca43c1e6fafd40d177c9116f293ae0ae9b8",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

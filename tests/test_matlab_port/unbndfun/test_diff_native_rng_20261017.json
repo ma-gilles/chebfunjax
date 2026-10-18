@@ -1,0 +1,55 @@
+{
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+  "seed": 6178,
+  "seed_function": "seedRNG.m: rng(default);rng(6178)",
+  "source_draws": "test_diff.m22,68,113: three successive rand(100,1) and literal source affine maps",
+  "final_original_vs_replay_rng_equal": true,
+  "native_original_all14": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "native_source_sha256": "63897bc5655e03f788bd8cdb147a556c33ae404f6a6163b60ac8204369c8c3a9",
+  "native_seed_source_sha256": "2e6f80c9fcd2c511a783742cb688b22818c8084d457fd724ab471ea4e0d02e5c",
+  "native_capture_sha256": "ce40b3c7c38cdd0ff333a7d20c37900d27b8802047575df932a5e8fd7abf895e",
+  "npz_sha256": "ac3ef01fa1061c7187737e15b5c2f0a95fc95b1a40573cd5ec7624949d80e684",
+  "arrays": {
+    "x_both": {
+      "shape": [
+        100,
+        1
+      ],
+      "dtype": "float64",
+      "words_sha256": "b97e7ad73101f6cfc5d47265c615d414a62f427b72af9149584b235354b86edb"
+    },
+    "x_right": {
+      "shape": [
+        100,
+        1
+      ],
+      "dtype": "float64",
+      "words_sha256": "2a6d5b1249d0d0ecd6b95e1af88b5f718d9b78f41ca6b8ba032718eb70c33bcf"
+    },
+    "x_left": {
+      "shape": [
+        100,
+        1
+      ],
+      "dtype": "float64",
+      "words_sha256": "f53ebabce820d4282932b0f9c3102cd6fba19c7f74139c8f93c0c12325215243"
+    }
+  },
+  "scope": "Actual pinned native seeded input words, not Python RNG equivalence, expected output lookup or substituted function values."
+}
