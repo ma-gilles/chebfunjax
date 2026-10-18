@@ -182,6 +182,11 @@
       "scope": "Six native-backed authored complex extrema cases with stored points, sides and arrays; full-item statuses unchanged",
       "sha256": "798da82283310d7bfa69a1438791a4a81a215ff1beb347dd8b30a95fc0fa5b98"
     },
+    "complex_poles_svd_cpu_20261018": {
+      "path": "docs/complex_poles_svd_cpu_20261018.json",
+      "scope": "Same-input QR/SVD provider diagnosis; native-R diagnostic reduces vector discrepancy. No mathematical accuracy bug or production fix established.",
+      "sha256": "f7859c192e724a1001710d0b6b28f4d2c8052d05f58092ba73d07ecba9f414fe"
+    },
     "cosine_watson_paired_controls_cpu_20261017": {
       "path": "docs/cosine_watson_paired_controls_cpu_20261017.json",
       "scope": "Paired source-compatible/external-JAX cosine diagnosis; unchanged strict warning regression remains unresolved",
@@ -237,6 +242,11 @@
       "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim.",
       "sha256": "a00602856894708c0deb247f77d5066efd0f213adb0d97c1226740292afda3cb"
     },
+    "dot_bary_scalar_provider_diagnosis_20261018": {
+      "path": "docs/dot_bary_scalar_provider_diagnosis_20261018.json",
+      "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair.",
+      "sha256": "2ada6c1614390a482f2acc8f7667f5e32b347af2312c9219c09ac134fed42c46"
+    },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
@@ -251,6 +261,11 @@
       "path": "docs/fro_delta_cpu_20261017.json",
       "scope": "Subspace Frobenius correction and seven original Delta innerProduct predicates; scoped controls only, full-item statuses unchanged",
       "sha256": "e9e7ef41a46631f97d878d95addb60b9a3b557cf59402a37e2b3456fe591aa93"
+    },
+    "generalized_qz_parent_cpu_20261018": {
+      "path": "docs/generalized_qz_parent_cpu_20261018.json",
+      "scope": "JAX shared dense eig and source C1 constraints;60parent checks across055/059 scalar-isolated stages,20native child controls separate,11module executable AST bridge. No wholeAPI/JIT/AD/speed/page/figure/latestCI closure.",
+      "sha256": "c0637ad75e461ce3cb7593073c479f1d442e7933f7bc1291e86b5381422bf3ea"
     },
     "get_remaining_predicates_20261017": {
       "additional_singleton_control": 1,
@@ -291,6 +306,11 @@
       "path": "docs/handoff_twelve_disposition_review_cpu_20261017.json",
       "scope": "Read-only reconciliation of original12interrupted scripts on fixed publication9c4b; no scientific examples, numerical gates or native launches. Script presence/global structural audit yields no execution or figure credit.",
       "sha256": "c55780c5657fc597729ce68b87fa6ecb3532b2523052fb776f32a449688aa1e9"
+    },
+    "hc2c4_primitive_cpu_20261018": {
+      "path": "docs/hc2c4_primitive_cpu_20261018.json",
+      "scope": "Neutral HC2C4/endpoint and Rader-coordinate/DC observations. External1089coefficient bridge uses captured native180buffers as diagnostic, never production data. No complete transform/crop/API/speed closure.",
+      "sha256": "edd2a237b89f0a75e7d05c0df692626805512ca97c8aaca2e97c9e1df21b0461"
     },
     "hermite_derivative_order_cpu_20261017": {
       "path": "docs/hermite_derivative_order_cpu_20261017.json",
@@ -518,6 +538,11 @@
       "path": "docs/quasimatrix_integral2_cpu_20261017.json",
       "scope": "39 Python nodes; native factory ten branches/seven errors and original cell2quasi predicate; three original Chebfun2 integral2 predicates; inherited representation/API gaps open",
       "sha256": "2a53ee2a03bb275968bb42cb86b259179daf4bc935e66395426de4456c17639d"
+    },
+    "rader180_primitive_cpu_20261018": {
+      "path": "docs/rader180_primitive_cpu_20261018.json",
+      "scope": "Neutral small native180 primitive observations; diagnostic exact codelet/composition words and independent mathematical/AD gates. No production180 integration, full tensor/crop/API/page/figure/speed claim.",
+      "sha256": "cb45b325fb9829e70a0b32acd1a972c88d830f455f09f84cf0a509028464b745"
     },
     "rader724_parent_cpu_20261018": {
       "path": "docs/rader724_parent_cpu_20261018.json",
@@ -67972,6 +67997,10 @@
         {
           "evidence_id": "original_system2_polyfit8_cpu_20261017",
           "scope": "Default original test clauses only; full function/API remains unverified."
+        },
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "JAX shared dense eig and source C1 constraints;60parent checks across055/059 scalar-isolated stages,20native child controls separate,11module executable AST bridge. No wholeAPI/JIT/AD/speed/page/figure/latestCI closure."
         }
       ],
       "functions": [
@@ -72091,6 +72120,14 @@
             "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
           ],
           "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
+        },
+        {
+          "artifact": "rader180_primitive_cpu_20261018",
+          "scope": "Neutral small native180 primitive observations; diagnostic exact codelet/composition words and independent mathematical/AD gates. No production180 integration, full tensor/crop/API/page/figure/speed claim."
+        },
+        {
+          "artifact": "hc2c4_primitive_cpu_20261018",
+          "scope": "Neutral HC2C4/endpoint and Rader-coordinate/DC observations. External1089coefficient bridge uses captured native180buffers as diagnostic, never production data. No complete transform/crop/API/speed closure."
         }
       ],
       "functions": [
@@ -79367,6 +79404,14 @@
         {
           "evidence_id": "c1_eigs_adaptive_cpu_20261017",
           "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
+        },
+        {
+          "artifact": "dot_bary_scalar_provider_diagnosis_20261018",
+          "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair."
+        },
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "JAX shared dense eig and source C1 constraints;60parent checks across055/059 scalar-isolated stages,20native child controls separate,11module executable AST bridge. No wholeAPI/JIT/AD/speed/page/figure/latestCI closure."
         }
       ],
       "functions": [
@@ -80004,7 +80049,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "JAX shared dense eig and source C1 constraints;60parent checks across055/059 scalar-isolated stages,20native child controls separate,11module executable AST bridge. No wholeAPI/JIT/AD/speed/page/figure/latestCI closure."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -93607,6 +93657,10 @@
         {
           "artifact": "bary_rounding_joint_cpu_20261017",
           "scope": "Node-loop source boundaries and902native sample words; full API/small-query qualification remains open"
+        },
+        {
+          "artifact": "dot_bary_scalar_provider_diagnosis_20261018",
+          "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair."
         }
       ],
       "functions": [
@@ -96714,6 +96768,10 @@
             "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
           ],
           "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
+        },
+        {
+          "artifact": "dot_bary_scalar_provider_diagnosis_20261018",
+          "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair."
         }
       ],
       "functions": [
@@ -97346,6 +97404,10 @@
         {
           "artifact": "ratinterp_real602_cpu_20261017",
           "scope": "Real602FFT diagnostic exact275424nonredundant words and sourceD302exact91204words; no production/fullAPI/pole acceptance."
+        },
+        {
+          "artifact": "complex_poles_svd_cpu_20261018",
+          "scope": "Same-input QR/SVD provider diagnosis; native-R diagnostic reduces vector discrepancy. No mathematical accuracy bug or production fix established."
         }
       ],
       "functions": [
@@ -114408,7 +114470,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebop/test_eigs_basic_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "Existing source-bound predicates and C1/C2/ultraS adapters in parent cohorts. Test-specific multiset/output adapters and limits retained; not whole file/API qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -114573,6 +114640,10 @@
         {
           "artifact": "maxwell_system_eigs_parent_cpu_20261017",
           "scope": "Four literal default C2 predicates pass; full item promotion awaits complete review"
+        },
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "Existing source-bound predicates and C1/C2/ultraS adapters in parent cohorts. Test-specific multiset/output adapters and limits retained; not whole file/API qualification."
         }
       ],
       "functions": [
@@ -114623,6 +114694,10 @@
         {
           "evidence_id": "original_system2_polyfit8_cpu_20261017",
           "scope": "All default original predicate indices, source-bound; broader API/global statuses unchanged."
+        },
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "Existing source-bound predicates and C1/C2/ultraS adapters in parent cohorts. Test-specific multiset/output adapters and limits retained; not whole file/API qualification."
         }
       ],
       "functions": [
@@ -122654,7 +122729,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/linop/test_eigsGeneralizedSys_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "generalized_qz_parent_cpu_20261018",
+          "scope": "Existing source-bound predicates and C1/C2/ultraS adapters in parent cohorts. Test-specific multiset/output adapters and limits retained; not whole file/API qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

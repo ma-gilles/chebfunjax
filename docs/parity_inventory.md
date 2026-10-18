@@ -281,3 +281,9 @@ full API and performance gaps remain. All full-item statuses are unchanged.
 checks and6additional public matched-native-draw controls. Exact MATLAB random
 bits, full API and performance remain unqualified. All full-item statuses stay
 unchanged; existing fixture tests do not constitute a fresh native run.
+
+[Shared generalized eig integration](generalized_qz_parent_cpu_20261018.json)
+adds scoped provider/C1/original-predicate evidence.60parent checks across two
+explicitly bridged stages do not certify whole files or transformations. Native
+FFT/HC2C4 and complex QR observations remain separately registered diagnostics.
+All whole-item status fields are unchanged.

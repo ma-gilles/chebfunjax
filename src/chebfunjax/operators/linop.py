@@ -547,9 +547,9 @@ class Linop:
         otherwise only the eigenvalues are returned. The private _raw route
         remains a legacy fixed-grid adapter for existing private callers.
 
-        New numerical policy uses JAX. The inherited dense generalized solver
-        uses SciPy/NumPy LAPACK through blocklinop._geig; no JIT/AD-through-eigs
-        or complete native backend-parity claim is made.
+        The shared dense generalized solver uses JAX through blocklinop._geig.
+        Dispatch and convergence retain Python control flow; whole-call JIT
+        and differentiation through eigs are not supported.
 
         MATLAB source: @linop/eigs.m, @chebcolloc2/toFunctionOut.m (7574c77).
         """

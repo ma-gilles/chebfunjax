@@ -1,3 +1,16 @@
+# JAX generalized eig and C1 source constraints — 2026-10-18
+
+Shared blocklinop._geig now uses JAX real/complex QZ and Hermitian/SPD paths;
+caller sorting/filtering/adaptivity retained. C1 constraints instantiate their
+functional stacks on C1 values grids.60actual-parent checks across055/059 stages
+pass with a reviewed scalar-only AST bridge;20child native controls are separate.
+Exact tiny-result rounding, Inf-times-subnormal classes and eligible scalar
+real storage verified. All1103prior core owners retained+3;13lanes, dedicated
+HermiteCore12 and79%gate unchanged. Earlier97e CI passed46jobs/82%reportedcoverage;
+latest-main scientificCI remains required. Whole-callJIT/AD/vmap, separate
+legacy providers, full APIs/CPU speed,322pages/1305figures and remaining gaps
+stay open. Evidence: generalized_qz_parent_cpu_20261018.json.
+
 # Dense Chebfun3T constructor bound repaired — 2026-10-18
 
 Real finite CPU length724 transforms use a source-motivated C2R/Rader181

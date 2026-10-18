@@ -156,7 +156,24 @@ class LinearDiscretization:
             [True]*self.L.ncols,
         )
         transfer = _block_diagonal(input_to_second_kind)
-        rows = [row @ transfer for row in constraint_rows]
+        rows = []
+        source_constraints = [*self.L.continuity, *self.L.constraint]
+        for (blocks, _), row in zip(source_constraints, constraint_rows):
+            capabilities = [getattr(block, '_values_capability', None) for block in blocks]
+            if backend == 'chebcolloc1' and all(cap is not None for cap in capabilities):
+                # getConstraints instantiates each functional directly on the
+                # chosen values grid. In C1, a C2 transfer changes composed
+                # functional stacks (and adds FFT roundoff to endpoint rows).
+                # Source: @opDiscretization/getConstraints.m, @chebcolloc/feval.m.
+                rows.append(jnp.concatenate([
+                    jnp.atleast_2d(cap.realize(FirstKindDisc(
+                        [n+self.orders[j] for n in self.dimensions], self.domain)))
+                    for j, cap in enumerate(capabilities)
+                ], axis=1))
+            else:
+                # Retain legacy custom functionals without a C1 capability,
+                # and the existing coefficient-space constraint conversion.
+                rows.append(row @ transfer)
         self.continuity_count = len(self.L.continuity)
         for i, blocks in enumerate(self.L.A.blocks):
             row = [self._operator_column(block, j, self.row_orders[i])

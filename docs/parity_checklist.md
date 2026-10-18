@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified integration adds public small Hermite ASY, disk factor maps and source-correct original unbounded test adapters; publication and CI status are recorded in the current status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest published fixes cover disk zero storage, minimax scaling/status and the original dense constructor bound; current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -26,6 +26,22 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Shared dense generalized eig now uses JAX real/complex QZ and Hermitian/SPD dispatch with source C1 constraint grids.60parent checks across two explicitly bridged stages pass;20native child controls are separate. Tiny-result exact rounding, nonfinite classes and scalar real storage verified. [Evidence](generalized_qz_parent_cpu_20261018.json).
+- [ ] Full eigs grammar/providers/API, whole-call JIT/AD/vmap, matched CPU speed and latest-main CI remain open. Separate legacy adapters retain inherited providers.
+- [x] Earlier97e scientific CI passed46jobs with reported82%aggregatecoverage; latest-main CI remains required.
+- [x] HC2C4/endpoint and coordinate/DC boundaries match observed native words; external reconstruction matches1089coefficientwords using actual native180buffers. [Evidence](hc2c4_primitive_cpu_20261018.json).
+- [ ] Independent native180 arithmetic, production dense representation, pages/figures and speed remain open. Native buffers are never runtime substitutions.
+- [x] Complex rational vector discrepancy localized mainly to tall QR: native-R diagnostic reduces5.739e-12 to3.967e-14. [Evidence](complex_poles_svd_cpu_20261018.json).
+- [ ] Source QR/norm trajectory and final poles/page/figures remain open; the diagnosis establishes no mathematical accuracy bug or production replacement.
+
+
+- [x] Preserve neutral native180 primitive observations:14,040codelet and4,680complete-transform words exact; independent mathematical/JVP/second-AD gates pass. Diagnostic transcriptions remain outside production. [Evidence](rader180_primitive_cpu_20261018.json).
+- [ ] HC2C4/endpoint coordinates, full dense words/crop/batchplans, production implementation, figures and CPU speed remain open.
+
+- [x] Capture17native dot,6bary and2scalar eig controls; seal external installedMKL API/mode diagnosis. Tested APIs match only7–9of17native dot words. [Evidence](dot_bary_scalar_provider_diagnosis_20261018.json).
+- [ ] Checkmark callback/provider ordering, construction, final page and figures remain incorrect or unqualified; no guessed reduction installed.
+
 
 - [x] Dense Chebfun3T original constructor7: normal markerless parentpytest passes unchanged100eps bound after source-motivated realCPU724C2R/Rader181 family. Actual parent51checks and separately sealed child146scoped checks pass. [Evidence](rader724_parent_cpu_20261018.json).
 - [ ] Full native FFT words/crop/batchplans, denseAPI/JAX/matchedspeed and finalpages/figures/CI remain open; candidatecrop261/261/263 differsnative261/265/263.

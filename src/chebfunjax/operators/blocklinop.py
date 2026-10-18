@@ -1094,10 +1094,9 @@ class BlockLinop:
 
 def _geig(MA, MB):
     """Dense generalized eigenproblem ``MA v = lam MB v``."""
-    import numpy as np  # uses-numpy: LAPACK generalized eigensolve
-    import scipy.linalg as sla
-    lam, vec = sla.eig(np.asarray(MA), np.asarray(MB))
-    return lam, vec
+    from ._generalized_qz import generalized_eig
+
+    return generalized_eig(MA, MB)
 
 
 def linop(blocks, domain: _DomainT | None = None) -> BlockLinop:

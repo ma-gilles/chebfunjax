@@ -4938,8 +4938,9 @@ class Chebop:
         n_default is an optional fixed system input-grid extension when n is
         omitted; explicit n takes precedence. Omitting both uses adaptivity.
 
-        The shared generalized LAPACK eigensolve remains an inherited host
-        boundary. This scalar qualification is not full eigs backend parity.
+        The shared dense generalized eigensolve uses JAX with host-controlled
+        dispatch and convergence. Separate legacy adapter algorithms remain;
+        this scalar qualification does not establish full eigs backend parity.
 
         Provenance
         ----------

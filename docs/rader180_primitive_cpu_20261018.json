@@ -1,0 +1,397 @@
+{
+  "scope": "Source-bound native180 convolution/codelet diagnostic after the sealed functional Rader724 repair. No new production source/test change, no full363cubed rerun, no new original predicate/API/representation/performance closure claim.",
+  "base": "97ab0a23037a14555053053e12263f72de34dc8c plus exact sealed Rader724 patch83665ca1beed64042057bf55dfaabfd224df71e7c8f67b2e881e0a374575c994",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/rader180_stages_20261018",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/rader180_stages_evidence_20261018",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "actual_native_capture": {
+    "run": "rader180_native_primitives_run001",
+    "cases": [
+      "retained1",
+      "polynomial1",
+      "dyadic1"
+    ],
+    "source": "@chebtech2/vals2coeffs.m on same previously captured native363-column words",
+    "neutrality": "All3loggingon/off coefficientvectors exactly match eachother AND prior unwrapped native fixture, inputs immutable, estimate planner unchanged, on/off plan graphs exact. Registration order and same descriptor pointer forwarded; all36888-byte descriptor records unchanged.7callback pointers replaced by wrappers which snapshot buffers and call original once. Not literally unchanged registration.",
+    "native_version": "25.2.0.3055257 (R2025b) Update 2",
+    "capture_shape": "3small363x1matrices only; no fulltensor/nativefullbatch claim",
+    "primitive_calls": 283
+  },
+  "source_attribution": {
+    "plans": "Three distinct180graphs: backward10\u21929\u21922, forward10\u21929\u21922, kernel preparation10\u21926\u21923. Printed plan order is not execution order: child2/3 runs first.",
+    "primary_source": "Official FFTW3.3.10 generated codelets/kernel/trig.c explain the graph, signatures and phase scheme. Actual MATLABcustom3.5.8 binary identity is not asserted. BINARY_ABI.json verifies all7registered original callbacks against actual ELF local-symbol offsets and captures their disassembly; source hypotheses are tested against actual native words.",
+    "source_codelet_transcriptions": "E/codelet_diagnostics.py is an explicitly attributed diagnostic transcription of GPLv2-or-later primary codelets; source originals/license notices retained. It is not proposed BSDlibrary source or a production import. All diagnostic numeric arrays use JAX; native C observer only reads/writes raw words and calls the original kernel.",
+    "storage": "AVX indirect int64 stride vectors; backward scalar2 output components reverse before SIMD9, forward scalar2 inputs already represented logically. SIMD extra_iter ms0 aliases a dummy lane; only unique surviving physical outputs counted. This is source storage handling, not numerical filtering."
+  },
+  "qualified_results": {
+    "individual_codelets": {
+      "physical_words_equal": 14040,
+      "calls": 283,
+      "classes": {
+        "n1_2": {
+          "calls": 120,
+          "word_equal": 4320,
+          "words": 4320,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "n1fv_3_avx": {
+          "calls": 10,
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "t1buv_10_avx": {
+          "calls": 6,
+          "word_equal": 2160,
+          "words": 2160,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "t1buv_9_avx": {
+          "calls": 60,
+          "word_equal": 2160,
+          "words": 2160,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "t1fuv_6_avx": {
+          "calls": 20,
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "t1fv_9_avx": {
+          "calls": 60,
+          "word_equal": 2160,
+          "words": 2160,
+          "max_abs": 0.0,
+          "failed_calls": []
+        },
+        "t3fv_10_avx": {
+          "calls": 7,
+          "word_equal": 2520,
+          "words": 2520,
+          "max_abs": 0.0,
+          "failed_calls": []
+        }
+      }
+    },
+    "composed180graphs": {
+      "physical_words_equal": 4680,
+      "graphs": 13,
+      "description": "1kernel+12data transforms; phase constants generated from dimensions, no captured operand/twiddle/output read inside assembled functions. lax.map10groups retains original arithmetic and bounds compile workspace.",
+      "details": [
+        {
+          "stage": "observe:retained1",
+          "last_event": 31,
+          "kind": "kernel",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:retained1",
+          "last_event": 52,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:retained1",
+          "last_event": 73,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:retained1",
+          "last_event": 94,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:retained1",
+          "last_event": 115,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:polynomial1",
+          "last_event": 136,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:polynomial1",
+          "last_event": 157,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:polynomial1",
+          "last_event": 178,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:polynomial1",
+          "last_event": 199,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:dyadic1",
+          "last_event": 220,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:dyadic1",
+          "last_event": 241,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:dyadic1",
+          "last_event": 262,
+          "kind": "backward_physical",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        },
+        {
+          "stage": "observe:dyadic1",
+          "last_event": 283,
+          "kind": "forward_data",
+          "word_equal": 360,
+          "words": 360,
+          "max_abs": 0.0
+        }
+      ]
+    },
+    "phase_and_normalization": {
+      "kernel_input_words_equal": 360,
+      "twiddle_words_equal": 536,
+      "kernel_reciprocal_multiply_equal": 246,
+      "conclusion": "Existing folded phase_pair plus literaldivision180 already matches all captured kernel/twiddle words. No phase or normalization repair justified. Initial wrong t3powers1,2,9 assumption is preserved; primary twinstr explicitly1,3,9 yields108/108.",
+      "corrected_source": "PHASE_DIAGNOSTIC_CORRECTED.json"
+    },
+    "generic_backend_on_same_native_inputs": {
+      "words_equal": 1006,
+      "words_total": 4680,
+      "max_raw_absolute": 2.842170943040401e-14,
+      "kernel_words_equal": 87,
+      "kernel_words_total": 360,
+      "kernel_max_absolute": 4.85722573273506e-17,
+      "conclusion": "Generic FFT180 differs from native at its own exact kernel input before Rader multiplication, despite exact preFFT phase/scale. Native operation graphs eliminate this captured stage discrepancy. This is not proof of sole cause for current full724 crop."
+    },
+    "source_Rader_complex_product": {
+      "nonDC_words_equal": 2148,
+      "description": "6primecalls, source complex product/conjugation on actual native180output and actualomega. DC excluded because it adds uncaptured originalx0."
+    },
+    "independent_mathematical_and_AD_controls": [
+      {
+        "kind": "kernel",
+        "normalized_fft_reference_max_abs": 4.655032474083796e-17,
+        "normalized_linear_jvp_max_abs": 0.0,
+        "second_derivative_max_abs": 0.0,
+        "bound": 2.220446049250313e-14,
+        "scope": "Independent moderatecomplex dyadic inputs; normalized length180 mathematicalDFT and linearity/secondAD. Source100eps supplemental bound; not nativeIEEE/differentiability at singular inputs."
+      },
+      {
+        "kind": "backward",
+        "normalized_fft_reference_max_abs": 5.582550964208978e-17,
+        "normalized_linear_jvp_max_abs": 0.0,
+        "second_derivative_max_abs": 0.0,
+        "bound": 2.220446049250313e-14,
+        "scope": "Independent moderatecomplex dyadic inputs; normalized length180 mathematicalDFT and linearity/secondAD. Source100eps supplemental bound; not nativeIEEE/differentiability at singular inputs."
+      },
+      {
+        "kind": "forward",
+        "normalized_fft_reference_max_abs": 5.582550964208978e-17,
+        "normalized_linear_jvp_max_abs": 0.0,
+        "second_derivative_max_abs": 0.0,
+        "bound": 2.220446049250313e-14,
+        "scope": "Independent moderatecomplex dyadic inputs; normalized length180 mathematicalDFT and linearity/secondAD. Source100eps supplemental bound; not nativeIEEE/differentiability at singular inputs."
+      }
+    ],
+    "counting_limit": "Codelet and composed-graph word counts overlap; do not sum as independent native samples. Constant comparisons and product boundary reuse the same3capture operands. No universal IEEE/nativeword claim."
+  },
+  "remaining_outer_packing": {
+    "observation": "Current mathematically equivalent two-Rader packing does not use nativeHC2C4 intermediate coordinates. Direct conjugateinput comparison0/2160words, order-one differences, so cannot interpret it as merely a rounding error or replace180alone and claim native representation.",
+    "limits": "No native HC2C4 or endpoint primitive observed yet; nativeRaderDCx0 uncaptured. Current crop261/261/263 vsnative261/265/263 remains a representation difference; original7functional bound already passes in sealed package. No new dense evaluation here.",
+    "next_action": "Fresh scoped HC2C4+endpoint before/after capture with same3independent inputs and explicit callback-wrapper/off-on/plan/input/output proofs. Verify source packing and endpoint formulas, align primitive coordinates, then test complete724small matrices. Only then consider production180substitution or another dense constructor run."
+  },
+  "preserved_censor": {
+    "run": "rader180_assembly_replay_run001",
+    "result": "180swall_timeout,4157500KiB,stable/no survivors. Combined unrolled10groups+AD emitted no accepted numerical summary.",
+    "followup": "Scheduling-only lax.map and split primal/AD cohorts complete cleanly. No arithmetic, operands, dimensions or bounds changed. Unrolled code/guard/receipt retained; no success inferred from censored run."
+  },
+  "limits": [
+    "No new library algorithm/provider or core ownership/CI change proposed. No new NumPy/SciPy numerical provider/import/waiver. Diagnostic NumPy usage is binary IO only.",
+    "Native controls are moderate finite CPUfloat64 inputs, selected actual column plus independent polynomial/dyadic vectors. Universal IEEE/subnormal/overflow/nonfinite/signedzero/AD-at-singular inputs remain unqualified.",
+    "The actual native smallplan is source-bound; full131769-column plan equivalence and native crop/representation remain open.",
+    "No matched performance qualification. Unrolled compile censor and map workspace results are diagnostic, not cold-speed/native-speed claims.",
+    "Parent main has later unrelated source changes. This packet binds exact freshW baseline/sealed724 bytes; it is not a current whole-library qualification."
+  ],
+  "receipts": {
+    "rader180_ad_backward_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.695169223938137,
+      "sampled_peak_summed_rss_kib": 917528,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_ad_forward_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 12.08236464485526,
+      "sampled_peak_summed_rss_kib": 929692,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_ad_kernel_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.156347702257335,
+      "sampled_peak_summed_rss_kib": 896176,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_assembly_replay_run001": {
+      "command_exit_code": -15,
+      "supervisor_exit_code": 124,
+      "censored_limit": "wall_timeout",
+      "wall_seconds": 180.96400312893093,
+      "sampled_peak_summed_rss_kib": 4157500,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [
+        {
+          "pid": 3582568,
+          "starttime": 344469819,
+          "signal": 15
+        },
+        {
+          "pid": 3582568,
+          "starttime": 344469819,
+          "signal": 15
+        }
+      ],
+      "events": []
+    },
+    "rader180_boundary_probe_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.187199711799622,
+      "sampled_peak_summed_rss_kib": 581740,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_generic_compare_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.179041392635554,
+      "sampled_peak_summed_rss_kib": 438900,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_native_primitives_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 80.75619191117585,
+      "sampled_peak_summed_rss_kib": 1269872,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_phase_corrected_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 6.306509095709771,
+      "sampled_peak_summed_rss_kib": 708100,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_phase_diagnostic_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.525182417128235,
+      "sampled_peak_summed_rss_kib": 648612,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_primal_map_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.498693112749606,
+      "sampled_peak_summed_rss_kib": 744748,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "rader180_primitive_replay_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.611137631814927,
+      "sampled_peak_summed_rss_kib": 765664,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    }
+  },
+  "artifact_scope": "Full snapshot src/pyproject, all diagnostic drivers/variants/guards/nativeobserver, primary source and disassembly, actual raw captured buffers/registration/plans and receipts. Prior3reference input/output vectors copied unchanged. No installed native runtime or full363cubed arrays duplicated.",
+  "publication_paths": [
+    "docs/rader180_primitive_cpu_20261018.json"
+  ],
+  "continuation": "Fresh isolated HC2C4 scope; preserve this packet and sealed724W/E immutable. No fulltensor until primitive evidence warrants."
+}

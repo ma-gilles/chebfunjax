@@ -252,7 +252,9 @@
       "tests/test_scalar_newton_coefficient_breaks_source.py",
       "tests/test_tech/test_abs_existing_grid_source.py",
       "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
-      "tests/test_disk_add_poles_source.py"
+      "tests/test_disk_add_poles_source.py",
+      "tests/test_operators/test_generalized_eig_invariants.py",
+      "tests/test_operators/test_generalized_eig_rounding.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -717,7 +719,8 @@
       "tests/test_operators/test_system_eigs_projection_source.py",
       "tests/test_utils/test_bounded_cosine_derivatives_source.py",
       "tests/test_utils/test_fft64_two_columns_native.py",
-      "tests/test_disk_cdr_gradual_source.py"
+      "tests/test_disk_cdr_gradual_source.py",
+      "tests/test_operators/test_generalized_eig_native.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1133,6 +1136,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "3396e84cc339d463b5803fd253ec78d88604476c",
+  "last_update_parent": "4ddcd488eb5e42328ab8022db5c8a5b3ed5f1e59",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

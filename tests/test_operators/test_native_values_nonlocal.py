@@ -96,3 +96,26 @@ def test_complex_multiplier_matrix_preserves_cross_interval_coupling():
     expected = 2+3*(1+2j*disc.points)
     assert jnp.max(jnp.abs(matrix @ disc.points**2-expected)) < 1e-11
     assert jnp.max(jnp.abs(matrix[:6, 6:])) > .1
+
+
+@pytest.mark.parametrize('n', [9, 18])
+def test_c1_constraint_keeps_native_underresolved_functional_stack(n):
+    """C1 constraint composition must use its own values grid.
+
+    Native getConstraints/instantiate/feval at7574c77 evaluates the composed
+    functional directly. A C2 transfer aliases the multiplier on another grid.
+    """
+    import json
+    from pathlib import Path
+
+    from chebfunjax.operators._linear_altdisc import LinearDiscretization
+    from chebfunjax.operators.blocklinop import linop
+
+    fixture = json.loads((Path(__file__).parent / 'fixtures' /
+                          'c1_constraint_alias_native.json').read_text())
+    expected = next(case['native_row'] for case in fixture['controls'] if case['n'] == n)
+    multiplier = chebfun(lambda x: x**11)
+    constraint = eval_at(.125)*diag(multiplier)
+    operator = linop(D()).addbc(constraint, 0.)
+    pencil = LinearDiscretization(operator, (n-1,), 'chebcolloc1')
+    assert float(jnp.max(jnp.abs(pencil.A[0]-jnp.asarray(expected)))) < 1e-12

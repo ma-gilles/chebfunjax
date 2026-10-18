@@ -10,7 +10,7 @@ function or example parity. Native reference is Chebfun 7574c77.
 | Dense Chebfun3T constructor7 / representation | Original7 now passes normal markerless parent pytest at unchanged100eps; sealed candidate1.0103e-14 <2.2204e-14. Actual parent51checks pass. [Evidence](rader724_parent_cpu_20261018.json). | Native/candidate crops261/265/263 vs261/261/263 and coefficientwords still differ; HC2C4/three180convolutiongraphs require further source qualification. Full API/JAX/speed/CI remain open. |
 | Small Hermite ASY | Public full30-node/all18valid small orders meet original bounds/storage; actual parent47checks include cold cache-disabledn2 and child coverage merge. [Evidence](hermite_public_parent_cpu_20261018.json). | Small whole-call JIT/AD, nonfinite storage, full API and matched CPU speed/memory remain open. Earlier180s component censors are historical, not current integration blockers. |
 
-| C1 scalar eigs CI | CI3.8022e-9>authored1e-9; fresh local6.9063e-10 passes. [Diagnostic](disk_unbounded_parent_cpu_20261018.json). | Source/backend reproducibility diagnosis required; local pass does not repair CI. |
+| C1 scalar eigs / shared dense provider | JAX generalized eig and native C1 constraint grids pass parent integration at unchanged bounds. [Evidence](generalized_qz_parent_cpu_20261018.json). | Latest-main CI reproduction, full grammar/providers/API/JAX transformations and matched CPU speed remain open. |
 
 [Detailed bindings and limitations](transform_sensitive_diagnostics_cpu_20261017.json)
 and [rational stage report](ratinterp_complex_stages_cpu_20261017.json) retain
@@ -121,3 +121,31 @@ passes locally before this repair; current CI is still required.
 preserves20inverse outputs and lowers descriptive warm median1.752641→1.611100s.
 Three capacity compile times worsen6%; no cold compilation or matched-native
 performance closure follows. Existing full inverse/native/API gaps remain.
+
+## Further primitive observations, still open
+
+The [native180 packet](rader180_primitive_cpu_20261018.json) reproduces all
+observed complete180transform words with a diagnostic JAX composition. It
+separates generic180 arithmetic from the additional HC2C4 coordinate difference.
+These diagnostic GPL transcriptions are not production imports. No full tensor,
+crop, API, figure or performance acceptance follows.
+
+The [dot/bary packet](dot_bary_scalar_provider_diagnosis_20261018.json) preserves
+17native dot and6bary controls plus two scalar eigenvalue/vector observations.
+The ordinary installedMKL APIs and OFF/AUTO/COMPATIBLE modes tested do not
+uniformly reproduce MATLAB matrix-product words. A guessed reduction was not
+accepted. Checkmark remains open.
+
+## Shared dense eig and further primitive evidence
+
+[Generalized eig parent evidence](generalized_qz_parent_cpu_20261018.json)
+records60checks across055arithmetic and059scalar-storage stages with a reviewed
+scalar-only branch bridge. Native20controls are separately qualified with an
+11module executable AST bridge. Full APIs, transformations and speed stay open.
+
+[HC2C4 observations](hc2c4_primitive_cpu_20261018.json) separate packing and
+endpoint coordinates from180arithmetic; external coefficient reconstruction
+uses captured native180buffers strictly as diagnostics. [Complex QR evidence](complex_poles_svd_cpu_20261018.json)
+localizes the vector difference mainly to tall QR. JAX first norm matches a
+correctly rounded high-precision reference; a native-provider difference alone
+does not establish a mathematical accuracy defect.

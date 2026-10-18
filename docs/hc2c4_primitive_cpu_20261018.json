@@ -1,0 +1,348 @@
+{
+  "scope": "Source-bound HC2C4/endpoint primitive and coordinate diagnostic after published Rader724 functional repair. No production source/test edits, fulltensor rerun, crop/representation closure or performance claim.",
+  "base": "4ddcd488eb5e42328ab8022db5c8a5b3ed5f1e59",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hc2c4_stages_20261018",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hc2c4_stages_evidence_20261018",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "docs/hc2c4_primitive_cpu_20261018.json"
+  ],
+  "motivation": "Prior generic180 backend differed from native same-input words, but current even/odd362 packing also used different coordinates than nativeHC2C4. This packet resolves the latter layout and endpoint/DC boundary before considering further algorithm changes. Current densecrop261/261/263 vsnative261/265/263 remains the previously recorded representation difference; original7functional bound already passes published724source.",
+  "native_capture": {
+    "run": "hc2c4_native_stages_run001",
+    "cases": [
+      "retained1",
+      "polynomial1",
+      "dyadic1"
+    ],
+    "shape": "3small363x1inputs only",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "source": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebtech2/vals2coeffs.m",
+    "neutrality": "All3loggingon/off external coefficientvectors equal eachother AND prior unwrapped native fixtures; originalinputwords immutable; plannerestimate unchanged; all3off/onplangraphs identical. Observer forwards exactdescriptorpointer/order/kind but substitutes9callbackpointers; rawsnapshotwrappercalls eachoriginalexactlyonce. Not literally unchanged registration.",
+    "descriptor_records": {
+      "prior_DFT_TW_88bytes": 368,
+      "HC_EP_records": 164,
+      "all_unchanged": true,
+      "selected_HC_descriptor_bytes": 64,
+      "selected_EP_descriptor_bytes": 56
+    },
+    "native_library": "MATLABlibmwfftw3.so.3.5.8; actual localcallbackdisassemblyretained; officialFFTW3.3.10 ABI/source used as explanatoryprimarysource, not assertionofbinaryidentity"
+  },
+  "mathematical_source": {
+    "derivation": "MATHEMATICAL_DERIVATION.md: ordinaryHermitianpairing/radix4inverseDFT and standard4pointendpointDFT, independently written JAX arraymath. Source rounding is explicit ordered realbinaryoperations. Dimension-onlyphase_pair generates twiddlepowers1,2,3 at m1..90,N724. No capturednumericconstantsinside paired/endpoint functions.",
+    "license_boundary": "GPL primarygeneratedcodelets retained only for ABI/plan/rounding explanation. Prior diagnosticGPL180transcriptions are neither copied into production nor imported by these math/alignment/ADscripts. No newBSDproductionalgorithm proposed. Mathematicalidentities and layoutobservations documented independently.",
+    "actual_ABI": "ptrdiff_t indirectstrides; HCmb1me91ms2rs[0,362], packedplus/minus complexpairs; endpointv1rs[0,362],csr[0,362,724],csi[0,362]; callbacks original invokedonce",
+    "source_coordinates": "rdft/ct-hc2c.c::apply_dif_dft passesci,cr,r1,r0; m181inputstride2/outputstride4 interleaves twoRaderrows in finalreal724. Endpoint runs beforeHC and provides twozero-frequencycomplexinputs."
+  },
+  "results": {
+    "primitive_replay": {
+      "hc2cbdftv_4_avx": {
+        "calls": 3,
+        "word_equal": 2160,
+        "words": 2160,
+        "max_abs": 0.0,
+        "failed_calls": []
+      },
+      "r2cb_4": {
+        "calls": 3,
+        "word_equal": 12,
+        "words": 12,
+        "max_abs": 0.0,
+        "failed_calls": []
+      }
+    },
+    "original_spectrum_reconstruction": {
+      "HCinput_words_equal": 2160,
+      "HCtwiddle_words_equal": 1620,
+      "HCoutput_words_equal": 2160,
+      "endpoint_input_words_equal": 12,
+      "endpoint_output_words_equal": 12,
+      "native_Rader_permuted_input_words_equal": 2160,
+      "details": "COORDINATE_ALIGNMENT.json; same3nativecases, overlappingcounts, no universalityclaim"
+    },
+    "complete_Rader_boundary": {
+      "product_and_DC_words_equal": 2160,
+      "description": "Previously2148nonDCwords now includes endpoint-derivedx0 on all6Radercalls. Sourcecomplexmultiply/conjugation andDCoperations matchcapturednativefinishFFTinputwords."
+    },
+    "external_stage_bridge": {
+      "coefficient_words_equal": 1089,
+      "coefficient_words_total": 1089,
+      "literal_division724": true,
+      "details": [
+        {
+          "case": "retained1",
+          "branches": [
+            {
+              "branch": 0,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            },
+            {
+              "branch": 1,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            }
+          ],
+          "native_stage_reconstruction_literal_normalization": {
+            "word_equal": 363,
+            "words": 363,
+            "max_abs": 0.0
+          },
+          "native_stage_reconstruction_reciprocal_normalization": {
+            "word_equal": 327,
+            "words": 363,
+            "max_abs": 1.734723475976807e-18
+          }
+        },
+        {
+          "case": "polynomial1",
+          "branches": [
+            {
+              "branch": 0,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            },
+            {
+              "branch": 1,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            }
+          ],
+          "native_stage_reconstruction_literal_normalization": {
+            "word_equal": 363,
+            "words": 363,
+            "max_abs": 0.0
+          },
+          "native_stage_reconstruction_reciprocal_normalization": {
+            "word_equal": 273,
+            "words": 363,
+            "max_abs": 3.0814879110195774e-33
+          }
+        },
+        {
+          "case": "dyadic1",
+          "branches": [
+            {
+              "branch": 0,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            },
+            {
+              "branch": 1,
+              "source_complex_product_and_DC_from_endpoint": {
+                "word_equal": 360,
+                "words": 360,
+                "max_abs": 0.0
+              }
+            }
+          ],
+          "native_stage_reconstruction_literal_normalization": {
+            "word_equal": 363,
+            "words": 363,
+            "max_abs": 0.0
+          },
+          "native_stage_reconstruction_reciprocal_normalization": {
+            "word_equal": 271,
+            "words": 363,
+            "max_abs": 2.7755575615628914e-17
+          }
+        }
+      ],
+      "limitation": "Reads actualnative180outputbuffers then applies sourceinversepermutation/outputinterleaving/normalization/interiorscaling/symmetry. This is a diagnosticbridge, NOT an independentend-to-end transform or newnativewordalgorithm."
+    },
+    "independent_math_AD": {
+      "scope": "Independent standard724inverseDFT equivalence and finite linearAD; authored100eps bound, no nativewordclaim for arbitrarycomplexspectra or nonfinite/FTZderivatives",
+      "rows": [
+        {
+          "case": "independent_complex_dyadic",
+          "normalized724_max_error": 2.0816681711721685e-17,
+          "bound_authored_100eps": 2.220446049250313e-14,
+          "paired_eager_jit_words_equal": true,
+          "first_JVP_vs_linear_map": 0.0,
+          "second_derivative": 0.0
+        },
+        {
+          "case": "constant",
+          "normalized724_max_error": 1.5178830414797062e-18,
+          "bound_authored_100eps": 2.220446049250313e-14,
+          "paired_eager_jit_words_equal": true,
+          "first_JVP_vs_linear_map": 0.0,
+          "second_derivative": 0.0
+        },
+        {
+          "case": "quarter_complex_mode",
+          "normalized724_max_error": 1.0842021724855044e-18,
+          "bound_authored_100eps": 2.220446049250313e-14,
+          "paired_eager_jit_words_equal": true,
+          "first_JVP_vs_linear_map": 0.0,
+          "second_derivative": 0.0
+        },
+        {
+          "case": "nyquist",
+          "normalized724_max_error": 6.505213034913027e-19,
+          "bound_authored_100eps": 2.220446049250313e-14,
+          "paired_eager_jit_words_equal": true,
+          "first_JVP_vs_linear_map": 0.0,
+          "second_derivative": 0.0
+        }
+      ],
+      "endpoint_linear_JVP_exact": true
+    },
+    "counting": "Same3cases reused throughstages; do notsum overlappingwordcounts as independentcontrols. Independentcomplexdyadic/constant/quartermode/Nyquist controls use genericJAX181/724transformreferences and authored100epsbound, not universalnativewordequivalence."
+  },
+  "preserved_failed_attempts": [
+    {
+      "files": [
+        "align_coordinates_initial.py",
+        "COORDINATE_ALIGNMENT_INITIAL.json"
+      ],
+      "run": "hc2c4_alignment_run001",
+      "result": "HCinput/W/output exact but Rader0/2160order-one gaps because ci/crswap omitted; corrected by actualsourcepointerorder, no numericfilter."
+    },
+    {
+      "files": [
+        "complete_boundaries_initial.py",
+        "RADER_DC_AND_EXTERNAL_REPLAY_INITIAL.json",
+        "complete_boundaries_interleaving_attempt.py",
+        "RADER_DC_AND_EXTERNAL_REPLAY_INTERLEAVING_ATTEMPT.json"
+      ],
+      "runs": [
+        "hc2c4_boundary_complete_run001",
+        "hc2c4_boundary_corrected_run001"
+      ],
+      "result": "DCstagealreadyexact; externalreconstruction initiallyused contiguousrows then wrongscalarinterleaving, givingorder-oneerrors. Final sourceos4interleavingexact1089/1089. These observer-coordinate errors are not libraryfailures."
+    },
+    {
+      "files": [
+        "independent_controls_initial.py"
+      ],
+      "run": "hc2c4_independent_run001",
+      "result": "Assertionfails firstindependentcomplexdyadic with0.11335error underwrongcontiguousoutputlayout; exactsourceos4interleaving correction gives2.0816681711721685e-17<unchangedauthored100eps. Rawfailurepreserved."
+    }
+  ],
+  "limits": [
+    "No new originalpredicate pass or API/file parity promotion. No currentfull363cubed/nativecrop rerun. No claimHC2C4alone fixes crop.",
+    "Currentproductionuses validalgebraicallydifferent362packing andgeneric180FFTs. Its functionalboundpasses; exactnative180arithmetic remainsseparateproviderwork.",
+    "No broad IEEE/nonfinite/subnormal/signedzeroparity or singularAD claim. Controls are moderatefiniteCPUfloat64; arbitrarycomplexspectrum validatesmath but nativeobservations are3realcolumns only.",
+    "No productionGPLcodetranscription, newhostnumerics/provider/import/waiver, CIownerchange or tolerance/crop/argumentlookup. DiagnosticNumPy onlybinaryIO.",
+    "No timingcomparison or coldcompile/performanceclaim."
+  ],
+  "next_action": "Review independentHermitian/radix4packing as a standalone source-derived candidate with existinggeneric180 and independentcontrols; separately derive any180replacement from mathematicalfactorization, nevercopy diagnosticGPLtranscriptions intoBSDmodules. Firstsmall724referencegates; no fulltensoruntilboundedstages warrant.",
+  "receipts": {
+    "hc2c4_alignment_corrected_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.663947961293161,
+      "sampled_peak_summed_rss_kib": 645116,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_alignment_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.424401757773012,
+      "sampled_peak_summed_rss_kib": 633480,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_boundary_complete_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.259698856156319,
+      "sampled_peak_summed_rss_kib": 612932,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_boundary_corrected_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.484347907826304,
+      "sampled_peak_summed_rss_kib": 616424,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_boundary_final_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.4251523381099105,
+      "sampled_peak_summed_rss_kib": 621544,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_hermitian_replay_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.6795604289509356,
+      "sampled_peak_summed_rss_kib": 528040,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_independent_corrected_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.110799820162356,
+      "sampled_peak_summed_rss_kib": 734064,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_independent_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 4.668756163679063,
+      "sampled_peak_summed_rss_kib": 601696,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "hc2c4_native_stages_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 120.82962128100917,
+      "sampled_peak_summed_rss_kib": 1282120,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    }
+  },
+  "artifact_scope": "Fullsrc/pyproject snapshot, report, ownobserverC/so, mathematicaldrivers/failedvariants/guards, primarysourcewithlicenses, actualbinarydisassembly, rawbuffers/plans/registrations, allreceipts and unchanged3priorreferencevectors. No installedruntime/fulltensorcopied."
+}

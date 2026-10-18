@@ -1,0 +1,244 @@
+{
+  "scope": "Neutral complex rational SVD provider diagnosis; no production change",
+  "source_head": "4ddcd488eb5e42328ab8022db5c8a5b3ed5f1e59",
+  "controls": [
+    {
+      "case": 1,
+      "shape": [
+        150,
+        9
+      ],
+      "R_max_abs": 3.685089628924478e-22,
+      "R_word_equal": false,
+      "native_SVD_R_vs_A": 0.0,
+      "JAX_SVD_A_vs_native_A": 5.738910522095523e-12,
+      "JAX_SVD_native_R_vs_native_A": 3.967418300872822e-14,
+      "JAX_SVD_native_R_vs_native_R": 3.967418300872822e-14,
+      "JAX_SVD_JAX_R_vs_native_A": 5.738910522095523e-12,
+      "R_first_column": {
+        "native": [
+          6.152208735876853e-08,
+          0.0
+        ],
+        "JAX": [
+          6.152208735876855e-08,
+          0.0
+        ]
+      },
+      "native_repeated_b_words_equal": true
+    },
+    {
+      "case": 2,
+      "shape": [
+        19,
+        5
+      ],
+      "R_max_abs": 4.440892098500626e-16,
+      "R_word_equal": false,
+      "native_SVD_R_vs_A": 0.0,
+      "JAX_SVD_A_vs_native_A": 5.328510317633702e-16,
+      "JAX_SVD_native_R_vs_native_A": 5.601303642928431e-16,
+      "JAX_SVD_native_R_vs_native_R": 5.601303642928431e-16,
+      "JAX_SVD_JAX_R_vs_native_A": 5.328510317633702e-16,
+      "R_first_column": {
+        "native": [
+          2.2185299186623557,
+          0.0
+        ],
+        "JAX": [
+          2.2185299186623557,
+          0.0
+        ]
+      }
+    },
+    {
+      "case": 3,
+      "shape": [
+        19,
+        5
+      ],
+      "R_max_abs": 2.7755575615628914e-17,
+      "R_word_equal": false,
+      "native_SVD_R_vs_A": 0.0,
+      "JAX_SVD_A_vs_native_A": 1.2412670766236366e-16,
+      "JAX_SVD_native_R_vs_native_A": 1.1102230246251565e-16,
+      "JAX_SVD_native_R_vs_native_R": 1.1102230246251565e-16,
+      "JAX_SVD_JAX_R_vs_native_A": 1.2412670766236366e-16,
+      "R_first_column": {
+        "native": [
+          2.2185299186623557,
+          0.0
+        ],
+        "JAX": [
+          2.2185299186623557,
+          0.0
+        ]
+      }
+    }
+  ],
+  "reference100": {
+    "shape": [
+      150,
+      9
+    ],
+    "mp_dps": 100,
+    "singular_values": [
+      "0.0000000000009992725664696767524759608655769481382925482040869607830659230362031940557055162504515028699034963188",
+      "0.000000000001459828258128695420526658442695334040705211361358770436407872277238434688030615723664097994990169723",
+      "0.0000000000254134910755040894849189970022898302960553316843997109861719150861779937202769825613795134320780889",
+      "0.000000000717941606184878788609323199794996756568369597968900371815004482596160102374079519163538256847537579",
+      "0.000000001372977656684514606840039596556401018642292010226926994174293488506158522868788829224002862286966665",
+      "0.00000002035174028218228297038582454553810506484859637161827831128946979462146875081899203876007081016596793",
+      "0.00000005454548661454208209461169261273730510063592525230184904422811486949667618807423598996121732704414889",
+      "0.00000008268025432578367084173311402487298750793289150119730280590370666262229479222279854889611366297319799",
+      "0.00000009869399027252990920362966655750969488558968745573026701847575448268213408344900144340900900757818533"
+    ],
+    "native": {
+      "error_to_mp": 5.1980666693512555e-12,
+      "error_to_native": 5.551115125710722e-17,
+      "high_precision_normal_residual": "0.000000000000000000000000000002496639514290035096105383094979880392619757254130599308527291991957211981401811289369388776688252397",
+      "A_residual": 9.992725664690457e-13
+    },
+    "default": {
+      "error_to_mp": 5.409155945356584e-13,
+      "error_to_native": 5.739021544373101e-12,
+      "high_precision_normal_residual": "0.000000000000000000000000000002143335862584501643752584317667527415306060996717855477662216848077190534771178661978090594623015508",
+      "A_residual": 9.992725664700234e-13,
+      "singular_values": [
+        9.86939902725299e-08,
+        8.268025432578366e-08,
+        5.4545486614542076e-08,
+        2.0351740282182272e-08,
+        1.3729776566845247e-09,
+        7.179416061848825e-10,
+        2.5413491075505623e-11,
+        1.4598282581310306e-12,
+        9.992725664703723e-13
+      ]
+    },
+    "qr": {
+      "error_to_mp": 5.409157476142313e-13,
+      "error_to_native": 5.738910528170206e-12,
+      "high_precision_normal_residual": "0.00000000000000000000000000000115401281708687300709431151377166330399612251038210695608634654681661081139152452212463526905974506",
+      "A_residual": 9.992725664697061e-13,
+      "singular_values": [
+        9.86939902725299e-08,
+        8.268025432578366e-08,
+        5.4545486614542076e-08,
+        2.0351740282182272e-08,
+        1.3729776566845247e-09,
+        7.179416061848825e-10,
+        2.5413491075505623e-11,
+        1.4598282581310306e-12,
+        9.992725664703723e-13
+      ]
+    }
+  },
+  "provider": {
+    "exact_norm100": "0.00000006152208735876854465547498334437724657331725944528077585709338628553473886853514366519882912110711844",
+    "rounded_exact_norm": 6.152208735876855e-08,
+    "native_R00": 6.152208735876853e-08,
+    "jax_norm": 6.152208735876855e-08,
+    "reference70_100_words_equal": true,
+    "origins": {
+      "numpy": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/numpy/__init__.py",
+      "scipy": "/home/mg6942/.local/lib/python3.12/site-packages/scipy/__init__.py",
+      "mpmath": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/mpmath/__init__.py",
+      "jax": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/__init__.py",
+      "jaxlib": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jaxlib/0.11.0-cp312-cp312-manylinux_2_27_x86_64/jaxlib/__init__.py",
+      "ml_dtypes": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/ml-dtypes/0.5.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64/ml_dtypes/__init__.py",
+      "chebfunjax": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_poles_svd_20261018/src/chebfunjax/__init__.py"
+    },
+    "scipy_config": "Build Dependencies:\n  blas:\n    detection method: pkgconfig\n    found: true\n    has ilp64: false\n    include directory: /opt/_internal/cpython-3.12.11/lib/python3.12/site-packages/scipy_openblas32/include\n    lib directory: /opt/_internal/cpython-3.12.11/lib/python3.12/site-packages/scipy_openblas32/lib\n    name: scipy-openblas\n    openblas configuration: OpenBLAS 0.3.30 DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64\n    pc file directory: /project/\n    version: 0.3.30\n  lapack:\n    detection method: pkgconfig\n    found: true\n    has ilp64: false\n    include directory: /opt/_internal/cpython-3.12.11/lib/python3.12/site-packages/scipy_openblas32/include\n    lib directory: /opt/_internal/cpython-3.12.11/lib/python3.12/site-packages/scipy_openblas32/lib\n    name: scipy-openblas\n    openblas configuration: OpenBLAS 0.3.30 DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64\n    pc file directory: /project/\n    version: 0.3.30\n  pybind11:\n    detection method: config-tool\n    include directory: unknown\n    name: pybind11\n    version: 3.0.2\nCompilers:\n  c:\n    commands: cc\n    linker: ld.bfd\n    name: gcc\n    version: 14.2.1\n  c++:\n    commands: c++\n    linker: ld.bfd\n    name: gcc\n    version: 14.2.1\n  cython:\n    commands: cython\n    linker: cython\n    name: cython\n    version: 3.2.4\n  fortran:\n    commands: gfortran\n    linker: ld.bfd\n    name: gcc\n    version: 14.2.1\n  pythran:\n    include directory: ../../tmp/build-env-l4psv2j0/lib/python3.12/site-packages/pythran\n    version: 0.18.1\nMachine Information:\n  build:\n    cpu: x86_64\n    endian: little\n    family: x86_64\n    system: linux\n  cross-compiled: false\n  host:\n    cpu: x86_64\n    endian: little\n    family: x86_64\n    system: linux\nPython Information:\n  path: /tmp/build-env-l4psv2j0/bin/python\n  version: '3.12'\n\n",
+    "mapped_provider_libraries": [
+      "/home/mg6942/.local/lib/python3.12/site-packages/scipy.libs/libscipy_openblas-6cdc3b4a.so",
+      "/home/mg6942/.local/lib/python3.12/site-packages/scipy/linalg/_fblas.cpython-312-x86_64-linux-gnu.so",
+      "/home/mg6942/.local/lib/python3.12/site-packages/scipy/linalg/_flapack.cpython-312-x86_64-linux-gnu.so",
+      "/home/mg6942/.local/lib/python3.12/site-packages/scipy/linalg/cython_blas.cpython-312-x86_64-linux-gnu.so",
+      "/home/mg6942/.local/lib/python3.12/site-packages/scipy/linalg/cython_lapack.cpython-312-x86_64-linux-gnu.so",
+      "/scratch/gpfs/AMITS/mg6942/.cache/rattler/cache/uv-cache/archive-v0/bFC7-Kn6EoC-jHK361SW4/jaxlib/cpu/_lapack.so",
+      "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/libopenblasp-r0.3.30.so",
+      "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/nvidia/cublas/lib/libcublas.so.12",
+      "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/site-packages/nvidia/cublas/lib/libcublasLt.so.12"
+    ]
+  },
+  "native": {
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "blas": "Intel(R) oneAPI Math Kernel Library Version 2024.1-Product Build 20240215 for Intel(R) 64 architecture applications (CNR branch auto)",
+    "lapack": "Intel(R) oneAPI Math Kernel Library Version 2024.1-Product Build 20240215 for Intel(R) 64 architecture applications (CNR branch auto) supporting Linear Algebra PACKage (LAPACK 3.11.0)",
+    "threads": 1,
+    "scope": "same-input SVD/QR, no full ThreeBody rerun"
+  },
+  "receipts": {
+    "run001": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 6.7301812232472,
+      "sampled_peak_summed_rss_kib": 462036,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "run100": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.870586088858545,
+      "sampled_peak_summed_rss_kib": 461376,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "native_run001": {
+      "supervisor_exit_code": -9,
+      "censored_limit": "root_exited_with_live_descendants",
+      "wall_seconds": 6.5654254029504955,
+      "sampled_peak_summed_rss_kib": 370632,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "native_run002": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 151.90565221058205,
+      "sampled_peak_summed_rss_kib": 1243160,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "controls_run001": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.8870874969288707,
+      "sampled_peak_summed_rss_kib": 473464,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "provider_run001": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.533594146836549,
+      "sampled_peak_summed_rss_kib": 455496,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "final_run001": {
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.395426188129932,
+      "sampled_peak_summed_rss_kib": 487656,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "limits": [
+    "Pole2.076e-11 and denominator5.739e-12 gaps remain; no production fix.",
+    "Public QR crossfeed is causal evidence, not internal MKL instruction capture.",
+    "70/100digit reference and native R crossfeed diagnostic only.",
+    "Initial runtime guards omitted actual user-site SciPy; final5887-file guard includes it and all checkout src/tests.",
+    "MATLAB licensed dependencies not wholly frozen; inherited CPU plugin warning retained.",
+    "Full API/JAX/pages/figures/speed/latestCI remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_poles_svd_cpu_20261018.tar.gz",
+    "sha256": "388c277ad330331265b389badb000c9d0adb740e421bb98cc9d3c829c9af33a6",
+    "verified_payloads": 86,
+    "manifest_sha256": "71acb01d5b83534f4b092b964b4217e2e940d5aab287f6a41c5e2cc23fbf0772"
+  }
+}

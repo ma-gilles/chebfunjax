@@ -4,8 +4,8 @@ MATLAB source: @linop/eigs.m, @chebcolloc/reduce.m,
 @chebcolloc1/toFunctionOut.m, @chebcolloc2/toFunctionOut.m,
 @opDiscretization/testConvergence.m.
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
-New numerical policy is JAX; the inherited generalized LAPACK boundary remains
-operators.blocklinop._geig and is not a JAX eigendecomposition claim.
+Numerical policy and the generalized QZ boundary use JAX primitives.
+The adaptive driver and QZ iteration retain explicit Python control flow.
 """
 from __future__ import annotations
 
