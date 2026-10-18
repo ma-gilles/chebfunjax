@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [source numerical integration](numerical_source_integration_cpu_20261018.json):168PASS/1strictXF and228PASS/2strictXF in two actual-parent stages (23protocol-node overlap). Finite tiny tangents, literal ACA division and source Dirac-aware extrema repaired at unchanged original bounds; all1131owners/13lanes/Hermite12 retained. Full Checkmark numeric loop completes but degree5, exact provider/knot words and standalone page/figures/stdout remain open. Full-item statuses are unchanged.
+
 Latest [paired adaptive/EQUI qualification](chebfun2_paired_equi_parent_cpu_20261018.json):196actual parent PASS/7strictXFAIL; full original constructor2 and EQUI/mixed-technology child tests, per-axis grids/rank budgets and source sample-before-finalize staging. Seven factor/cutoff/location contracts, callback orientation and full-item statuses remain open.
 
 Latest [minimax panel compilation qualification](minimax_panel_compilation_cpu_20261018.json):44actual parent PASS/66isolated PASS, ten original polynomial clauses unchanged. Full degree3Checkmark replay preserves517callback words and19snapshot arrays; recorded383.88→296.44s is not matched MATLAB performance. Seven-curve page and whole-item statuses remain unverified.

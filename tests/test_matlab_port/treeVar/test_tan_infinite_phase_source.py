@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 
 from chebfunjax.operators.treevar import _UNARY_FNS_RAW
+from tests.test_matlab_port.treeVar._tangent_native_scope import expected_tiny_native_components
 
 DATA = Path(__file__).with_name("data")
 CAPTURE = json.loads((DATA / "tan_infinite_phase_native_20261018.json").read_text())
@@ -79,6 +80,7 @@ def test_tan_infinite_phase_outside_real_and_all_imaginary_words(group, mode):
         z = _input(row)
         actual, expected = fn(z), prior(z)
         mask = _selected(row)
+        expected = expected_tiny_native_components("tan", np.asarray(z), np.asarray(expected))
         assert [w for w, k in zip(_words(jnp.real(actual)), mask) if not k] == [
             w for w, k in zip(_words(jnp.real(expected)), mask) if not k
         ]

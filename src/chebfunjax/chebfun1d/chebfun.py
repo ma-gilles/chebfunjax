@@ -6735,11 +6735,12 @@ class Chebfun(eqx.Module):
         b = float(self.domain.b)
         xj = jnp.asarray(x, dtype=jnp.float64)
         d1 = _np.asarray(df(xj)).real
-        # MATLAB feval(diff(f, 2), x) at a breakpoint returns the
-        # pointValue there, the average of the left and right limits
-        # (@chebfun/getValuesAtBreakpoints).
-        d2 = 0.5 * (_np.asarray(d2f(xj, "left")).real
-                    + _np.asarray(d2f(xj, "right")).real)
+        # Native localMin/localMax evaluate diff(f, 2) without a side flag.
+        # At a derivative jump this includes its signed Dirac contribution;
+        # averaging smooth one-sided limits would discard that contribution.
+        d2 = jnp.real(self.diff(2)(xj))
+        # Endpoint fallback uses diff(diff(f)), as in the native helper.
+        d2_ends = jnp.real(d2f(jnp.asarray([a, b])))
         dfvs = float(df.vscale)
         eps = float(_np.finfo(_np.float64).eps)
         keep = _np.zeros(len(x), dtype=bool)
@@ -6748,14 +6749,14 @@ class Chebfun(eqx.Module):
             small = abs(d1[i]) < 1e3 * dfvs * eps
             if abs(xi - a) <= 1e-12:            # left endpoint
                 if want_min:
-                    keep[i] = (d2[i] > 0) if small else (d1[i] > 0)
+                    keep[i] = (d2_ends[0] > 0) if small else (d1[i] > 0)
                 else:
-                    keep[i] = (d2[i] < 0) if small else (d1[i] < 0)
+                    keep[i] = (d2_ends[0] < 0) if small else (d1[i] < 0)
             elif abs(xi - b) <= 1e-12:          # right endpoint
                 if want_min:
-                    keep[i] = (d2[i] > 0) if small else (d1[i] < 0)
+                    keep[i] = (d2_ends[1] > 0) if small else (d1[i] < 0)
                 else:
-                    keep[i] = (d2[i] < 0) if small else (d1[i] > 0)
+                    keep[i] = (d2_ends[1] < 0) if small else (d1[i] > 0)
             else:                               # interior
                 keep[i] = (d2[i] > 0) if want_min else (d2[i] < 0)
         return x[keep], y[keep]

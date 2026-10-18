@@ -1,3 +1,36 @@
+# Finite tangents, literal ACA division and derivative-jump extrema — 2026-10-18
+
+Two actual publication-checkout gates completed: **168 PASS  / 1 strict XFAIL**
+for finite TAN/TANH/compiletime phase constants; **228 PASS  / 2 strict XFAIL**
+for ACA division, local extrema and CI ownership. The 23 CI protocol nodes overlap;
+these are scoped gates, not a full-suite result. All 1,550 / 1,575 observed imports
+respectively and both 1,347-module cold children were preguarded; stable inputs, no censors or survivors.
+
+Finite tiny-component quotient staging repairs two original unary records and
+four fresh cases. The retained infinite-real TANH case is being addressed in
+a separate storage package. Literal ACA row division avoids CPU reciprocal
+multiplication and repairs five prior factor/location contracts; two fixed EQUI
+Chebtech2 cutoffs remain. The old C1 label was a narrative error, not a fixture
+or technology-class change. Local minima/maxima now evaluate ordinary second
+derivatives with their signed Dirac contributions rather than discarding them
+through one-sided averaging. Eight independent analytic controls fail on the
+old method; 32 isolated checks and the actual-parent controls pass.
+
+All 1,129 prior ownership prefixes retained; 1,131 owners / 13 lanes, dedicated
+Hermite lane 12 and coverage gate 79% retained. Original assertion bodies/bounds and
+native fixtures unchanged. Authored oracle corrections, old tracer failures,
+RSS/wall censors and the initial root lint failure remain in evidence.
+
+The full source numeric Checkmark 1:7 run completes with native final piece
+lengths on all seven columns, including public horzcat padding. Degree 5 differs
+by 5.73e-7 at one checked query; exact knots/provider words, standalone script,
+printed output, figures and matched speed remain open. The corrected standalone
+script is currently running serially. Cached historical output reports 4 minima;
+pinned MATLAB reports 5. Both are retained; no captured data feeds production.
+The prior Diskfunv original 11-clause node passes locally at 1da8f53d; final
+latest-main CI/coverage and all broader library/test/page/figure/API/JAX gates
+remain required. Goal incomplete. Evidence: docs/numerical_source_integration_cpu_20261018.json.
+
 # Chebfun2 paired adaptive and equispaced preferences — 2026-10-18
 
 Actual publication-checkout integration: **196 PASS / 7 strict XFAIL**, 203

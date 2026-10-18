@@ -23,8 +23,10 @@ from ._source_scalar_constants import LARGE as _LARGE
 from ._source_scalar_constants import ORDER_PHASE as _ORDER_PHASE
 from ._source_scalar_constants import PHASE as _PHASE
 
-IP = j.asarray(_LARGE["two_over_pi"], j.int64)
-PI = j.asarray(_LARGE["PIo2"][:5], j.float64)
+# Lazy imports may occur during tracing; these source coefficients are constants.
+with jax.ensure_compile_time_eval():
+    IP = j.asarray(_LARGE["two_over_pi"], j.int64)
+    PI = j.asarray(_LARGE["PIo2"][:5], j.float64)
 N = 20
 
 

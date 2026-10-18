@@ -1,0 +1,77 @@
+{
+  "status": "Qualified isolated candidate; actual publication-checkout integration and CI still required",
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+  "repair": "Native localMin/localMax classify interior candidates using ordinary feval(diff(f,2),x), including signed Dirac contributions. Old average of one-sided smooth values discarded those contributions. Endpoint fallback retains native diff(diff(f)) call.",
+  "changed_class_methods": [
+    "Chebfun._local_min_or_max_scalar"
+  ],
+  "all_other_class_method_ASTs_exact": true,
+  "original_test_files_byte_exact": [
+    "tests/test_matlab_port/chebfun/test_min_matlab.py",
+    "tests/test_matlab_port/chebfun/test_max_matlab.py",
+    "tests/test_matlab_port/chebfun/test_minandmax_matlab.py"
+  ],
+  "runs": {
+    "baseline": {
+      "cases": 8,
+      "failures": 8,
+      "imports_guarded": 1503,
+      "wall_seconds": 18.04230357799679,
+      "peak_rss_kib": 900316,
+      "stable": true,
+      "survivors": []
+    },
+    "candidate": {
+      "cases": 32,
+      "failures": 0,
+      "imports_guarded": 1512,
+      "wall_seconds": 50.976214380934834,
+      "peak_rss_kib": 2130004,
+      "stable": true,
+      "survivors": []
+    }
+  },
+  "native_controls": {
+    "count": 3,
+    "checkmark_source": "Loaded completed_degree7.mat from sealed native full7 run; no construction rerun",
+    "independent_cases": [
+      "abs(x)-x^2",
+      "-abs(x)+x^2"
+    ],
+    "native_checkmark_min_count": 5,
+    "native_shape_provider_scope": "Three output/control records capture ordinary/left/right curvature and point values. MATLAB source files and known installed providers preguarded; final827 installed mapped paths contain21 not in guard, explicitly not exhaustive DSO qualification.",
+    "native_control_supervisor_seconds": 82.2003554389812,
+    "native_missing_prelaunch_mapped_paths": [
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/mathdsp/mwlibmwmathdsp_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/mathelem/mwlibmwmathelem_cumfun_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/mathlinalg/mwlibmwmathlinalg_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/matlab_toolbox_datatypes_builtins/mwtypevalidation_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/matlab_toolbox_iofun_builtins/mwsaveload_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwexample_cache_manager.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwexample_docparser.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwexampleapi.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfftw3.so.3.5.8",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfftw3f.so.3.5.8",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmathdsp.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmathdsp_avx.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmathelem_cumfun.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmfl_conv_avx.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmfl_conv_avx2.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmfl_conv_sse.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwmfl_fft.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwsaveload.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwtypevalidation.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/mkl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/spf/clients/onlinelicensing/authz/client/delegate_impl/libmwollauthzclientdelegateimpl.so"
+    ]
+  },
+  "new_controls": "8analytic controls exercise both min/max, signs, amplitudes1/1e-6 and domains[-1,1]/[-1,5].3native fixture controls require exact selected min positions/values and Inf curvature classes.",
+  "checkmark_result": "Native-coefficient diagnostic min chooses all5 native positions/values exactly; no native arrays used in library production. Full original Python curve is preserved and still requires corrected standalone page run.",
+  "open": [
+    "Full Checkmark degree5 discrepancy5.73e-7, exact native knot/provider words",
+    "Standalone source/page/stdout/figure validation",
+    "Native provider/raster/matched CPU performance and full API/JAX/JIT/AD",
+    "Latest-main CI and full objective"
+  ]
+}

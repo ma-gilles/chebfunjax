@@ -1,0 +1,241 @@
+{
+  "title": "Finite TAN/TANH tiny-component literal quotient staging, phase constant initialization and shared JIT tail",
+  "base": "4bfd6fe0d3d05560f15a00ba9a0a5b2f54725d56",
+  "published_preimage_bridge": {
+    "base": "4bfd6fe0d3d05560f15a00ba9a0a5b2f54725d56",
+    "published_head": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+    "paths": {
+      "src/chebfunjax/utils/elementary.py": {
+        "base_sha256": "9f2b5284c62f04880c007857a49067140feea030e8f2b498ef3916f1995beb11",
+        "published_sha256": "9f2b5284c62f04880c007857a49067140feea030e8f2b498ef3916f1995beb11",
+        "exact": true,
+        "whole_AST_exact": true
+      },
+      "src/chebfunjax/utils/_source_phase.py": {
+        "base_sha256": "259c571583cdf124626d4df4ee94f6fe0d18990f830f2c97afacf733077ff8fe",
+        "published_sha256": "259c571583cdf124626d4df4ee94f6fe0d18990f830f2c97afacf733077ff8fe",
+        "exact": true,
+        "whole_AST_exact": true
+      },
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": {
+        "base_sha256": "31e1dc4528a5b02fcfd5f0eb53b3a71fafd4c4066c4d10abaad71008033e5b3a",
+        "published_sha256": "31e1dc4528a5b02fcfd5f0eb53b3a71fafd4c4066c4d10abaad71008033e5b3a",
+        "exact": true,
+        "whole_AST_exact": true
+      },
+      "tests/test_matlab_port/treeVar/test_tan_infinite_phase_source.py": {
+        "base_sha256": "3430ce2f911f7f91221ec9c4b504cbad6480391d368c67b0f18033b0aa19df99",
+        "published_sha256": "99cf4d9eb532cf01b093f4b11ee5a68c120e76311c951a784c1f0917f90a5a3f",
+        "exact": false,
+        "whole_AST_exact": true
+      },
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": {
+        "base_sha256": "553fb036430d5ff83589697ebfc65903e1d35c537d3740f55f01ad732170fb43",
+        "published_sha256": "553fb036430d5ff83589697ebfc65903e1d35c537d3740f55f01ad732170fb43",
+        "exact": true
+      }
+    }
+  },
+  "runtime": {
+    "interpreter": "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/bin/python",
+    "python": "3.12.13",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "CPU_affinity": [
+      36,
+      37,
+      38,
+      39
+    ],
+    "CUDA_VISIBLE_DEVICES": "",
+    "x64": true,
+    "persistent_compilation_cache": false
+  },
+  "source_rule": {
+    "dtype": "complex128",
+    "components": "0 < abs(component) < 2^-55; both input components and required source coefficient finite",
+    "reason": "Canonical fdlibm TANH scalar identity branch, contained in the TAN identity range; literal complex quotient identities with two rounded products, Smith quotient branch, gradual multiply/divide and binary64 addition. No derivative-product fit, copied native runtime buffers, input table or widened prior helper contract.",
+    "prior_analytic_JVPs": "AST exact",
+    "legacy_axes": "AST exact after two new blocks removed",
+    "phase": "Only original IP/PI assignments wrapped ensure_compile_time_eval; all ten phase helper function ASTs and assignments exact",
+    "global_tail": "Moved new tail statement ASTs exact to static-family global JIT helper; entire prior source_tangent module AST prefix exact"
+  },
+  "final_coverage": {
+    "complete": true,
+    "source_unchanged_across_shards": true,
+    "existing_nine_files": {
+      "selection_count": 2168,
+      "passed": 2167,
+      "retained_strict_expected_failures": 1,
+      "proof": "FINAL_EXISTING_DISJOINT_COVERAGE.json",
+      "monolithic_complete_XML": false,
+      "qualification": "Disjoint fully completed setup/call/teardown events, same source/test/script hashes; original 2 RSS and 1 wall censors retained"
+    },
+    "new_file": {
+      "selection_count": 110,
+      "passed": 110,
+      "complete_XML": true,
+      "stage": "final_new110_final",
+      "wall_seconds": 843.8950982908718,
+      "sampled_peak_summed_rss_kib": 5543548
+    },
+    "combined_distinct_nodes": 2278,
+    "combined_passed": 2277,
+    "combined_retained_strict_expected_failures": 1,
+    "migration_diagnostic": {
+      "passed": 27,
+      "not_added_to_combined_total_due_overlapping_cold_controls": true
+    }
+  },
+  "baseline": {
+    "unchanged_original_strict_bodies": {
+      "failed": 7,
+      "file": "baseline_junit.xml"
+    },
+    "obsolete_author_oracles": {
+      "failed": 4,
+      "file": "author_baseline_junit.xml"
+    },
+    "initial_full_selection": {
+      "passed": 1740,
+      "strict_XF": 1,
+      "failed": 427,
+      "all_failures": "UnexpectedTracerError from traced phase globals",
+      "file": "full_existing_junit.xml"
+    },
+    "cold_import_baselines": "Source-first and public SINH-first fail; retained ATAN-first negative control passes"
+  },
+  "status_changes": {
+    "original_metadata_records_before": 2,
+    "original_metadata_records_after": 0,
+    "fresh_strict_records_before": 5,
+    "fresh_strict_records_after": 1,
+    "six_repaired_records": [
+      "unary_storage_native_arrays.json__tan__complex_min_subnormal_imag",
+      "unary_storage_native_arrays.json__tanh__complex_min_subnormal_imag",
+      "finite_imaginary_axis__tan",
+      "finite_imaginary_axis__tanh",
+      "near_axis_nonzero_words__tan",
+      "near_axis_nonzero_words__tanh"
+    ],
+    "retained_open_record": "infinite_real_controls__tanh"
+  },
+  "independent_native_controls": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "MATLAB": "R2025b Update 2",
+    "capture_directories": [
+      "native",
+      "native_boundaries",
+      "native_kernel",
+      "native_tiny_normal"
+    ],
+    "requested_component_words_shape_class_storage_asserted_before_every_call": true,
+    "components_extracted_before_flattening_or_repacking": true,
+    "coefficient_values_per_provider": 829,
+    "component_words_per_coefficient_in_broad_capture": 96,
+    "selected_components_per_family": {
+      "subnormal": 8290,
+      "normal": 44766
+    },
+    "selected_across_four_families": 212224,
+    "outside_per_family": {
+      "above_branch": 24870,
+      "exact_zero": 1658
+    },
+    "separate_source_provider_words": "829/829 native matches per provider",
+    "Fraction_checks": "Independent exact arithmetic/RNE and Smith equal/narrow/normal controls retained in new test data"
+  },
+  "author_oracle_overlay": {
+    "changed_expected_word_occurrences": 236,
+    "distinct_changed_input_keys": 98,
+    "selected_input_keys": 202,
+    "native_review_inventory": "AUTHOR_ORACLE_NATIVE_WORD_INVENTORY.json",
+    "inventory_sha256": "a2d596467cd491cda44e754ede8d8cfef4af97b0edc5c8dc4798489d2cd3a9f8",
+    "root_review_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tiny_author_oracle_root_review_20261018.json",
+    "original_assertion_ASTs_exact": 125,
+    "outside_words_and_original_fixtures_bounds": "unchanged",
+    "root_review_archived": "ROOT_NATIVE_ORACLE_REVIEW.json"
+  },
+  "evidence": {
+    "source_scope": "FINAL_SOURCE_SCOPE_QUALIFICATION.json",
+    "phase_initialization": "PHASE_CONSTANT_INITIALIZATION_STATIC_PROOF.json",
+    "tail_migration": "GLOBAL_TAIL_AST_MIGRATION_PROOF.json",
+    "runtime": "FINAL_TERMINAL_RUNTIME_AUDIT.json",
+    "historic_preimages": "HISTORIC_INPUT_PREIMAGE_AUDIT.json",
+    "historic_changed_inputs_bound": 32,
+    "open_native_context": "INFINITE_TANH_CONTEXT_CONTRADICTION.json"
+  },
+  "runtime_guard_scope": {
+    "Python": "All observed file-backed imported module files in listed terminal maps and cold-child maps are preguarded matching hashes. Censored shards have no complete runtime map.",
+    "dynamic_libraries": "Not exhaustive DSO coverage. Post-start 166-mapped-ELF observation includes 57 files without explicit preguard keys, including libjax_common.so; never retroactively counted as pre-run evidence. Inventory is future parent preguard reference only.",
+    "ELF_observation": "FINAL_NEW110_POSTSTART_MAPPED_ELF_OBSERVATION.json",
+    "native": "Pinned source and capture guards plus bounded native mapping audits; no exhaustive installed MATLAB runtime or process-lifetime library hashing claim"
+  },
+  "preserved_corrections": [
+    "Initial collector numerator sign fields wrong; builtin/quotient/product captures unaffected; later collectors corrected",
+    "Early constant-closed JIT diagnostics superseded by dynamic-operand models",
+    "Subnormal-input-only draft failed minnormal controls; natural identity-range extension independently captured",
+    "Initial InfTANH map/vmap attribution premature; remove unqualified correction and retain strict XF/context contradiction",
+    "All427 initial full-selection failures traced to global phase constants; minimal initialization fix",
+    "Interim tail recompilation ~7seconds/call corrected by exact AST migration to shared JIT; measured cold ~7seconds remains",
+    "Invalid first migration guard/output-overlap launch intentionally stopped before output write; old profile/preimages retained",
+    "Earlier600second censor has no case-name attribution from dots",
+    "Port cache clearing is every25tests, not everycase; no unsupported memory-leak inference"
+  ],
+  "limitations": [
+    "Only the specified finite complex128 identity-range source class is repaired; real/C64 and all outside-mask words remain prior semantics",
+    "Infinite-real TANH zero signs remain context-dependent/open; storage flags offer a separate future hypothesis, no repair retained",
+    "Public real provider and finite-phase infinity provider word differences outside the new class remain; no universal fdlibm/native word claim",
+    "No universal IEEE, full API, example-page or whole-goal closure",
+    "Existing selection has complete disjoint event coverage, not a single complete all-pass XML run",
+    "Loaded-DSO coverage is explicitly incomplete; parent must preguard known loaded scientific DSO paths for a stronger next gate"
+  ],
+  "supervision": [
+    "tan_tanh_tiny_author_baseline_run001_20261018",
+    "tan_tanh_tiny_baseline_run001_20261018",
+    "tan_tanh_tiny_boundaries_dynamic_run001_20261018",
+    "tan_tanh_tiny_boundaries_native_run001_20261018",
+    "tan_tanh_tiny_boundaries_review_run001_20261018",
+    "tan_tanh_tiny_cold_baseline_run001_20261018",
+    "tan_tanh_tiny_cold_public_baseline_run001_20261018",
+    "tan_tanh_tiny_diagnosis_run001_20261018",
+    "tan_tanh_tiny_diagnosis_run002_20261018",
+    "tan_tanh_tiny_final_existing_remainder_run003_20261018",
+    "tan_tanh_tiny_final_existing_remainder_run004_20261018",
+    "tan_tanh_tiny_final_existing_remainder_run005_20261018",
+    "tan_tanh_tiny_final_existing_run002_20261018",
+    "tan_tanh_tiny_final_focused_run001_20261018",
+    "tan_tanh_tiny_final_new110_run001_20261018",
+    "tan_tanh_tiny_focused_run001_20261018",
+    "tan_tanh_tiny_focused_run002_20261018",
+    "tan_tanh_tiny_focused_run003_20261018",
+    "tan_tanh_tiny_focused_run004_20261018",
+    "tan_tanh_tiny_fraction_run001_20261018",
+    "tan_tanh_tiny_full_existing_run001_20261018",
+    "tan_tanh_tiny_global_tail_focused_run001_20261018",
+    "tan_tanh_tiny_global_tail_focused_run002_20261018",
+    "tan_tanh_tiny_independent_run001_20261018",
+    "tan_tanh_tiny_kernel_critical_run001_20261018",
+    "tan_tanh_tiny_kernel_native_run001_20261018",
+    "tan_tanh_tiny_native_run001_20261018",
+    "tan_tanh_tiny_normal_model_run001_20261018",
+    "tan_tanh_tiny_normal_native_run001_20261018",
+    "tan_tanh_tiny_operand_run001_20261018",
+    "tan_tanh_tiny_oracle_inventory_run001_20261018",
+    "tan_tanh_tiny_phase_fixed_focused_run001_20261018",
+    "tan_tanh_tiny_restored_run005_20261018",
+    "tan_tanh_tiny_smith_fraction_run001_20261018",
+    "tan_tanh_tiny_tan_kernel_run001_20261018"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tanh_tiny_package_20261018.tar.gz",
+    "sha256": "e475afa45926b841fa8cad008bb9a47c295dacafd929fa7a81306298261b0243",
+    "bytes": 82693469,
+    "payloads": 4109
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tanh_tiny_stream_hashes_20261018.json",
+    "sha256": "e380631610b898397b3c473daf42f3ed5cdae95596d382d7307d51183f5494b6"
+  }
+}

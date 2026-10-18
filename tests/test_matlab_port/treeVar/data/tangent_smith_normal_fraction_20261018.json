@@ -1,0 +1,6347 @@
+{
+  "source": "Independent Fraction per-operation binary64 RNE full Smith quotient; normal components through predecessor of 2^-55",
+  "branch_pattern_counts": {
+    "axis": 704,
+    "wide": 2816,
+    "equal": 16,
+    "narrow": 688
+  },
+  "rows": [
+    {
+      "component": "8010000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8010000000000000",
+      "minus": "8010000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8010000000000000",
+      "minus": "8010000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "8011c71c71c71c72",
+      "minus": "800e38e38e38e38e"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "8011c71c71c71c72",
+      "minus": "800e38e38e38e38e"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "80128f5c28f5c28f",
+      "minus": "800d70a3d70a3d71"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "80128f5c28f5c28f",
+      "minus": "800d70a3d70a3d71"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "8015c28f5c28f5c3",
+      "minus": "800a3d70a3d70a3d"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "8015c28f5c28f5c3",
+      "minus": "800a3d70a3d70a3d"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "8020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "8020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8020000000000001",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8020000000000001",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "8044000000000000",
+      "minus": "0040000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "8044000000000000",
+      "minus": "0040000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "86b3b8b5b5056e17",
+      "minus": "06b3b8b5b5056e17"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "86b3b8b5b5056e17",
+      "minus": "06b3b8b5b5056e17"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8010000000000000",
+      "minus": "8010000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8010000000000000",
+      "minus": "8010000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffc0000000000000",
+      "minus": "7fc0000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffc0000000000000",
+      "minus": "7fc0000000000000"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffce1e1e1e1e1e1d",
+      "minus": "7fce1e1e1e1e1e1d"
+    },
+    {
+      "component": "8010000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffce1e1e1e1e1e1d",
+      "minus": "7fce1e1e1e1e1e1d"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0010000000000000",
+      "minus": "0010000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0010000000000000",
+      "minus": "0010000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "0011c71c71c71c72",
+      "minus": "000e38e38e38e38e"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "0011c71c71c71c72",
+      "minus": "000e38e38e38e38e"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "00128f5c28f5c28f",
+      "minus": "000d70a3d70a3d71"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "00128f5c28f5c28f",
+      "minus": "000d70a3d70a3d71"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "0015c28f5c28f5c3",
+      "minus": "000a3d70a3d70a3d"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "0015c28f5c28f5c3",
+      "minus": "000a3d70a3d70a3d"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "0020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "0020000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0020000000000001",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0020000000000001",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "0044000000000000",
+      "minus": "8040000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "0044000000000000",
+      "minus": "8040000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "06b3b8b5b5056e17",
+      "minus": "86b3b8b5b5056e17"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "06b3b8b5b5056e17",
+      "minus": "86b3b8b5b5056e17"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0010000000000000",
+      "minus": "0010000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0010000000000000",
+      "minus": "0010000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fc0000000000000",
+      "minus": "ffc0000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fc0000000000000",
+      "minus": "ffc0000000000000"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fce1e1e1e1e1e1d",
+      "minus": "ffce1e1e1e1e1e1d"
+    },
+    {
+      "component": "0010000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fce1e1e1e1e1e1d",
+      "minus": "ffce1e1e1e1e1e1d"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8018000000000000",
+      "minus": "8018000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8018000000000000",
+      "minus": "8018000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "801aaaaaaaaaaaab",
+      "minus": "8015555555555555"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "801aaaaaaaaaaaab",
+      "minus": "8015555555555555"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "801bd70a3d70a3d7",
+      "minus": "801428f5c28f5c29"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "801bd70a3d70a3d7",
+      "minus": "801428f5c28f5c29"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "802051eb851eb852",
+      "minus": "800f5c28f5c28f5c"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "802051eb851eb852",
+      "minus": "800f5c28f5c28f5c"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8028000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8028000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "8027ffffffffffff",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "8027ffffffffffff",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8028000000000002",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8028000000000002",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "804e000000000000",
+      "minus": "0048000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "804e000000000000",
+      "minus": "0048000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "86bd95108f882522",
+      "minus": "06bd95108f882522"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "86bd95108f882522",
+      "minus": "06bd95108f882522"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8018000000000000",
+      "minus": "8018000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8018000000000000",
+      "minus": "8018000000000000"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffbd89d89d89d89e",
+      "minus": "7fbd89d89d89d89e"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffbd89d89d89d89e",
+      "minus": "7fbd89d89d89d89e"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffc4c1bacf914c1c",
+      "minus": "7fc4c1bacf914c1c"
+    },
+    {
+      "component": "8018000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffc4c1bacf914c1c",
+      "minus": "7fc4c1bacf914c1c"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0018000000000000",
+      "minus": "0018000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0018000000000000",
+      "minus": "0018000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "001aaaaaaaaaaaab",
+      "minus": "0015555555555555"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "001aaaaaaaaaaaab",
+      "minus": "0015555555555555"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "001bd70a3d70a3d7",
+      "minus": "001428f5c28f5c29"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "001bd70a3d70a3d7",
+      "minus": "001428f5c28f5c29"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "002051eb851eb852",
+      "minus": "000f5c28f5c28f5c"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "002051eb851eb852",
+      "minus": "000f5c28f5c28f5c"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0028000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0028000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "0027ffffffffffff",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "0027ffffffffffff",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0028000000000002",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0028000000000002",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "004e000000000000",
+      "minus": "8048000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "004e000000000000",
+      "minus": "8048000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "06bd95108f882522",
+      "minus": "86bd95108f882522"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "06bd95108f882522",
+      "minus": "86bd95108f882522"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0018000000000000",
+      "minus": "0018000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0018000000000000",
+      "minus": "0018000000000000"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fbd89d89d89d89e",
+      "minus": "ffbd89d89d89d89e"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fbd89d89d89d89e",
+      "minus": "ffbd89d89d89d89e"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fc4c1bacf914c1c",
+      "minus": "ffc4c1bacf914c1c"
+    },
+    {
+      "component": "0018000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fc4c1bacf914c1c",
+      "minus": "ffc4c1bacf914c1c"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "801fffffffffffff",
+      "minus": "801fffffffffffff"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "801fffffffffffff",
+      "minus": "801fffffffffffff"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "8021c71c71c71c71",
+      "minus": "801c71c71c71c71c"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "8021c71c71c71c71",
+      "minus": "801c71c71c71c71c"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "80228f5c28f5c28f",
+      "minus": "801ae147ae147ae0"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "80228f5c28f5c28f",
+      "minus": "801ae147ae147ae0"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "8025c28f5c28f5c2",
+      "minus": "80147ae147ae147b"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "8025c28f5c28f5c2",
+      "minus": "80147ae147ae147b"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "802ffffffffffffe",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "802ffffffffffffe",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "8030000000000000",
+      "minus": "0000000000000003"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "8030000000000000",
+      "minus": "0000000000000003"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "8053ffffffffffff",
+      "minus": "004ffffffffffffe"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "8053ffffffffffff",
+      "minus": "004ffffffffffffe"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "86c3b8b5b5056e16",
+      "minus": "06c3b8b5b5056e16"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "86c3b8b5b5056e16",
+      "minus": "06c3b8b5b5056e16"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "801fffffffffffff",
+      "minus": "801fffffffffffff"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "801fffffffffffff",
+      "minus": "801fffffffffffff"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffb999999999999a",
+      "minus": "7fb999999999999a"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffb999999999999a",
+      "minus": "7fb999999999999a"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffbf81f81f81f820",
+      "minus": "7fbf81f81f81f820"
+    },
+    {
+      "component": "801fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffbf81f81f81f820",
+      "minus": "7fbf81f81f81f820"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "001fffffffffffff",
+      "minus": "001fffffffffffff"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "001fffffffffffff",
+      "minus": "001fffffffffffff"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "0021c71c71c71c71",
+      "minus": "001c71c71c71c71c"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "0021c71c71c71c71",
+      "minus": "001c71c71c71c71c"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "00228f5c28f5c28f",
+      "minus": "001ae147ae147ae0"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "00228f5c28f5c28f",
+      "minus": "001ae147ae147ae0"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "0025c28f5c28f5c2",
+      "minus": "00147ae147ae147b"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "0025c28f5c28f5c2",
+      "minus": "00147ae147ae147b"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "002ffffffffffffe",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "002ffffffffffffe",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "0030000000000000",
+      "minus": "8000000000000003"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "0030000000000000",
+      "minus": "8000000000000003"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "0053ffffffffffff",
+      "minus": "804ffffffffffffe"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "0053ffffffffffff",
+      "minus": "804ffffffffffffe"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "06c3b8b5b5056e16",
+      "minus": "86c3b8b5b5056e16"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "06c3b8b5b5056e16",
+      "minus": "86c3b8b5b5056e16"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "001fffffffffffff",
+      "minus": "001fffffffffffff"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "001fffffffffffff",
+      "minus": "001fffffffffffff"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fb999999999999a",
+      "minus": "ffb999999999999a"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fb999999999999a",
+      "minus": "ffb999999999999a"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fbf81f81f81f820",
+      "minus": "ffbf81f81f81f820"
+    },
+    {
+      "component": "001fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fbf81f81f81f820",
+      "minus": "ffbf81f81f81f820"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8020000000000000",
+      "minus": "8020000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8020000000000000",
+      "minus": "8020000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "8021c71c71c71c72",
+      "minus": "801c71c71c71c71d"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "8021c71c71c71c72",
+      "minus": "801c71c71c71c71d"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "80228f5c28f5c290",
+      "minus": "801ae147ae147ae1"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "80228f5c28f5c290",
+      "minus": "801ae147ae147ae1"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "8025c28f5c28f5c2",
+      "minus": "80147ae147ae147b"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "8025c28f5c28f5c2",
+      "minus": "80147ae147ae147b"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8030000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8030000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "802fffffffffffff",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "802fffffffffffff",
+      "minus": "8000000000000002"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8030000000000001",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8030000000000001",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "8054000000000000",
+      "minus": "0050000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "8054000000000000",
+      "minus": "0050000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "86c3b8b5b5056e17",
+      "minus": "06c3b8b5b5056e17"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "86c3b8b5b5056e17",
+      "minus": "06c3b8b5b5056e17"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8020000000000000",
+      "minus": "8020000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8020000000000000",
+      "minus": "8020000000000000"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffb999999999999a",
+      "minus": "7fb999999999999a"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffb999999999999a",
+      "minus": "7fb999999999999a"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffbf81f81f81f81f",
+      "minus": "7fbf81f81f81f81f"
+    },
+    {
+      "component": "8020000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffbf81f81f81f81f",
+      "minus": "7fbf81f81f81f81f"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0020000000000000",
+      "minus": "0020000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0020000000000000",
+      "minus": "0020000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "0021c71c71c71c72",
+      "minus": "001c71c71c71c71d"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "0021c71c71c71c72",
+      "minus": "001c71c71c71c71d"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "00228f5c28f5c290",
+      "minus": "001ae147ae147ae1"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "00228f5c28f5c290",
+      "minus": "001ae147ae147ae1"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "0025c28f5c28f5c2",
+      "minus": "00147ae147ae147b"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "0025c28f5c28f5c2",
+      "minus": "00147ae147ae147b"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0030000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0030000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "002fffffffffffff",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "002fffffffffffff",
+      "minus": "0000000000000002"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0030000000000001",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0030000000000001",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "0054000000000000",
+      "minus": "8050000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "0054000000000000",
+      "minus": "8050000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "06c3b8b5b5056e17",
+      "minus": "86c3b8b5b5056e17"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "06c3b8b5b5056e17",
+      "minus": "86c3b8b5b5056e17"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0020000000000000",
+      "minus": "0020000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0020000000000000",
+      "minus": "0020000000000000"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fb999999999999a",
+      "minus": "ffb999999999999a"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fb999999999999a",
+      "minus": "ffb999999999999a"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fbf81f81f81f81f",
+      "minus": "ffbf81f81f81f81f"
+    },
+    {
+      "component": "0020000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fbf81f81f81f81f",
+      "minus": "ffbf81f81f81f81f"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8028000000000000",
+      "minus": "8028000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8028000000000000",
+      "minus": "8028000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "802aaaaaaaaaaaaa",
+      "minus": "8025555555555556"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "802aaaaaaaaaaaaa",
+      "minus": "8025555555555556"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "802bd70a3d70a3d8",
+      "minus": "802428f5c28f5c28"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "802bd70a3d70a3d8",
+      "minus": "802428f5c28f5c28"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "803051eb851eb852",
+      "minus": "801eb851eb851eb9"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "803051eb851eb852",
+      "minus": "801eb851eb851eb9"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8038000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8038000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "8037ffffffffffff",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "8037ffffffffffff",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8038000000000002",
+      "minus": "0000000000000008"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8038000000000002",
+      "minus": "0000000000000008"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "805e000000000000",
+      "minus": "0058000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "805e000000000000",
+      "minus": "0058000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "86cd95108f882522",
+      "minus": "06cd95108f882522"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "86cd95108f882522",
+      "minus": "06cd95108f882522"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8028000000000000",
+      "minus": "8028000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8028000000000000",
+      "minus": "8028000000000000"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffb3333333333333",
+      "minus": "7fb3333333333333"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffb3333333333333",
+      "minus": "7fb3333333333333"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffb52fab4152fab4",
+      "minus": "7fb52fab4152fab4"
+    },
+    {
+      "component": "8028000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffb52fab4152fab4",
+      "minus": "7fb52fab4152fab4"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0028000000000000",
+      "minus": "0028000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0028000000000000",
+      "minus": "0028000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "002aaaaaaaaaaaaa",
+      "minus": "0025555555555556"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "002aaaaaaaaaaaaa",
+      "minus": "0025555555555556"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "002bd70a3d70a3d8",
+      "minus": "002428f5c28f5c28"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "002bd70a3d70a3d8",
+      "minus": "002428f5c28f5c28"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "003051eb851eb852",
+      "minus": "001eb851eb851eb9"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "003051eb851eb852",
+      "minus": "001eb851eb851eb9"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0038000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0038000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "0037ffffffffffff",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "0037ffffffffffff",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0038000000000002",
+      "minus": "8000000000000008"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0038000000000002",
+      "minus": "8000000000000008"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "005e000000000000",
+      "minus": "8058000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "005e000000000000",
+      "minus": "8058000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "06cd95108f882522",
+      "minus": "86cd95108f882522"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "06cd95108f882522",
+      "minus": "86cd95108f882522"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0028000000000000",
+      "minus": "0028000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0028000000000000",
+      "minus": "0028000000000000"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fb3333333333333",
+      "minus": "ffb3333333333333"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fb3333333333333",
+      "minus": "ffb3333333333333"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fb52fab4152fab4",
+      "minus": "ffb52fab4152fab4"
+    },
+    {
+      "component": "0028000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fb52fab4152fab4",
+      "minus": "ffb52fab4152fab4"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "802fffffffffffff"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "802fffffffffffff"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "8031c71c71c71c71",
+      "minus": "802c71c71c71c71c"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "8031c71c71c71c71",
+      "minus": "802c71c71c71c71c"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "80328f5c28f5c28f",
+      "minus": "802ae147ae147ae0"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "80328f5c28f5c28f",
+      "minus": "802ae147ae147ae0"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "8035c28f5c28f5c2",
+      "minus": "80247ae147ae147a"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "8035c28f5c28f5c2",
+      "minus": "80247ae147ae147a"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "803fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "803fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "803ffffffffffffe",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "803ffffffffffffe",
+      "minus": "8000000000000004"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "8040000000000000",
+      "minus": "0000000000000006"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "8040000000000000",
+      "minus": "0000000000000006"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "8063ffffffffffff",
+      "minus": "005ffffffffffffe"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "8063ffffffffffff",
+      "minus": "005ffffffffffffe"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "86d3b8b5b5056e16",
+      "minus": "06d3b8b5b5056e16"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "86d3b8b5b5056e16",
+      "minus": "06d3b8b5b5056e16"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "802fffffffffffff"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "802fffffffffffff",
+      "minus": "802fffffffffffff"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "ffae1e1e1e1e1e1e",
+      "minus": "7fae1e1e1e1e1e1e"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "ffae1e1e1e1e1e1e",
+      "minus": "7fae1e1e1e1e1e1e"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "ffafe01fe01fe021",
+      "minus": "7fafe01fe01fe021"
+    },
+    {
+      "component": "802fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "ffafe01fe01fe021",
+      "minus": "7fafe01fe01fe021"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "002fffffffffffff"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "002fffffffffffff"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "0031c71c71c71c71",
+      "minus": "002c71c71c71c71c"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "0031c71c71c71c71",
+      "minus": "002c71c71c71c71c"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "00328f5c28f5c28f",
+      "minus": "002ae147ae147ae0"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "00328f5c28f5c28f",
+      "minus": "002ae147ae147ae0"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "0035c28f5c28f5c2",
+      "minus": "00247ae147ae147a"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "0035c28f5c28f5c2",
+      "minus": "00247ae147ae147a"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "003fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "003fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "003ffffffffffffe",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "003ffffffffffffe",
+      "minus": "0000000000000004"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "0040000000000000",
+      "minus": "8000000000000006"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "0040000000000000",
+      "minus": "8000000000000006"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "0063ffffffffffff",
+      "minus": "805ffffffffffffe"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "0063ffffffffffff",
+      "minus": "805ffffffffffffe"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "06d3b8b5b5056e16",
+      "minus": "86d3b8b5b5056e16"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "06d3b8b5b5056e16",
+      "minus": "86d3b8b5b5056e16"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "002fffffffffffff"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "002fffffffffffff",
+      "minus": "002fffffffffffff"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "7fae1e1e1e1e1e1e",
+      "minus": "ffae1e1e1e1e1e1e"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "7fae1e1e1e1e1e1e",
+      "minus": "ffae1e1e1e1e1e1e"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7fafe01fe01fe021",
+      "minus": "ffafe01fe01fe021"
+    },
+    {
+      "component": "002fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7fafe01fe01fe021",
+      "minus": "ffafe01fe01fe021"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8170000000000000",
+      "minus": "8170000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8170000000000000",
+      "minus": "8170000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "8171c71c71c71c72",
+      "minus": "816c71c71c71c71c"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "8171c71c71c71c72",
+      "minus": "816c71c71c71c71c"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "81728f5c28f5c290",
+      "minus": "816ae147ae147ae1"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "81728f5c28f5c290",
+      "minus": "816ae147ae147ae1"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "8175c28f5c28f5c2",
+      "minus": "81647ae147ae147b"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "8175c28f5c28f5c2",
+      "minus": "81647ae147ae147b"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8180000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8180000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "817fffffffffffff",
+      "minus": "8000000000400000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "817fffffffffffff",
+      "minus": "8000000000400000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8180000000000001",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8180000000000001",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "81a4000000000000",
+      "minus": "01a0000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "81a4000000000000",
+      "minus": "01a0000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "8813b8b5b5056e17",
+      "minus": "0813b8b5b5056e17"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "8813b8b5b5056e17",
+      "minus": "0813b8b5b5056e17"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8170000000000000",
+      "minus": "8170000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8170000000000000",
+      "minus": "8170000000000000"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "fe6ffffffffffe00",
+      "minus": "7e6ffffffffffe00"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "fe6ffffffffffe00",
+      "minus": "7e6ffffffffffe00"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "fe6fffffffffffdf",
+      "minus": "7e6fffffffffffdf"
+    },
+    {
+      "component": "8170000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "fe6fffffffffffdf",
+      "minus": "7e6fffffffffffdf"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0170000000000000",
+      "minus": "0170000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0170000000000000",
+      "minus": "0170000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "0171c71c71c71c72",
+      "minus": "016c71c71c71c71c"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "0171c71c71c71c72",
+      "minus": "016c71c71c71c71c"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "01728f5c28f5c290",
+      "minus": "016ae147ae147ae1"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "01728f5c28f5c290",
+      "minus": "016ae147ae147ae1"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "0175c28f5c28f5c2",
+      "minus": "01647ae147ae147b"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "0175c28f5c28f5c2",
+      "minus": "01647ae147ae147b"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0180000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0180000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "017fffffffffffff",
+      "minus": "0000000000400000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "017fffffffffffff",
+      "minus": "0000000000400000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0180000000000001",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0180000000000001",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "01a4000000000000",
+      "minus": "81a0000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "01a4000000000000",
+      "minus": "81a0000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "0813b8b5b5056e17",
+      "minus": "8813b8b5b5056e17"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "0813b8b5b5056e17",
+      "minus": "8813b8b5b5056e17"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0170000000000000",
+      "minus": "0170000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0170000000000000",
+      "minus": "0170000000000000"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7e6ffffffffffe00",
+      "minus": "fe6ffffffffffe00"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7e6ffffffffffe00",
+      "minus": "fe6ffffffffffe00"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7e6fffffffffffdf",
+      "minus": "fe6fffffffffffdf"
+    },
+    {
+      "component": "0170000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7e6fffffffffffdf",
+      "minus": "fe6fffffffffffdf"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "8178000000000000",
+      "minus": "8178000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "8178000000000000",
+      "minus": "8178000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "817aaaaaaaaaaaab",
+      "minus": "8175555555555555"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "817aaaaaaaaaaaab",
+      "minus": "8175555555555555"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "817bd70a3d70a3d7",
+      "minus": "817428f5c28f5c29"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "817bd70a3d70a3d7",
+      "minus": "817428f5c28f5c29"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "818051eb851eb852",
+      "minus": "816eb851eb851eb9"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "818051eb851eb852",
+      "minus": "816eb851eb851eb9"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "8188000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "8188000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "8187ffffffffffff",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "8187ffffffffffff",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "8188000000000002",
+      "minus": "0000000001000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "8188000000000002",
+      "minus": "0000000001000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "81ae000000000000",
+      "minus": "01a8000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "81ae000000000000",
+      "minus": "01a8000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "881d95108f882522",
+      "minus": "081d95108f882522"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "881d95108f882522",
+      "minus": "081d95108f882522"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "8178000000000000",
+      "minus": "8178000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "8178000000000000",
+      "minus": "8178000000000000"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "fe655555555554bd",
+      "minus": "7e655555555554bd"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "fe655555555554bd",
+      "minus": "7e655555555554bd"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "fe6555555555554c",
+      "minus": "7e6555555555554c"
+    },
+    {
+      "component": "8178000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "fe6555555555554c",
+      "minus": "7e6555555555554c"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "0178000000000000",
+      "minus": "0178000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "0178000000000000",
+      "minus": "0178000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "017aaaaaaaaaaaab",
+      "minus": "0175555555555555"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "017aaaaaaaaaaaab",
+      "minus": "0175555555555555"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "017bd70a3d70a3d7",
+      "minus": "017428f5c28f5c29"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "017bd70a3d70a3d7",
+      "minus": "017428f5c28f5c29"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "018051eb851eb852",
+      "minus": "016eb851eb851eb9"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "018051eb851eb852",
+      "minus": "016eb851eb851eb9"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "0188000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "0188000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "0187ffffffffffff",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "0187ffffffffffff",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "0188000000000002",
+      "minus": "8000000001000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "0188000000000002",
+      "minus": "8000000001000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "01ae000000000000",
+      "minus": "81a8000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "01ae000000000000",
+      "minus": "81a8000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "081d95108f882522",
+      "minus": "881d95108f882522"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "081d95108f882522",
+      "minus": "881d95108f882522"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "0178000000000000",
+      "minus": "0178000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "0178000000000000",
+      "minus": "0178000000000000"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "7e655555555554bd",
+      "minus": "fe655555555554bd"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "7e655555555554bd",
+      "minus": "fe655555555554bd"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7e6555555555554c",
+      "minus": "fe6555555555554c"
+    },
+    {
+      "component": "0178000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7e6555555555554c",
+      "minus": "fe6555555555554c"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "817fffffffffffff",
+      "minus": "817fffffffffffff"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "817fffffffffffff",
+      "minus": "817fffffffffffff"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "8181c71c71c71c71",
+      "minus": "817c71c71c71c71c"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "8181c71c71c71c71",
+      "minus": "817c71c71c71c71c"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "81828f5c28f5c28f",
+      "minus": "817ae147ae147ae0"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "81828f5c28f5c28f",
+      "minus": "817ae147ae147ae0"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "8185c28f5c28f5c2",
+      "minus": "81747ae147ae147a"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "8185c28f5c28f5c2",
+      "minus": "81747ae147ae147a"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "818fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "818fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "818ffffffffffffe",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "818ffffffffffffe",
+      "minus": "8000000000800000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "8190000000000000",
+      "minus": "0000000000c00000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "8190000000000000",
+      "minus": "0000000000c00000"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "81b3ffffffffffff",
+      "minus": "01affffffffffffe"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "81b3ffffffffffff",
+      "minus": "01affffffffffffe"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "8823b8b5b5056e16",
+      "minus": "0823b8b5b5056e16"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "8823b8b5b5056e16",
+      "minus": "0823b8b5b5056e16"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "817fffffffffffff",
+      "minus": "817fffffffffffff"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "817fffffffffffff",
+      "minus": "817fffffffffffff"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "fe5fffffffffff80",
+      "minus": "7e5fffffffffff80"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "fe5fffffffffff80",
+      "minus": "7e5fffffffffff80"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "fe5ffffffffffff9",
+      "minus": "7e5ffffffffffff9"
+    },
+    {
+      "component": "817fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "fe5ffffffffffff9",
+      "minus": "7e5ffffffffffff9"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "017fffffffffffff",
+      "minus": "017fffffffffffff"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "017fffffffffffff",
+      "minus": "017fffffffffffff"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "0181c71c71c71c71",
+      "minus": "017c71c71c71c71c"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "0181c71c71c71c71",
+      "minus": "017c71c71c71c71c"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "01828f5c28f5c28f",
+      "minus": "017ae147ae147ae0"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "01828f5c28f5c28f",
+      "minus": "017ae147ae147ae0"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "0185c28f5c28f5c2",
+      "minus": "01747ae147ae147a"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "0185c28f5c28f5c2",
+      "minus": "01747ae147ae147a"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "018fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "018fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "018ffffffffffffe",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "018ffffffffffffe",
+      "minus": "0000000000800000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "0190000000000000",
+      "minus": "8000000000c00000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "0190000000000000",
+      "minus": "8000000000c00000"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "01b3ffffffffffff",
+      "minus": "81affffffffffffe"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "01b3ffffffffffff",
+      "minus": "81affffffffffffe"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "0823b8b5b5056e16",
+      "minus": "8823b8b5b5056e16"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "0823b8b5b5056e16",
+      "minus": "8823b8b5b5056e16"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "017fffffffffffff",
+      "minus": "017fffffffffffff"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "017fffffffffffff",
+      "minus": "017fffffffffffff"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "7e5fffffffffff80",
+      "minus": "fe5fffffffffff80"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "7e5fffffffffff80",
+      "minus": "fe5fffffffffff80"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "7e5ffffffffffff9",
+      "minus": "fe5ffffffffffff9"
+    },
+    {
+      "component": "017fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "7e5ffffffffffff9",
+      "minus": "fe5ffffffffffff9"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "a0b0000000000000",
+      "minus": "a0b0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "a0b0000000000000",
+      "minus": "a0b0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "a0b1c71c71c71c72",
+      "minus": "a0ac71c71c71c71c"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "a0b1c71c71c71c72",
+      "minus": "a0ac71c71c71c71c"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "a0b28f5c28f5c290",
+      "minus": "a0aae147ae147ae1"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "a0b28f5c28f5c290",
+      "minus": "a0aae147ae147ae1"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "a0b5c28f5c28f5c2",
+      "minus": "a0a47ae147ae147b"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "a0b5c28f5c28f5c2",
+      "minus": "a0a47ae147ae147b"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "a0c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "a0c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "a0bfffffffffffff",
+      "minus": "9d70000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "a0bfffffffffffff",
+      "minus": "9d70000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "a0c0000000000001",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "a0c0000000000001",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "a0e4000000000000",
+      "minus": "20e0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "a0e4000000000000",
+      "minus": "20e0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "a753b8b5b5056e17",
+      "minus": "2753b8b5b5056e17"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "a753b8b5b5056e17",
+      "minus": "2753b8b5b5056e17"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "a0b0000000000000",
+      "minus": "a0b0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "a0b0000000000000",
+      "minus": "a0b0000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "df30000000000000",
+      "minus": "5f30000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "df30000000000000",
+      "minus": "5f30000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "df30000000000000",
+      "minus": "5f30000000000000"
+    },
+    {
+      "component": "a0b0000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "df30000000000000",
+      "minus": "5f30000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "20b0000000000000",
+      "minus": "20b0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "20b0000000000000",
+      "minus": "20b0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "20b1c71c71c71c72",
+      "minus": "20ac71c71c71c71c"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "20b1c71c71c71c72",
+      "minus": "20ac71c71c71c71c"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "20b28f5c28f5c290",
+      "minus": "20aae147ae147ae1"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "20b28f5c28f5c290",
+      "minus": "20aae147ae147ae1"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "20b5c28f5c28f5c2",
+      "minus": "20a47ae147ae147b"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "20b5c28f5c28f5c2",
+      "minus": "20a47ae147ae147b"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "20c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "20c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "20bfffffffffffff",
+      "minus": "1d70000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "20bfffffffffffff",
+      "minus": "1d70000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "20c0000000000001",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "20c0000000000001",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "20e4000000000000",
+      "minus": "a0e0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "20e4000000000000",
+      "minus": "a0e0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "2753b8b5b5056e17",
+      "minus": "a753b8b5b5056e17"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "2753b8b5b5056e17",
+      "minus": "a753b8b5b5056e17"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "20b0000000000000",
+      "minus": "20b0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "20b0000000000000",
+      "minus": "20b0000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "5f30000000000000",
+      "minus": "df30000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "5f30000000000000",
+      "minus": "df30000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "5f30000000000000",
+      "minus": "df30000000000000"
+    },
+    {
+      "component": "20b0000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "5f30000000000000",
+      "minus": "df30000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "a0b8000000000000",
+      "minus": "a0b8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "a0b8000000000000",
+      "minus": "a0b8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "a0baaaaaaaaaaaab",
+      "minus": "a0b5555555555555"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "a0baaaaaaaaaaaab",
+      "minus": "a0b5555555555555"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "a0bbd70a3d70a3d7",
+      "minus": "a0b428f5c28f5c29"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "a0bbd70a3d70a3d7",
+      "minus": "a0b428f5c28f5c29"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "a0c051eb851eb852",
+      "minus": "a0aeb851eb851eb9"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "a0c051eb851eb852",
+      "minus": "a0aeb851eb851eb9"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "a0c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "a0c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "a0c7ffffffffffff",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "a0c7ffffffffffff",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "a0c8000000000002",
+      "minus": "1d90000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "a0c8000000000002",
+      "minus": "1d90000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "a0ee000000000000",
+      "minus": "20e8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "a0ee000000000000",
+      "minus": "20e8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "a75d95108f882522",
+      "minus": "275d95108f882522"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "a75d95108f882522",
+      "minus": "275d95108f882522"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "a0b8000000000000",
+      "minus": "a0b8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "a0b8000000000000",
+      "minus": "a0b8000000000000"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "df25555555555555",
+      "minus": "5f25555555555555"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "df25555555555555",
+      "minus": "5f25555555555555"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "df25555555555556",
+      "minus": "5f25555555555556"
+    },
+    {
+      "component": "a0b8000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "df25555555555556",
+      "minus": "5f25555555555556"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "20b8000000000000",
+      "minus": "20b8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "20b8000000000000",
+      "minus": "20b8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "20baaaaaaaaaaaab",
+      "minus": "20b5555555555555"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "20baaaaaaaaaaaab",
+      "minus": "20b5555555555555"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "20bbd70a3d70a3d7",
+      "minus": "20b428f5c28f5c29"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "20bbd70a3d70a3d7",
+      "minus": "20b428f5c28f5c29"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "20c051eb851eb852",
+      "minus": "20aeb851eb851eb9"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "20c051eb851eb852",
+      "minus": "20aeb851eb851eb9"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "20c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "20c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "20c7ffffffffffff",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "20c7ffffffffffff",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "20c8000000000002",
+      "minus": "9d90000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "20c8000000000002",
+      "minus": "9d90000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "20ee000000000000",
+      "minus": "a0e8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "20ee000000000000",
+      "minus": "a0e8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "275d95108f882522",
+      "minus": "a75d95108f882522"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "275d95108f882522",
+      "minus": "a75d95108f882522"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "20b8000000000000",
+      "minus": "20b8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "20b8000000000000",
+      "minus": "20b8000000000000"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "5f25555555555555",
+      "minus": "df25555555555555"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "5f25555555555555",
+      "minus": "df25555555555555"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "5f25555555555556",
+      "minus": "df25555555555556"
+    },
+    {
+      "component": "20b8000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "5f25555555555556",
+      "minus": "df25555555555556"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "a0bfffffffffffff",
+      "minus": "a0bfffffffffffff"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "a0bfffffffffffff",
+      "minus": "a0bfffffffffffff"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "a0c1c71c71c71c71",
+      "minus": "a0bc71c71c71c71c"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "a0c1c71c71c71c71",
+      "minus": "a0bc71c71c71c71c"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "a0c28f5c28f5c28f",
+      "minus": "a0bae147ae147ae0"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "a0c28f5c28f5c28f",
+      "minus": "a0bae147ae147ae0"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "a0c5c28f5c28f5c2",
+      "minus": "a0b47ae147ae147a"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "a0c5c28f5c28f5c2",
+      "minus": "a0b47ae147ae147a"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "a0cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "a0cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "a0cffffffffffffe",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "a0cffffffffffffe",
+      "minus": "9d80000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "a0d0000000000000",
+      "minus": "1d88000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "a0d0000000000000",
+      "minus": "1d88000000000000"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "a0f3ffffffffffff",
+      "minus": "20effffffffffffe"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "a0f3ffffffffffff",
+      "minus": "20effffffffffffe"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "a763b8b5b5056e16",
+      "minus": "2763b8b5b5056e16"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "a763b8b5b5056e16",
+      "minus": "2763b8b5b5056e16"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "a0bfffffffffffff",
+      "minus": "a0bfffffffffffff"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "a0bfffffffffffff",
+      "minus": "a0bfffffffffffff"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "df20000000000001",
+      "minus": "5f20000000000001"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "df20000000000001",
+      "minus": "5f20000000000001"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "df20000000000001",
+      "minus": "5f20000000000001"
+    },
+    {
+      "component": "a0bfffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "df20000000000001",
+      "minus": "5f20000000000001"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "20bfffffffffffff",
+      "minus": "20bfffffffffffff"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "20bfffffffffffff",
+      "minus": "20bfffffffffffff"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "20c1c71c71c71c71",
+      "minus": "20bc71c71c71c71c"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "20c1c71c71c71c71",
+      "minus": "20bc71c71c71c71c"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "20c28f5c28f5c28f",
+      "minus": "20bae147ae147ae0"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "20c28f5c28f5c28f",
+      "minus": "20bae147ae147ae0"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "20c5c28f5c28f5c2",
+      "minus": "20b47ae147ae147a"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "20c5c28f5c28f5c2",
+      "minus": "20b47ae147ae147a"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "20cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "20cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "20cffffffffffffe",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "20cffffffffffffe",
+      "minus": "1d80000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "20d0000000000000",
+      "minus": "9d88000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "20d0000000000000",
+      "minus": "9d88000000000000"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "20f3ffffffffffff",
+      "minus": "a0effffffffffffe"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "20f3ffffffffffff",
+      "minus": "a0effffffffffffe"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "2763b8b5b5056e16",
+      "minus": "a763b8b5b5056e16"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "2763b8b5b5056e16",
+      "minus": "a763b8b5b5056e16"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "20bfffffffffffff",
+      "minus": "20bfffffffffffff"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "20bfffffffffffff",
+      "minus": "20bfffffffffffff"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "5f20000000000001",
+      "minus": "df20000000000001"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "5f20000000000001",
+      "minus": "df20000000000001"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "5f20000000000001",
+      "minus": "df20000000000001"
+    },
+    {
+      "component": "20bfffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "5f20000000000001",
+      "minus": "df20000000000001"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "b9b0000000000000",
+      "minus": "b9b0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "b9b0000000000000",
+      "minus": "b9b0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "b9b1c71c71c71c72",
+      "minus": "b9ac71c71c71c71c"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "b9b1c71c71c71c72",
+      "minus": "b9ac71c71c71c71c"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "b9b28f5c28f5c290",
+      "minus": "b9aae147ae147ae1"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "b9b28f5c28f5c290",
+      "minus": "b9aae147ae147ae1"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "b9b5c28f5c28f5c2",
+      "minus": "b9a47ae147ae147b"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "b9b5c28f5c28f5c2",
+      "minus": "b9a47ae147ae147b"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "b9c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "b9c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "b9bfffffffffffff",
+      "minus": "b670000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "b9bfffffffffffff",
+      "minus": "b670000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "b9c0000000000001",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "b9c0000000000001",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "b9e4000000000000",
+      "minus": "39e0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "b9e4000000000000",
+      "minus": "39e0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c053b8b5b5056e17",
+      "minus": "4053b8b5b5056e17"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c053b8b5b5056e17",
+      "minus": "4053b8b5b5056e17"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "b9b0000000000000",
+      "minus": "b9b0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "b9b0000000000000",
+      "minus": "b9b0000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c630000000000000",
+      "minus": "4630000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c630000000000000",
+      "minus": "4630000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c630000000000000",
+      "minus": "4630000000000000"
+    },
+    {
+      "component": "b9b0000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c630000000000000",
+      "minus": "4630000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "39b0000000000000",
+      "minus": "39b0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "39b0000000000000",
+      "minus": "39b0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "39b1c71c71c71c72",
+      "minus": "39ac71c71c71c71c"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "39b1c71c71c71c72",
+      "minus": "39ac71c71c71c71c"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "39b28f5c28f5c290",
+      "minus": "39aae147ae147ae1"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "39b28f5c28f5c290",
+      "minus": "39aae147ae147ae1"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "39b5c28f5c28f5c2",
+      "minus": "39a47ae147ae147b"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "39b5c28f5c28f5c2",
+      "minus": "39a47ae147ae147b"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "39c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "39c0000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "39bfffffffffffff",
+      "minus": "3670000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "39bfffffffffffff",
+      "minus": "3670000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "39c0000000000001",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "39c0000000000001",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "39e4000000000000",
+      "minus": "b9e0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "39e4000000000000",
+      "minus": "b9e0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "4053b8b5b5056e17",
+      "minus": "c053b8b5b5056e17"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "4053b8b5b5056e17",
+      "minus": "c053b8b5b5056e17"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "39b0000000000000",
+      "minus": "39b0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "39b0000000000000",
+      "minus": "39b0000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "4630000000000000",
+      "minus": "c630000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "4630000000000000",
+      "minus": "c630000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4630000000000000",
+      "minus": "c630000000000000"
+    },
+    {
+      "component": "39b0000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4630000000000000",
+      "minus": "c630000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "b9b8000000000000",
+      "minus": "b9b8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "b9b8000000000000",
+      "minus": "b9b8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "b9baaaaaaaaaaaab",
+      "minus": "b9b5555555555555"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "b9baaaaaaaaaaaab",
+      "minus": "b9b5555555555555"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "b9bbd70a3d70a3d7",
+      "minus": "b9b428f5c28f5c29"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "b9bbd70a3d70a3d7",
+      "minus": "b9b428f5c28f5c29"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "b9c051eb851eb852",
+      "minus": "b9aeb851eb851eb9"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "b9c051eb851eb852",
+      "minus": "b9aeb851eb851eb9"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "b9c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "b9c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "b9c7ffffffffffff",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "b9c7ffffffffffff",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "b9c8000000000002",
+      "minus": "3690000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "b9c8000000000002",
+      "minus": "3690000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "b9ee000000000000",
+      "minus": "39e8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "b9ee000000000000",
+      "minus": "39e8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c05d95108f882522",
+      "minus": "405d95108f882522"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c05d95108f882522",
+      "minus": "405d95108f882522"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "b9b8000000000000",
+      "minus": "b9b8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "b9b8000000000000",
+      "minus": "b9b8000000000000"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c625555555555555",
+      "minus": "4625555555555555"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c625555555555555",
+      "minus": "4625555555555555"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c625555555555556",
+      "minus": "4625555555555556"
+    },
+    {
+      "component": "b9b8000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c625555555555556",
+      "minus": "4625555555555556"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "39b8000000000000",
+      "minus": "39b8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "39b8000000000000",
+      "minus": "39b8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "39baaaaaaaaaaaab",
+      "minus": "39b5555555555555"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "39baaaaaaaaaaaab",
+      "minus": "39b5555555555555"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "39bbd70a3d70a3d7",
+      "minus": "39b428f5c28f5c29"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "39bbd70a3d70a3d7",
+      "minus": "39b428f5c28f5c29"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "39c051eb851eb852",
+      "minus": "39aeb851eb851eb9"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "39c051eb851eb852",
+      "minus": "39aeb851eb851eb9"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "39c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "39c8000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "39c7ffffffffffff",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "39c7ffffffffffff",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "39c8000000000002",
+      "minus": "b690000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "39c8000000000002",
+      "minus": "b690000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "39ee000000000000",
+      "minus": "b9e8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "39ee000000000000",
+      "minus": "b9e8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "405d95108f882522",
+      "minus": "c05d95108f882522"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "405d95108f882522",
+      "minus": "c05d95108f882522"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "39b8000000000000",
+      "minus": "39b8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "39b8000000000000",
+      "minus": "39b8000000000000"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "4625555555555555",
+      "minus": "c625555555555555"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "4625555555555555",
+      "minus": "c625555555555555"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4625555555555556",
+      "minus": "c625555555555556"
+    },
+    {
+      "component": "39b8000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4625555555555556",
+      "minus": "c625555555555556"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "b9bfffffffffffff",
+      "minus": "b9bfffffffffffff"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "b9bfffffffffffff",
+      "minus": "b9bfffffffffffff"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "b9c1c71c71c71c71",
+      "minus": "b9bc71c71c71c71c"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "b9c1c71c71c71c71",
+      "minus": "b9bc71c71c71c71c"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "b9c28f5c28f5c28f",
+      "minus": "b9bae147ae147ae0"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "b9c28f5c28f5c28f",
+      "minus": "b9bae147ae147ae0"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "b9c5c28f5c28f5c2",
+      "minus": "b9b47ae147ae147a"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "b9c5c28f5c28f5c2",
+      "minus": "b9b47ae147ae147a"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "b9cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "b9cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "b9cffffffffffffe",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "b9cffffffffffffe",
+      "minus": "b680000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "b9d0000000000000",
+      "minus": "3688000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "b9d0000000000000",
+      "minus": "3688000000000000"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "b9f3ffffffffffff",
+      "minus": "39effffffffffffe"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "b9f3ffffffffffff",
+      "minus": "39effffffffffffe"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "c063b8b5b5056e16",
+      "minus": "4063b8b5b5056e16"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "c063b8b5b5056e16",
+      "minus": "4063b8b5b5056e16"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "b9bfffffffffffff",
+      "minus": "b9bfffffffffffff"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "b9bfffffffffffff",
+      "minus": "b9bfffffffffffff"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "c620000000000001",
+      "minus": "4620000000000001"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "c620000000000001",
+      "minus": "4620000000000001"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c620000000000001",
+      "minus": "4620000000000001"
+    },
+    {
+      "component": "b9bfffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c620000000000001",
+      "minus": "4620000000000001"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "39bfffffffffffff",
+      "minus": "39bfffffffffffff"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "39bfffffffffffff",
+      "minus": "39bfffffffffffff"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "39c1c71c71c71c71",
+      "minus": "39bc71c71c71c71c"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "39c1c71c71c71c71",
+      "minus": "39bc71c71c71c71c"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "39c28f5c28f5c28f",
+      "minus": "39bae147ae147ae0"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "39c28f5c28f5c28f",
+      "minus": "39bae147ae147ae0"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "39c5c28f5c28f5c2",
+      "minus": "39b47ae147ae147a"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "39c5c28f5c28f5c2",
+      "minus": "39b47ae147ae147a"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "39cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "39cfffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "39cffffffffffffe",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "39cffffffffffffe",
+      "minus": "3680000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "39d0000000000000",
+      "minus": "b688000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "39d0000000000000",
+      "minus": "b688000000000000"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "39f3ffffffffffff",
+      "minus": "b9effffffffffffe"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "39f3ffffffffffff",
+      "minus": "b9effffffffffffe"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "4063b8b5b5056e16",
+      "minus": "c063b8b5b5056e16"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "4063b8b5b5056e16",
+      "minus": "c063b8b5b5056e16"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "39bfffffffffffff",
+      "minus": "39bfffffffffffff"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "39bfffffffffffff",
+      "minus": "39bfffffffffffff"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "4620000000000001",
+      "minus": "c620000000000001"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "4620000000000001",
+      "minus": "c620000000000001"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4620000000000001",
+      "minus": "c620000000000001"
+    },
+    {
+      "component": "39bfffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4620000000000001",
+      "minus": "c620000000000001"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "bc30000000000000",
+      "minus": "bc30000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "bc30000000000000",
+      "minus": "bc30000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc31c71c71c71c72",
+      "minus": "bc2c71c71c71c71c"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc31c71c71c71c72",
+      "minus": "bc2c71c71c71c71c"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc328f5c28f5c290",
+      "minus": "bc2ae147ae147ae1"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc328f5c28f5c290",
+      "minus": "bc2ae147ae147ae1"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc35c28f5c28f5c2",
+      "minus": "bc247ae147ae147b"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc35c28f5c28f5c2",
+      "minus": "bc247ae147ae147b"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc40000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "bc40000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc3fffffffffffff",
+      "minus": "b8f0000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc3fffffffffffff",
+      "minus": "b8f0000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc40000000000001",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "bc40000000000001",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "bc64000000000000",
+      "minus": "3c60000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "bc64000000000000",
+      "minus": "3c60000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c2d3b8547ad52731",
+      "minus": "42d3b8547ad52731"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c2d3b8547ad52731",
+      "minus": "42d3b8547ad52731"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "bc30000000000000",
+      "minus": "bc30000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "bc30000000000000",
+      "minus": "bc30000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c3b0000000000000",
+      "minus": "43b0000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c3b0000000000000",
+      "minus": "43b0000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c3b0000000000000",
+      "minus": "43b0000000000000"
+    },
+    {
+      "component": "bc30000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c3b0000000000000",
+      "minus": "43b0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "3c30000000000000",
+      "minus": "3c30000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "3c30000000000000",
+      "minus": "3c30000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c31c71c71c71c72",
+      "minus": "3c2c71c71c71c71c"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c31c71c71c71c72",
+      "minus": "3c2c71c71c71c71c"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c328f5c28f5c290",
+      "minus": "3c2ae147ae147ae1"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c328f5c28f5c290",
+      "minus": "3c2ae147ae147ae1"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c35c28f5c28f5c2",
+      "minus": "3c247ae147ae147b"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c35c28f5c28f5c2",
+      "minus": "3c247ae147ae147b"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c40000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "3c40000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c3fffffffffffff",
+      "minus": "38f0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c3fffffffffffff",
+      "minus": "38f0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c40000000000001",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "3c40000000000001",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "3c64000000000000",
+      "minus": "bc60000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "3c64000000000000",
+      "minus": "bc60000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "42d3b8547ad52731",
+      "minus": "c2d3b8547ad52731"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "42d3b8547ad52731",
+      "minus": "c2d3b8547ad52731"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "3c30000000000000",
+      "minus": "3c30000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "3c30000000000000",
+      "minus": "3c30000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "43b0000000000000",
+      "minus": "c3b0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "43b0000000000000",
+      "minus": "c3b0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "43b0000000000000",
+      "minus": "c3b0000000000000"
+    },
+    {
+      "component": "3c30000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "43b0000000000000",
+      "minus": "c3b0000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "bc38000000000000",
+      "minus": "bc38000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "bc38000000000000",
+      "minus": "bc38000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc3aaaaaaaaaaaab",
+      "minus": "bc35555555555555"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc3aaaaaaaaaaaab",
+      "minus": "bc35555555555555"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc3bd70a3d70a3d7",
+      "minus": "bc3428f5c28f5c29"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc3bd70a3d70a3d7",
+      "minus": "bc3428f5c28f5c29"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc4051eb851eb852",
+      "minus": "bc2eb851eb851eb9"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc4051eb851eb852",
+      "minus": "bc2eb851eb851eb9"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc48000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "bc48000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc47ffffffffffff",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc47ffffffffffff",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc48000000000002",
+      "minus": "3910000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "bc48000000000002",
+      "minus": "3910000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "bc6e000000000000",
+      "minus": "3c68000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "bc6e000000000000",
+      "minus": "3c68000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c2dd93c8730b333e",
+      "minus": "42dd93c8730b333e"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c2dd93c8730b333e",
+      "minus": "42dd93c8730b333e"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "bc38000000000000",
+      "minus": "bc38000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "bc38000000000000",
+      "minus": "bc38000000000000"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c3a5555555555555",
+      "minus": "43a5555555555555"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c3a5555555555555",
+      "minus": "43a5555555555555"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c3a5555555555556",
+      "minus": "43a5555555555556"
+    },
+    {
+      "component": "bc38000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c3a5555555555556",
+      "minus": "43a5555555555556"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "3c38000000000000",
+      "minus": "3c38000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "3c38000000000000",
+      "minus": "3c38000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c3aaaaaaaaaaaab",
+      "minus": "3c35555555555555"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c3aaaaaaaaaaaab",
+      "minus": "3c35555555555555"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c3bd70a3d70a3d7",
+      "minus": "3c3428f5c28f5c29"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c3bd70a3d70a3d7",
+      "minus": "3c3428f5c28f5c29"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c4051eb851eb852",
+      "minus": "3c2eb851eb851eb9"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c4051eb851eb852",
+      "minus": "3c2eb851eb851eb9"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c48000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "3c48000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c47ffffffffffff",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c47ffffffffffff",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c48000000000002",
+      "minus": "b910000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "3c48000000000002",
+      "minus": "b910000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "3c6e000000000000",
+      "minus": "bc68000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "3c6e000000000000",
+      "minus": "bc68000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "42dd93c8730b333e",
+      "minus": "c2dd93c8730b333e"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "42dd93c8730b333e",
+      "minus": "c2dd93c8730b333e"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "3c38000000000000",
+      "minus": "3c38000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "3c38000000000000",
+      "minus": "3c38000000000000"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "43a5555555555555",
+      "minus": "c3a5555555555555"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "43a5555555555555",
+      "minus": "c3a5555555555555"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "43a5555555555556",
+      "minus": "c3a5555555555556"
+    },
+    {
+      "component": "3c38000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "43a5555555555556",
+      "minus": "c3a5555555555556"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "bc3fffffffffffff",
+      "minus": "bc3fffffffffffff"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "bc3fffffffffffff",
+      "minus": "bc3fffffffffffff"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc41c71c71c71c71",
+      "minus": "bc3c71c71c71c71c"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc41c71c71c71c71",
+      "minus": "bc3c71c71c71c71c"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc428f5c28f5c28f",
+      "minus": "bc3ae147ae147ae0"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc428f5c28f5c28f",
+      "minus": "bc3ae147ae147ae0"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc45c28f5c28f5c2",
+      "minus": "bc347ae147ae147a"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc45c28f5c28f5c2",
+      "minus": "bc347ae147ae147a"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc4fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "bc4fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc4ffffffffffffe",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc4ffffffffffffe",
+      "minus": "b900000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc50000000000000",
+      "minus": "3908000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "bc50000000000000",
+      "minus": "3908000000000000"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "bc73ffffffffffff",
+      "minus": "3c6ffffffffffffe"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "bc73ffffffffffff",
+      "minus": "3c6ffffffffffffe"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "c2e3b730e2bb00bd",
+      "minus": "42e3b730e2bb00bd"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "c2e3b730e2bb00bd",
+      "minus": "42e3b730e2bb00bd"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "bc3fffffffffffff",
+      "minus": "bc3fffffffffffff"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "bc3fffffffffffff",
+      "minus": "bc3fffffffffffff"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "c3a0000000000001",
+      "minus": "43a0000000000001"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "c3a0000000000001",
+      "minus": "43a0000000000001"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c3a0000000000001",
+      "minus": "43a0000000000001"
+    },
+    {
+      "component": "bc3fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c3a0000000000001",
+      "minus": "43a0000000000001"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "3c3fffffffffffff",
+      "minus": "3c3fffffffffffff"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "3c3fffffffffffff",
+      "minus": "3c3fffffffffffff"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c41c71c71c71c71",
+      "minus": "3c3c71c71c71c71c"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c41c71c71c71c71",
+      "minus": "3c3c71c71c71c71c"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c428f5c28f5c28f",
+      "minus": "3c3ae147ae147ae0"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c428f5c28f5c28f",
+      "minus": "3c3ae147ae147ae0"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c45c28f5c28f5c2",
+      "minus": "3c347ae147ae147a"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c45c28f5c28f5c2",
+      "minus": "3c347ae147ae147a"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c4fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "3c4fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c4ffffffffffffe",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c4ffffffffffffe",
+      "minus": "3900000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c50000000000000",
+      "minus": "b908000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "3c50000000000000",
+      "minus": "b908000000000000"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "3c73ffffffffffff",
+      "minus": "bc6ffffffffffffe"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "3c73ffffffffffff",
+      "minus": "bc6ffffffffffffe"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "42e3b730e2bb00bd",
+      "minus": "c2e3b730e2bb00bd"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "42e3b730e2bb00bd",
+      "minus": "c2e3b730e2bb00bd"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "3c3fffffffffffff",
+      "minus": "3c3fffffffffffff"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "3c3fffffffffffff",
+      "minus": "3c3fffffffffffff"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "43a0000000000001",
+      "minus": "c3a0000000000001"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "43a0000000000001",
+      "minus": "c3a0000000000001"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "43a0000000000001",
+      "minus": "c3a0000000000001"
+    },
+    {
+      "component": "3c3fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "43a0000000000001",
+      "minus": "c3a0000000000001"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "bc70000000000000",
+      "minus": "bc70000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "bc70000000000000",
+      "minus": "bc70000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc71c71c71c71c72",
+      "minus": "bc6c71c71c71c71c"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc71c71c71c71c72",
+      "minus": "bc6c71c71c71c71c"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc728f5c28f5c290",
+      "minus": "bc6ae147ae147ae1"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc728f5c28f5c290",
+      "minus": "bc6ae147ae147ae1"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc75c28f5c28f5c2",
+      "minus": "bc647ae147ae147b"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc75c28f5c28f5c2",
+      "minus": "bc647ae147ae147b"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc80000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "bc80000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc7fffffffffffff",
+      "minus": "b930000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc7fffffffffffff",
+      "minus": "b930000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc80000000000001",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "bc80000000000001",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "bca4000000000000",
+      "minus": "3ca0000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "bca4000000000000",
+      "minus": "3ca0000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c313594ffdbb9422",
+      "minus": "4313594ffdbb9422"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c313594ffdbb9422",
+      "minus": "4313594ffdbb9422"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "bc70000000000000",
+      "minus": "bc70000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "bc70000000000000",
+      "minus": "bc70000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c370000000000000",
+      "minus": "4370000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c370000000000000",
+      "minus": "4370000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c370000000000000",
+      "minus": "4370000000000000"
+    },
+    {
+      "component": "bc70000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c370000000000000",
+      "minus": "4370000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "3c70000000000000",
+      "minus": "3c70000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "3c70000000000000",
+      "minus": "3c70000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c71c71c71c71c72",
+      "minus": "3c6c71c71c71c71c"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c71c71c71c71c72",
+      "minus": "3c6c71c71c71c71c"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c728f5c28f5c290",
+      "minus": "3c6ae147ae147ae1"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c728f5c28f5c290",
+      "minus": "3c6ae147ae147ae1"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c75c28f5c28f5c2",
+      "minus": "3c647ae147ae147b"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c75c28f5c28f5c2",
+      "minus": "3c647ae147ae147b"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c80000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "3c80000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c7fffffffffffff",
+      "minus": "3930000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c7fffffffffffff",
+      "minus": "3930000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c80000000000001",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "3c80000000000001",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "3ca4000000000000",
+      "minus": "bca0000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "3ca4000000000000",
+      "minus": "bca0000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "4313594ffdbb9422",
+      "minus": "c313594ffdbb9422"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "4313594ffdbb9422",
+      "minus": "c313594ffdbb9422"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "3c70000000000000",
+      "minus": "3c70000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "3c70000000000000",
+      "minus": "3c70000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "4370000000000000",
+      "minus": "c370000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "4370000000000000",
+      "minus": "c370000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4370000000000000",
+      "minus": "c370000000000000"
+    },
+    {
+      "component": "3c70000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4370000000000000",
+      "minus": "c370000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "bc78000000000000",
+      "minus": "bc78000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "bc78000000000000",
+      "minus": "bc78000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc7aaaaaaaaaaaab",
+      "minus": "bc75555555555555"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc7aaaaaaaaaaaab",
+      "minus": "bc75555555555555"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc7bd70a3d70a3d7",
+      "minus": "bc7428f5c28f5c29"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc7bd70a3d70a3d7",
+      "minus": "bc7428f5c28f5c29"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc8051eb851eb852",
+      "minus": "bc6eb851eb851eb9"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc8051eb851eb852",
+      "minus": "bc6eb851eb851eb9"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc88000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "bc88000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc87ffffffffffff",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc87ffffffffffff",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc88000000000002",
+      "minus": "3950000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "bc88000000000002",
+      "minus": "3950000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "bcae000000000000",
+      "minus": "3ca8000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "bcae000000000000",
+      "minus": "3ca8000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "c31c5a871fbbb5d0",
+      "minus": "431c5a871fbbb5d0"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "c31c5a871fbbb5d0",
+      "minus": "431c5a871fbbb5d0"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "bc78000000000000",
+      "minus": "bc78000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "bc78000000000000",
+      "minus": "bc78000000000000"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "c365555555555555",
+      "minus": "4365555555555555"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "c365555555555555",
+      "minus": "4365555555555555"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c365555555555556",
+      "minus": "4365555555555556"
+    },
+    {
+      "component": "bc78000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c365555555555556",
+      "minus": "4365555555555556"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "0000000000000000",
+      "plus": "3c78000000000000",
+      "minus": "3c78000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "8000000000000000",
+      "plus": "3c78000000000000",
+      "minus": "3c78000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c7aaaaaaaaaaaab",
+      "minus": "3c75555555555555"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c7aaaaaaaaaaaab",
+      "minus": "3c75555555555555"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c7bd70a3d70a3d7",
+      "minus": "3c7428f5c28f5c29"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c7bd70a3d70a3d7",
+      "minus": "3c7428f5c28f5c29"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c8051eb851eb852",
+      "minus": "3c6eb851eb851eb9"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c8051eb851eb852",
+      "minus": "3c6eb851eb851eb9"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c88000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bff0000000000000",
+      "plus": "3c88000000000000",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c87ffffffffffff",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c87ffffffffffff",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c88000000000002",
+      "minus": "b950000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "bff0000000000001",
+      "plus": "3c88000000000002",
+      "minus": "b950000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "4008000000000000",
+      "plus": "3cae000000000000",
+      "minus": "bca8000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "c008000000000000",
+      "plus": "3cae000000000000",
+      "minus": "bca8000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "4341c37937e08000",
+      "plus": "431c5a871fbbb5d0",
+      "minus": "c31c5a871fbbb5d0"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "c341c37937e08000",
+      "plus": "431c5a871fbbb5d0",
+      "minus": "c31c5a871fbbb5d0"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "0010000000000000",
+      "plus": "3c78000000000000",
+      "minus": "3c78000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "8010000000000000",
+      "plus": "3c78000000000000",
+      "minus": "3c78000000000000"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "7fd0000000000000",
+      "plus": "4365555555555555",
+      "minus": "c365555555555555"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "ffd0000000000000",
+      "plus": "4365555555555555",
+      "minus": "c365555555555555"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4365555555555556",
+      "minus": "c365555555555556"
+    },
+    {
+      "component": "3c78000000000000",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4365555555555556",
+      "minus": "c365555555555556"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc81c71c71c71c71",
+      "minus": "bc7c71c71c71c71c"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc81c71c71c71c71",
+      "minus": "bc7c71c71c71c71c"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc828f5c28f5c28f",
+      "minus": "bc7ae147ae147ae0"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc828f5c28f5c28f",
+      "minus": "bc7ae147ae147ae0"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc85c28f5c28f5c2",
+      "minus": "bc747ae147ae147a"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc85c28f5c28f5c2",
+      "minus": "bc747ae147ae147a"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "bc8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc8ffffffffffffe",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc8ffffffffffffe",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc90000000000000",
+      "minus": "3948000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "bc90000000000000",
+      "minus": "3948000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "bcb3ffffffffffff",
+      "minus": "3caffffffffffffe"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "bcb3ffffffffffff",
+      "minus": "3caffffffffffffe"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "c3224f9746d07166",
+      "minus": "43224f9746d07166"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "c3224f9746d07166",
+      "minus": "43224f9746d07166"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c81c71c71c71c71",
+      "minus": "3c7c71c71c71c71c"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c81c71c71c71c71",
+      "minus": "3c7c71c71c71c71c"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c828f5c28f5c28f",
+      "minus": "3c7ae147ae147ae0"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c828f5c28f5c28f",
+      "minus": "3c7ae147ae147ae0"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c85c28f5c28f5c2",
+      "minus": "3c747ae147ae147a"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c85c28f5c28f5c2",
+      "minus": "3c747ae147ae147a"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "3c8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c8ffffffffffffe",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c8ffffffffffffe",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c90000000000000",
+      "minus": "b948000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "3c90000000000000",
+      "minus": "b948000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "3cb3ffffffffffff",
+      "minus": "bcaffffffffffffe"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "3cb3ffffffffffff",
+      "minus": "bcaffffffffffffe"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "43224f9746d07166",
+      "minus": "c3224f9746d07166"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "43224f9746d07166",
+      "minus": "c3224f9746d07166"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "bc81c71c71c71c71",
+      "minus": "bc7c71c71c71c71c"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "bc81c71c71c71c71",
+      "minus": "bc7c71c71c71c71c"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "bc828f5c28f5c28f",
+      "minus": "bc7ae147ae147ae0"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "bc828f5c28f5c28f",
+      "minus": "bc7ae147ae147ae0"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "bc85c28f5c28f5c2",
+      "minus": "bc747ae147ae147a"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "bc85c28f5c28f5c2",
+      "minus": "bc747ae147ae147a"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "bc8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "bc8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "bc8ffffffffffffe",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "bc8ffffffffffffe",
+      "minus": "b940000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "bc90000000000000",
+      "minus": "3948000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "bc90000000000000",
+      "minus": "3948000000000000"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "bcb3ffffffffffff",
+      "minus": "3caffffffffffffe"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "bcb3ffffffffffff",
+      "minus": "3caffffffffffffe"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "c3224f9746d07166",
+      "minus": "43224f9746d07166"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "c3224f9746d07166",
+      "minus": "43224f9746d07166"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "bc7fffffffffffff",
+      "minus": "bc7fffffffffffff"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "bc7fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "c360000000000001",
+      "minus": "4360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "0000000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "8000000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fd5555555555555",
+      "plus": "3c81c71c71c71c71",
+      "minus": "3c7c71c71c71c71c"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfd5555555555555",
+      "plus": "3c81c71c71c71c71",
+      "minus": "3c7c71c71c71c71c"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fd999999999999a",
+      "plus": "3c828f5c28f5c28f",
+      "minus": "3c7ae147ae147ae0"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfd999999999999a",
+      "plus": "3c828f5c28f5c28f",
+      "minus": "3c7ae147ae147ae0"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fe3333333333333",
+      "plus": "3c85c28f5c28f5c2",
+      "minus": "3c747ae147ae147a"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfe3333333333333",
+      "plus": "3c85c28f5c28f5c2",
+      "minus": "3c747ae147ae147a"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3ff0000000000000",
+      "plus": "3c8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bff0000000000000",
+      "plus": "3c8fffffffffffff",
+      "minus": "0000000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3fefffffffffffff",
+      "plus": "3c8ffffffffffffe",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bfefffffffffffff",
+      "plus": "3c8ffffffffffffe",
+      "minus": "3940000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "3ff0000000000001",
+      "plus": "3c90000000000000",
+      "minus": "b948000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "bff0000000000001",
+      "plus": "3c90000000000000",
+      "minus": "b948000000000000"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "4008000000000000",
+      "plus": "3cb3ffffffffffff",
+      "minus": "bcaffffffffffffe"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "c008000000000000",
+      "plus": "3cb3ffffffffffff",
+      "minus": "bcaffffffffffffe"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "4341c37937e08000",
+      "plus": "43224f9746d07166",
+      "minus": "c3224f9746d07166"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "c341c37937e08000",
+      "plus": "43224f9746d07166",
+      "minus": "c3224f9746d07166"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "0010000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "8010000000000000",
+      "plus": "3c7fffffffffffff",
+      "minus": "3c7fffffffffffff"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "7fd0000000000000",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "ffd0000000000000",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "7fefffffffffffff",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    },
+    {
+      "component": "3c7fffffffffffff",
+      "coefficient": "ffefffffffffffff",
+      "plus": "4360000000000001",
+      "minus": "c360000000000001"
+    }
+  ]
+}

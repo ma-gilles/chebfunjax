@@ -1,0 +1,716 @@
+{
+  "package": "Chebfun2 source-ordered pivot row division on CPU",
+  "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_proven_fix": "numeric_aca uses existing JAX _ordered_binary.binary(r,pivot,3) for literal division; other arithmetic, pivot selection, dtype fallback, tolerance and stopping remain unchanged. CPU finite float64 uses ordered division; existing helper retains generic arithmetic for other dtypes/backends and nonfinite operands.",
+  "diagnosis": {
+    "first_unequal_step1": 1,
+    "first_unequal_operation": "pivot-row division, before outer-product multiplication",
+    "input_shape": [
+      33,
+      51
+    ],
+    "tolerance": 4.0706522766001385e-15,
+    "pivot_word": "3ff554234cf75027",
+    "original_self_quotient_word": "3fefffffffffffff",
+    "native_self_quotient_word": "3ff0000000000000",
+    "first_step": {
+      "step1": 1,
+      "position0": [
+        0,
+        0
+      ],
+      "pivot": {
+        "shape": [],
+        "re_hex": [
+          "3ff554234cf75027"
+        ],
+        "im_hex": [
+          "0000000000000000"
+        ]
+      },
+      "maxima": {
+        "ordered_top": [
+          {
+            "position0": [
+              0,
+              0
+            ],
+            "value": 1.333041477822016,
+            "value_word": "3ff554234cf75027"
+          },
+          {
+            "position0": [
+              32,
+              50
+            ],
+            "value": 1.333041477822016,
+            "value_word": "3ff554234cf75027"
+          },
+          {
+            "position0": [
+              0,
+              1
+            ],
+            "value": 1.3313612348831507,
+            "value_word": "3ff54d41702fc3d1"
+          },
+          {
+            "position0": [
+              32,
+              49
+            ],
+            "value": 1.3313612348831507,
+            "value_word": "3ff54d41702fc3d1"
+          },
+          {
+            "position0": [
+              1,
+              0
+            ],
+            "value": 1.33090929220898,
+            "value_word": "3ff54b678abfae65"
+          }
+        ],
+        "top_margin": 0.0,
+        "top_ties": 2
+      },
+      "native_position0": [
+        0,
+        0
+      ],
+      "native_maxima": {
+        "ordered_top": [
+          {
+            "position0": [
+              0,
+              0
+            ],
+            "value": 1.333041477822016,
+            "value_word": "3ff554234cf75027"
+          },
+          {
+            "position0": [
+              32,
+              50
+            ],
+            "value": 1.333041477822016,
+            "value_word": "3ff554234cf75027"
+          },
+          {
+            "position0": [
+              0,
+              1
+            ],
+            "value": 1.3313612348831507,
+            "value_word": "3ff54d41702fc3d1"
+          },
+          {
+            "position0": [
+              32,
+              49
+            ],
+            "value": 1.3313612348831507,
+            "value_word": "3ff54d41702fc3d1"
+          },
+          {
+            "position0": [
+              1,
+              0
+            ],
+            "value": 1.33090929220898,
+            "value_word": "3ff54b678abfae65"
+          }
+        ],
+        "top_margin": 0.0,
+        "top_ties": 2
+      },
+      "before": {
+        "different_words": 0,
+        "max_error": 0.0
+      },
+      "quotient": {
+        "different_words": 25,
+        "max_error": 1.1102230246251565e-16,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3fefffffffffffff",
+        "native_word": "3ff0000000000000"
+      },
+      "product": {
+        "different_words": 707,
+        "max_error": 2.220446049250313e-16,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3ff554234cf75026",
+        "native_word": "3ff554234cf75027"
+      },
+      "after": {
+        "different_words": 703,
+        "max_error": 2.220446049250313e-16,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3cb0000000000000",
+        "native_word": "0000000000000000"
+      },
+      "same_native_operands": {
+        "quotient": {
+          "different_words": 25,
+          "max_error": 1.1102230246251565e-16,
+          "first_F_index0": 0,
+          "first_position0": [
+            0,
+            0
+          ],
+          "actual_word": "3fefffffffffffff",
+          "native_word": "3ff0000000000000"
+        },
+        "product": {
+          "different_words": 707,
+          "max_error": 2.220446049250313e-16,
+          "first_F_index0": 0,
+          "first_position0": [
+            0,
+            0
+          ],
+          "actual_word": "3ff554234cf75026",
+          "native_word": "3ff554234cf75027"
+        },
+        "after": {
+          "different_words": 703,
+          "max_error": 2.220446049250313e-16,
+          "first_F_index0": 0,
+          "first_position0": [
+            0,
+            0
+          ],
+          "actual_word": "3cb0000000000000",
+          "native_word": "0000000000000000"
+        },
+        "supplied_native_quotient_after": {
+          "different_words": 0,
+          "max_error": 0.0
+        }
+      },
+      "rational_rounding": {
+        "native_quotient_vs_correct_divide": {
+          "different_words": 0,
+          "max_error": 0.0
+        },
+        "native_product_vs_correct_product": {
+          "different_words": 0,
+          "max_error": 0.0
+        },
+        "native_after_vs_separate": {
+          "different_words": 0,
+          "max_error": 0.0
+        },
+        "native_after_vs_fused": {
+          "different_words": 1095,
+          "max_error": 1.1102230246251565e-16,
+          "first_F_index0": 33,
+          "first_position0": [
+            0,
+            1
+          ],
+          "actual_word": "0000000000000000",
+          "native_word": "3c76fdca3462be50"
+        }
+      }
+    },
+    "first_unequal_pivot": {
+      "step1": 4,
+      "position0": [
+        9,
+        14
+      ],
+      "pivot": {
+        "shape": [],
+        "re_hex": [
+          "3f65567f4b5a29f0"
+        ],
+        "im_hex": [
+          "0000000000000000"
+        ]
+      },
+      "maxima": {
+        "ordered_top": [
+          {
+            "position0": [
+              9,
+              14
+            ],
+            "value": 0.002604721662298852,
+            "value_word": "3f65567f4b5a29f0"
+          },
+          {
+            "position0": [
+              23,
+              36
+            ],
+            "value": 0.002604721662298852,
+            "value_word": "3f65567f4b5a29f0"
+          },
+          {
+            "position0": [
+              23,
+              35
+            ],
+            "value": 0.002604061420867887,
+            "value_word": "3f65551cd475fd00"
+          },
+          {
+            "position0": [
+              9,
+              15
+            ],
+            "value": 0.0026040614208678384,
+            "value_word": "3f65551cd475fc90"
+          },
+          {
+            "position0": [
+              10,
+              15
+            ],
+            "value": 0.002592416296093636,
+            "value_word": "3f653cb0e6b2e900"
+          }
+        ],
+        "top_margin": 0.0,
+        "top_ties": 2
+      },
+      "native_position0": [
+        23,
+        36
+      ],
+      "native_maxima": {
+        "ordered_top": [
+          {
+            "position0": [
+              23,
+              36
+            ],
+            "value": 0.0026047216622988208,
+            "value_word": "3f65567f4b5a29a8"
+          },
+          {
+            "position0": [
+              9,
+              14
+            ],
+            "value": 0.002604721662298689,
+            "value_word": "3f65567f4b5a2878"
+          },
+          {
+            "position0": [
+              23,
+              35
+            ],
+            "value": 0.0026040614208678904,
+            "value_word": "3f65551cd475fd08"
+          },
+          {
+            "position0": [
+              9,
+              15
+            ],
+            "value": 0.0026040614208676684,
+            "value_word": "3f65551cd475fb08"
+          },
+          {
+            "position0": [
+              22,
+              35
+            ],
+            "value": 0.0025924162960936463,
+            "value_word": "3f653cb0e6b2e918"
+          }
+        ],
+        "top_margin": 1.3183898417423734e-16,
+        "top_ties": 1
+      },
+      "before": {
+        "different_words": 1545,
+        "max_error": 2.350123558825746e-16,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3caffffffffffffd",
+        "native_word": "0000000000000000"
+      },
+      "quotient": {
+        "different_words": 49,
+        "max_error": 1.8316515577717631,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3d31fb0350caa00d",
+        "native_word": "0000000000000000"
+      },
+      "product": {
+        "different_words": 1683,
+        "max_error": 0.0008635912950885774,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "39eacd4cc61258ce",
+        "native_word": "8000000000000000"
+      },
+      "after": {
+        "different_words": 1612,
+        "max_error": 0.0008635912950885774,
+        "first_F_index0": 0,
+        "first_position0": [
+          0,
+          0
+        ],
+        "actual_word": "3caffffffffffe50",
+        "native_word": "0000000000000000"
+      },
+      "same_native_operands": {
+        "quotient": {
+          "different_words": 18,
+          "max_error": 1.1102230246251565e-16,
+          "first_F_index0": 2,
+          "first_position0": [
+            0,
+            2
+          ],
+          "actual_word": "bfa8223e41ab3b22",
+          "native_word": "bfa8223e41ab3b21"
+        },
+        "product": {
+          "different_words": 472,
+          "max_error": 4.336808689942018e-19,
+          "first_F_index0": 66,
+          "first_position0": [
+            0,
+            2
+          ],
+          "actual_word": "3c4e030d7a479bde",
+          "native_word": "3c4e030d7a479bdd"
+        },
+        "after": {
+          "different_words": 465,
+          "max_error": 4.336808689942018e-19,
+          "first_F_index0": 67,
+          "first_position0": [
+            1,
+            2
+          ],
+          "actual_word": "3ec3f4adaf46c2df",
+          "native_word": "3ec3f4adaf46c2e0"
+        },
+        "supplied_native_quotient_after": {
+          "different_words": 0,
+          "max_error": 0.0
+        }
+      },
+      "rational_rounding": {
+        "native_quotient_vs_correct_divide": {
+          "different_words": 0,
+          "max_error": 0.0
+        },
+        "native_product_vs_correct_product": {
+          "different_words": 96,
+          "max_error": 0.0,
+          "first_F_index0": 0,
+          "first_position0": [
+            0,
+            0
+          ],
+          "actual_word": "8000000000000000",
+          "native_word": "0000000000000000"
+        },
+        "native_after_vs_separate": {
+          "different_words": 0,
+          "max_error": 0.0
+        },
+        "native_after_vs_fused": {
+          "different_words": 1167,
+          "max_error": 2.168404344971009e-19,
+          "first_F_index0": 38,
+          "first_position0": [
+            5,
+            1
+          ],
+          "actual_word": "3eef7850df19f26c",
+          "native_word": "3eef7850df19f26d"
+        }
+      }
+    },
+    "column_major_indices0": {
+      "original_selected": 471,
+      "native_selected": 1211
+    },
+    "same_native_quotient_restores_all_residual_words_at_all_steps": true,
+    "source_statement": "A = A - cols(:,zRows+1)*(rows(zRows+1,:)./PivVal);",
+    "compiler_proof": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/division_optimized_hlo.txt",
+    "native_instrumentation_outputs_exact_prior_capture": true,
+    "native_record_count": 3,
+    "unique_input_matrices": 2,
+    "square17_record_is_repeated_across_two_captured_adaptive_requests": true,
+    "rational_zero_sign_limit": "Fraction does not preserve negative zero; zero-sign-only product differences at later steps have max magnitude error zero. Native residuals equal separate rounded product/subtraction word for word."
+  },
+  "source_ast_preservation": {
+    "_source_inf_magnitude": true,
+    "numeric_points": true,
+    "numeric_tolerances": true,
+    "_stack_in_blocks": true,
+    "numeric_aca": false,
+    "numeric_factors": true,
+    "numeric_cdr": true,
+    "extrapolate_cheb_values": true,
+    "scalar_cdr": true,
+    "_equi_factors": true
+  },
+  "original_paired_test_assertion_bodies_exact": true,
+  "qualifications": {
+    "native": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 81.83012194093317,
+      "sampled_peak_summed_rss_kib": 1284800,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/native_run/receipt.json"
+    },
+    "python": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.976250517182052,
+      "sampled_peak_summed_rss_kib": 566796,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/python_run/receipt.json",
+      "observed_imports": 1343,
+      "all_observed_imports_preguarded": true
+    },
+    "candidate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 5.913955490104854,
+      "sampled_peak_summed_rss_kib": 527116,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/candidate_run/receipt.json"
+    },
+    "baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 9.744611022993922,
+      "sampled_peak_summed_rss_kib": 688144,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/baseline_run/receipt.json",
+      "counts": {
+        "pass": 0,
+        "failure": 6,
+        "error": 0,
+        "xfail": 0
+      },
+      "import_review": {
+        "observed": 1477,
+        "missing": {}
+      }
+    },
+    "gate": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 171.3515868098475,
+      "sampled_peak_summed_rss_kib": 4663112,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/gate_run/receipt.json",
+      "counts": {
+        "pass": 402,
+        "failure": 2,
+        "error": 0,
+        "xfail": 3
+      },
+      "import_review": {
+        "observed": 1488,
+        "missing": {}
+      }
+    },
+    "originals": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 139.20793776819482,
+      "sampled_peak_summed_rss_kib": 4294440,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/originals_run/receipt.json",
+      "counts": {
+        "pass": 3,
+        "failure": 0,
+        "error": 0,
+        "xfail": 0
+      },
+      "import_review": {
+        "observed": 1489,
+        "missing": {}
+      }
+    },
+    "final": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 75.14759221719578,
+      "sampled_peak_summed_rss_kib": 3277264,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/final_run/receipt.json",
+      "counts": {
+        "pass": 173,
+        "failure": 0,
+        "error": 0,
+        "xfail": 2
+      },
+      "import_review": {
+        "observed": 1482,
+        "missing": {}
+      }
+    },
+    "native_v2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 80.27390598878264,
+      "sampled_peak_summed_rss_kib": 1316724,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018/native_run_v2/receipt.json"
+    }
+  },
+  "ordered_candidate": [
+    {
+      "shape": [
+        17,
+        17
+      ],
+      "all_native_steps_exact": true,
+      "steps": 5
+    },
+    {
+      "shape": [
+        33,
+        51
+      ],
+      "all_native_steps_exact": true,
+      "steps": 7
+    },
+    {
+      "shape": [
+        17,
+        17
+      ],
+      "all_native_steps_exact": true,
+      "steps": 5
+    }
+  ],
+  "preserved_failures": [
+    "preflight_failure.txt: guard self-reference prevented native scientific launch",
+    "native_run: wrong cell indexing before ACA; failed_capture_aca.m preserved",
+    "baseline_run: six native ACA assertions fail against frozen original source",
+    "gate_run: two strict XPASS; both lowbudget factor contracts now pass unchanged assertions"
+  ],
+  "retired_strict_xfails": 5,
+  "remaining_prior_paired_xfails": 2,
+  "remaining_prior_paired_xfail_scope": [
+    "fixed callable EQUI C1 factor cutoff63 versus50",
+    "fixed callable equix C2 factor cutoff66 versus62"
+  ],
+  "scope_limits": [
+    "No full Chebfun2/native-word/API/JIT/AD or matched performance closure",
+    "Only two unique captured real matrices; broader public real/complex/zero/Inf controls covered by protected/original gates",
+    "Original source tests, fixtures, numerical bounds and all five retired assertion bodies remain unchanged"
+  ],
+  "ci_owner_needed": "tests/test_chebfun2/test_aca_division_source.py: parent should add to existing numeric Chebfun2 lane",
+  "runtime": "JAX/jaxlib0.11.0 ml_dtypes0.5.4 CPU/x64/cacheoff, CUDA_VISIBLE_DEVICES empty, physical CPU32-35, BLAS1",
+  "lint": "ruff check --no-cache src tests scripts examples and git diff --check passed",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_tree_20261018",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018",
+  "input_storage_proof": {
+    "records": [
+      {
+        "name": "adaptive_maxrank_5_9",
+        "shape": [
+          17,
+          17
+        ],
+        "complex_storage": false,
+        "all_imaginary_words_positive_zero": true,
+        "real_word_count": 289
+      },
+      {
+        "name": "adaptive_maxrank_5_9",
+        "shape": [
+          33,
+          51
+        ],
+        "complex_storage": false,
+        "all_imaginary_words_positive_zero": true,
+        "real_word_count": 1683
+      },
+      {
+        "name": "adaptive_maxrank_2_9",
+        "shape": [
+          17,
+          17
+        ],
+        "complex_storage": false,
+        "all_imaginary_words_positive_zero": true,
+        "real_word_count": 289
+      }
+    ],
+    "source_proof": "Guarded requests set complex_storage=false and all imaginary words are positive zero. Native decode takes the real hex2num reshape branch, then asserts every real input word. Native A therefore has exact real storage and every requested word. Earlier sealed stages_native_v3 decode also explicitly asserts real/imaginary words and storage. New native trace asserts complete output equality to that prior capture.",
+    "tolerance_source": "Each decoded prior.absolute scalar is guarded, exact real hex2num; trace takes it directly without recomputation."
+  },
+  "division_compiler": {
+    "original_vs_reciprocal_product": {
+      "different_words": 0,
+      "max_error": 0.0
+    },
+    "original_vs_ordered": {
+      "different_words": 25,
+      "max_error": 1.1102230246251565e-16,
+      "first_F_index0": 0,
+      "first_position0": [
+        0
+      ],
+      "actual_word": "3fefffffffffffff",
+      "native_word": "3ff0000000000000"
+    },
+    "pivot_word": "3ff554234cf75027",
+    "original_self_quotient_word": "3fefffffffffffff",
+    "ordered_self_quotient_word": "3ff0000000000000"
+  },
+  "protected_subscope_in_gate": {
+    "pass": 231,
+    "strict_xfail": 1,
+    "production_same_as_final": true,
+    "paired_test_changes_only_two_XPASS_marker_removals": true
+  }
+}

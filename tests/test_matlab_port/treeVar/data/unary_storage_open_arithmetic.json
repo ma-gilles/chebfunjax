@@ -1,23 +1,4 @@
 {
   "scope": "Unchanged primitive arithmetic, symmetric exact-zero classes plus unchanged8eps/sign/storage checks. Earlier asymmetric audit retained separately.",
-  "records": [
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tanh",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    }
-  ]
+  "records": []
 }

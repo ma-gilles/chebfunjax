@@ -206,7 +206,8 @@
       "tests/test_minimax_zero_source.py",
       "tests/test_utils/test_fft724_rader_source.py",
       "tests/test_diskfun/test_numeric_branch_source.py",
-      "tests/test_tech/test_roots_recursive_affine_source.py"
+      "tests/test_tech/test_roots_recursive_affine_source.py",
+      "tests/test_local_extrema_delta_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -800,7 +801,8 @@
       "tests/test_diskfun/test_helmholtz_public_provider.py",
       "tests/test_discretization/test_ultras_multmat_nonfinite_conversion.py",
       "tests/test_tech/test_roots_qz_source.py",
-      "tests/test_diskfun/test_numeric_tolerance_jax.py"
+      "tests/test_diskfun/test_numeric_tolerance_jax.py",
+      "tests/test_chebfun2/test_aca_division_source.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",
@@ -1159,6 +1161,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "fc1f9ce1798d7efd0e57deab2fac601198185d8e",
+  "last_update_parent": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

@@ -293,6 +293,10 @@ def _tan_infinite_imaginary_real(real, imag, prior_words):
 
 @partial(jax.custom_jvp, nondiff_argnums=(1,))
 def _tan_tanh_complex_axes(value, hyperbolic):
+    if value.dtype == jnp.complex128 and value.size:
+        # Initialize source constant arrays before any nested helper is traced.
+        with jax.ensure_compile_time_eval():
+            from chebfunjax.utils._source_tangent import finite_tangent_result
     primitive = jnp.tanh if hyperbolic else jnp.tan
     result = primitive(value)
     real, imag = jnp.real(value), jnp.imag(value)
@@ -327,6 +331,8 @@ def _tan_tanh_complex_axes(value, hyperbolic):
                     jnp.imag(prior))
 
             result = jax.lax.cond(jnp.any(phase), correct, lambda _: prior, None)
+    if value.dtype == jnp.complex128 and value.size:
+        result = finite_tangent_result(value, result, hyperbolic)
     return result
 
 
@@ -354,9 +360,11 @@ def _tan_numeric(value):
     Binary64 finite-real/infinite-imaginary inputs retain the separately
     rounded finite Smith quotient using tan(real) and the signed unit limit
     of tanh(imag). This preserves native signed zeros and nonzero rounding
-    residuals. All imaginary words and other prior words are retained, as
-    are the ordinary analytic derivatives. Minimum-subnormal component
-    losses and finite-imaginary quotient/provider gaps remain unqualified.
+    residuals. On that boundary all imaginary words remain unchanged.
+    For finite binary64 inputs, nonzero components below 2^-55 use the
+    separately rounded finite quotient with source scalar coefficients and
+    gradual arithmetic. Other component words and ordinary analytic
+    derivatives remain unchanged; broader finite provider parity is unqualified.
     """
     value = jnp.asarray(value)
     if not jnp.iscomplexobj(value):
@@ -370,7 +378,10 @@ def _tanh_numeric(value):
     The same pinned source/direct-component capture establishes real +0 for
     word-exact-zero real input and finite nonzero imaginary input. Exclude
     the origin, nonzero subnormal real inputs and nonfinite imaginary inputs.
-    Preserve all other primitive component words and analytic derivatives.
+    Finite binary64 nonzero components below 2^-55 additionally retain the
+    literal finite quotient staging with source scalar coefficients and
+    gradual arithmetic. Preserve other prior words and analytic derivatives.
+    Infinite-real context-dependent zero signs remain unqualified.
     """
     value = jnp.asarray(value)
     if not jnp.iscomplexobj(value):

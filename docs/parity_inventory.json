@@ -694,6 +694,26 @@
       "report_sha256": "00488ffcd7bb24b60561f8a7b2f7f00dd48b3be64394c8cd16faf131fe4d07b8",
       "scope": "C1/C2 real and pure-imaginary finite/Inf transform-stage components and previously reported ABS masks"
     },
+    "numerical_source_integration_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/numerical_source_integration_parent_20261018.tar.gz",
+        "sha256": "13be9349a7e7f8f04de04689983500ef13b6950e2acc3712fad1add2d7ee30f0",
+        "verified_payloads": 49
+      },
+      "limits": [
+        "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+        "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+        "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+        "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+        "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+        "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+        "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+        "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+      ],
+      "report": "docs/numerical_source_integration_cpu_20261018.json",
+      "report_sha256": "8b45b5ae3bc24dd1ea7b33e21b3cdafbcaa4b835cdbf8c5a95d43e7092c49488",
+      "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+    },
     "official_example_archive_20261017": {
       "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
       "archive_sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
@@ -51771,7 +51791,22 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -51790,7 +51825,22 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "100",
@@ -53891,10 +53941,40 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -53910,7 +53990,22 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "94",
@@ -54037,10 +54132,40 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54056,7 +54181,22 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "94",
@@ -54106,6 +54246,20 @@
         {
           "artifact": "roots_original19_joint_cpu_20261017",
           "scope": "Combined-source rerun of all14default original minandmax predicates; original source/mapping/native capture in minmax_original14_cpu_20261017. Full alternate preferences/API remain unverified."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
@@ -54119,6 +54273,20 @@
               "native_source_sha256": "5b82f79412977bfac11dde31a0968e42710ffd6da8a5e67180189de309fcfca3",
               "scope": "All14default original predicates: empty/smooth/cells/stored points/arrays/singular/unbounded/gamma; no full technology/API claim.",
               "source_binding_ref": "docs/minmax_original14_cpu_20261017.json"
+            },
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
             }
           ],
           "implementation_status": "unverified",
@@ -56546,7 +56714,22 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -56582,7 +56765,22 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -57457,6 +57655,20 @@
             "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
@@ -90871,11 +91083,40 @@
             "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
           ],
           "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "97",
@@ -106019,10 +106260,40 @@
         "tests/test_matlab_port/classicfun/test_max_matlab.py",
         "tests/test_matlab_port/trigtech/test_max_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -106106,10 +106377,40 @@
         "tests/test_matlab_port/classicfun/test_min_matlab.py",
         "tests/test_matlab_port/trigtech/test_min_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -106146,6 +106447,20 @@
         {
           "artifact": "roots_original19_joint_cpu_20261017",
           "scope": "Combined-source rerun of all14default original minandmax predicates; original source/mapping/native capture in minmax_original14_cpu_20261017. Full alternate preferences/API remain unverified."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
@@ -106171,6 +106486,20 @@
               ],
               "scope": "All14default exact operands/bounds;parent37 and later combined original14reruns linked separately. Full technology/preference/warning grammar, standalone singular complex norm, host algorithms/fullAPI remain open.",
               "scope_id": "published_default_chebfun_minandmax_14_predicates_20261017"
+            },
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
             }
           ],
           "implementation_status": "unverified",
@@ -108714,6 +109043,20 @@
             "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
@@ -108728,6 +109071,20 @@
                 "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
               ],
               "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            },
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
             }
           ],
           "implementation_status": "unverified",
@@ -109020,6 +109377,20 @@
             "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        },
+        {
+          "artifact": "numerical_source_integration_cpu_20261018",
+          "limits": [
+            "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+            "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+            "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+            "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+            "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+            "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+            "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+            "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+          ],
+          "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
         }
       ],
       "functions": [
@@ -109034,6 +109405,20 @@
                 "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
               ],
               "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            },
+            {
+              "artifact": "numerical_source_integration_cpu_20261018",
+              "limits": [
+                "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+                "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+                "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+                "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+                "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+                "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+                "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+                "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+              ],
+              "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions."
             }
           ],
           "implementation_status": "unverified",

@@ -109,13 +109,9 @@ def test_native_rank_classes_and_public_values(constructed, name):
     _close(f(jnp.asarray(_decode(a['sample_x'])), jnp.asarray(_decode(a['sample_y']))), a['samples'])
 
 
-# OPEN: same-input crossfeeds isolate existing kernel/roundoff sensitivity.
+# OPEN: remaining EQUI interpolant/final technology cutoff differences.
 # Strict expected failures retain every component/shape assertion below.
 _FACTOR_GAPS = {
-    ('cols', 'adaptive_maxrank_5_9'): 'same native matrix/tolerance ACA basis divergence',
-    ('rows', 'adaptive_maxrank_5_9'): 'same native matrix/tolerance ACA basis divergence',
-    ('rows', 'adaptive_maxrank_2_9'): 'two callback pow-word differences change final cutoff; native-value crossfeed restores length',
-    ('rows', 'adaptive_maxrank_9_2'): 'same low-budget callback/factor cutoff gap',
     ('cols', 'equi_fixed_callable'): 'same native ACA factors: FUNQUI node/weight and final tech cutoff gap',
     ('rows', 'equix_fixed_callable'): 'same native factors and exact 129-query interpolant: final tech cutoff gap',
 }
@@ -135,11 +131,7 @@ def test_native_factor_storage_and_components(constructed, name, axis):
     _close(actual, expected)
 
 
-@pytest.mark.parametrize('name', [
-    pytest.param(name, marks=pytest.mark.xfail(
-        reason='same native matrix/tolerance ACA pivot-location divergence', strict=True))
-    if name == 'adaptive_maxrank_5_9' else name for name in _GOOD
-])
+@pytest.mark.parametrize('name', _GOOD)
 def test_native_pivot_locations(constructed, name):
     f, _ = constructed[name]
     _close(np.asarray(f.pivot_locations), _CASES[name]['actual']['locations'])

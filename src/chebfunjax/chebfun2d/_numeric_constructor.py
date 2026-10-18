@@ -12,6 +12,7 @@ import jax.numpy as jnp
 
 from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.tech.trigtech import Trigtech
+from chebfunjax.utils._ordered_binary import binary
 from chebfunjax.utils._trigpts import global_trigpts_nodes, map_global_nodes
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
@@ -127,7 +128,11 @@ def numeric_aca(values, abs_tol, factor=0):
         pivots.append(pivot)
         positions.append((row, col))
         # Source divides the row before forming the nonconjugating outer product.
-        residual = residual - c[:, None]*(r/pivot)[None, :]
+        # Preserve literal binary64 division: CPU broadcast division may
+        # otherwise rewrite r/pivot as r*(1/pivot), even making pivot/pivot
+        # one ulp below one and changing the next complete-pivot ties.
+        quotient = binary(r, pivot, 3)
+        residual = residual - c[:, None]*quotient[None, :]
         row, col, norm = choose(residual)
     if bool(norm <= abs_tol):
         failed = False

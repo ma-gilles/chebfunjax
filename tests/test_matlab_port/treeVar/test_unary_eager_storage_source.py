@@ -23,6 +23,7 @@ from chebfunjax.operators.treevar import (
     _eager_unary_storage,
     to_first_order,
 )
+from tests.test_matlab_port.treeVar._tangent_native_scope import expected_tiny_native_components
 
 NAMES = 'asinh atan conj cos cosh exp expm1 sin sinh tan tanh uminus uplus'.split()
 DATA = Path(__file__).with_name('data')
@@ -624,7 +625,7 @@ def test_sin_real_zero_boundary_word_scope(name, dtype):
 
 
 TAN_TANH_AXIS_CAPTURE = json.loads((DATA/'tan_tanh_axis_native_20261018.json').read_text())
-TAN_TANH_OPEN_NAMES = {'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
+TAN_TANH_OPEN_NAMES = {'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
 TAN_TANH_NATIVE_CASES = [pytest.param(r, id=r['name'], marks=(
     pytest.mark.xfail(strict=True, reason=TAN_TANH_OPEN_NAMES[r['name']])
     if r['name'] in TAN_TANH_OPEN_NAMES else [])) for r in TAN_TANH_AXIS_CAPTURE['rows']]
@@ -699,7 +700,7 @@ def _tan_tanh_expected_axis_words(name, value, original):
     else:
         selected = zero_real & ~zero_imag & np.isfinite(value.imag)
         expected.real[selected] = 0.
-    return expected
+    return expected_tiny_native_components(name, value, expected)
 
 
 @pytest.mark.parametrize('row', TAN_TANH_AXIS_CAPTURE['rows'], ids=lambda r:r['name'])

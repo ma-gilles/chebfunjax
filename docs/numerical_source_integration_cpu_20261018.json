@@ -1,0 +1,279 @@
+{
+  "scope": "Actual publication-checkout finite TAN/TANH tiny quotient/compiletime constants; literal Chebfun2 ACA row division; source local extrema classification with derivative-jump contributions.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+  "unary_actual_parent": {
+    "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+    "tests": 169,
+    "pass": 168,
+    "strict_xfail": 1,
+    "runtime_guard": {
+      "count": 1550,
+      "missing_or_changed": []
+    },
+    "cold_children": [
+      {
+        "test": "test_tangent_cold_traced_import_constants[source]",
+        "imports": 1347
+      },
+      {
+        "test": "test_tangent_cold_traced_import_constants[public]",
+        "imports": 1347
+      }
+    ],
+    "receipt": {
+      "wall_seconds": 1406.183279634919,
+      "sampled_peak_summed_rss_kib": 7523556,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "original_bounds": "unchanged",
+    "guard_scope": "All observed file-backed Python modules and cold-child modules;166known ELF paths includinglibjax_common.so explicitly preguarded;not exhaustive process-lifetime DSO coverage"
+  },
+  "aca_local_actual_parent": {
+    "nodes": 230,
+    "pass": 228,
+    "strict_xfail": 2,
+    "xfail_nodes": [
+      "test_native_factor_storage_and_components[cols-equi_fixed_callable]",
+      "test_native_factor_storage_and_components[rows-equix_fixed_callable]"
+    ],
+    "observed_imports_preguarded": 1575,
+    "xml_sha256": "3c7a001b245aeb5ac29a9090f34fe1bbfc9d294f1db8c405a882d8ba86117e51",
+    "receipt": {
+      "wall_seconds": 127.65737475221977,
+      "sampled_peak_summed_rss_kib": 4317408,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "integration_review": {
+    "unary_parent": {
+      "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+      "tests": 169,
+      "pass": 168,
+      "strict_xfail": 1,
+      "runtime_guard": {
+        "count": 1550,
+        "missing_or_changed": []
+      },
+      "cold_children": [
+        {
+          "test": "test_tangent_cold_traced_import_constants[source]",
+          "imports": 1347
+        },
+        {
+          "test": "test_tangent_cold_traced_import_constants[public]",
+          "imports": 1347
+        }
+      ],
+      "receipt": {
+        "wall_seconds": 1406.183279634919,
+        "sampled_peak_summed_rss_kib": 7523556,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "original_bounds": "unchanged",
+      "guard_scope": "All observed file-backed Python modules and cold-child modules;166known ELF paths includinglibjax_common.so explicitly preguarded;not exhaustive process-lifetime DSO coverage"
+    },
+    "lint_equivalence": {
+      "test_tan_infinite_phase_source.py": {
+        "preimage_sha256": "d380e8a43e07a6df2aa6e91827549599bbcdc05e0ea34731ed5d521ab9ca218a",
+        "formatted_sha256": "2d4ad050573dec349aed71020684487df75414d26952fa76494597fa931cdaf2",
+        "all_nonimport_top_level_AST_exact": true,
+        "same_imports_order_only": true,
+        "all_assertion_ASTs_exact": true,
+        "ruff_under_actual_repository_path_pass": true
+      },
+      "test_unary_eager_storage_source.py": {
+        "preimage_sha256": "63f4162c84f9373401cfb537aa62d437383281375e6ed56e4bbc5e351e44ca86",
+        "formatted_sha256": "62427faadded325e29b74201de0ff3b589e67fdd9c5235bb3abf0cd0c1730dd7",
+        "all_nonimport_top_level_AST_exact": true,
+        "same_imports_order_only": true,
+        "all_assertion_ASTs_exact": true,
+        "ruff_under_actual_repository_path_pass": true
+      }
+    },
+    "packages": {
+      "aca": {
+        "src/chebfunjax/chebfun2d/_numeric_constructor.py": {
+          "base_exact": true,
+          "preimage_sha256": "d8f84ef05c255e6659fa523b28446e9f9f36763468b8ac63e17ff630c9679b90"
+        },
+        "tests/test_chebfun2/test_paired_equi_preferences_source.py": {
+          "base_exact": true,
+          "preimage_sha256": "25da9cdd4a0779eb8e21258e7de1df3f864178b596a3787a9adcd06722ee6648"
+        },
+        "tests/test_chebfun2/test_aca_division_source.py": {
+          "new": true
+        },
+        "tests/fixtures/chebfun2_aca_updates_native_20261018.json": {
+          "new": true
+        },
+        "docs/aca_pivot_row_division_cpu_20261018.json": {
+          "new": true
+        }
+      },
+      "local_extrema": {
+        "src/chebfunjax/chebfun1d/chebfun.py": {
+          "base_exact": true,
+          "preimage_sha256": "366477b7f458ad48a6bb0fd84c475cd6ee12f5db67e95237793007630bdf758d"
+        },
+        "tests/test_local_extrema_delta_source.py": {
+          "new": true
+        },
+        "tests/fixtures/local_extrema_delta_native_20261018.json": {
+          "new": true
+        },
+        "docs/local_extrema_delta_cpu_20261018.json": {
+          "new": true
+        },
+        "actual_parent_array_adapter": {
+          "scope": "Keep two new derivative results as JAX arrays instead of host NumPy conversion; no arithmetic/classification/tolerance change; final actual-parent gate validates exact source",
+          "actual_source_sha256": "fddf956b2c43d4d9359c4780566f49e92d1c87d24bc94bc93024e35dae051c90"
+        }
+      }
+    },
+    "aca_archive_review": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018.tar.gz",
+      "sha256": "50cc9504a90c2da2d4b0a5065a52b5431a62b52074cef4556fef64e18f6ce720",
+      "verified_payloads": 111,
+      "extra_embedded_manifest": [
+        "aca_first_update_cpu_20261018/baseline_run/manifest.json",
+        "aca_first_update_cpu_20261018/candidate_run/manifest.json",
+        "aca_first_update_cpu_20261018/final_run/manifest.json",
+        "aca_first_update_cpu_20261018/gate_run/manifest.json",
+        "aca_first_update_cpu_20261018/manifest.json",
+        "aca_first_update_cpu_20261018/native_run/manifest.json",
+        "aca_first_update_cpu_20261018/native_run_v2/manifest.json",
+        "aca_first_update_cpu_20261018/originals_run/manifest.json",
+        "aca_first_update_cpu_20261018/python_run/manifest.json"
+      ],
+      "source_review": "literal ordered division; no tolerance/pivot/stop changes; five obsolete markers retired with assertion bodies retained",
+      "publication": "not integrated yet"
+    },
+    "local_archive_review": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/local_extrema_delta_evidence_20261018.tar.gz",
+      "sha256": "a43bf2326afbafc1b59820f98f9c382d7f563c756c58870f7f7fe9edd66e7aa4",
+      "verified_payloads": 64,
+      "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+      "qualified_candidate": true,
+      "published": false
+    }
+  },
+  "ownership": {
+    "before": 1129,
+    "after": 1131,
+    "all_prior_prefixes_exact": true,
+    "added": [
+      [
+        1,
+        "tests/test_local_extrema_delta_source.py"
+      ],
+      [
+        7,
+        "tests/test_chebfun2/test_aca_division_source.py"
+      ]
+    ],
+    "lanes": 13,
+    "hermite_unchanged": true
+  },
+  "child_archives": {
+    "unary": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tanh_tiny_package_20261018.tar.gz",
+      "sha256": "e475afa45926b841fa8cad008bb9a47c295dacafd929fa7a81306298261b0243",
+      "verified_payloads": 4109,
+      "manifest_sha256": "e380631610b898397b3c473daf42f3ed5cdae95596d382d7307d51183f5494b6"
+    },
+    "aca": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/aca_first_update_cpu_20261018.tar.gz",
+      "sha256": "50cc9504a90c2da2d4b0a5065a52b5431a62b52074cef4556fef64e18f6ce720",
+      "verified_payloads": 111,
+      "extra_embedded_manifest": [
+        "aca_first_update_cpu_20261018/baseline_run/manifest.json",
+        "aca_first_update_cpu_20261018/candidate_run/manifest.json",
+        "aca_first_update_cpu_20261018/final_run/manifest.json",
+        "aca_first_update_cpu_20261018/gate_run/manifest.json",
+        "aca_first_update_cpu_20261018/manifest.json",
+        "aca_first_update_cpu_20261018/native_run/manifest.json",
+        "aca_first_update_cpu_20261018/native_run_v2/manifest.json",
+        "aca_first_update_cpu_20261018/originals_run/manifest.json",
+        "aca_first_update_cpu_20261018/python_run/manifest.json"
+      ],
+      "source_review": "literal ordered division; no tolerance/pivot/stop changes; five obsolete markers retired with assertion bodies retained",
+      "publication": "not integrated yet"
+    },
+    "local_extrema": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/local_extrema_delta_evidence_20261018.tar.gz",
+      "sha256": "a43bf2326afbafc1b59820f98f9c382d7f563c756c58870f7f7fe9edd66e7aa4",
+      "verified_payloads": 64,
+      "base": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+      "qualified_candidate": true,
+      "published": false
+    }
+  },
+  "checkmark_full7_numeric": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_python_full7_evidence_20261018.tar.gz",
+    "sha256": "ab4a860ce3ee7b601e433dbcb1f9540dab07f42dea5cdb414c89af1cf605e3d5",
+    "verified_payloads": 22,
+    "report": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_python_full7_packet_20261018/REPORT.json",
+    "full7_terminal": true,
+    "parity_complete": false
+  },
+  "native_full7_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_native_full7_reference_20261018.tar.gz",
+    "sha256": "caaed42de206ce505efc5e28fb55945cbbb12f79a55dcccb434ff21d738b252d"
+  },
+  "prior_disk_ci_reproduction": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/diskfunv_diff_ci_evidence_20261018.tar.gz",
+    "sha256": "d6dbb2f938eddac234322a9f6bdabf5348f8f339676d4fe1b6205f04b9e076eb",
+    "verified_payloads": 52,
+    "scope": "Published1da original11clauses PASS; no source change and no latestCIgreenclaim."
+  },
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "1da8f53d4d60941a3c1dfa68b0b30d2e4e3ce8b2",
+    "passed": true
+  },
+  "original_assertion_bodies_and_bounds": "unchanged; native fixtures not altered. Authored oracle corrections236occurrences independently approved in unary child; raw failures retained.",
+  "limitations": [
+    "The two actual-parent gates are separately scoped;23CIprotocol nodes overlap. Neither establishes full original-test/library coverage.",
+    "Finite unary original two records and four fresh cases repaired; Inf-real TANH strict expected failure remains in this published source. A separate storage candidate is still under review.",
+    "ACA five factor/location contracts repaired; two fixedEQUI Chebtech2 cutoff failures remain. Earlier C1 label was wrong; actual fixture/classes were correct. Fourier-provider coefficient expected failure is separate.",
+    "Full Checkmark numeric source loop completes with all seven native final piece-length vectors, including genuine public horzcat padding; degree5 sample discrepancy5.73e-7, exact knots/provider words and page/figures/stdout remain open. New local extrema repair is qualified on independent analytic/native controls; standalone corrected full page is currently running.",
+    "Inherited host drivers/variable-size root processing and full API/JIT/AD/performance remain open. New derivative results stay as JAX arrays; no new NumPy library import introduced.",
+    "Native local-extrema controls include21 final installed mapped files without explicit prelaunch guard keys; source/known providers guarded, not an exhaustive DSO qualification. Passing Python gates guard all observed module files; known166ELFs are explicit inputs, not process-lifetime proof.",
+    "Prior11originalDiskfunv assertions pass locally at1da8f53d, with earlier failure/censors retained. No causal or latest-main CI closure follows; final CI/coverage>=79%, provenance/lint and full acceptance audit remain.",
+    "All322final-source pages and1305scientific/raster figures remain subject to final qualification. Cached Checkmark four-minimum output differs from pinned-native five; both retained and user reference-priority question pending."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/numerical_source_integration_parent_20261018.tar.gz",
+    "sha256": "13be9349a7e7f8f04de04689983500ef13b6950e2acc3712fad1add2d7ee30f0",
+    "verified_payloads": 49
+  },
+  "post_gate_formatting": {
+    "path": "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py",
+    "qualified_preimage_sha256": "62427faadded325e29b74201de0ff3b589e67fdd9c5235bb3abf0cd0c1730dd7",
+    "final_sha256": "15671d6bd7bfc15bc637d7ce5fd0d829f240727723d83116859139f2927debb1",
+    "whole_AST_exact_including_import_order": true,
+    "reason": "Keep only the required import change; remove unrelated full-file reformatting from the publication diff."
+  }
+}

@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Chebfun2 paired adaptive/EQUI preferences, shared JAX minimax panel kernels, restored original edge predicates and the native JAX default numeric disk route. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover finite TAN/TANH quotients, literal ACA division and derivative-jump local extrema, plus the earlier constructor/minimax/edge fixes. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,16 +24,15 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Edge correctness:** edge failure handling44PASS, all7default originalpredicates restored at exactnativeinputs/unchangedbounds. Actual Checkmarkdegree3 representation45/12/12/45 recovered; exactknot/provider words and full7curvepage remain open. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
-- **Root:** shared minimax panel kernels pass44actual parent/66isolated checks. Full degree3curve preserves all517callback words and19snapshot arrays; recorded runtime383.88→296.44s. Next: audit the full seven-curve Checkmark source computation and finish its page/figure qualification. [Evidence](minimax_panel_compilation_cpu_20261018.json). Matched MATLAB speed remains open.
-- **Unary worker:** compiletime initialization/global JIT tail migration pass27controls. Existing2168case selection remains under verification in exact disjoint shards after retained RSS censors, then110new controls. Inf-real TANH native-context zero-sign contradiction remains open; not published yet.
-- **Constructor package published:** paired adaptive/EQUI preferences and source staging pass196actual parent checks/7strictXF. Full original constructor2 and EQUI/mixed-technology tests pass in the child qualification. Seven factor/cutoff/location contracts, callback orientation and whole API/JAX/AD remain open. [Evidence](chebfun2_paired_equi_parent_cpu_20261018.json).
-- **Other numerical/API gaps:** full original assertion audit; complex poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
-- **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Prior descriptive inverse/disk timings are not complete qualification.
-- **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish finalpage parity.
-- **CI follow-up:** older2b review fails the same original Diskfunv third-derivative identity in core6 and disk jobs. Current-main original-node reproduction reached a5GiB RSS cap without an assertion result; a traced6.5GiB retry is running, source and all eleven original predicates unchanged. No current-main failure or pass is established yet.
-- **Final gates:** latest-main scientific CI, aggregate coverage>=79%, provenance/lint and requirement-by-requirement completion audit. No current green latest-main claim.
-- **Evidence corrections:** constructor censor18dots/no named active node and coarseGE2/5 narrative retraction preserved; nativebatch parse/static-workspace observerfailures and baseline collector/staleguardchecker raw evidence retained in the newpacket.
+- **Published numerical package:** finite tangent/phase-constant gate168PASS/1strictXF; ACA/local-extrema/ownership gate228PASS/2strictXF. Source bounds retained;23CIprotocol nodes overlap. [Evidence](numerical_source_integration_cpu_20261018.json).
+- **Root / Checkmark:** full source numeric1:7 loop complete; all7final piece-length vectors match native, including actualpublichorzcat padding. Degree5 query discrepancy5.73e-7 and exact knot/provider words remain. Source localmin curvature bug repaired with32isolated checks and actual-parent controls. Corrected standalone script/stdout/two600×270figures now running serially in isolation; not published or qualified yet.
+- **TANH worker:** same-shape native controls explain whole-output real/complex storage and zero signs, including minimum-subnormal neighbors. A separate Inf-real repair and targeted regressions remain under verification; the published strictXF stays open until integration.
+- **Constructor worker:** five of7paired factor/location gaps repaired by literal ACA division;2fixedEQUI Chebtech2 cutoffs remain. First unequal short-query bary numerator and final division isolated; independent native controls reject broad endpoint-provider reuse. Bounded provider work is under qualification; no fitted cutoff/tolerance change. Fourier factor, callback orientation and full API/JAX/AD remain open.
+- **Other numerical/API gaps:** complete original assertion audit; complex poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
+- **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Prior descriptive timings are scoped evidence.
+- **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain. Cached Checkmark4minima conflict with pinned-native5; user reference-priority clarification pending. No hardcoded historical outputs.
+- **CI follow-up:** the previous1da8f53d original Diskfunv node passes all11unchanged clauses locally; earlier failing CI and two resource censors retained. Latest-main scientific CI/coverage still required; no final green claim.
+- **Final gates:** latest-main scientific CI, aggregate coverage>=79%, provenance/lint and full requirement audit.1131owners/13lanes/Hermite12 retained.
 
 ### Active work, not yet credited as complete
 
@@ -45,8 +44,15 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Finite TAN/TANH tiny quotient and compiletime constants:168actual parentPASS/1strictXF; all110new controls and fresh/native/public protections included. Child exact disjoint2168existing selection plus110new controls separately qualified. [Evidence](numerical_source_integration_cpu_20261018.json).
+- [x] Literal ACA division repairs5of7paired factor/location gaps; native quotient/product/residual/pivot controls and full original constructor tests retained. Actual joint gate228PASS/2strictXF includes local extrema/originals/CIprotocol.
+- [x] Derivative-jump local min/max classification:8analytic baseline failures repaired;3native controls plus21unchanged original min/max/minandmax cases pass in32isolated checks and the actual-parent gate.
+- [x] Full source Checkmark1:7 numeric loop completes with all7native final piece-length vectors. This certifies neither all numerical values nor its page/figures/stdout/speed.
+- [ ] Inf-real TANH,2EQUIcutoffs, Fourier providers, full Checkmark page/numeric gaps, all wider API/JAX/JIT/AD/tests/pages/figures/performance/latestCI remain open.
+
+
 - [x] Chebfun2 paired adaptive/EQUI source routing and sample-before-finalize staging:196actual parent PASS/7strictXF; original constructor2/full1001×1001 and EQUI/mixed-technology child tests pass. All1128prior CIowner prefixes retained,1129total. [Evidence](chebfun2_paired_equi_parent_cpu_20261018.json).
-- [ ] Seven factor/cutoff/location contracts, native callback orientation, inherited host numerics, whole API/JAX/JIT/AD, matched speed and full page/figure qualification remain open.
+- [ ] Two EQUI cutoff contracts remain after the five repairs above; callback orientation, inherited host numerics, whole API/JAX/JIT/AD, speed and full page/figure qualification remain open.
 
 - [x] Shared JAX minimax panel/colleague kernels:44actual parent PASS/66isolated PASS; all ten original polynomial clauses retain their assertions and bounds. Actual degree3curve preserves517callback words and19snapshot arrays, recorded383.88→296.44s. [Evidence](minimax_panel_compilation_cpu_20261018.json).
 - [ ] Full seven-curve Checkmark source/page/stdout/figures, native knots/provider words, whole minimax JAX/JIT/AD and matched MATLAB performance remain open.
