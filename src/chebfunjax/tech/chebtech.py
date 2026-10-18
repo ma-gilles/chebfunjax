@@ -1869,6 +1869,63 @@ def _roots_default_eigenvalues(c):
     return jax.device_get(roots).copy()
 
 
+@jax.jit
+def _roots_filter_real_jax(roots, htol):
+    """Apply the native eigenvalue-leaf real-root acceptance and ordering.
+
+    Provenance
+    ----------
+    MATLAB @chebtech/roots.m roots_main, Chebfun
+    7574c77680d7e82b79626300bf255498271a72df: strict imaginary acceptance,
+    expanded interval, sort, then clamp only the two retained endpoints.
+    Integer magnitude/order keys preserve binary64 subnormal comparisons.
+    The fixed-capacity result and retained count support a host shape adapter.
+    """
+    real = jnp.real(roots)
+    if roots.size == 0:
+        return real, jnp.asarray(0, dtype=jnp.int32)
+    word_dtype = jnp.uint64 if real.dtype == jnp.float64 else jnp.uint32
+    width = 64 if real.dtype == jnp.float64 else 32
+    sign = word_dtype(1 << (width - 1))
+    magnitude_mask = sign - word_dtype(1)
+    real_bits = jax.lax.bitcast_convert_type(real, word_dtype)
+    imag_bits = jax.lax.bitcast_convert_type(jnp.imag(roots), word_dtype)
+    tolerance = jnp.asarray(htol, dtype=real.dtype)
+    tolerance_bits = jax.lax.bitcast_convert_type(tolerance, word_dtype)
+    domain_bound = jax.lax.optimization_barrier(jnp.asarray(1., real.dtype) + tolerance)
+    bound_bits = jax.lax.bitcast_convert_type(domain_bound, word_dtype)
+    magnitude = real_bits & magnitude_mask
+    accepted = (((imag_bits & magnitude_mask) < (tolerance_bits & magnitude_mask))
+                & ((tolerance_bits & sign) == 0) & ~jnp.isnan(tolerance)
+                & (magnitude <= bound_bits))
+    # IEEE total-order keys, except the two zero signs compare equal as in
+    # MATLAB numeric sort. Stable ordering retains their original words.
+    order = jnp.where((real_bits & sign) != 0, ~real_bits, real_bits ^ sign)
+    order = jnp.where(magnitude == 0, sign, order)
+    _, _, ordered = jax.lax.sort((~accepted, order, real), num_keys=2, is_stable=True)
+    count = jnp.sum(accepted, dtype=jnp.int32)
+    bits = jax.lax.bitcast_convert_type(ordered, word_dtype)
+    abs_bits = bits & magnitude_mask
+    one_bits = jax.lax.bitcast_convert_type(jnp.asarray(1., real.dtype), word_dtype)
+    positions = jnp.arange(roots.size)
+    below = (positions == 0) & (count > 0) & ((bits & sign) != 0) & (abs_bits > one_bits)
+    above = (positions == count - 1) & ((bits & sign) == 0) & (abs_bits > one_bits)
+    ordered = jnp.where(below, jnp.asarray(-1., real.dtype), ordered)
+    ordered = jnp.where(above, jnp.asarray(1., real.dtype), ordered)
+    return ordered, count
+
+
+def _roots_filter_real(roots, htol):
+    """Writable host shape adapter for native JAX eigenvalue filtering.
+
+    Provenance: @chebtech/roots.m roots_main at Chebfun7574c77.
+    All comparisons, ordering and clipping occur in _roots_filter_real_jax.
+    """
+    values, count = _roots_filter_real_jax(jnp.asarray(roots), htol)
+    values, count = jax.device_get((values, count))
+    return values[:int(count)].copy()
+
+
 def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
                 prune: bool = False, recurse: bool = True, zero_fun: bool = True):
     import numpy as np
@@ -1921,14 +1978,7 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
             rts = _roots_default_eigenvalues(c)
 
         if not all_roots:
-            # Keep roots with small imaginary part and inside [-1, 1].
-            mask = np.abs(np.imag(rts)) < htol
-            rts = np.real(rts[mask])
-            rts = rts[np.abs(rts) <= 1.0 + htol]
-            rts = np.sort(rts)
-            if rts.size > 0:
-                rts[0] = max(rts[0], -1.0)
-                rts[-1] = min(rts[-1], 1.0)
+            rts = _roots_filter_real(rts, htol)
         elif prune:
             # Prune spurious roots by the Bernstein-radius test (local n).
             rho = np.sqrt(np.finfo(np.float64).eps) ** (-1.0 / n)

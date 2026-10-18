@@ -24,6 +24,8 @@ open work.
 
 ### Current queue — 2026-10-18
 
+- **Latest root filtering:** JAX strict acceptance/stable word-preserving sort/clipping, actualparent37PASS. Expanded run79sciencePASS+21protocolPASS/2ownershipFAIL; ownership corrected and23protocolPASS. Warm public-root cost3–9%higher in one descriptive pair; full performance remains open. [Evidence](roots_filter_jax_cpu_20261018.json).
+
 - **Latest verified integration:** SIN subnormal imaginary component and numeric Diskfun branches; **2,052 parent PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
 - **Unary work:**13original records remain:6other subnormal methods and7TANphase/sign cases.26unaryxfail cases include repeated inputs.92fresh minimum-normal-input SIN losses are additional gaps; broader output-underflow/near-cosine-zero diagnosis continues.
 - **Disk work:** source numeric rank limits, missing-data handling, locations, extrapolation and zero storage qualified.3strict factor/subnormal word xfails, tolerance power/projection order and inherited host GE remain; JAX GE port underway.
@@ -42,6 +44,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Eigenvalue-leaf real-root filtering uses JAX integer magnitude/order keys;14newcontrols include2native sort vectors/72words. Actualparent37PASS; all original inv/roots/minmax counterpart checks and actualflower pass. Ownership failure retained/corrected;1116owners/13lanes/Hermite12/79%. [Evidence](roots_filter_jax_cpu_20261018.json).
+- [ ] Host trim/norm/recursive mapping/pruning, complete roots/API/JIT/AD/provider words, observed3–9%warm-call overhead, matched native performance and latestCI remain open.
 
 - [x] SIN binary64 subnormal imaginary product:324selected native words exact eager/JIT; original metadata14→13 and analytic derivatives retained. Numeric Diskfun rank/missing-data/location/extrapolation/zero-storage branches repaired;15legacy records exact. Actual combined parent **2,052 PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
 - [ ] Thirteen original unary records,92additional minimum-normal-input SIN gaps and broader transition diagnosis;3disk factor/subnormal expected failures, host GE/tolerance/projection providers, completeAPI/JAX/AD, matchedspeed/pages/figures/latestCI remain open.

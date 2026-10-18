@@ -1,3 +1,27 @@
+# JAX real-root filtering — 2026-10-18
+
+The eigenvalue leaf now applies strict imaginary acceptance, expanded-domain
+filtering, stable sorting and endpoint-only clipping in JAX. Integer keys retain
+subnormal order/comparisons and stable signed-zero words; the host only slices
+the retained count and copies storage. Native8/64element sort controls pass.
+All other module ASTs and the existing eigenvalue callable remain unchanged.
+
+Actual parent37PASS=14filter+23CIprotocol. Initial84PASS; expanded102node run
+has100PASS2ownershipFAIL, including all79science checks and actual flower
+inverse. Missing new core owner corrected; all23protocol checks thenPASS.
+Failed run retained; no original assertion/bound change or single102PASSclaim.
+Source/test bridge includes import-order-only formatting;150distinct eventual
+passing nodes across overlapping gates, not one150node run. Observed parent
+imports preguarded/stable, no censor/survivors. Archive3598payloads verified.
+1115old lane prefixes retained→1116owners/13lanes/Hermite12/79%unchanged.
+
+One sameCPU public-root pair retains all3outputs but observes3–9%warm overhead;
+firstcall costs also recorded. No native/statistical speed or regression-free
+claim. A proposed fusion was rejected before execution to retain the existing
+callable/instrumentation contract. Host trim/norm/recursive mapping/pruning,
+full roots/API/JIT/AD/provider words,322pages/1305figures, known numerical/speed
+gaps and latest-mainCI remain open. Evidence: docs/roots_filter_jax_cpu_20261018.json.
+
 # SIN subnormal component and numeric Diskfun branches — 2026-10-18
 
 SIN now retains the gradual cos(real)*imaginary product for nonzero binary64

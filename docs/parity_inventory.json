@@ -791,6 +791,22 @@
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
     },
+    "roots_filter_jax_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3598,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_filter_jax_cpu_20261018.tar.gz",
+        "sha256": "988239aac3a5ce93b368636244c4723205137bdf02cfd77aeb394ee73ddacaf5"
+      },
+      "limits": [
+        "Inherited host coefficient trimming/norm, recursive affine mapping and pruning remain; full JAX roots driver/JIT/AD/API not qualified.",
+        "No universal native eigenvalue-word/order/extreme/provider qualification; new controls use binary64.",
+        "Observed imported Python module files guarded, not exhaustive installed/native shared-library runtime coverage.",
+        "All322final-sourcepages/1305scientificfigures, other numerical gaps, matched CPU slowpaths and latest-mainCI/79%coverage remain open."
+      ],
+      "report": "docs/roots_filter_jax_cpu_20261018.json",
+      "report_sha256": "59d43e9ed11fe37e345668814158146babb47c795b513f3605279b08961b2265",
+      "scope": "JAX eigenvalue-leaf real-root filter for Chebtech roots_main; no complete roots/API/performance closure."
+    },
     "roots_normalization_parent_cpu_20261018": {
       "path": "docs/roots_normalization_parent_cpu_20261018.json",
       "scope": "Source coefficient normalization for public Chebtech roots on real CPU binary64, native word controls and unchanged roots regression gates; editable package metadata repair for CI setup",
@@ -71565,6 +71581,16 @@
             "All322pages/1305figures or latest-main CI/coverage completion"
           ],
           "scope": "QZ scaled pencil and generalized eigenvalue leaf use JAX;43CPUchecks pass, including24unchanged original roots and8authored source/analytic controls. No full roots/API/provider-word/performance qualification."
+        },
+        {
+          "artifact": "roots_filter_jax_cpu_20261018",
+          "limits": [
+            "Inherited host coefficient trimming/norm, recursive affine mapping and pruning remain; full JAX roots driver/JIT/AD/API not qualified.",
+            "No universal native eigenvalue-word/order/extreme/provider qualification; new controls use binary64.",
+            "Observed imported Python module files guarded, not exhaustive installed/native shared-library runtime coverage.",
+            "All322final-sourcepages/1305scientificfigures, other numerical gaps, matched CPU slowpaths and latest-mainCI/79%coverage remain open."
+          ],
+          "scope": "JAX eigenvalue-leaf real-root filter for Chebtech roots_main; no complete roots/API/performance closure."
         }
       ],
       "functions": [
@@ -71617,6 +71643,16 @@
                 "All322pages/1305figures or latest-main CI/coverage completion"
               ],
               "scope": "QZ scaled pencil and generalized eigenvalue leaf use JAX;43CPUchecks pass, including24unchanged original roots and8authored source/analytic controls. No full roots/API/provider-word/performance qualification."
+            },
+            {
+              "artifact": "roots_filter_jax_cpu_20261018",
+              "limits": [
+                "Inherited host coefficient trimming/norm, recursive affine mapping and pruning remain; full JAX roots driver/JIT/AD/API not qualified.",
+                "No universal native eigenvalue-word/order/extreme/provider qualification; new controls use binary64.",
+                "Observed imported Python module files guarded, not exhaustive installed/native shared-library runtime coverage.",
+                "All322final-sourcepages/1305scientificfigures, other numerical gaps, matched CPU slowpaths and latest-mainCI/79%coverage remain open."
+              ],
+              "scope": "JAX eigenvalue-leaf real-root filter for Chebtech roots_main; no complete roots/API/performance closure."
             }
           ],
           "implementation_status": "unverified",

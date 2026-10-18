@@ -257,7 +257,8 @@
       "tests/test_operators/test_generalized_eig_invariants.py",
       "tests/test_operators/test_generalized_eig_rounding.py",
       "tests/test_diskfun/test_helmholtz_banded.py",
-      "tests/test_diskfun/test_helmholtz_static_construction.py"
+      "tests/test_diskfun/test_helmholtz_static_construction.py",
+      "tests/test_tech/test_roots_filter_source.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1145,6 +1146,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "0cf41eaaebf5315e4a22d0d8eeb4c5dbd2603843",
+  "last_update_parent": "8c9c0853252373fb0b73ec34c3c91017d2c84c65",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }
