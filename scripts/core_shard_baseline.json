@@ -189,7 +189,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_coeffs2vals_vals2coeffs_matlab]",
       "tests/test_chebfun1d/test_get_roots_for_breaks_source.py",
       "tests/test_chebfun1d/test_root_power_zero_preflight.py",
-      "tests/test_utils/test_ifft_normalization_source.py"
+      "tests/test_utils/test_ifft_normalization_source.py",
+      "tests/test_operators/test_c1_eigs_adaptive_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -1112,6 +1113,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+  "last_update_parent": "38d2fefa75fe61cdf5316d133a93cead8328e108",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

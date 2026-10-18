@@ -1,7 +1,8 @@
-"""C2 projected eigensystems and the native adaptive selection policy.
+"""C1/C2 projected eigensystems and the native adaptive selection policy.
 
 MATLAB source: @linop/eigs.m, @chebcolloc/reduce.m,
-@chebcolloc2/toFunctionOut.m, @opDiscretization/testConvergence.m.
+@chebcolloc1/toFunctionOut.m, @chebcolloc2/toFunctionOut.m,
+@opDiscretization/testConvergence.m.
 Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
 New numerical policy is JAX; the inherited generalized LAPACK boundary remains
 operators.blocklinop._geig and is not a JAX eigendecomposition claim.
@@ -47,6 +48,9 @@ def output_coefficients(values, cutoff=None):
 
 class C2Pencil:
     """Finite function-variable block pencil; constraints belong only to A."""
+
+    tech = Chebtech2
+    output_coefficients = staticmethod(output_coefficients)
 
     def __init__(self, operator, dimensions, mass=None, domain=None):
         from chebfunjax.operators.blocklinop import BlockLinop
@@ -104,7 +108,7 @@ class C2Pencil:
             pieces = []
             for i, n in enumerate(self.dimensions):
                 cut = None if cutoffs is None else cutoffs[i]
-                pieces.append(output_coefficients(projected[offset:offset+n], cut))
+                pieces.append(self.output_coefficients(projected[offset:offset+n], cut))
                 offset += n
             result.append(pieces)
         return result
@@ -116,6 +120,66 @@ class C2Pencil:
                       zip(coefficients, zip(self.domain[:-1], self.domain[1:]))]
             result.append(Chebfun(funs=pieces, domain=Domain(self.domain)))
         return result
+
+
+class C1Pencil(C2Pencil):
+    """First-kind pencil with the shared native eigenvalue selection policy.
+
+    Reuse the existing exact first-kind operator/constraint realizations.
+    MATLAB source: @chebcolloc/reduce.m, @chebcolloc1/toFunctionOut.m,
+    @opDiscretization/merge.m, @linop/eigs.m (7574c77).
+    """
+
+    tech = Chebtech1
+
+    def __init__(self, operator, dimensions, mass=None, domain=None):
+        from chebfunjax.operators._linear_altdisc import LinearDiscretization
+        from chebfunjax.operators.blocklinop import BlockLinop
+
+        dom = tuple(operator.domain if domain is None else domain)
+        if mass is not None:
+            mass = mass if isinstance(mass, BlockLinop) else BlockLinop(mass)
+            if dom[0] != mass.domain[0] or dom[-1] != mass.domain[-1]:
+                raise ValueError('Generalized eigs requires matching domain endpoints')
+            dom = tuple(sorted(set(dom).union(mass.domain)))
+        if operator.nrows != operator.ncols:
+            raise ValueError('CHEBFUN:LINOP:eigs:notSquare')
+        self.domain = dom
+        self.dimensions = tuple(operator._sizes(dimensions, dom))
+        self.orders = operator.proj_order()
+        if mass is not None:
+            self.orders = [max(a, b) for a, b in zip(self.orders, mass.proj_order())]
+        disc = LinearDiscretization(operator, self.dimensions, 'chebcolloc1',
+                                    dom, orders=self.orders)
+        self.operator = disc.L
+        self.projections = disc.projections
+        self.P = _blkdiag(self.projections)
+        self.constraint_count = len(disc.L.constraint) + len(disc.L.continuity)
+        self.A = disc.A
+        source_b = operator.A.identity() if mass is None else mass.A
+        rows = [jnp.concatenate([disc._operator_column(block, j, 0)
+                                 for j, block in enumerate(row)], axis=1)
+                for row in source_b.blocks]
+        brows = jnp.concatenate(rows, axis=0)
+        self.B = jnp.concatenate([
+            jnp.zeros((self.constraint_count, brows.shape[1]), dtype=brows.dtype), brows])
+        if self.B.shape != self.A.shape:
+            raise ValueError('Eigs pencil is not square after source constraints')
+
+    @staticmethod
+    def output_coefficients(values, cutoff=None):
+        """First-kind output constructor; retain native roundtrip arithmetic."""
+        coeffs = Chebtech1.vals2coeffs(values)
+        if cutoff is not None:
+            coeffs = coeffs[:cutoff]
+        return Chebtech1.vals2coeffs(Chebtech1.coeffs2vals(coeffs))
+
+    def functions(self, projected, cutoffs=None):
+        return [Chebfun(funs=[_Piece(tech=Chebtech1.from_coeffs(c), interval=(a, b))
+                              for c, (a, b) in zip(coefficients,
+                                                   zip(self.domain[:-1], self.domain[1:]))],
+                        domain=Domain(self.domain))
+                for coefficients in self.coefficients(projected, cutoffs)]
 
 
 def nearest(lam, sigma, count):
@@ -187,14 +251,15 @@ def automatic_target(coarse, fine, fine_coefficients):
 
 def convergence(pencil, projected, pref):
     coefficients = pencil.coefficients(projected)
+    tech = pencil.tech
     # Source toFunctionOut concatenates variables; vscale is global per column.
-    scales = jnp.asarray([max(float(jnp.max(jnp.abs(Chebtech2.coeffs2vals(c))))
+    scales = jnp.asarray([max(float(jnp.max(jnp.abs(tech.coeffs2vals(c))))
                              for c in pieces) for pieces in coefficients])
     done, cutoffs = [], []
     for i in range(len(pencil.dimensions)):
         c = jnp.column_stack([pieces[i] for pieces in coefficients])
-        v = Chebtech2.coeffs2vals(c)
-        ok, cut = Chebtech2.happiness_check(
+        v = tech.coeffs2vals(c)
+        ok, cut = tech.happiness_check(
             c, v, tol=float(pref.bvpTol), vscale=scales,
             check=str(pref.happinessCheck), sample_test=False)
         done.append(bool(ok))
@@ -202,18 +267,20 @@ def convergence(pencil, projected, pref):
     return done, cutoffs
 
 
-def solve(operator, *, k=6, sigma=None, n=None, mass=None, domain=None, pref=None):
-    """Native C2 automatic targeting/refinement; n is a fixed-size extension."""
+def solve(operator, *, k=6, sigma=None, n=None, mass=None, domain=None, pref=None,
+          backend='chebcolloc2'):
+    """Native C1/C2 targeting/refinement; n is a fixed-size extension."""
     pref = preferences(pref)
-    dims = _dimension_values(float(pref.minDimension), float(pref.maxDimension), 'chebcolloc2')
+    pencil_type = {'chebcolloc1': C1Pencil, 'chebcolloc2': C2Pencil}[backend]
+    dims = _dimension_values(float(pref.minDimension), float(pref.maxDimension), backend)
     dom = tuple(operator.domain if domain is None else domain)
     if mass is not None:
         dom = tuple(sorted(set(dom).union(mass.domain)))
     current = [dims[0]]*(len(dom)-1) if n is None else operator._sizes(n, dom)
     if sigma is None:
-        p1 = C2Pencil(operator, 33, mass, dom)
+        p1 = pencil_type(operator, 33, mass, dom)
         coarse, _ = eigenvalues(p1, 33, 0)
-        p2 = C2Pencil(operator, 65, mass, dom)
+        p2 = pencil_type(operator, 65, mass, dom)
         fine, vectors = eigenvalues(p2, 33, 0)
         projected = p2.P @ vectors
         width = sum(p2.dimensions)
@@ -222,14 +289,14 @@ def solve(operator, *, k=6, sigma=None, n=None, mass=None, domain=None, pref=Non
                               for j in range(len(p2.orders)))
         combined, offset = [], 0
         for size in p2.dimensions:
-            combined.append(output_coefficients(combined_values[offset:offset+size]))
+            combined.append(p2.output_coefficients(combined_values[offset:offset+size]))
             offset += size
         sigma = automatic_target(coarse, fine, combined)
         if n is None:
             current = [65]*(len(dom)-1)
     done = [False]*len(current)
     for next_dimension in (*dims, None) if n is None else (None,):
-        pencil = C2Pencil(operator, current, mass, dom)
+        pencil = pencil_type(operator, current, mass, dom)
         lam, vectors = eigenvalues(pencil, k, sigma)
         if not len(lam):
             raise ValueError('Eigs returned no finite modes')

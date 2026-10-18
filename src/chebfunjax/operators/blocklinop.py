@@ -1014,15 +1014,21 @@ class BlockLinop:
              n: int | None = None, dom: _DomainT | None = None,
              rayleigh: bool = False, discretization: str | None = None,
              pref=None):
-        """Native C2 adaptive eigs; explicit n is an equation-size extension.
+        """Native C1/C2 adaptive eigs; explicit n is an equation-size extension.
 
         None targets the most resolved mode using native33/65 probes. C2 output
-        uses projected first-kind values and native convergence/normalization.
-        Alternative backends retain the legacy fixed-size adapter (65 when n
-        is omitted); this is compatibility, not native adaptive qualification.
+        uses projected first-kind values and native convergence/normalization;
+        C1 retains first-kind output functions. Explicit n now has the same
+        equation-size meaning for both collocation backends (input columns
+        have n plus their differential order). Other alternative backends
+        retain the legacy fixed-size adapter (65 when n is omitted).
         The return contract remains (eigenvalues, list of ChebMatrix columns).
 
-        MATLAB source: @linop/eigs.m (7574c77).
+        Provenance
+        ----------
+        MATLAB source: @linop/eigs.m, @chebcolloc/reduce.m,
+            @chebcolloc1/toFunctionOut.m, @chebcolloc2/toFunctionOut.m.
+        Chebfun commit: 7574c77.
         """
         from chebfunjax.operators._eigs_source import preferences, solve
 
@@ -1030,9 +1036,9 @@ class BlockLinop:
         backend = discretization if discretization is not None else prefs.discretization
         if backend == 'values':
             backend = 'chebcolloc2'
-        if backend == 'chebcolloc2':
+        if backend in ('chebcolloc1', 'chebcolloc2'):
             lam, funs = solve(self, k=k, sigma=sigma, n=n, mass=B,
-                              domain=dom, pref=prefs)
+                              domain=dom, pref=prefs, backend=backend)
         else:
             if n is None:
                 n = 65  # Preserve the prior alternative-backend default adapter.

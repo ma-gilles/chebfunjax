@@ -25,6 +25,25 @@
       "scope": "Native barycentric node-loop materialization and elementwise division; combined root-recurrence integration",
       "sha256": "97e6a6cf06ed271f54f2f513a04d6049f66d0c34030cc706cb147c907da0a638"
     },
+    "c1_eigs_adaptive_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/c1_eigs_adaptive_cpu_20261017.tar.gz",
+        "payload_count": 104,
+        "sha256": "0f36f4b32a31d3c4b0781ad5e9593185607016689c532354ff175be17cd66d6d",
+        "stream_verified": true
+      },
+      "limits": [
+        "One-argument cell callback front door remains unsupported; no whole original-file/API claim.",
+        "Generalized eigensolver retains inherited host LAPACK provider; no new host numerical provider.",
+        "Explicit BlockLinop n now consistently counts equation rows in C1/C2; input size adds differential order.",
+        "Unsupported explicit system backends reject before the legacy adapter; periodic explicit preferences remain unsupported.",
+        "No matched CPU speed, full eigs API, all-page, figure, AD or latest-main CI/coverage closure.",
+        "MATLAB source files/driver guarded; full binary runtime is not claimed frozen."
+      ],
+      "report": "docs/c1_eigs_adaptive_cpu_20261017.json",
+      "report_sha256": "236725aa36b454bc8a6b83dc551f99d5efba3dd5a698e53647a03dc986acec09",
+      "scope": "C1 adaptive projected eigensystems and explicit C1/C2 system preferences"
+    },
     "c1_nodots_cpu_20261017": {
       "path": "docs/c1_nodots_cpu_20261017.json",
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
@@ -48127,7 +48146,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "c1_eigs_adaptive_cpu_20261017",
+          "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -67618,6 +67642,10 @@
         {
           "artifact": "maxwell_system_eigs_parent_cpu_20261017",
           "scope": "Projected C2 system extraction/recovery and listed parent/child predicates; full API status unchanged"
+        },
+        {
+          "evidence_id": "c1_eigs_adaptive_cpu_20261017",
+          "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
         }
       ],
       "functions": [
@@ -78775,6 +78803,10 @@
         {
           "artifact": "maxwell_system_eigs_parent_cpu_20261017",
           "scope": "Existing rectangular block pencil reused; full API/JAX boundary remains unverified"
+        },
+        {
+          "evidence_id": "c1_eigs_adaptive_cpu_20261017",
+          "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
         }
       ],
       "functions": [
@@ -113563,6 +113595,10 @@
         {
           "artifact": "maxwell_system_eigs_parent_cpu_20261017",
           "scope": "Repeated C2 CI regression passes; C1/no-x clauses unqualified"
+        },
+        {
+          "evidence_id": "c1_eigs_adaptive_cpu_20261017",
+          "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
         }
       ],
       "functions": [

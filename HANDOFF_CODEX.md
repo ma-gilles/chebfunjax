@@ -1,3 +1,15 @@
+# First-kind adaptive eigenproblems — 2026-10-17
+
+C1 now shares the native targeting/refinement policy with C2 and retains
+first-kind output functions. Explicit system C1/C2 preferences are forwarded.
+Three failing baseline checks are repaired; six final focused checks and39
+existing regression nodes pass, with21CIprotocol checks separately passing.
+Fresh pinned MATLAB system2 returns all6true; captured C1 block residual is
+1.9913e-13. Existing1084core owners stay fixed; one selector is appended.
+One-argument cell callbacks, full eigs API/JAX conversion, matched CPU speed,
+all pages/figures and latest-main scientificCI/coverage remain open.
+Evidence: docs/c1_eigs_adaptive_cpu_20261017.json.
+
 # Twelve interrupted script edits reconciled — 2026-10-17
 
 The per-script disposition table is now in

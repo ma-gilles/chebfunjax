@@ -2069,8 +2069,8 @@ class Chebop:
 
         return ChebMatrix(typed_rows, domain=domain)
 
-    def _eigs_system(self, k: int = 6, n: int | None = None, sigma=None):
-        """C2 system eigs through exact AD and native rectangular projection.
+    def _eigs_system(self, k: int = 6, n: int | None = None, sigma=None, pref=None):
+        """C1/C2 system eigs through exact AD and rectangular projection.
 
         Omitted n uses the shared source adaptive policy. Explicit n counts
         the largest input grid; each variable receives equation_n plus its
@@ -2079,7 +2079,10 @@ class Chebop:
 
         All new extraction, assembly and recovery use JAX. The unchanged
         BlockLinop generalized eigensolver remains an inherited host boundary.
-        MATLAB: @chebop/eigs.m, @linop/eigs.m, @chebcolloc/reduce.m (7574c77).
+        Provenance
+        ----------
+        MATLAB source: @chebop/eigs.m, @linop/eigs.m, @chebcolloc/reduce.m.
+        Chebfun commit: 7574c77.
         """
         import copy
 
@@ -2122,7 +2125,7 @@ class Chebop:
         equation_n = None if n is None else int(n) - max(operator.proj_order())
         if equation_n is not None and equation_n < 1:
             raise ValueError("Fixed input dimension must exceed differential order")
-        lam, columns = operator.eigs(k=k, sigma=sigma, n=equation_n)
+        lam, columns = operator.eigs(k=k, sigma=sigma, n=equation_n, pref=pref)
         vectors = [SystemSolution([column.blocks[j][0] for j in range(count)])
                    for column in columns]
         return vectors, jnp.asarray(lam)
@@ -4929,7 +4932,7 @@ class Chebop:
         return_eigenfunctions=True returns (eigenvalues, function list), while
         the default returns eigenvalues alone for scalar operators. Systems
         retain the legacy (SystemSolution list, eigenvalue array) return and
-        share the C2 adaptive policy through exact AD coefficient blocks.
+        share the C1/C2 adaptive policy through exact AD coefficient blocks.
         Periodic, piecewise scalar and general-boundary adapters retain their
         existing algorithms; unsupported explicit prefs are not ignored.
         n_default is an optional fixed system input-grid extension when n is
@@ -4938,10 +4941,17 @@ class Chebop:
         The shared generalized LAPACK eigensolve remains an inherited host
         boundary. This scalar qualification is not full eigs backend parity.
 
-        MATLAB source: @chebop/eigs.m, @linop/eigs.m (7574c77).
+        Provenance
+        ----------
+        MATLAB source: @chebop/eigs.m, @linop/eigs.m.
+        Chebfun commit: 7574c77.
         """
-        if pref is not None and (getattr(self, '_periodic', False) or self._n_vars() >= 2):
-            raise NotImplementedError('Explicit eigs preferences for periodic/system adapters are not implemented')
+        if pref is not None and getattr(self, '_periodic', False):
+            raise NotImplementedError('Explicit eigs preferences for periodic adapters are not implemented')
+        if pref is not None and self._n_vars() >= 2:
+            from chebfunjax.operators._eigs_source import preferences
+            if preferences(pref).discretization not in ('values', 'chebcolloc1', 'chebcolloc2'):
+                raise NotImplementedError('Explicit system eigs preferences require C1 or C2 collocation')
         if getattr(self, "_periodic", False) and self._n_vars() < 2:
             # A periodic operator with PIECEWISE coefficients (e.g. the
             # Landscape example's square-well potential) cannot converge on
@@ -4959,7 +4969,7 @@ class Chebop:
                 return_eigenfunctions=return_eigenfunctions)
         if self._n_vars() >= 2:
             requested_n = n if n is not None else n_default
-            return self._eigs_system(k=k, n=requested_n, sigma=sigma)
+            return self._eigs_system(k=k, n=requested_n, sigma=sigma, pref=pref)
         # Discontinuous coefficients (e.g. an indicator-function potential)
         # defeat a single global Chebyshev grid -- the eigenvalues stall at
         # O(1e-2) accuracy from the Gibbs oscillations.  MATLAB breaks the

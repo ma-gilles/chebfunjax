@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] C1 native adaptive eigs and explicit system preferences:6focused checks,39existing regressions and21CIprotocol checks pass; fresh pinned native system2 has6true predicates. [Evidence](c1_eigs_adaptive_cpu_20261017.json).
+- [ ] One-argument cell callback API, full eigs/backend/JAX qualification and matched performance remain open; these numerical clauses do not qualify the whole original test file.
+
+
 - [x] Reconcile the twelve interrupted scripts:12committed replacements and12clean historical complete-run receipts found; original dirty payloads preserved and superseded. [Per-script table](handoff_twelve_disposition_review_cpu_20261017.md).
 - [ ] All twelve still need final-source numerical/stdout/scientific-figure qualification. Historical source/renderer/adapter bridges and exact next steps are listed per script; no new full-page pass is claimed.
 

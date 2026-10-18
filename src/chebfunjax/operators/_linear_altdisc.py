@@ -104,7 +104,7 @@ class LinearDiscretization:
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
     """
 
-    def __init__(self, L, dimensions, backend, domain=None):
+    def __init__(self, L, dimensions, backend, domain=None, orders=None):
         if backend not in ('chebcolloc1', 'ultraS'):
             raise ValueError(f"Unsupported differential backend {backend!r}")
         self.backend = backend
@@ -117,7 +117,11 @@ class LinearDiscretization:
         self.L = L.derive_continuity(self.domain) if not L.continuity else L
         if not all(self.L.is_fun_variable()):
             raise NotImplementedError("Exact alternative assembly currently requires function-valued variables")
-        self.orders = tuple(self.L.proj_order())
+        # Generalized eigs merges A/B input orders before assembling either
+        # pencil. Ordinary linear solves retain their original order policy.
+        self.orders = tuple(self.L.proj_order() if orders is None else orders)
+        if len(self.orders) != self.L.ncols or any(r < 0 for r in self.orders):
+            raise ValueError("One nonnegative projection order is required per variable")
         self.dimension_history = [self.dimensions]
         self._factor = None
         self._scaling = None
