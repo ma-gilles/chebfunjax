@@ -345,6 +345,22 @@
       "sha256": "0c2e9838b9662b78f05749aa5ae0ac39cabff67c0fba030ac6491e7da67977bd",
       "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d"
     },
+    "original_system2_polyfit8_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_system2_polyfit8_parent_cpu_20261017.tar.gz",
+        "sha256": "a506836b046c700b218533d0cf815af79a231ef936352ea7c96ce78b76e227f2",
+        "verified_payloads": 35
+      },
+      "limits": [
+        "Default original predicate scopes only; broader eigs/BC grammar and full library/API/JAX qualification remain open.",
+        "Polyfit Python eight-clause proof remains bound to36e; no claim it was rerun onfc. Fresh native default function replaces the historical harness-only invocation uncertainty.",
+        "Supplemental external JAX cosine degree4 warning discrepancy remains separate and unresolved.",
+        "No matched performance, page/figure or latest-main CI/coverage closure."
+      ],
+      "report": "docs/original_system2_polyfit8_cpu_20261017.json",
+      "report_sha256": "755194e25f5fea4ad572e5462fc98a1d12a6e9a32de087b07c6e7221c1bb8c29",
+      "scope": "Default original system2 six cell/autonomous predicates and polyfitL1 eight predicates"
+    },
     "output_slot_reconciliation_cpu_20261017": {
       "path": "docs/output_slot_reconciliation_cpu_20261017.json",
       "scope": "Parent-reviewed ten-page warning/output-slot mapping; no new numerical/page runtime or full stdout parity qualification",
@@ -54415,6 +54431,10 @@
         {
           "evidence_id": "polyfit_cos4_first_divergence_cpu_20261017",
           "scope": "Supplemental cos4 provider diagnosis; absent from original eight clauses; original test-file statuses unchanged."
+        },
+        {
+          "evidence_id": "original_system2_polyfit8_cpu_20261017",
+          "scope": "Default original test clauses only; full function/API remains unverified."
         }
       ],
       "functions": [
@@ -67707,6 +67727,10 @@
         {
           "evidence_id": "c1_eigs_adaptive_cpu_20261017",
           "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
+        },
+        {
+          "evidence_id": "original_system2_polyfit8_cpu_20261017",
+          "scope": "Default original test clauses only; full function/API remains unverified."
         }
       ],
       "functions": [
@@ -104533,12 +104557,32 @@
       "api_assertion_status": "unverified",
       "assertion_coverage_status": "unverified",
       "candidate_port_paths": [
-        "tests/test_matlab_port/chebfun/test_polyfitL1_matlab.py"
+        "tests/test_matlab_port/chebfun/test_polyfitL1_matlab.py",
+        "tests/test_matlab_port/chebfun/test_polyfitL1_native_literal.py"
       ],
+      "default_predicate_verification": {
+        "evidence_id": "original_system2_polyfit8_cpu_20261017",
+        "indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+        "python_source": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb"
+      },
       "evidence": [
         {
           "evidence_id": "polyfit_cos4_first_divergence_cpu_20261017",
           "scope": "Supplemental cos4 provider diagnosis; absent from original eight clauses; original test-file statuses unchanged."
+        },
+        {
+          "evidence_id": "original_system2_polyfit8_cpu_20261017",
+          "scope": "All default original predicate indices, source-bound; broader API/global statuses unchanged."
         }
       ],
       "functions": [
@@ -113683,8 +113727,22 @@
       "api_assertion_status": "unverified",
       "assertion_coverage_status": "unverified",
       "candidate_port_paths": [
-        "tests/test_matlab_port/chebop/test_eigs_system2_matlab.py"
+        "tests/test_matlab_port/chebop/test_eigs_system2_matlab.py",
+        "tests/test_operators/test_eigs_system2_original_cells_source.py"
       ],
+      "default_predicate_verification": {
+        "evidence_id": "original_system2_polyfit8_cpu_20261017",
+        "indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+        "python_source": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c"
+      },
       "evidence": [
         {
           "artifact": "maxwell_system_eigs_parent_cpu_20261017",
@@ -113693,6 +113751,10 @@
         {
           "evidence_id": "c1_eigs_adaptive_cpu_20261017",
           "scope": "Scoped C1 numerical clauses only; full API/assertion qualification remains open."
+        },
+        {
+          "evidence_id": "original_system2_polyfit8_cpu_20261017",
+          "scope": "All default original predicate indices, source-bound; broader API/global statuses unchanged."
         }
       ],
       "functions": [

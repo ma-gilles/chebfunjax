@@ -27,6 +27,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] All6default original system2 cell/autonomous predicates pass onfc at unchanged1e-9; no library edit, stale unsupported callback entry corrected. New regression+21protocol checks preserve1088prior owners+1new. [Evidence](original_system2_polyfit8_cpu_20261017.json).
+- [x] All8default original polyfitL1 predicates pass on frozen36e at unchanged1e-8; fresh unmodified native testfunction also all8true. [Per-clause table](polyfit_l1_original8_current_cpu_20261017.md).
+- [ ] Broader API/backend/performance and latest-source/CI qualification remain open; supplemental external cosine warning remains separate.
+
+
 - [x] Repair3recorded nonfinite ABS mask cases through shared C1/C2 transforms:24new native-stage,16exact C1/JIT/AD,44original transform,111parent tech/native/protocol,3unbounded and20complex AD nodes pass (counts overlap). [Evidence](nonfinite_transform_native_cpu_20261017.json).
 - [ ] Full nonfinite/extreme/storage/API and native FFT-word coverage, matched CPU speed and final CI remain open;8captured cases are a scoped qualification.
 
@@ -40,7 +45,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] C1 native adaptive eigs and explicit system preferences:6focused checks,39existing regressions and21CIprotocol checks pass; fresh pinned native system2 has6true predicates. [Evidence](c1_eigs_adaptive_cpu_20261017.json).
-- [ ] One-argument cell callback API, full eigs/backend/JAX qualification and matched performance remain open; these numerical clauses do not qualify the whole original test file.
+- [ ] Broader cell/BC grammar, full eigs/backend/JAX qualification and matched performance remain open; these numerical clauses do not qualify the whole original test file.
 
 
 - [x] Reconcile the twelve interrupted scripts:12committed replacements and12clean historical complete-run receipts found; original dirty payloads preserved and superseded. [Per-script table](handoff_twelve_disposition_review_cpu_20261017.md).
@@ -53,7 +58,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Projected C2 system eigenproblem repair: both actual CI regressions, four original native predicates,38child scientific selectors and24parent integration nodes pass (counts overlap). Complex eigenfunctions and genuine repeated modes preserved. [Evidence](maxwell_system_eigs_parent_cpu_20261017.json).
-- [ ] Full eigs/BC grammar, C1/no-x clauses, generalized-eig JAX conversion, matched performance and latest CI remain open.
+- [ ] Full eigs/BC grammar, wider C1 preferences, generalized-eig JAX conversion, matched performance and latest CI remain open.
 - [x] Matched-input single-CPU inverse benchmark: MATLAB warm0.642599s, JAX1.710633s; matching8630coefficient counts and nearroundoff sample agreement. [Evidence](inverse_single_cpu_20261017.json).
 - [ ] Inverse speed parity remains open:2.662xwarm and32.8xfirst-after-setup in this descriptive shared-host measurement; full API/pages/figures and other known slow paths remain required.
 

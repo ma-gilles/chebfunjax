@@ -1,3 +1,19 @@
+# Original cell-system and L1 test coverage — 2026-10-17
+
+All6default original test_eigs_system2 predicates now run with actual cell
+callbacks, piecewise domain mutation and the no-x C1 callback. Maximum error
+1.6689e-12<unchanged1e-9. Existing constructor support already handled this;
+the previously stated unsupported callback gap was stale. No library edit.
+New regression plus21CIprotocol checks pass;1088prior owners retained+1new.
+
+All8original polyfitL1 numerical predicates pass on frozen36e at unchanged
+1e-8; largest moment1.32e-12. Fresh unmodified native test_polyfitL1() also
+returns all8true (13.3182s actual function). Historical harness-only caveat is
+superseded for native invocation; Python evidence remains bound to36e.
+Supplemental external cosine warning, full API/backend/JAX/speed, all pages/
+figures and latestCI/coverage remain open. Evidence:
+docs/original_system2_polyfit8_cpu_20261017.json.
+
 # Native nonfinite transform components — 2026-10-17
 
 Three previously reported ABS Inf/NaN mask discrepancies are repaired in
@@ -44,7 +60,7 @@ Three failing baseline checks are repaired; six final focused checks and39
 existing regression nodes pass, with21CIprotocol checks separately passing.
 Fresh pinned MATLAB system2 returns all6true; captured C1 block residual is
 1.9913e-13. Existing1084core owners stay fixed; one selector is appended.
-One-argument cell callbacks, full eigs API/JAX conversion, matched CPU speed,
+Broader cell/BC grammar, full eigs API/JAX conversion, matched CPU speed,
 all pages/figures and latest-main scientificCI/coverage remain open.
 Evidence: docs/c1_eigs_adaptive_cpu_20261017.json.
 
@@ -86,7 +102,7 @@ child packet has38unique scientific selectors plus1structural observer;
 parent integration has24passing nodes (21protocol,3scientific selectors).
 Explicit n/n_default precedence and genuine repeated modes are controlled.
 All1082existing core owners remain; one new selector is appended. Existing
-generalized-eig host boundary and C1/no-x/full API qualification remain open.
+generalized-eig host boundary and broader C1/full API qualification remain open.
 Evidence: docs/maxwell_system_eigs_parent_cpu_20261017.json.
 
 Matched retained-input single-CPU inverse timing: MATLAB warm median0.642599s,

@@ -2,8 +2,9 @@
 
 The same Maxwell-inspired eigenproblem as test_eigs_system.m, which
 MATLAB states in chebmatrix {} cell syntax (u{1}, u{2}); the cell
-indexing is MATLAB notation, so the port uses the multi-argument form
-with identical equations, conditions and tolerances.
+indexing is represented by a legacy multi-argument smooth-spectrum smoke
+check here. All six literal original cell/autonomous clauses are in
+tests/test_operators/test_eigs_system2_original_cells_source.py.
 
 Provenance
 ----------

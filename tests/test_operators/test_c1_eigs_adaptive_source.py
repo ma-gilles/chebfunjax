@@ -2,8 +2,9 @@
 
 Provenance: Chebfun7574c77 @linop/eigs.m, @chebcolloc1/toFunctionOut.m,
 tests/chebop/test_eigs_system2.m final two numerical predicates. Native
-cell notation is represented by explicit Python component arguments here;
-the one-argument cell callback front door remains a separate API gap.
+cell notation is represented by explicit Python component arguments here.
+The six original cell/autonomous clauses are separately verified in
+test_eigs_system2_original_cells_source.py.
 """
 import math
 

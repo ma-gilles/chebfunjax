@@ -1,0 +1,90 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_system2_polyfit8_parent_cpu_20261017.tar.gz",
+    "sha256": "a506836b046c700b218533d0cf815af79a231ef936352ea7c96ce78b76e227f2",
+    "verified_payloads": 35
+  },
+  "base_commit": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c",
+  "core_ownership": {
+    "added": {
+      "tests/test_operators/test_eigs_system2_original_cells_source.py": 1
+    },
+    "final": 1089,
+    "moved": [],
+    "prior": 1088
+  },
+  "limits": [
+    "Default original predicate scopes only; broader eigs/BC grammar and full library/API/JAX qualification remain open.",
+    "Polyfit Python eight-clause proof remains bound to36e; no claim it was rerun onfc. Fresh native default function replaces the historical harness-only invocation uncertainty.",
+    "Supplemental external JAX cosine degree4 warning discrepancy remains separate and unresolved.",
+    "No matched performance, page/figure or latest-main CI/coverage closure."
+  ],
+  "polyfitL1": {
+    "child_integrity": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/polyfit_l1_original8_current_package_20261017.tar.gz",
+      "current_clean_receipts": 8,
+      "historical_receipts_excluded_from_current_count": 1,
+      "sha256": "fb96be50525e20433825512ac0b8bc27db565e8f27b560879b569a29d0b555e5",
+      "verified_payloads": 127
+    },
+    "fresh_native_capture_sha256": "6f56455331249c834e928d8d8035ec785a3b947f1e5182df0b0972fbd6fdfb3c",
+    "fresh_native_default_pass": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "fresh_native_function": "tests/chebfun/test_polyfitL1.m",
+    "fresh_native_receipt_sha256": "8958abb1401aefda97003253d58ecff235efdf9b12e5307f5ce8bb9bbb7c0b0d",
+    "fresh_native_test_seconds": 13.3182,
+    "original_bound": 1e-08,
+    "python_original_predicates_passed": 8,
+    "python_source": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb"
+  },
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "runs": {
+    "polyfit_l1_literal_native_run001": {
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1443840,
+      "wall_seconds": 125.80127553408965
+    },
+    "system2_cells_protocol_run001": {
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 161696,
+      "wall_seconds": 2.9347098292782903
+    },
+    "system2_cells_run001": {
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2841792,
+      "wall_seconds": 60.87575345905498
+    }
+  },
+  "scope": "Default original system2 six cell/autonomous predicates and polyfitL1 eight predicates",
+  "system2": {
+    "cell_and_autonomous_callbacks_supported": true,
+    "errors": [
+      6.435395355819934e-14,
+      2.453180046480074e-13,
+      1.567634910770721e-13,
+      1.668827074872982e-12,
+      6.572520305780927e-14,
+      2.015475602050684e-13
+    ],
+    "library_changes_required": false,
+    "native_capture_sha256": "57099387e723ae631a5d6121e8bc0fe52857655a428b223298b85241c18fada8",
+    "native_original_function_all_six_true": "docs/c1_eigs_adaptive_cpu_20261017.json",
+    "original_bound": 1e-09,
+    "python_selector": "tests/test_operators/test_eigs_system2_original_cells_source.py::test_all_six_original_cell_and_autonomous_predicates",
+    "python_source": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c"
+  }
+}
