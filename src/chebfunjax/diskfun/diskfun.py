@@ -44,11 +44,31 @@ import numpy as np
 
 from chebfunjax.diskfun._rank_one import phase_two_rank_one
 from chebfunjax.diskfun._simplify import simplify_slice, slice_scale
+from chebfunjax.domain import _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
+from chebfunjax.utils._ordered_binary import binary
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
 from chebfunjax.utils.transforms import vals2coeffs
+
+
+def _disk_inverse_map(x, a, b):
+    """Native factor BNDFUN inverse map with individually rounded CPU ops.
+
+    @mapping/mapping.m linear.Inv evaluates two divisions, not multiplication
+    by a rounded reciprocal. Keep its six operations local to Diskfun; the
+    shared map also supports the existing host-array evaluation adapter.
+    """
+    x = jnp.asarray(x)
+    if x.dtype != jnp.float64:
+        return _linear_inverse_map(x, a, b)
+    a, b = jnp.asarray(a, dtype=x.dtype), jnp.asarray(b, dtype=x.dtype)
+    width = binary(b, a, 2)
+    left = binary(binary(x, a, 2), width, 3)
+    right = binary(binary(b, x, 2), width, 3)
+    return binary(left, right, 2)
+
 
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
@@ -1125,15 +1145,11 @@ class Diskfun(eqx.Module):
         theta = jnp.asarray(theta, dtype=jnp.float64)
         r = jnp.asarray(r, dtype=jnp.float64)
 
-        # Columns are Chebtech2 on [-1, 1] (the doubled r domain).
-        # The physical radius r is in [0, 1], which is already in the upper half of [-1, 1].
-        # So we evaluate the column directly at r (no further mapping needed):
-        # r in [0, 1] is passed to Chebtech2.__call__ which expects a value in [-1, 1].
-        r_ref = r  # r in [0, 1] subset of [-1, 1]
-
-        # Rows are Trigtech on [-1, 1] corresponding to theta in [-pi, pi].
-        # Map theta from [-pi, pi] to [-1, 1] for Trigtech evaluation.
-        th_ref = theta / jnp.pi
+        # Native constructor stores COLS as CHEBFUNs on [-1,1] and ROWS
+        # as trig CHEBFUNs on [-pi,pi]. separableApprox/feval evaluates both
+        # through bndfun/feval and its rounded linear inverse map.
+        r_ref = _disk_inverse_map(r, -1.0, 1.0)
+        th_ref = _disk_inverse_map(theta, -jnp.pi, jnp.pi)
 
         result = jnp.zeros_like(jnp.broadcast_arrays(theta, r)[0], dtype=jnp.float64)
         for j in range(len(self.cols)):

@@ -26,7 +26,7 @@ test = [
     "mpmath>=1.4.1,<2",
     "pytest>=7.0",
     "pytest-xdist",
-    "pytest-cov",
+    "pytest-cov>=7.1.0",
 ]
 dev = [
     "chebfunjax[test]",
@@ -53,6 +53,8 @@ markers = [
 
 [tool.coverage.run]
 source = ["chebfunjax"]
+# coverage >=7.10: ordinary Python workers contribute to aggregate source coverage.
+patch = ["subprocess"]
 
 [tool.coverage.report]
 # 79 (was 80): e7456fcd..8d8ef50b landed ~4,800 lines of operator /

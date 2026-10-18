@@ -187,10 +187,20 @@
       "scope": "Parent-reviewed coupled complex derivative towers and original full ThreePlanets CPU execution; not native chaotic trajectory/page/figure parity",
       "sha256": "d5c87b79b0b2b914619facf6217a75dda48559376f1a603b09a5b6b25e06df3b"
     },
+    "disk_factor_maps_cpu_20261017": {
+      "path": "docs/disk_factor_maps_cpu_20261017.json",
+      "scope": "Diskfun stored-factor inverse maps only; original disk32 remains failing",
+      "sha256": "d7138909d26a0bdbde26d6cc07916604784a14a19b5fd4afc6dc811c1d860d23"
+    },
     "disk_feval35_parent_cpu_20261018": {
       "path": "docs/disk_feval35_parent_cpu_20261018.json",
       "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open.",
       "sha256": "f93ba98f147621152d329a6a4fb38f3604e133d86265223228830e7d1e92a3f6"
+    },
+    "disk_unbounded_parent_cpu_20261018": {
+      "path": "docs/disk_unbounded_parent_cpu_20261018.json",
+      "scope": "Actual parent disk factor maps and corrected unbounded test adapters; C1 CI discrepancy diagnosis only",
+      "sha256": "69329f482a9d681c704edde029e021573533e7d0d28b9ba3c70a85564c06fbee"
     },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
@@ -251,6 +261,11 @@
       "path": "docs/hermite_derivative_order_cpu_20261017.json",
       "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion",
       "sha256": "8164e5f245a550bd70d36ba1b0eaeb6c53cee29384a6b9231c5c840dc78a5a8d"
+    },
+    "hermite_public_parent_cpu_20261018": {
+      "path": "docs/hermite_public_parent_cpu_20261018.json",
+      "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
+      "sha256": "7c43eaa8196c87e804c3d6d19ba99dc6c8bdcb6b630b3cb9d250bcbfc23b7912"
     },
     "interpolation_minimax_ci_cpu_20261017": {
       "path": "docs/interpolation_minimax_ci_cpu_20261017.json",
@@ -557,6 +572,11 @@
       "path": "docs/transient_growth_constructor_cpu_20261017.json",
       "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
       "sha256": "fab0b310cac505fb489edb466917434796fa8beec2c583a63f2730ffdcd2bfd9"
+    },
+    "unbounded_diff_query_adapter_cpu_20261018": {
+      "path": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
+      "scope": "Correct an incorrect legacy test port; no production library repair",
+      "sha256": "511321c085e43592ee0d207fe68aaa43aa204dbdecf3207d1d7fa99c167cecbe"
     }
   },
   "example_pages": [
@@ -75282,6 +75302,11 @@
             "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
           ],
           "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+        },
+        {
+          "artifact": "disk_unbounded_parent_cpu_20261018",
+          "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+          "scope": "Native factor-coordinate maps; strict32 and residualproviderword gap remain."
         }
       ],
       "functions": [
@@ -75297,6 +75322,11 @@
                 "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
               ],
               "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+            },
+            {
+              "artifact": "disk_unbounded_parent_cpu_20261018",
+              "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+              "scope": "Native factor-coordinate maps; strict32 and residualproviderword gap remain."
             }
           ],
           "implementation_status": "unverified",
@@ -95365,11 +95395,22 @@
           ],
           "kind": "source_order_cpu_regression",
           "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion"
+        },
+        {
+          "artifact": "hermite_public_parent_cpu_20261018",
+          "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+          "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open"
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "hermite_public_parent_cpu_20261018",
+              "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+              "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -122908,10 +122949,22 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/misc/test_hermpts_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "hermite_public_parent_cpu_20261018",
+          "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+          "scope": "Existing18ported Hermite controls pass on actual parent; all original assertions/API not yet audited."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "hermite_public_parent_cpu_20261018",
+              "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+              "scope": "Existing18ported Hermite controls pass on actual parent; all original assertions/API not yet audited."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -128903,11 +128956,22 @@
           ],
           "report": "docs/fft64_unbounded_parent_cpu_20261017.json",
           "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only"
+        },
+        {
+          "artifact": "disk_unbounded_parent_cpu_20261018",
+          "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+          "scope": "Original14default clauses pass through bothsource-correct adapters; endpointaccuracy unqualified."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_unbounded_parent_cpu_20261018",
+              "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
+              "scope": "Original14default clauses pass through bothsource-correct adapters; endpointaccuracy unqualified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",

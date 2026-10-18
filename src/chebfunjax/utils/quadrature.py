@@ -1607,7 +1607,9 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
 
     Explicit REC at n=2..20 preserves source seed behavior, including the
     n=3 concatenation error and inaccurate or nonfinite legacy results.
-    Explicit ASY at n=2..20 remains unsupported beyond n=0 and n=1.
+    Explicit small ASY preserves source complex results and source n3 failure.
+    It uses eager Python orchestration over JAX kernels; whole-call JIT and
+    differentiation for this small ASY route remain unqualified.
 
     Provenance
     ----------
@@ -1684,13 +1686,25 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
     asy_route = n > 1 and (method == 'asy' or (method == 'default' and n >= 200))
     if asy_route:
         from chebfunjax.utils._gradual import gradual_positive_multiply
-        w = gradual_positive_multiply(w, jnp.sqrt(jnp.pi) / jnp.sum(w))
+        if jnp.iscomplexobj(w):
+            from chebfunjax.utils._source_complex import eager_binary
+            factor = eager_binary(jnp.sqrt(jnp.pi), jnp.sum(w), 3)
+            w = eager_binary(factor, w, 0)
+        else:
+            w = gradual_positive_multiply(w, jnp.sqrt(jnp.pi) / jnp.sum(w))
     else:
         w = (jnp.sqrt(jnp.pi) / jnp.sum(w)) * w
     if kind == 'prob':
-        x = x * jnp.sqrt(2.0)
+        if asy_route and jnp.iscomplexobj(x):
+            from chebfunjax.utils._source_complex import eager_binary
+            x = eager_binary(x, jnp.sqrt(2.0), 0)
+        else:
+            x = x * jnp.sqrt(2.0)
         if asy_route:
-            w = gradual_positive_multiply(w, jnp.sqrt(2.0))
+            if jnp.iscomplexobj(w):
+                w = eager_binary(w, jnp.sqrt(2.0), 0)
+            else:
+                w = gradual_positive_multiply(w, jnp.sqrt(2.0))
         else:
             w = w * jnp.sqrt(2.0)
     return (x, w, v) if bary else (x, w)

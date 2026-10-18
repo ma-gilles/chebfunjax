@@ -1,3 +1,23 @@
+# Public small Hermite, disk maps and original query adapters — 2026-10-18
+
+Explicit small Hermite ASY now uses the source-derived pure-JAX trajectory.
+Full public30-test file passes all18valid small orders at original bounds and
+native finite storage; n3 source error retained. Actual parent47checks pass,
+including cold publicn2 with cache disabled and real child coverage/merge proof.
+Small whole-call JIT/AD and performance parity remain open. All1092old owners
+retained; disk file appendsCore7, Hermitefile dedicatedCore12;79%gate unchanged.
+Disk maps now follow native six-operation factor maps;19new+17existing+original31
+parent checks pass. Strict original32 remains failing; residual1ULP functional
+word difference retained. Legacy unbounded ports now use actual original seed
+queries and exponents: both14-clause adapters pass; endpoint accuracy is not
+repaired. Combined112distinct parent checks pass across separate owned stages.
+Evidence: docs/hermite_public_parent_cpu_20261018.json and
+ docs/disk_unbounded_parent_cpu_20261018.json.
+
+CI251 completed with known failures plus C1 spectrum3.8022e-9>1e-9; current
+local6.9063e-10 pass does not repair CI. All APIs/pages/figures/matched speed and
+latest-main green CI/coverage remain required. No overall completion claim.
+
 # Disk Cartesian semantics and original FEVAL coverage — 2026-10-18
 
 Disk Chebfun composition now uses source Cartesian constructor/evaluation

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Stable twelve-lane ownership; original Core7 split after four complete12-selector processes following observed90minute timeout. Other lanes unchanged.",
+  "scope": "Thirteen lanes: all 1092 prior owners retained; disk source controls append to Core7, and dedicated Core12 owns the fresh-worker Hermite file.",
   "groups": [
     [
       "tests/test_active_set_box_qp_source.py",
@@ -764,7 +764,8 @@
       "tests/test_coupled_highorder_native_ivp_source.py",
       "tests/test_utils/test_c2r_radix2_source.py",
       "tests/test_utils/test_bary_native_node_loop.py",
-      "tests/test_tech/test_nonfinite_native_transform_stages.py"
+      "tests/test_tech/test_nonfinite_native_transform_stages.py",
+      "tests/test_disk_source_maps.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",
@@ -1117,9 +1118,12 @@
       "tests/test_utils/test_trigbary_weight_stability.py",
       "tests/test_utils/test_trigratinterp_outputs_source_contract.py",
       "tests/test_vertcat_warning_source.py"
+    ],
+    [
+      "tests/test_utils/test_hermite_small_asy_source.py"
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "de1218ed2c36dc4b31b0dc999c74fe67f408d93d",
-  "update_scope": "Ownership only; includes current working-tree inventory."
+  "last_update_parent": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
+  "update_scope": "Ownership only; dedicated Hermite lane and disk source-map test file."
 }

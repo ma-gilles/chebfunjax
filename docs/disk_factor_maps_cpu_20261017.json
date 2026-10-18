@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "scope": "Diskfun stored-factor inverse maps only; original disk32 remains failing",
+  "base": "61c3638656ec7655ecb730bd93bafb600b377844 plus frozen Cartesian two-fix patch",
+  "parent_two_fix_archive_sha256": "1fe4ac8db5e06fc306bee866e3a3932f0f8c297ef392a732f271205be880596b",
+  "baseline_source_sha256": "8103d5bbbcbd6768538a46a2c05ee913a17ee8044abf781d73ef8c58e586a631",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "src/chebfunjax/diskfun/diskfun.py",
+    "tests/test_disk_source_maps.py",
+    "tests/fixtures/disk_source_map_native.npz",
+    "tests/fixtures/disk_source_map_native.json",
+    "docs/disk_factor_maps_cpu_20261017.json"
+  ],
+  "source_mechanism": {
+    "chain": [
+      "@diskfun/constructor.m151-152,227-228: COLS are Chebfuns on[-1,1], ROWS trig Chebfuns on[-pi,pi]",
+      "@separableApprox/feval.m evaluates both stored factors as Chebfuns",
+      "@classicfun/classicfun.m finite domains select bndfun for both factors, including trigtech",
+      "@bndfun/feval.m applies mapping.Inv before tech FEVAL",
+      "@mapping/mapping.m linear.Inv is(x-a)/(b-a)-(b-x)/(b-a)"
+    ],
+    "observed_native_factor_classes": [
+      "bndfun",
+      "bndfun"
+    ],
+    "previous_python": "Direct Tech evaluations at r andtheta/pi bypassed both source-rounded maps",
+    "change": "Local JAX float64 helper uses existing ordered_binary for the same six source operations. Other dtypes retain existing shared map fallback; shared mapping, Tech evaluators, constructor sampling, factor storage, pivot/product/reduction and trim are unchanged."
+  },
+  "compiler_diagnosis": {
+    "ordinary_map": "Optimized HLO replaces both angular divisions with multiplication by rounded reciprocal0.15915494309189535",
+    "rejected_opaque_endpoints": "Endpoint/output optimization barriers do not repair648/1032angular map-word differences or227/1032function-word differences against ordinary eager route",
+    "oracle_correction": "Ordinary eager JAX is itself1ULP wrong for one retained right division. Exact Fraction(float) reference and actual native mapping agree with ordered operations; preserve all failed branches and scalar evidence.",
+    "final_library_ir": "final_library_map_optimized_hlo.txt retains divide instructions under the actual final helper",
+    "limits": "No new provider/global primitive route or universal backend word-equality/performance claim."
+  },
+  "native_scope": {
+    "process": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 81.38098432868719,
+      "sampled_peak_summed_rss_kib": 1315404,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/native/receipt.json"
+    },
+    "same_native_factor_words": true,
+    "states": [
+      "Original composition callbackstage0(4points)",
+      "Original composition callbackstage22(1032points)",
+      "9independent Cartesian-derived origin/boundary/tiny probes",
+      "8independent finite/signedzero/NaN/Inf map probes"
+    ],
+    "map_agreement": "2100finite map words match across both source domains; nonfinite masks match. Actual native mapping.Inv and separately captured six-operation intermediates agree.",
+    "function_agreement": "Both selected native-stage function vectors match word-for-word eager/JIT; independent9point function has1/9word different by1ULP (~5.55e-17), retained as unresolved trig/provider rounding. Native actual tiny function value is0 and is now reproduced.",
+    "limits": "No unmodified original31/32 rerun in this new process; prior two-fix native capture remains bound and copied. No full native Diskfun/FEVAL API qualification."
+  },
+  "final_test_scope": {
+    "new_controls": "19PASS5.96s: actual factor-map queries; two retained native stages eager/JIT; independent origin/boundary/tiny function at source vector norm2 bound1000*cheb2eps; exact native map words/nonfinite masks; first/second JVP; float32/complex private fallback",
+    "same_final_test_bytes_baseline": "17FAIL2PASS4.14s:6public factor-query/stage-word failures and11missing-new-private-helper controls; two source-bound independent function predicates already pass. This is not19repaired original MATLAB failures.",
+    "preserved_extra_acceptance_failure": "Initially authored independent function raw-word requirement failed1/9word eager/JIT. Raw test/fixture/receipt preserved; final functional control uses native test_feval vector norm2 and exact1000*cheb2eps. Exact map-word checks and all originalbounds remain unchanged.",
+    "existing": "17PASS52.95s at unchanged compose/FEVAL/constructor/storage bounds",
+    "original31": "PASS",
+    "original32": {
+      "status": "FAIL unchanged",
+      "norm": 3.912300188344396e-16,
+      "strict_bound": 2.220446049250313e-16,
+      "no_test_change": true
+    }
+  },
+  "gates": {
+    "final_reference_baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 7.236397230066359,
+      "sampled_peak_summed_rss_kib": 729416,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/final_reference_baseline/receipt.json"
+    },
+    "final_candidate": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.275733614340425,
+      "sampled_peak_summed_rss_kib": 800428,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/final_candidate/receipt.json"
+    },
+    "original": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 46.28842912288383,
+      "sampled_peak_summed_rss_kib": 2145360,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/original/receipt.json"
+    },
+    "existing": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 58.98240111814812,
+      "sampled_peak_summed_rss_kib": 2555620,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/existing/receipt.json"
+    },
+    "final_ir": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 3.070389070082456,
+      "sampled_peak_summed_rss_kib": 483436,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/final_ir/receipt.json"
+    }
+  },
+  "artifacts": {
+    "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_factor_maps_package_20261017.tar.gz",
+    "historical_guard_reconciliation": "historical_guard_reconciliation.json",
+    "source_snapshot": "source_snapshot includes every final library .py, pyproject and selected tests/fixtures/conftests",
+    "native_source_snapshot": "Targeted native constructor/evaluator/map source; complete native m source externally hash-bound by native_guard.json",
+    "external_environment": "Pinned CPU environment and runtime versions/origin asserted in qualification drivers; external packages are not all copied/import-guarded."
+  },
+  "remaining": "Original32G coefficient/provider differences and residual trig rounding remain open; full Diskfun APIs, JAX closure, performance, original-file coverage and latest CI are not promoted."
+}

@@ -1,0 +1,140 @@
+{
+  "actual_child_coverage": {
+    "child_databases_merged": [
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_parent_public_gate_20261018/cold_n2_001_aux/.coverage.public.della-mol_princeton_edu.pid3443260.XHtiGjvx.Hbg7YxzaTCrh"
+    ],
+    "merged_file_sha256": "76f4a95b65f83fb272efb145915e15580a2958812ec2ae62f705b6808aa3951f",
+    "numerical_body_modules": [
+      "_hermite_asy_small.py",
+      "_amos_airy.py",
+      "_source_complex.py",
+      "_source_binary.py"
+    ],
+    "parent_pid": 3443246,
+    "scope": "Actual child-PID database write and exact parent merge plus AST function-body line hits; aggregate79% not evaluated by one-node gate.",
+    "worker_pid": 3443260
+  },
+  "actual_parent": {
+    "child_coverage_proof": "CHILD_COVERAGE_PROOF.json",
+    "guard_unchanged": true,
+    "infra_archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_parent_ci_infra_review_20261018.tar.gz",
+      "sha256": "03d5acfaa08489fe751ecada2c2cecc30d31673afdc1608fc0f95371e09eded8"
+    },
+    "limitations": [
+      "No full30 rerun solely for infra changes; prior immutable full30 public source gate retained.",
+      "Small ASY whole-call JIT/AD unsupported/unqualified. Large legacy JIT retained.",
+      "Nonfinite native storage classification outside qualified finite domain.",
+      "No GPU, performance or memory parity qualification.",
+      "One-node coverage proves child collection/merge; unchanged79% gate remains aggregate CI."
+    ],
+    "limits": {
+      "aggregate_wall_seconds": 1200,
+      "cpu_affinity": [
+        32,
+        33,
+        34,
+        35
+      ],
+      "pytest_per_test_seconds": 900,
+      "rss_mib": 6144
+    },
+    "science_archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_public_integration_review_20261018.tar.gz",
+      "sha256": "6ce2d8a1ff55e7823d10f86603b7a399fd59cac6ccdf96ff74520f4b204b5cd1"
+    },
+    "scope": "Exact frozen parent Q; public coldn2 cache disabled; original18 plus large lazyJIT and final n0/1 assertions; CI topology protocol",
+    "source_files_guarded": 3453,
+    "stages": [
+      {
+        "passed": 1,
+        "sampled_peak_summed_rss_kib": 2932528,
+        "stage": "cold_n2_001",
+        "wall_seconds": 140.87133287172765
+      },
+      {
+        "passed": 23,
+        "sampled_peak_summed_rss_kib": 1223952,
+        "stage": "legacy_trivial_002",
+        "wall_seconds": 28.24831693759188
+      },
+      {
+        "passed": 23,
+        "sampled_peak_summed_rss_kib": 129388,
+        "stage": "protocol_003",
+        "wall_seconds": 3.2816134430468082
+      }
+    ],
+    "status": "PASS",
+    "total_owned_stage_seconds": 172.40126325236633,
+    "total_tests": 47
+  },
+  "archives": {
+    "parent": {
+      "hermite_parent_ci_infra_review_20261018": {
+        "archive_sha256": "03d5acfaa08489fe751ecada2c2cecc30d31673afdc1608fc0f95371e09eded8",
+        "payloads": 6,
+        "verified": true
+      },
+      "hermite_parent_public_gate_review_20261018": {
+        "archive_sha256": "f98fc7139c30329c4274a2b67c8cf73e3963ba95fcb2498cc3f25663ee7ccf20",
+        "payloads": 3573,
+        "verified": true
+      }
+    },
+    "science": {
+      "disk_factor_maps_package_20261017": {
+        "archive_sha256": "02a36c730d131f5012c584c615dd074d29bb120b604ab38c17a5f04b1361c97f",
+        "manifest_verified": true,
+        "payloads": 576
+      },
+      "hermite_public_integration_review_20261018": {
+        "archive_sha256": "6ce2d8a1ff55e7823d10f86603b7a399fd59cac6ccdf96ff74520f4b204b5cd1",
+        "manifest_verified": true,
+        "payloads": 112
+      },
+      "hermite_public_storage_review_20261017": {
+        "archive_sha256": "86a6993d1ec1bd7c6797318085ea0beb0afbef3c2c0f85f2a5be58383f317e30",
+        "manifest_verified": true,
+        "payloads": 37
+      },
+      "hermite_segmented_all18_source_checkpoint_20261017": {
+        "archive_sha256": "28f09aff2ea33c40ff32e4b1dc95ada177887095fa2dda7c883d6c4d28a79380",
+        "manifest_verified": true,
+        "payloads": 382
+      }
+    }
+  },
+  "base": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
+  "limits": [
+    "Small whole-call JIT/AD unsupported/unqualified; large retained lazy-JIT control passes.",
+    "Only finite native storage classification qualified; nonfinite storage remains unqualified.",
+    "No GPU work or GPU parity claim; CPU-only goal.",
+    "No performance/memory parity claim; cold small order still costs~135s worker/~2.80GiB ownedpeak.",
+    "Whole hermpts API/original assertions, latest-main green CI and coverage>=79% remain required.",
+    "Checkmark, all322final pages and1305scientific figures, complex poles/denseChebfun3T and C1CI spectrum discrepancy remain unresolved."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "All1092old owners retain exact lane/position/process prefixes; disk file appendsCore7, Hermitefile dedicatedCore12,1094totalselectors across13lanes. Future generic additions exclude dedicatedlane. Existing79%gate unchanged.",
+  "preserved_failures": [
+    "Earlier outer-JIT TracerBoolConversionError and source component wall/RSS censors preserved in sealed historical archives.",
+    "Parent prelaunch pinned-supervisor Python lacked pidfd; no scientific child launched. /usr/bin/python3 supervisor corrected, pinned scientific Python unchanged."
+  ],
+  "scientific_qualification": {
+    "cache_policy": "Repo-owned initially empty ordinary JAX executable cache for full-file workers; no numerical output caching. Actual cold publicn2 separately verified with caching disabled and zeroentries before/after.",
+    "full_public_file": "30PASS951.53s pytest/958.63s owned,4558008KiB,stable/uncensored/no survivors;30fresh ordinary workers,81public calls,210raw components",
+    "largest_errors": {
+      "v": 3.3306690738754696e-16,
+      "w": 2.220446049250313e-16,
+      "x": 8.881784197001252e-16
+    },
+    "orders": "All18valid explicit small orders2,4..20 meet unchanged original complex-modulus bounds and native finite storage; selected phys/prob and bary/nonbary variants.",
+    "test_snapshot_bridge": "Final3stronger dtype/byte assertions are the only post-full-run changes; AST bridge plus210retained raw records and actual cheap n0/1 executions establish them."
+  },
+  "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
+  "source_mechanism": [
+    "Static-n ordinary dispatch wrapper routes small orders to pure-JAX source-derived AMOS/Airy/ordered real and complex arithmetic; retained large-order JIT is unchanged.",
+    "Small source Python adaptive trajectory is outside whole-call JIT. Native complex storage for n2/4/6 and exact finite zero-imaginary real projection retained; no per-order output table/runtime oracle/provider replacement.",
+    "Default GW and n0/1 behavior retained; explicit ASY n3 retains the native concatenation error. Complex normalization uses source operation order."
+  ]
+}

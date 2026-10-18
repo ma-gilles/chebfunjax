@@ -13,7 +13,9 @@ import sys
 from pathlib import Path
 
 BASE_PARTS = 8
-PARTS = 12
+PARTS = 13
+HERMITE_PART = 12
+HERMITE_SELECTION = "tests/test_utils/test_hermite_small_asy_source.py"
 BATCH_SIZE = 12
 SPLIT_PARTS = (6, 1, 2, 7)
 SPLIT_AFTER_BATCHES = 4
@@ -64,6 +66,8 @@ def partition(files):
     if (baseline.get('schema_version') != 1 or len(groups) != PARTS
             or not all(isinstance(group, list) and group for group in groups)):
         raise ValueError('invalid core ownership baseline schema')
+    if groups[HERMITE_PART] != [HERMITE_SELECTION]:
+        raise ValueError("invalid dedicated Hermite ownership baseline")
     anchors = [name for group in groups for name in group]
     if (not all(isinstance(name, str) and name.startswith('tests/')
                 for name in anchors) or len(anchors) != len(set(anchors))):
@@ -71,7 +75,8 @@ def partition(files):
     present = set(files)
     groups = [[name for name in group if name in present] for group in groups]
     for name in sorted(present - set(anchors)):
-        owner = min(range(PARTS), key=lambda part: (len(groups[part]), part))
+        # Reserve the measured Hermite lane for its fresh-worker file.
+        owner = min(range(HERMITE_PART), key=lambda part: (len(groups[part]), part))
         groups[owner].append(name)
     flat = [name for group in groups for name in group]
     if not all(groups) or len(flat) != len(set(flat)) or sorted(flat) != files:

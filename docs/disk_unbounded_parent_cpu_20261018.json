@@ -1,0 +1,119 @@
+{
+  "scope": "Actual parent disk factor maps and corrected unbounded test adapters; C1 CI discrepancy diagnosis only",
+  "base": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "disk": {
+    "result": "37PASS63.07s:19new source-map controls,17existing disk regressions and original31",
+    "child_report": "docs/disk_factor_maps_cpu_20261017.json",
+    "child_archive_sha256": "02a36c730d131f5012c584c615dd074d29bb120b604ab38c17a5f04b1361c97f",
+    "limits": [
+      "Original32 remains failing unchanged at3.912300188344396e-16>eps; not rerun or masked in passing parent cohort.",
+      "One of9independent function words differs1ULP; native original vector norm2 bound is retained. Exact2100finite map-word checks remain strict.",
+      "Full disk API, provider-word equality, JAX closure and performance unqualified."
+    ]
+  },
+  "unbounded": {
+    "result": "28PASS45.38s:14original numerical clauses through two adapters, not28nativeclauses",
+    "child_report": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
+    "child_archive_sha256": "d16be88d0dfca8b60619841e68efe5bfbda2d25dcbdc1cccc3f36b53cc2043d5",
+    "limits": [
+      "Correcting test queries/exponents does not fix or qualify endpoint accuracy; actual old2counterexamples preserved in immutable archive.",
+      "Native left query vector is distant enough that exponential values underflow; weak endpoint coverage is explicit.",
+      "Historical endpoint native observation had zero active hashguard entries, not strong new native proof. No fresh native run claimed."
+    ]
+  },
+  "c1_diagnostic": {
+    "result": {
+      "seen": [
+        [
+          "chebcolloc1",
+          [
+            32
+          ]
+        ],
+        [
+          "chebcolloc1",
+          [
+            32
+          ]
+        ],
+        [
+          "chebcolloc1",
+          [
+            64
+          ]
+        ]
+      ],
+      "values_real": [
+        -22.206609903141686,
+        -9.869604401006894,
+        -2.4674011001376286
+      ],
+      "values_imag": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "errors": [
+        1.347109090943377e-10,
+        8.246381355547783e-11,
+        6.906297755904234e-10
+      ],
+      "max_error": 6.906297755904234e-10,
+      "native_test_bound": 1e-09,
+      "source_test_bound_pass": true,
+      "jax": "0.11.0",
+      "jaxlib": "0.11.0",
+      "platform": "[CpuDevice(id=0)]",
+      "affinity": [
+        40,
+        41,
+        42,
+        43
+      ]
+    },
+    "limits": [
+      "CI251failure3.802206549607945e-9>1e-9 remains unresolved; local maximum6.906297755904234e-10 passing does not repair CI.",
+      "Diagnostic raw key native_test_bound refers to authored analytic regression bound, not literal original native predicate. No test/library change."
+    ]
+  },
+  "receipts": {
+    "disk_factor_maps_parent_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 70.10137816611677,
+      "sampled_peak_summed_rss_kib": 2844356,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_adapter_parent_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 49.608460701070726,
+      "sampled_peak_summed_rss_kib": 2165296,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "c1_ci_spectrum_diagnostic_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 25.847097646910697,
+      "sampled_peak_summed_rss_kib": 1596552,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_unbounded_parent_cpu_20261018.tar.gz",
+    "sha256": "c9ed32f707d3bc46cc1b54c080acffe89936cf3346253346a1319ee04b81b22c",
+    "verified_payloads": 1173,
+    "input_snapshots": "Every guarded input archived at exact pre/post run hash; disk pyproject historical bytes recovered from b15 and explicitly bridged."
+  },
+  "limits": [
+    "No whole-item parity status changes. Broader tests/APIs/JAX, all322pages/1305figures, CPU speed and latest-main CI/coverage remain open.",
+    "Hermite parent coverage/protocol qualification is separate and not claimed by this archive."
+  ]
+}

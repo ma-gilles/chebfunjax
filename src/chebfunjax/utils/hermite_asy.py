@@ -1,6 +1,7 @@
 """Asymptotic Newton Gauss--Hermite nodes from Chebfun's ``hermpts``.
 
-This module implements the MATLAB ASY path for ``n >= 21``. Method selection
+This module implements the MATLAB ASY path, including the source complex
+continuation for explicit small-order ASY calls. Source n3 seed failure remains. Method selection
 and probabilists' rescaling belong to the public quadrature wrapper.
 
 Provenance
@@ -50,7 +51,7 @@ def _hermite_asy_value_derivative(n: int, theta: jax.Array):
     sin_t = jnp.sin(theta)
     sin_2t = 2.0 * cos_t * sin_t
     eta = 0.5 * theta - 0.25 * sin_2t
-    chi = -(3.0 * eta / 2.0) ** (2.0 / 3.0)
+    chi = -((3.0 * eta / 2.0) ** (2.0 / 3.0))
     phi = (-chi / sin_t**2) ** 0.25
     ai, aip = _airy_negative(musq ** (2.0 / 3.0) * chi)
     ai = jnp.real(ai)
@@ -69,21 +70,19 @@ def _hermite_asy_value_derivative(n: int, theta: jax.Array):
     u1 = (cos_t**3 - 6.0 * cos_t) / 24.0
     u2 = (-9.0 * cos_t**4 + 249.0 * cos_t**2 + 145.0) / 1152.0
     u3 = (
-        -4042.0 * cos_t**9 + 18189.0 * cos_t**7
-        - 28287.0 * cos_t**5 - 151995.0 * cos_t**3
+        -4042.0 * cos_t**9
+        + 18189.0 * cos_t**7
+        - 28287.0 * cos_t**5
+        - 151995.0 * cos_t**3
         - 259290.0 * cos_t
     ) / 414720.0
 
     val = ai
     b0_term = -(a0 * phi**6 * u1 + a1 * u0) / chi**2
     val = val + b0_term * aip / musq ** (4.0 / 3.0)
-    a1_term = (
-        b0 * phi**12 * u2 + b1 * phi**6 * u1 + b2 * u0
-    ) / chi**3
+    a1_term = (b0 * phi**12 * u2 + b1 * phi**6 * u1 + b2 * u0) / chi**3
     val = val + a1_term * ai / musq**2
-    b1_term = -(
-        phi**18 * u3 + a1 * phi**12 * u2 + a2 * phi**6 * u1 + a3 * u0
-    ) / chi**5
+    b1_term = -(phi**18 * u3 + a1 * phi**12 * u2 + a2 * phi**6 * u1 + a3 * u0) / chi**5
     val = val + b1_term * aip / musq ** (4.0 / 3.0 + 2.0)
     val = 2.0 * jnp.sqrt(jnp.pi) * musq ** (1.0 / 6.0) * phi * val
 
@@ -91,21 +90,19 @@ def _hermite_asy_value_derivative(n: int, theta: jax.Array):
     v1 = (cos_t**3 + 6.0 * cos_t) / 24.0
     v2 = (15.0 * cos_t**4 - 327.0 * cos_t**2 - 143.0) / 1152.0
     v3 = (
-        259290.0 * cos_t + 238425.0 * cos_t**3
-        - 36387.0 * cos_t**5 + 18189.0 * cos_t**7
+        259290.0 * cos_t
+        + 238425.0 * cos_t**3
+        - 36387.0 * cos_t**5
+        + 18189.0 * cos_t**7
         - 4042.0 * cos_t**9
     ) / 414720.0
 
     c0 = -(b0 * phi**6 * v1 + b1 * v0) / chi
     dval = c0 * ai / musq ** (2.0 / 3.0)
     dval = dval + a0 * v0 * aip
-    c1 = -(
-        phi**18 * v3 + b1 * phi**12 * v2 + b2 * phi**6 * v1 + b3 * v0
-    ) / chi**4
+    c1 = -(phi**18 * v3 + b1 * phi**12 * v2 + b2 * phi**6 * v1 + b3 * v0) / chi**4
     dval = dval + c1 * ai / musq ** (2.0 / 3.0 + 2.0)
-    d1 = (
-        a0 * phi**12 * v2 + a1 * phi**6 * v1 + a2 * v0
-    ) / chi**3
+    d1 = (a0 * phi**12 * v2 + a1 * phi**6 * v1 + a2 * v0) / chi**3
     dval = dval + d1 * aip / musq**2
     derivative_scale = jnp.sqrt(2.0 * jnp.pi) * musq ** (1.0 / 3.0) / phi
     dval = derivative_scale * dval
@@ -113,7 +110,7 @@ def _hermite_asy_value_derivative(n: int, theta: jax.Array):
 
 
 @partial(jax.jit, static_argnames=("n",))
-def _hermpts_asy(n: int):
+def _hermpts_asy_large(n: int):
     """Return ASY physicists' Hermite nodes, weights, and barycentric weights.
 
     The positive-half roots are initialized by the same Airy/Tricomi blend
@@ -123,7 +120,8 @@ def _hermpts_asy(n: int):
     Parameters
     ----------
     n : int
-        Number of nodes; this ASY implementation requires ``n >= 21``.
+        Number of nodes. Small explicit ASY retains native complex results
+        and the original n3 seed-layout error.
 
     Returns
     -------
@@ -137,7 +135,7 @@ def _hermpts_asy(n: int):
     Chebfun commit: 7574c77
     """
     if n < 21:
-        raise ValueError("hermpts_asy: ASY is supported for n >= 21")
+        raise ValueError("hermpts_asy: large ASY requires n >= 21")
 
     x0 = _initial_guesses(n)
     musq = jnp.asarray(2 * n + 1, dtype=jnp.float64)
@@ -158,9 +156,7 @@ def _hermpts_asy(n: int):
     def newton_step(state):
         count, theta, _converged, _val, _dval = state
         val, dval = _hermite_asy_value_derivative(n, theta)
-        dt = -val / (
-            jnp.sqrt(2.0) * jnp.sqrt(musq) * dval * jnp.sin(theta)
-        )
+        dt = -val / (jnp.sqrt(2.0) * jnp.sqrt(musq) * dval * jnp.sin(theta))
         theta = theta - dt
         converged = jnp.max(jnp.abs(dt)) < threshold
         return count + 1, theta, converged, val, dval
@@ -184,3 +180,19 @@ def _hermpts_asy(n: int):
     w = gradual_positive_multiply(w, jnp.sqrt(jnp.pi) / jnp.sum(w))
     v = source_barycentric_normalize(v)
     return x, w, v
+
+
+def _hermpts_asy(n: int):
+    """Dispatch static order outside the existing large-order JIT.
+
+    Small source ASY uses ordinary Python iteration over JAX components.
+    Its whole-call JIT/AD behavior remains unsupported/unqualified; large
+    orders retain the existing jitted kernel and operation order.
+    """
+    if 2 <= n < 21:
+        from ._hermite_asy_small import _hermpts_asy_small
+
+        return _hermpts_asy_small(n)
+    if n < 21:
+        raise ValueError("hermpts_asy: ASY requires n >= 2")
+    return _hermpts_asy_large(n)

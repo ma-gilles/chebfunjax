@@ -1,5 +1,9 @@
 """Port of MATLAB Chebfun tests/unbndfun/test_diff.m (Opus 4.8).
 
+Queries are the three exact captured seedRNG(6178) native vectors. The former
+linspace endpoint counterexamples remain in the scoped adapter evidence;
+restoring the source queries does not repair or qualify endpoint accuracy.
+
 Self-validating: derivatives are checked against the analytic exact at the
 SAME tolerances MATLAB uses.  The later ``pass(k)`` in test_diff.m are in fact
 plain ``feval`` checks (they construct ``f`` and evaluate it, never calling
@@ -13,6 +17,8 @@ Chebfun commit: 7574c77
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import jax.numpy as jnp
 import numpy as np
 
@@ -23,8 +29,8 @@ EPS = float(np.finfo(np.float64).eps)
 INF = np.inf
 
 
-def _U(op, dom):
-    return Unbndfun.from_function(op, Domain(dom))
+def _U(op, dom, *, exps=None):
+    return Unbndfun.from_function(op, Domain(dom), exps=exps)
 
 
 def _ninf(a):
@@ -32,7 +38,11 @@ def _ninf(a):
 
 
 def _pts(dc):
-    return jnp.asarray(np.linspace(dc[0], dc[1], 100))
+    # test_diff.m shares one draw per domain block, in this exact order.
+    key = {(-1e2, 1e2): "x_both", (1, 1e2): "x_right",
+           (-1e6, -3 * np.pi): "x_left"}[tuple(dc)]
+    with np.load(Path(__file__).with_name("test_diff_native_rng_20261017.npz")) as fixture:
+        return jnp.asarray(fixture[key]).reshape((-1,))
 
 
 class TestUnbndfunDiff:
@@ -59,7 +69,8 @@ class TestUnbndfunDiff:
         assert _ninf(g(x) - gexact) < 1e2 * EPS * g.vscale
 
     def test_first_derivative_blowup(self):
-        f = _U(lambda x: x ** 2 * (1 - jnp.exp(-x ** 2)), (-INF, INF))
+        f = _U(lambda x: x ** 2 * (1 - jnp.exp(-x ** 2)), (-INF, INF),
+               exps=(2.0, 2.0))
         g = f.diff()
         x = _pts((-1e2, 1e2))
         gexact = 2 * x ** 3 * jnp.exp(-x ** 2) - 2 * x * (jnp.exp(-x ** 2) - 1)
@@ -92,7 +103,7 @@ class TestUnbndfunDiff:
 
     def test_feval_blowup_right_inf(self):
         op = lambda x: x * (5 + jnp.exp(-x ** 3))
-        f = _U(op, (1.0, INF))
+        f = _U(op, (1.0, INF), exps=(0.0, 1.0))
         x = _pts((1, 1e2))
         assert _ninf(f(x) - op(x)) < 1e2 * EPS * f.vscale
 
@@ -122,13 +133,11 @@ class TestUnbndfunDiff:
         assert _ninf(f(x) - op(x)) < EPS * f.vscale
 
     def test_feval_blowup_left_inf(self):
-        # MATLAB pass(14): exponents [0 -1] (pole at the finite right
-        # endpoint), sampled at interior points — MATLAB draws uniform
-        # random x in [-1e6, b), which excludes the pole itself; a
-        # linspace ENDING at b would evaluate 0*inf there.
+        # MATLAB pass(14) shares the same third native random vector as10-13.
+        # Explicit exponents[0,-1] describe the finite-endpoint pole.
         b = -3 * np.pi
         op = lambda x: x * (5 + jnp.exp(x ** 3)) / (b - x)
         f = Unbndfun.from_function(
             op, Domain((-INF, b)), exps=(0.0, -1.0))
-        x = jnp.asarray(np.linspace(-1e6, b, 100, endpoint=False))
+        x = _pts((-1e6, b))
         assert _ninf(f(x) - op(x)) < 1e1 * EPS * f.vscale

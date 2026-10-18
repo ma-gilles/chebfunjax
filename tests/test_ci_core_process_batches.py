@@ -157,7 +157,7 @@ def test_recorded_ownership_preserves_lanes_and_complete_processes():
     selections = sorted(name for group in baseline['groups'] for name in group)
     groups = core.partition(selections)
     assert groups == baseline['groups']
-    assert len(groups) == core.PARTS == core.BASE_PARTS+4
+    assert len(groups) == core.PARTS == core.BASE_PARTS+5
     for group in groups:
         batches = core.batches(group)
         assert [name for batch in batches for name in batch] == group
@@ -206,6 +206,7 @@ def test_new_core_selection_preserves_measured_lane_prefixes():
     after = core.partition(sorted(selections + [added]))
     for old, new in zip(before, after):
         assert new[:len(old)] == old
+    assert after[core.HERMITE_PART] == [core.HERMITE_SELECTION]
     assert sorted(name for group in after for name in group) == sorted(selections + [added])
     # The actual next root-control file must leave every anchor in its lane.
     actual_added = 'tests/test_chebfun1d/test_get_roots_for_breaks_source.py'
@@ -234,9 +235,10 @@ def test_core_baseline_covers_current_inventory():
         'and review/stage core_shard_baseline.json with the tests.')
 
 
-def test_aggregate_requires_new_core7_tail_manifest(tmp_path, monkeypatch):
+@pytest.mark.parametrize("missing_part", [11, 12])
+def test_aggregate_requires_new_core7_tail_manifest(tmp_path, monkeypatch, missing_part):
     monkeypatch.setenv('GITHUB_SHA', 'a'*40)
-    for part in range(core.PARTS-1):
+    for part in range(missing_part):
         (tmp_path/f'core-manifest-{part}.json').write_text('{}')
     checked = []
     monkeypatch.setattr(core, 'validate_manifest', lambda manifest, part, *args: checked.append(part))
@@ -246,6 +248,18 @@ def test_aggregate_requires_new_core7_tail_manifest(tmp_path, monkeypatch):
         pytest.fail('Coverage combined before the new Core7 tail was present')
 
     monkeypatch.setattr(core.subprocess, 'run', forbidden)
-    with pytest.raises(FileNotFoundError, match='core-manifest-11.json'):
+    with pytest.raises(FileNotFoundError, match=f'core-manifest-{missing_part}.json'):
         core.main()
-    assert checked == list(range(core.PARTS-1))
+    assert checked == list(range(missing_part))
+
+
+def test_original_1092_core_owners_keep_exact_lanes_and_positions():
+    import hashlib
+
+    groups = json.loads(core.BASELINE_FILE.read_text())["groups"]
+    counts = [134, 53, 53, 135, 134, 134, 53, 52, 86, 86, 86, 86]
+    original = [group[:count] for group, count in zip(groups, counts)]
+    payload = json.dumps(original, separators=(",", ":")).encode()
+    assert sum(counts) == 1092
+    assert hashlib.sha256(payload).hexdigest() == "106d71bbbca6963e65525dedc500cf1ccfb9b14b3b32dba91bae6fd4d10ab354"
+    assert groups[core.HERMITE_PART] == [core.HERMITE_SELECTION]

@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "scope": "Correct an incorrect legacy test port; no production library repair",
+  "base": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "tests/test_matlab_port/unbndfun/test_diff_matlab.py",
+    "tests/test_matlab_port/unbndfun/test_diff_original_source.py",
+    "docs/unbounded_diff_query_adapter_cpu_20261018.json"
+  ],
+  "source_corrections": [
+    "Replace endpoint linspace helper with actual three successive seedRNG6178 rand100x1 vectors already captured in the pinned fixture",
+    "Clause14 uses same third vector as10-13, not a separate endpoint=False grid",
+    "Restore explicit source exponents[2,2] for4 and[0,1] for9; clause14[0,-1] already correct",
+    "Update literal14module stale endpoint-controls prose only; its numericalAST is unchanged"
+  ],
+  "preservation": {
+    "all14_test_names_assertions_tolerance_expressions_callback_math_unchanged": true,
+    "all14_existing_literal_numerical_predicates_unchanged": true,
+    "all_production_source_bytes_unchanged": true,
+    "rank_one_adapter_preserved": true,
+    "no_new_test_selectors_or_core_owners": true,
+    "no_query_filter_or_endpoint_mask": true,
+    "existing_fixture_sha256": "ac3ef01fa1061c7187737e15b5c2f0a95fc95b1a40573cd5ec7624949d80e684",
+    "fixture_source_and_seed_hashes_match_native": true
+  },
+  "per_predicate": [
+    {
+      "native_clause": 1,
+      "legacy_test_name": "test_second_derivative_gaussian",
+      "query_key": "x_both",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 2,
+      "legacy_test_name": "test_first_derivative_x2_gaussian",
+      "query_key": "x_both",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 3,
+      "legacy_test_name": "test_first_derivative_odd_decaying",
+      "query_key": "x_both",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 4,
+      "legacy_test_name": "test_first_derivative_blowup",
+      "query_key": "x_both",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": [
+        2,
+        2
+      ],
+      "exponent_correction": "explicit source exponents restored"
+    },
+    {
+      "native_clause": 5,
+      "legacy_test_name": "test_feval_exp_neg_right_inf",
+      "query_key": "x_right",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 6,
+      "legacy_test_name": "test_feval_x_exp_neg_right_inf",
+      "query_key": "x_right",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 7,
+      "legacy_test_name": "test_feval_odd_decaying_right_inf",
+      "query_key": "x_right",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 8,
+      "legacy_test_name": "test_feval_reciprocal_right_inf",
+      "query_key": "x_right",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 9,
+      "legacy_test_name": "test_feval_blowup_right_inf",
+      "query_key": "x_right",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": [
+        0,
+        1
+      ],
+      "exponent_correction": "explicit source exponents restored"
+    },
+    {
+      "native_clause": 10,
+      "legacy_test_name": "test_feval_exp_left_inf",
+      "query_key": "x_left",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 11,
+      "legacy_test_name": "test_feval_x_exp_left_inf",
+      "query_key": "x_left",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 12,
+      "legacy_test_name": "test_feval_odd_decaying_left_inf",
+      "query_key": "x_left",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 13,
+      "legacy_test_name": "test_feval_reciprocal_left_inf",
+      "query_key": "x_left",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point endpoint-inclusive linspace",
+      "source_exponents": null,
+      "exponent_correction": "unchanged"
+    },
+    {
+      "native_clause": 14,
+      "legacy_test_name": "test_feval_blowup_left_inf",
+      "query_key": "x_left",
+      "points": 100,
+      "native_shape": [
+        100,
+        1
+      ],
+      "python_shape": [
+        100
+      ],
+      "assertion_and_callback_ast_unchanged": true,
+      "previous_queries": "100-point linspace endpoint=False",
+      "source_exponents": [
+        0,
+        -1
+      ],
+      "exponent_correction": "unchanged"
+    }
+  ],
+  "baseline": {
+    "result": "12PASS2FAIL34.61s",
+    "endpoint_exp_error": 4.0657581468206416e-20,
+    "endpoint_xexp_error": 4.336808689942018e-19,
+    "scope": "Current legacy endpoint-inclusive queries, not literal native source queries",
+    "receipt": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 40.430771900806576,
+      "sampled_peak_summed_rss_kib": 2212604,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_evidence_20261017/baseline/receipt.json"
+    }
+  },
+  "final": {
+    "result": "28PASS in serial8/10/10 cohorts",
+    "scope": "14native clauses exercised by two Python adapters, not28distinctnative predicates",
+    "cohorts": {
+      "cohort1": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 32.91341134067625,
+        "sampled_peak_summed_rss_kib": 1970536,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_evidence_20261017/cohort1/receipt.json"
+      },
+      "cohort2": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 21.59879900701344,
+        "sampled_peak_summed_rss_kib": 1410280,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_evidence_20261017/cohort2/receipt.json"
+      },
+      "cohort3": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 15.712045153137296,
+        "sampled_peak_summed_rss_kib": 1146044,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_evidence_20261017/cohort3/receipt.json"
+      }
+    },
+    "pytest_seconds": [
+      27.84,
+      17.47,
+      12.07
+    ],
+    "query_words": "All100words in each of3vectors verified exact; no NumPy/JAX RNG substitute",
+    "library_change": false
+  },
+  "endpoint_counterexamples": {
+    "status": "Preserved unresolved supplemental behavior; not fixed, removed from evidence, xfailed, or counted as a library success",
+    "old_source": "legacy_baseline.py contains every old helper/body/assertion and former queries",
+    "current_baseline": "Rawbaseline confirms both current endpoint failures above",
+    "historical_native": {
+      "same_python_linspace_exp_error": 2.710505431213761e-20,
+      "exp_bound": 1.791889249653891e-20,
+      "exp_pass": false,
+      "same_python_linspace_xexp_error": 1.0842021724855044e-19,
+      "xexp_bound": 1.6888158308277575e-19,
+      "xexp_pass": true,
+      "source_pin_which_assertions_passed": true,
+      "guard_limitation": "Historical native run had0active input_hashes due bare-map guard schema; do not call it hash-guarded source proof. Actual collector/input/results and sourcepin are preserved/bound to prior immutablearchive. No new native run performed."
+    },
+    "prior_archive_sha256": "776f1c3c38a8bdde4784054d764292ca54ff2c13b8f4804fc8dc380a718772d6",
+    "selected12payloads_match_prior_archive": true,
+    "genuine_gap_retained": "Current JAX xexp endpoint failure versus historical native pass remains an unqualified sampling/transform/representation gap; this test-port correction does not repair it."
+  },
+  "coverage_limits": {
+    "left_query_min": -988959.6586228354,
+    "left_query_max": -1825.4847168115666,
+    "nonzero_exp_targets": 0,
+    "meaning": "Actual native left vector checks the underflow tail and excludes the finite endpoint. Passing these source predicates does not establish endpoint accuracy/full diff or feval APIs."
+  },
+  "evidence": {
+    "directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_evidence_20261017",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unbounded_diff_adapter_package_20261017.tar.gz",
+    "ast_proof": "ast_validation.json",
+    "query_proof": "QUERY_VALIDATION.json",
+    "fixture_binding": "fixture_binding.json",
+    "historical_endpoint_binding": "endpoint_counterexamples/archive_binding.json",
+    "source_snapshot": "Final Python library source, pyproject, both tests, query fixture/meta and conftests; native test_diff/seedRNG source copied. External packages not fully copied/import-guarded; pinned versions/origin/CPU/x64 asserted."
+  },
+  "status": "Scoped wrong-port correction only; full APIs, endpoint counterexamples, JAX/performance and latest CI remain open."
+}

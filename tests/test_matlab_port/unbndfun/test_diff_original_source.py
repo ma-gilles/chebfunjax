@@ -1,8 +1,9 @@
 """Literal14 default test_diff.m predicates, Chebfun7574c77.
 
 The fixture contains the three native seeded100-point query vectors, not
-NumPy RNG replacements. Existing endpoint-inclusive authored controls in
-``test_diff_matlab.py`` remain separate and unchanged.
+NumPy RNG replacements. The legacy test_diff_matlab.py adapter uses these same captured source
+queries. Earlier endpoint-inclusive counterexamples remain in the scoped
+adapter evidence; these original predicates do not qualify those endpoints.
 """
 
 from pathlib import Path

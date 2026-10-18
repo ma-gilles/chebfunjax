@@ -1,0 +1,22 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "reference_mat": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_disk_correctness_evidence_20261017/native_disk_capture.mat",
+  "reference_mat_sha256": "d07acb57f4d2b4f2d7185106905b4e99827fff67916e20bb0c1f8c3f0aaefeb4",
+  "native_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_disk_correctness_evidence_20261017/native/receipt.json",
+  "source": "Unchanged literal test_subsref31/32 identity diskfun, neutral original composition callbacks0 and22",
+  "stages": [
+    0,
+    22
+  ],
+  "semantic_scope": "Stored native low-rank factors and identical polar coordinates; no callback substitution in production. Pointwise fixture words qualify only these source observations.",
+  "actual_mapping_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/native_maps.mat",
+  "actual_mapping_capture_sha256": "9c1a521917387afd8edcb9ebec599d873d612b47d76ea525396b847265600dea",
+  "actual_mapping_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_source_maps_evidence_20261017/native/receipt.json",
+  "map_cases": [
+    "stage0",
+    "stage22",
+    "probe9",
+    "independent"
+  ],
+  "map_oracle": "Actual native bndfun.mapping.Inv outputs; ordinary eager JAX is not a map-word oracle."
+}

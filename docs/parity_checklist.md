@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest verified integration adds native two-column FFT/compose repair and all14default original unbounded differentiation predicates; publication and CI status are recorded in the current status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified integration adds public small Hermite ASY, disk factor maps and source-correct original unbounded test adapters; publication and CI status are recorded in the current status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -13,7 +13,7 @@ Checked items certify only their stated scope.
 | Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
 | Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
-| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite production integration, complex poles, dense Chebfun3T constructor, external cosine warning and broader original-test/API gaps |
+| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T constructor, external cosine warning and broader original-test/API gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
 | Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
@@ -27,8 +27,15 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Public small Hermite ASY source integration:full30-node public file/all18valid orders meet original complex-modulus bounds/native finite storage; actual parent47checks include cold cache-disabledn2, actual child coverage merge, original18+largeJIT+dtype controls and23CIprotocol checks. [Evidence](hermite_public_parent_cpu_20261018.json).
+- [ ] Small whole-call JIT/AD, nonfinite native storage, full hermpts API and matched CPU speed/memory remain open. DedicatedCore12 retains all1092old owners; aggregate79%gate unchanged/unproven.
+- [x] Disk source factor maps:actual parent19new+17existing+original31=37PASS. Unbounded legacy source query/exponent correction:both14-clause adapters=28PASS, original assertions/bounds preserved. [Parent source snapshots and evidence](disk_unbounded_parent_cpu_20261018.json).
+- [ ] Strict disk32 and independent1ULP function word gap remain; unbounded endpoint counterexamples remain unresolved. Test-port correction is not an endpoint library fix.
+- [ ] CI C1 scalar eigs reproducibility:actual CI3.8022e-9 exceeds authored1e-9 while fresh local6.9063e-10passes. Source/backend diagnosis required; no bound change. Latest-main greenCI and coverage remain required.
+
+
 - [x] Disk Cartesian callback/radius semantics:5new+17existing checks and original31 pass. Fresh native FEVAL35/35true and all35Python default counterparts pass within53checks; combined97parent checks. [Predicate mapping and evidence](disk_feval35_parent_cpu_20261018.json).
-- [ ] Strict disk32, factor-coordinate maps, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
+- [ ] Strict disk32, residual provider rounding, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
 
 
 - [x] Group unchanged breakpoint word equality under JAX execution:33existing IEEE/evaluation/routing tests pass on current main,14diagnostic outputs word-identical; selected warm evaluation median19.1%lower. [Evidence](breakpoint_equality_cpu_20261018.json).
