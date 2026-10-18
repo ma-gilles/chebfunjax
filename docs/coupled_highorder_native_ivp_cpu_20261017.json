@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "base_commit": "5973f7d67400ebe1d1fe1f865a93da5c1571ebe5",
+  "scope": "Coupled unit-diagonal highest derivatives, position-only nonlinear terms, separated unit endpoint derivative conditions; no whole Chebop/solveivp/ThreePlanets parity promotion.",
+  "source_diagnosis": {
+    "original_threeplanets": "abs(_Expr) fails first; diff(2), complex constants and complex IC rejection are subsequent independent structural blockers. Public prepare declines the plan, so existing complex/highorder LSODA route was used.",
+    "other_mapping_gaps": "one initial state/output per unknown and full-state MaxNorm assumptions cannot represent derivative towers.",
+    "legacy_classifier": "Its first-order constant-probe consumer must retain first-order-only symbolic inputs, so higher derivatives reject during expression construction as before."
+  },
+  "source_references": {
+    "state_order": "@treeVar/toFirstOrder.m113\u2013138 cumulative orders; @treeVar/sortConditions.m separated unit conditions",
+    "maxnorm_and_output": "@chebop/solveivp.m260,269\u2013290 preferences, abs(y(varIndex))-maxNorm, full solver output then original variable projection",
+    "fitting": "@chebfun/odesol.m40,75\u201389 stores all solver states and converts AbsTol using per-state scales",
+    "numeric_BC": "@chebop/parseBC.m22\u201335,128\u2013138: numeric coupled vectors specify function values only, higherorder systems not supported."
+  },
+  "unchanged_numeric_contracts": [
+    "native_ode113 engine and its complex magnitude error norm/NormControl",
+    "ODESET RelTol and AbsTol preferences/options",
+    "ODESOL per-state fitting scale and tolerance calculation",
+    "all existing original test operands, domains and bounds",
+    "ThreePlanets numerical, RNG and plotting AST/script bytes"
+  ],
+  "new_tests": {
+    "controls": [
+      "exact ThreePlanets span0..100 extraction, state offsets and jitted initial acceleration",
+      "complex mixed-order forward/back endpoint polynomial,100eps,full3state ODESOL before projection",
+      "MaxNorm position-only event discriminator and original-variable extraction columns",
+      "unsupported velocity,mixed highest,nonlinear highest,delay structures and unchanged legacy classifier rejection order"
+    ],
+    "count": 9,
+    "numeric_BC_guard": "Native parseBC22\u201335,128\u2013138 forbids coupled numeric higher-order BC; preguard control1fail2.19s, final new9+unchanged35firstorder/RHS=44pass25.36s.",
+    "original8_baseline_bridge": "baseline_v2:4failed/4passed in2.72s; final56 contains same8 assertions; later Ruff import-layout-only whole-module AST equality recorded; test_original8_body_bridge.json proves original8bodies unchanged when adding ninth numericBC control and prepare import."
+  },
+  "existing_gates": {
+    "tests/test_coupled_native_ivp_source.py": 16,
+    "tests/test_coupled_ivp_rhs_source.py": 19,
+    "tests/test_operators/test_chebop_ivp_highorder.py": 13,
+    "total_including_new8": 56,
+    "final_result": "56pass188.98s; stable/no survivors/uncensored; original files byte unchanged"
+  },
+  "preserved_failed_attempt": "baseline_final5failed/3passed includes an authored delay-classification assertion error: old diff(2) rejection precedes evaluation of delayed argument. Corrected to retain None; preserved receipt and stdout.",
+  "limitations": [
+    "scalar higherorder/complex, nonlinear derivative coefficients, mixed highest derivatives, velocity dependence, delayed/branching expressions, complex numeric RHS/complex Chebfun forcing and complete treeVar grammar remain unqualified or on existing routes",
+    "56passing tests include pre-existing scalar/unsupported legacy routes and do not prove all56 are host-free",
+    "provider is existing accepted R2025b-derived Adams implementation; this package ports7574 structural mapping, not a claim of identical2017 integrator words",
+    "Fullspan100 execution on pre-numeric-guard source is bridged by unchanged callable branch; final44 covers final library bytes.",
+    "Cached65537 warning absent from actual current execution; warning/trajectory/raster/full page/nativeAPI parity remains open."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_highorder_ivp_evidence_20261017",
+  "receipt_summary": "focused_receipt_summary.json",
+  "publication_source_bridge": "publication_ad14_source_bridge.json (and explicit0ae bridge)",
+  "formatting_bridge": "test_formatting_ast_bridge.json",
+  "final_byte_qualification": {
+    "final44": "44pass25.36s, stable/no survivors/uncensored",
+    "peak_rss_kib": 1581516,
+    "full_run_and_56_bridge": "post_run_numeric_guard_bridge.json: sole subsequent source delta is rejected noncallable higherorder BC; unchanged actual callable branch. Test old8 bodies unchanged; added numericBC ninth control."
+  },
+  "full_example": {
+    "script_identity": "example_source_bridge.json: byte-identical e739 published warning adapter and previous actual219.224s script; no numerical/RNG/plot operand changes",
+    "completed": true,
+    "application_seconds": 221.8025436368771,
+    "supervisor_wall_seconds": 230.70332946721464,
+    "sampled_peak_rss_kib": 4628848,
+    "censored_limit": null,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "runtime_coverage": "1584/1584 actual imported files preguarded,1798 total guard files, all hashes equal",
+    "native_calls": 1,
+    "scipy_integration_calls": 0,
+    "native": {
+      "span": [
+        0.0,
+        100.0
+      ],
+      "options": {
+        "RelTol": 2.220446049250313e-14,
+        "AbsTol": 2.220446049250313e-11
+      },
+      "seconds": 5.939881522208452,
+      "stats": {
+        "nsteps": 6814,
+        "nfailed": 84,
+        "nfevals": 13713,
+        "tfinal": 100.0
+      },
+      "state_shape": [
+        6,
+        6815
+      ],
+      "state_dtype": "complex128"
+    },
+    "outputs": [
+      {
+        "pieces": 52,
+        "total_length": 3850,
+        "all_happy": true
+      },
+      {
+        "pieces": 52,
+        "total_length": 3850,
+        "all_happy": true
+      },
+      {
+        "pieces": 52,
+        "total_length": 3850,
+        "all_happy": true
+      }
+    ],
+    "actual_frames": 4,
+    "observed_warning_attempts": 0,
+    "captured_solve_warnings": 0,
+    "stdout": "only explicit output-slot1 marker; no cached warning insertion",
+    "figure_scope": "Actual fourframes retained, onlyinitialPNG equal priorPython; laterthree differ. No native trajectory/raster/parity claim and no publication figure/page changes.",
+    "timing_scope": "221.8025s vs prior219.224s is descriptive unmatchedsource-path observation, not speedup or matchednative performance."
+  },
+  "publication_paths": [
+    "src/chebfunjax/operators/_coupled_ivp.py",
+    "tests/test_coupled_highorder_native_ivp_source.py",
+    "docs/coupled_highorder_native_ivp_cpu_20261017.json"
+  ],
+  "evidence_archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_highorder_ivp_package_20261017.tar.gz"
+}

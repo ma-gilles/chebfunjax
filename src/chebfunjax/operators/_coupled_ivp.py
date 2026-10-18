@@ -1,4 +1,4 @@
-"""Structural extraction for a narrow first-order coupled native IVP route.
+"""Structural extraction for a narrow coupled derivative-tower native IVP route.
 
 Provenance: Chebfun 7574c77680d7e82b79626300bf255498271a72df,
 @chebop/{mldivide,solveivp}.m and @treeVar/sortConditions.m. This explicit
@@ -7,7 +7,7 @@ conditions, not the complete native treeVar grammar. Marching delegates to the
 accepted vector Adams provider (R2025b source), not a new 2017 solver claim.
 """
 from dataclasses import dataclass
-from numbers import Real
+from numbers import Complex, Integral
 
 import jax.numpy as jnp
 
@@ -28,13 +28,15 @@ class _Expr:
     constant: object = None
     breaks: tuple = ()
     state: bool = False
+    derivative_order: int = 0
+    first_order_only: bool = False
 
     @staticmethod
     def coerce(other):
         from chebfunjax.chebfun1d.chebfun import Chebfun
         if isinstance(other, _Expr):
             return other
-        if isinstance(other, Real):
+        if isinstance(other, Complex):
             return _Expr(lambda t, y: jnp.asarray(other), constant=other)
         if isinstance(other, Chebfun):
             if other.n_columns != 1 or other.is_transposed or not other.isreal():
@@ -52,9 +54,14 @@ class _Expr:
     def diff(self, order=1):
         if order == 0:
             return self
-        if order != 1 or self.variable is None:
-            raise UnsupportedStructure('only first derivatives of individual unknowns')
-        return _Expr(lambda t, y: jnp.asarray(0.0), ((self.variable, 1),))
+        if not isinstance(order, Integral) or order < 0 or self.variable is None:
+            raise UnsupportedStructure('requires a nonnegative individual derivative order')
+        degree = self.derivative_order + order
+        if self.first_order_only and degree > 1:
+            raise UnsupportedStructure('legacy classifier requires first derivatives')
+        return _Expr(lambda t, y: jnp.asarray(0.0),
+                     (((self.variable, degree), 1),), variable=self.variable,
+                     derivative_order=degree, first_order_only=self.first_order_only)
 
     def __add__(self, other):
         other = self.coerce(other)
@@ -121,6 +128,9 @@ class _Expr:
             raise UnsupportedStructure('nonlinear derivative expression')
         return _Expr(lambda t, y: fun(self.value(t, y)), breaks=self.breaks,
                      state=self.state)
+
+    def __abs__(self):
+        return self._unary(jnp.abs)
 
     def exp(self):
         return self._unary(jnp.exp)
@@ -205,6 +215,8 @@ class Extracted:
     rhs: object
     initial: object
     span: tuple
+    orders: tuple
+    var_index: tuple
 
 
 def extract(op, forcing=0, *, allow_scalar=False):
@@ -222,34 +234,49 @@ def extract(op, forcing=0, *, allow_scalar=False):
                  for k in range(count)]
     time = _Expr(lambda t, y: t)
     rows = [_Expr.coerce(v) for v in _entries(op._call_op(time, variables))]
-    if len(rows) != count or any(row.derivatives != ((k, 1),)
-                                 for k, row in enumerate(rows)):
-        raise UnsupportedStructure('requires one unit diagonal derivative per equation')
+    if len(rows) != count:
+        raise UnsupportedStructure('requires one equation per unknown')
+    orders = []
+    for k, row in enumerate(rows):
+        if (len(row.derivatives) != 1 or row.derivatives[0][1] != 1
+                or row.derivatives[0][0][0] != k):
+            raise UnsupportedStructure('requires one unit diagonal highest derivative')
+        orders.append(row.derivatives[0][0][1])
+    orders = tuple(orders)
+    if count == 1 and orders != (1,):
+        raise UnsupportedStructure('scalar higher derivatives retain their existing route')
+    var_index = tuple(sum(orders[:k]) for k in range(count))
+    size = sum(orders)
     forward = op._lbc_raw is not None
     point = dom[0] if forward else dom[-1]
     boundary = op._lbc_raw if forward else op._rbc_raw
     if callable(boundary):
         # State symbols represented as affine indeterminates, so nonlinear
         # or mixed conditions cannot masquerade as a reorderable unit row.
-        symbols = [_Expr(lambda t, y: jnp.asarray(0.0), ((k, 1),))
+        symbols = [_Expr(lambda t, y: jnp.asarray(0.0), (((k, 0), 1),), variable=k)
                    for k in range(count)]
         conditions = [_Expr.coerce(v) for v in _entries(boundary(*symbols))]
-        if len(conditions) != count:
-            raise UnsupportedStructure('one endpoint condition per unknown required')
-        initial = [None]*count
+        if len(conditions) != size:
+            raise UnsupportedStructure('one endpoint condition per tower state required')
+        initial = [None]*size
         for row in conditions:
             if len(row.derivatives) != 1 or row.derivatives[0][1] != 1:
                 raise UnsupportedStructure('only reordered unit endpoint conditions')
-            index = row.derivatives[0][0]
+            variable, degree = row.derivatives[0][0]
+            if degree >= orders[variable]:
+                raise UnsupportedStructure('endpoint derivative exceeds tower order')
+            index = var_index[variable] + degree
             if initial[index] is not None:
                 raise UnsupportedStructure('duplicate endpoint condition')
             initial[index] = -row.value(point, jnp.zeros(count))
     else:
+        if any(order != 1 for order in orders):
+            raise UnsupportedStructure('numeric endpoint vectors require first-order systems')
         initial = jnp.asarray(boundary).reshape(-1)
-        if initial.size != count:
+        if initial.size != size:
             raise UnsupportedStructure('one numeric endpoint value per unknown required')
     initial = jnp.asarray(initial)
-    if jnp.iscomplexobj(initial):
+    if count == 1 and jnp.iscomplexobj(initial):
         raise UnsupportedStructure('complex initial state remains on existing route')
     breaks = set(dom) | set(rhs_breaks)
     for row in rows+forces:
@@ -257,9 +284,16 @@ def extract(op, forcing=0, *, allow_scalar=False):
     span = tuple(sorted(breaks, reverse=not forward))
 
     def rhs(t, y):
-        return jnp.stack([force.value(t, y)-row.value(t, y)
-                          for row, force in zip(rows, forces)])
-    return Extracted(rhs, initial, span)
+        if all(order == 1 for order in orders):
+            return jnp.stack([force.value(t, y)-row.value(t, y)
+                              for row, force in zip(rows, forces)])
+        positions = jnp.stack([y[k] for k in var_index])
+        values = []
+        for k, (row, force) in enumerate(zip(rows, forces)):
+            values.extend(y[var_index[k]+j+1] for j in range(orders[k]-1))
+            values.append(force.value(t, positions)-row.value(t, positions))
+        return jnp.stack(values)
+    return Extracted(rhs, initial, span, orders, var_index)
 
 
 def prepare(op, forcing=0, *, selected=None, allow_scalar=False):
@@ -298,20 +332,20 @@ def solve(op, plan):
                                         getattr(pref, 'ivpRestartSolver', True)),
                'happinessCheck': pref.happinessCheck}
     # @chebop/solveivp.m269-280 watches each original dependent variable.
-    # This structural route is first order, so varIndex selects all states.
+    # Native fits the full tower before projecting original function columns.
     maximum = getattr(op, 'maxnorm', None)
     if maximum is not None and jnp.asarray(maximum).size:
         limits = jnp.asarray(maximum).reshape(-1)
-        if limits.size not in (1, plan.initial.size):
+        if limits.size not in (1, len(plan.var_index)):
             raise ValueError('maxnorm requires a scalar or one limit per variable')
         if not bool(jnp.all(jnp.isinf(limits))):
             def event(t, y):
-                return jnp.abs(y)-limits, 1+0*limits, jnp.asarray(0.)
+                return jnp.abs(y[jnp.asarray(plan.var_index)])-limits, 1+0*limits, jnp.asarray(0.)
             options['Events'] = event
     array = ode113(plan.rhs, plan.span, plan.initial, options, backend='native')
     if op._n_vars() == 1:
         return array.extract_columns(0)
-    return SystemSolution([array.extract_columns(k) for k in range(op._n_vars())])
+    return SystemSolution([array.extract_columns(k) for k in plan.var_index])
 
 
 def classify_local_operator(op):
@@ -321,8 +355,9 @@ def classify_local_operator(op):
     functions. False identifies nonlocal evaluation; None means unsupported
     syntax, which cannot establish locality for a time-marching adapter.
     """
+    # Keep the legacy first-order proof boundary; higher towers use extract.
     count = op._n_vars()
-    variables = [_Expr(lambda t, y, k=k: y[k], variable=k, state=True)
+    variables = [_Expr(lambda t, y, k=k: y[k], variable=k, state=True, first_order_only=True)
                  for k in range(count)]
     time = _Expr(lambda t, y: t)
     try:

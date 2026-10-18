@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Coupled complex derivative towers use existing JAX native IVP engine:final44controls,56earlier bridged controls and full221.80s ThreePlanets with0SciPy integration calls. Parent21CIprotocol checks pass;1080priorowners retained plus1selector. [Evidence](coupled_ivp_parent_cpu_20261017.json).
+- [ ] Native chaotic trajectory, full higherorder/complex grammar, cached warning, page/figure parity and matched performance remain open.
+
+
 - [x] Fix explicit native nobreaks exchange call and split actualCore7deadline11to12lanes, preserving all1080selectors/process batches.29checks pass. [Evidence](ci_core7_cpu_20261017.json).
 - [ ] Latest-main actual scientific CI, new-lane runtime and aggregate coverage remain required.
 

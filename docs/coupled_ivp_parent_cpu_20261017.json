@@ -1,0 +1,86 @@
+{
+  "scope": "Parent-reviewed coupled complex derivative towers and original full ThreePlanets CPU execution; not native chaotic trajectory/page/figure parity",
+  "bridge": {
+    "parent_commit": "178a0611c8b73eef290e09999cba69101b11c4d0",
+    "child_archive_sha256": "54455c0b510d856726e389c051f33525861c425a4765eb3d50045ca108496655",
+    "child_payloads_independently_verified": 145,
+    "library_files": 362,
+    "equal_library_files": 358,
+    "different": [
+      "src/chebfunjax/operators/_coupled_ivp.py",
+      "src/chebfunjax/utils/cfpade.py",
+      "src/chebfunjax/utils/_trigremez_polynomial_source.py",
+      "src/chebfunjax/utils/ratapprox.py"
+    ],
+    "unrelated_changed_function_names_verified": true,
+    "native_engine_ode_solution_chebop_identical": true,
+    "full_runtime_files_independently_guard_matched": 1584,
+    "full_to_final_AST_bridge_verified_numeric_BC_guard_only": true,
+    "final_child_source_and_test_hashes_verified": true,
+    "receipts": {
+      "final": {
+        "wall_seconds": 200.19516311213374,
+        "sampled_peak_summed_rss_kib": 4623720,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "full_run": {
+        "wall_seconds": 230.70332946721464,
+        "sampled_peak_summed_rss_kib": 4628848,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      },
+      "final44": {
+        "wall_seconds": 30.167939323931932,
+        "sampled_peak_summed_rss_kib": 1581516,
+        "inputs_stable": true,
+        "censored_limit": null,
+        "remaining_owned_pids": []
+      }
+    },
+    "core_selector_count": 1081,
+    "prior1080owners_retained": true
+  },
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/complex_highorder_ivp_package_20261017.tar.gz",
+    "sha256": "54455c0b510d856726e389c051f33525861c425a4765eb3d50045ca108496655",
+    "independently_verified_payloads": 145
+  },
+  "parent_protocol_checks": 21,
+  "parent_protocol_stdout": "21 passed, 1 warning in 2.01s",
+  "scientific_evidence": {
+    "earlier_combined_gate": 56,
+    "final_byte_gate": 44,
+    "final_byte_pytest_seconds": 25.36,
+    "full_example_seconds": 221.8025436368771,
+    "native_ode113_calls": 1,
+    "scipy_integration_calls": 0,
+    "frames": 4,
+    "actual_runtime_files_preguarded": 1584,
+    "output_piece_counts": [
+      52,
+      52,
+      52
+    ],
+    "output_coefficient_counts": [
+      3850,
+      3850,
+      3850
+    ]
+  },
+  "numeric_source_review": "Native source reorders derivative towers/endpoint conditions, fits full tower before varIndex projection, watches original position maxnorm; existing native engine/ODESOL unchanged. Noncallable higherorder numeric BCs rejected per parseBC. Existing firstorder numeric route retained.",
+  "limits": [
+    "Full source remains narrow unit-diagonal highest derivatives/position-only nonlinearity; scalarhigherorder/complex and unsupported grammar retain existing routes",
+    "ThreePlanets uses existing accepted R2025b-derived JAX provider, not bitwise2017 integrator qualification",
+    "Cached warning not emitted; later three actual figures differ from earlier Python frames; native trajectory/raster not closed",
+    "Page/script/published images unchanged; full run221.8s vs prior219.2s is descriptive, not a speedup or matched native performance claim",
+    "No wholeAPI/testfile/page status promotion; latest-main CI/coverage and full goal remain required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/coupled_ivp_parent_cpu_20261017.tar.gz",
+    "sha256": "1be28db7ecd640abbb5826777583234aa7109e2e8562808925664f0aef723fea",
+    "verified_payloads": 23
+  }
+}

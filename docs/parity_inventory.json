@@ -101,6 +101,11 @@
       "scope": "Six native-backed authored complex extrema cases with stored points, sides and arrays; full-item statuses unchanged",
       "sha256": "798da82283310d7bfa69a1438791a4a81a215ff1beb347dd8b30a95fc0fa5b98"
     },
+    "coupled_ivp_parent_cpu_20261017": {
+      "path": "docs/coupled_ivp_parent_cpu_20261017.json",
+      "scope": "Parent-reviewed coupled complex derivative towers and original full ThreePlanets CPU execution; not native chaotic trajectory/page/figure parity",
+      "sha256": "d5c87b79b0b2b914619facf6217a75dda48559376f1a603b09a5b6b25e06df3b"
+    },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
@@ -31335,6 +31340,10 @@
           "artifact": "threeplanets_parent_cpu_20261017",
           "dimension": "stdout",
           "scope": "Actual219s warning visibility/4unchangedframes; rawresource observation-race label independently reconciled. Zero actualwarnings; cachedwarning/native/JAXprovider gaps remainopen."
+        },
+        {
+          "artifact": "coupled_ivp_parent_cpu_20261017",
+          "scope": "Full221.8s current CPU example uses1native/0SciPy integration calls; no native trajectory/stdout/figure qualification"
         }
       ],
       "figure_content_status": "unverified",
@@ -68047,7 +68056,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "coupled_ivp_parent_cpu_20261017",
+          "scope": "Supported complex coupled derivative-tower extraction/native engine route only; completeAPI remains open"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

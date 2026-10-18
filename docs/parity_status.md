@@ -1,3 +1,16 @@
+# Coupled complex derivative towers use JAX native IVP — 2026-10-17
+
+Supported unit-diagonal coupled higher derivatives and complex endpoint states
+now map to the existing JAX Adams engine. Source preserves full-tower fitting,
+position-only maxnorm and final variable projection. Unsupported numeric
+higherorder endpoint vectors are rejected per native parseBC. Final44controls
+pass, with56earlier controls and source bridges; parent21CIprotocol checks pass.
+Original full ThreePlanets completes221.80s with1native/0SciPy integration calls,
+4frames and all1584runtimefiles preguarded. Parent verifies145child payloads.
+No warning synthesized and no page/script/published-image changes. Native
+trajectory/raster, full grammar and matched speed remain open.
+Evidence: docs/coupled_ivp_parent_cpu_20261017.json.
+
 # Core7 deadline and explicit exchange roots — 2026-10-17
 
 Completed olderCI39071892475 hit90minutes inCore7 after10finished processes.
