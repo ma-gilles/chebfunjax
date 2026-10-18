@@ -10,6 +10,8 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 
+from chebfunjax.spherefun._banded_lu import solve_banded
+
 
 @jax.jit
 def _border_correction(inv_b, inv_w):
@@ -44,7 +46,15 @@ def _solve_parity(operator, conversion, forcing, boundary, modes, indices, *, pa
     systems = jnp.concatenate((first, interior), axis=1)
     rhs = jnp.concatenate((boundary[indices, None], forcing[indices, parity:-2:2]), axis=1)
     weight = jnp.zeros_like(rhs).at[:, 0].set(1)
-    inverse = jnp.linalg.solve(systems, jnp.stack((rhs, weight), axis=-1))
+    # Exact source support is lower=upper=2 after prepending the first row.
+    # Keep dense source assembly, but factor only its five nonzero diagonals.
+    # The last two storage columns reserve upper fill from distance-two pivots.
+    rows = jnp.arange(width)[:, None]
+    columns = rows + jnp.arange(-2, 5)[None, :]
+    valid = (columns >= 0) & (columns < width) & (columns <= rows + 2)
+    bands = jnp.where(valid[None], systems[:, rows, jnp.clip(columns, 0, width-1)], 0)
+    inverse, _ = jax.vmap(lambda a, b: solve_banded(a, b, lower=2, upper=2))(
+        bands, jnp.stack((rhs, weight), axis=-1))
     inv_b, inv_w = inverse[..., 0], inverse[..., 1]
     return _border_correction(inv_b, inv_w)
 

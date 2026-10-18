@@ -1,0 +1,102 @@
+{
+  "base_head": "40a941d6cf903df61102652fdd76285e0e225220",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Replace disk parity dense LU only; exact five-band packing, existing distance-two pivoted JAX kernel, both RHS, source correction. No native sparse ordering claim.",
+  "parent_tests": [
+    {
+      "run": "disk_banded_parent_focused_run001",
+      "passed": 68,
+      "wall_seconds": 66.87061216495931,
+      "sampled_peak_summed_rss_kib": 2982808,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "disk_banded_parent_original_run001",
+      "passed": 13,
+      "wall_seconds": 292.39657235890627,
+      "sampled_peak_summed_rss_kib": 7144748,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  ],
+  "distinct_parent_nodes": 81,
+  "child_scientific_nodes": 58,
+  "child_jvp_addendum": {
+    "command_exit_code": 0,
+    "wall_seconds": 11.441400845069438,
+    "sampled_peak_summed_rss_kib": 855600,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null,
+    "controls": 36,
+    "max_normalized_tangent_residual": 4.631560994294703e-16,
+    "min_rounding_bound": 1.1368683772161623e-13,
+    "max_rounding_bound": 1.2789769243681829e-13,
+    "max_dense_tangent_relative_difference": 3.995749778657521e-17,
+    "max_normalized_primal_residual": 4.4216164564371244e-16,
+    "source_unchanged": true,
+    "scope": "Separate addendum; candidate and original sealed packet unchanged. Normal-range complex forcing/boundary,K,combined JVP directions on17x12 at K=.7+.3j. All12Fourier modes/both radial parities and inactive-parity zeros checked. True differentiated border equation oracle, fixed64*gamma_q scaled backward bound, no finite difference fitting. No universal AD/JIT/vmap claim."
+  },
+  "source_bridge": {
+    "tests/fixtures/disk_helmholtz_native_20261018.json": true,
+    "tests/test_diskfun/test_helmholtz_public_provider.py": true,
+    "tests/test_diskfun/test_helmholtz_banded.py": true,
+    "tests/test_diskfun/test_helmholtz_jax_provider.py": true,
+    "tests/test_diskfun/test_numeric_rank_capacity.py": true,
+    "tests/test_matlab_port/diskfun/test_helmholtz_matlab.py": true,
+    "src/chebfunjax/diskfun/_helmholtz.py": true,
+    "src/chebfunjax/spherefun/_banded_lu.py": true
+  },
+  "snapshot_files": 3490,
+  "ownership": {
+    "old": 1108,
+    "new": 1109,
+    "lanes": 13,
+    "all_prior_prefixes_retained": true,
+    "hermite_lane_12_unchanged": true,
+    "coverage_gate": 79
+  },
+  "child_archive_review": [
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_banded_packet_20261018.tar.gz",
+      "sha256": "faaa66275787277f61920d4361092ad706b95455852842555653e0fea03ce70f",
+      "verified_payloads": 80
+    },
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_banded_jvp_addendum_20261018.tar.gz",
+      "sha256": "8a8f4a29edb6d5a8c2cbcd470c10e6ae71dab29b8f34202329c97a1925f52e96",
+      "verified_payloads": 15
+    }
+  ],
+  "test_design_corrections": [
+    "Initial two failures retained in focused: rational assembly delta1.1102230246251565e-15 exceeds provisional1e-15 new bound; near-resonance coefficient absolute delta1.52587890625e-5 exceeds provisional2e-9 new bound. No production change. Initial test snapshot hash reproduces initial guard exactly.",
+    "Final new control checks BOTH normalized bordered residuals<3e-14 and posterior ||A^-1|| times residual plus gamma_q matrix-vector rounding allowance. Near-resonance condition~1.1238e14 and solution norm~1.0485e11 mean forward accuracy is not established from small residual alone.",
+    "Final rational comparison8eps accounts for rounded dense conversion products and subtraction. Original/native fixture bounds and bytes unchanged."
+  ],
+  "timing_notes": [
+    "CPU32-35, JAX/jaxlib0.11.0/ml_dtypes0.5.4, binary64/complex128, one BLAS/OMP thread, compilation cache disabled, synchronized outputs. Warm order alternates. Cold public arms clear JAX caches separately; untimed prime before warm. Shared host, descriptive bounded observations.",
+    "515x256 coefficient solve warm median .3971674861 dense vs .1395181371 band; provider firstcall1.0178889758 vs1.3076180401; assembly cold17.1255924s. Packing, paired RHS and correction included.",
+    "Publicm257/internal515,n256 constant coefficient RHS warm median .3758998052 dense vs .1507339608 band; cold full calls21.0578289 vs19.9166687s. Fixed probe output difference1.1102e-16.",
+    "Small publicm8/internal17,n16 warm .0058864653 vs .0060295849 and cold6.9267683 vs7.4410563s: no benefit. Intermediate33/32,65/64,129/128 results mixed.",
+    "Unmatched original suite405.20s vs historical dense300.60s is NOT a matched speed comparison; retain the slower observation."
+  ],
+  "limits": [
+    "Dense assembly O(m^3) and dense system intermediates remain; fixed-band factor kernel improves factor arithmetic/storage only. No full linear complexity claim.",
+    "Native speed/ordering/words/full warning and singular or nonfinite policies remain unqualified. Synthetic exact-singular/NaN/Inf checks retain NaN outputs only.",
+    "No full public JIT/AD/vmap/API closure; inherited constructors and external providers unchanged. No native process launched.",
+    "Small-size performance regresses slightly and compile cost rises. Production warm observation improves; no universal or native speed claim. Root must review before publication.",
+    "Child JVP and matched timings are separate from parent81pytestnodes; exact source bridge covers both changed solve and unchanged shared kernel.",
+    "All whole-item inventory statuses remain unverified; no full page/API/native speed acceptance. Latest-main scientificCI/coverage>=79% remain required."
+  ],
+  "intervening_committed_library_changes": [
+    "src/chebfunjax/utils/quadrature.py"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_banded_parent_cpu_20261018.tar.gz",
+    "sha256": "ade90ad756d5357632ab12cf4c4224ee2f43cc912dbd2b7b4facd4c6352fc5af",
+    "root_stream_verified_payloads": 3579
+  }
+}

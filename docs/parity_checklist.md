@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest published fixes cover disk zero storage, minimax scaling/status and the original dense constructor bound; current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Hermite normalization/grid arithmetic, ASINH axis behavior, generalized eigensolvers and disk Helmholtz assembly/solves. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -26,6 +26,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Disk parity solves use exact five-band packing and the existing distance-two pivoted JAX kernel. Actual parent **81 checks pass**, including all13 original/rank nodes. Separate worker **36 complex derivative controls pass** with an exact source bridge. All1108 prior CI owners retained plus one new file;13 lanes/79% gate unchanged. [Evidence](disk_banded_parent_cpu_20261018.json).
+- [ ] Dense assembly remains expensive; small calls do not improve. Full native ordering/status/IEEE/API/JAX coverage, matched native performance and latest-main CI remain open.
+
 
 - [x] Hermite GW normalization now follows source order: identical12controls6FAIL6PASS→12PASS, all78nodes/78weights exact. Source-grid example adapter makes108trapezoid coordinates exact. Actual parent70checks pass; fresh full72.41s page/all original orders, unchanged600×270PNG. [Parent evidence](hermitequad_gw_parent_cpu_20261018.json).
 - [ ] Hermite n11/trapezoid n3,n24 printed values, native129vsPython137representation, natural curve coordinates/provider words/raster/full API/transforms/matched speed and latestCI remain open.

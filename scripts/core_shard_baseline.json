@@ -254,7 +254,8 @@
       "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
       "tests/test_disk_add_poles_source.py",
       "tests/test_operators/test_generalized_eig_invariants.py",
-      "tests/test_operators/test_generalized_eig_rounding.py"
+      "tests/test_operators/test_generalized_eig_rounding.py",
+      "tests/test_diskfun/test_helmholtz_banded.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1138,6 +1139,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "7492f6ca71e4a95d86346028c842df74706f4176",
+  "last_update_parent": "40a941d6cf903df61102652fdd76285e0e225220",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

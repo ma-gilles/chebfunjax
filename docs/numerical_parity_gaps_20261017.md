@@ -1,3 +1,11 @@
+## Disk Helmholtz banded solve follow-up — 2026-10-18
+
+Exact five-band coefficient solves pass81 parent checks and36 separate worker
+complex derivative equation controls. Production-size warmed observations improve
+about2.5x; small cases do not improve, and dense source assembly remains expensive.
+Full native sparse ordering, status/nonfinite/IEEE/API/JAX and matched native
+performance remain open. [Evidence](disk_banded_parent_cpu_20261018.json).
+
 # Open numerical parity investigations
 
 These source-bound observations narrow the remaining work; none closes full

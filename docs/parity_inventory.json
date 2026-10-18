@@ -207,6 +207,24 @@
       "scope": "Source addPoles cancellation repair; strict original disk32 now passes without modifying external callbacks, operands or EPS",
       "sha256": "afd630874c3abe5950f7a8ae5f4650168932ae4a90c502e92e716d26084520dc"
     },
+    "disk_banded_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_banded_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3579,
+        "sha256": "ade90ad756d5357632ab12cf4c4224ee2f43cc912dbd2b7b4facd4c6352fc5af"
+      },
+      "limits": [
+        "Dense assembly O(m^3) and dense system intermediates remain; fixed-band factor kernel improves factor arithmetic/storage only. No full linear complexity claim.",
+        "Native speed/ordering/words/full warning and singular or nonfinite policies remain unqualified. Synthetic exact-singular/NaN/Inf checks retain NaN outputs only.",
+        "No full public JIT/AD/vmap/API closure; inherited constructors and external providers unchanged. No native process launched.",
+        "Small-size performance regresses slightly and compile cost rises. Production warm observation improves; no universal or native speed claim. Root must review before publication.",
+        "Child JVP and matched timings are separate from parent81pytestnodes; exact source bridge covers both changed solve and unchanged shared kernel.",
+        "All whole-item inventory statuses remain unverified; no full page/API/native speed acceptance. Latest-main scientificCI/coverage>=79% remain required."
+      ],
+      "report": "docs/disk_banded_parent_cpu_20261018.json",
+      "report_sha256": "f173ed21bec40eee6b6ee75b7bef3f3f88295228a3e199f80f9ac49bd70ed3fd",
+      "scope": "Replace disk parity dense LU only; exact five-band packing, existing distance-two pivoted JAX kernel, both RHS, source correction. No native sparse ordering claim."
+    },
     "disk_cdr_gradual_cpu_20261018": {
       "path": "docs/disk_cdr_gradual_cpu_20261018.json",
       "scope": "Local CPU real binary64 Diskfun CDR reciprocal, preserving native d=1./piv; d(abs(d)==Inf)=0. Repairs the two inherited finite FTZ gaps retained by phase1. Zero-pole storage/flags remain next phase; no full API/IEEE/all-backend parity claim.",
@@ -75820,6 +75838,10 @@
         {
           "artifact": "disk_helmholtz_parent_cpu_20261018",
           "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+        },
+        {
+          "artifact": "disk_banded_parent_cpu_20261018",
+          "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
         }
       ],
       "functions": [
@@ -75828,6 +75850,10 @@
             {
               "artifact": "disk_helmholtz_parent_cpu_20261018",
               "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+            },
+            {
+              "artifact": "disk_banded_parent_cpu_20261018",
+              "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
             }
           ],
           "implementation_status": "unverified",
@@ -121066,6 +121092,10 @@
         {
           "artifact": "disk_helmholtz_parent_cpu_20261018",
           "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+        },
+        {
+          "artifact": "disk_banded_parent_cpu_20261018",
+          "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
         }
       ],
       "functions": [
@@ -121074,6 +121104,10 @@
             {
               "artifact": "disk_helmholtz_parent_cpu_20261018",
               "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+            },
+            {
+              "artifact": "disk_banded_parent_cpu_20261018",
+              "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
             }
           ],
           "implementation_status": "unverified",

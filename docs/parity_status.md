@@ -1,3 +1,19 @@
+# Disk Helmholtz banded coefficient solves — 2026-10-18
+
+The parity solves now pack the exact five nonzero diagonals and use the existing
+JAX pivoted band kernel, including distance-two pivots and both source RHS.
+Dense source assembly and rank-one correction order remain unchanged. All81
+parent checks pass:68focused/protocol and13original/rank. Original tests and
+native fixtures retain their bounds. The separate worker addendum passes36
+complex derivative equation controls; its source bridge is exact.
+Matched shared-host observations at public m257/n256: warm .37590s dense versus
+.15073s banded. Small cases show no benefit; cold compilation costs more and
+dense assembly remains a bottleneck. No universal or native speed claim.
+All1108prior CI owners retained, one new file appended;13lanes, dedicated
+Hermite lane and79%coverage gate unchanged. Full API/nonfinite/status/native
+ordering/JIT/AD/vmap and latest-main CI remain open.
+Evidence: docs/disk_banded_parent_cpu_20261018.json.
+
 # Hermite GW source normalization and guarded endpoint diagnosis — 2026-10-18
 
 GW retains raw weights through symmetry and normalizes once afterward. Same12
