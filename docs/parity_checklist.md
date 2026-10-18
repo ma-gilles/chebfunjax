@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover TAN infinite-imaginary phase, disk no-pivot errors and extrapolation division. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover explicit Chebfun2 preferences and adaptive disk source grids/tolerance/rank stopping. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,14 +24,15 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** TAN phase, adaptive disk no-pivot errors and literal extrapolation division. Actual parent **251 PASS /1strictXFAIL**, two disjoint scopes. [Evidence](tan_disk_remaining_parent_cpu_20261018.json).
-- **Unary worker:** two original TAN/TANH tiny-component records and five fresh strictXFAILs remain; source quotient/native operand diagnosis underway. Full child2160PASS7XF1authored-oracleFAIL is retained, corrected final142PASS is separate overlapping scope.
-- **Disk worker:** adaptive getTol angular spacing and source grid cardinalities/coordinates/decisions. Child502PASS2XFAIL; final FFT factor word and intermediate-only GEMM zero sign remain. Broad FFT changes risk a qualified inverse length decision.
-- **Root:** Chebfun2 explicit fixed-size/technology preferences;18new native controls all complete. Other original API/assertion gaps remain.
-- **CPU speed:** inverse root-filter optimization published; further Brent padding rejected after63checks/20exact arrays because timing evidence did not justify complexity. Native inverse warm gap~2.51x remains in one earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and others require qualification.
-- **CI:** latest-main scientific CI/coverage≥79% remains required. Prior f6f7a535SCI39145050865 was pending at last observation; older d058SCI39135691666 had38completed jobs/no failures and7running, not current-main qualification.
-- **Original tests/numerics:** complete audit across2,333library files/1,102original test files; complex poles, Hermite, Chebfun3T representation/provider and wider API/JAX/AD gaps.
-- **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1,305figures remain required.
+- **Latest verified integration:** explicit Chebfun2 preferences and adaptive disk grids/tolerance/rank-width decisions;194actual parentPASS in two disjoint processes. [Evidence](chebfun2_disk_preferences_spacing_cpu_20261018.json).
+- **Unary worker:** remaining2original+5fresh TAN/TANH failures. Source quotient work still has a near-axis normal-input/subnormal-output discrepancy and a retained memory censor; not credited as repaired.
+- **Disk worker:** joint matrix PhaseTwo/factor simplification diagnosis. A named original rank102 case passes alone, but native factor storage differs; its CPU compilation cost remains under study. Final FFT factor/provider words and broader adaptive JAX/AD remain open.
+- **Root next:** review the disk rank102 diagnosis and source joint-factor staging candidate; complete original assertion/API audit and select next substantive missing behavior. Explicit single Chebfun2 preferences are scoped-qualified; paired/coefficient/equispaced grammar remains open.
+- **CPU speed:** published inverse root-filter compilation optimization; rejected Brent padding experiment retained. Native inverse warm gap~2.51x remains in an earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and other paths require qualification.
+- **CI:** new publication requires latest-main scientificCI/coverage≥79%. Prepublication9caeSCI39147084903 was in progress,16completed/no failures and30running at last observation; this is not a greenCI claim.
+- **Original tests/numerics:** complete audit across2333library files/1102original test files; complex poles, Hermite, Chebfun3T representation/provider and broader API/JAX/AD gaps.
+- **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1305figures remain required.
+- **Evidence correction:** old34case constructor timeout has18progressdots but no named active node; earlier clause10/9pass attribution is retracted, with immutable raw hashes in the latest report.
 
 ### Active work, not yet credited as complete
 
@@ -42,6 +43,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Explicit Chebfun2 fixed/numeric/rank preferences and adaptive disk source grids/tolerance/rank stopping: **194 actual parent PASS**, original bounds retained. [Evidence](chebfun2_disk_preferences_spacing_cpu_20261018.json).
+- [ ] Wider preferences/API/JAX/AD, unary/provider errors, full original tests,322pages/1305figures, matched speed and latest-mainCI remain open.
 
 - [x] TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division: **251 actual parent PASS /1strictXFAIL**, all original native assertions/bounds retained. [Evidence](tan_disk_remaining_parent_cpu_20261018.json).
 - [ ] Remaining2original+5fresh unary gaps,2disk wordXFAILs, full original assertion/API/JAX/AD audit,322pages/1305figures, matched speed and latest-mainCI remain open.

@@ -10,7 +10,7 @@ Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df
 """
 import jax.numpy as jnp
 
-from chebfunjax.tech.chebtech import Chebtech2
+from chebfunjax.tech.chebtech import Chebtech1, Chebtech2
 from chebfunjax.tech.trigtech import Trigtech
 from chebfunjax.utils._trigpts import global_trigpts_nodes, map_global_nodes
 from chebfunjax.utils.misc import standard_chop
@@ -43,7 +43,7 @@ def numeric_points(n, interval, tech):
     a, b = interval
     if tech == "trig":
         return map_global_nodes(global_trigpts_nodes(n), a, b)
-    nodes = chebpts(n, kind=2)
+    nodes = chebpts(n, kind=1 if tech == "cheb1" else 2)
     if a == -1 and b == 1:
         return nodes
     return b*(nodes + 1)/2 + a*(1 - nodes)/2
@@ -158,6 +158,13 @@ def numeric_factors(values, tech, tolerance, chop=False):
             3*jnp.finfo(jnp.float64).eps*scale)
         return [Trigtech(coeffs=joint.coeffs[:, k], is_real=bool(flags[k]),
                          ishappy=True) for k in range(values.shape[1])]
+    if tech == "cheb1":
+        values = Chebtech1.extrapolate(values)
+        coefficients = Chebtech1.vals2coeffs(values)
+        return [Chebtech1.from_coeffs(
+            coefficients[:standard_chop(coefficients[:, k], tolerance), k]
+            if chop and bool(jnp.max(jnp.abs(values[:, k])) > 0)
+            else coefficients[:, k]) for k in range(values.shape[1])]
     values = extrapolate_cheb_values(values)
     coefficients = _vals2coeffs_jax(values)
     result = []
@@ -182,13 +189,12 @@ def numeric_cdr(values, domain, tolerance, techs, chop=False):
     x = numeric_points(values.shape[1], domain[:2], techs[0])
     y = numeric_points(values.shape[0], domain[2:], techs[1])
     _, absolute = numeric_tolerances(x, y, values, domain, tolerance)
-    pivots, positions, rows, cols, _ = numeric_aca(values, absolute)
+    pivots, _, rows, cols, _ = numeric_aca(values, absolute)
     inverse = 1/pivots
     inverse = jnp.where(_source_inf_magnitude(inverse), 0, inverse)
-    locations = tuple((float(x[col]), float(y[row])) for row, col in positions)
     return dict(cols=numeric_factors(cols, techs[1], tolerance, chop),
                 rows=numeric_factors(rows.T, techs[0], tolerance, chop), pivots=inverse,
-                domain=domain, techs=techs, pivot_locations=locations,
+                domain=domain, techs=techs, pivot_locations=(),
                 pivot_values=pivots)
 
 
@@ -229,5 +235,9 @@ def scalar_cdr(value, domain):
     # Scalar numeric input recurses through the callable constructor. Its
     # zero-factor branch sets pivotValue=Inf, unlike zero numeric-matrix ACA.
     raw = jnp.asarray([jnp.inf]) if bool(value == 0) else value[None]
+    # Source recursion uses its first diagonal pivot for a nonzero constant;
+    # its exact-zero branch explicitly replaces the location by [0, 0].
+    locations = ((0.0, 0.0),) if bool(value == 0) else ((domain[0], domain[2]),)
     return dict(cols=[factor], rows=[factor], pivots=inverse[None],
-                pivot_values=raw, domain=domain, techs=("cheb", "cheb"))
+                pivot_values=raw, domain=domain, techs=("cheb", "cheb"),
+                pivot_locations=locations)

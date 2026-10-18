@@ -195,8 +195,9 @@ class Chebfun2(eqx.Module):
             directions, in x only, or in y only.
 
         pref : ChebfunPref, optional
-            Shared axis preference for adaptive callable construction. Selects
-            genuine first-kind, second-kind or trigonometric slice factors.
+            Shared axis preference for callable construction. Selects genuine
+            first-kind, second-kind or trigonometric slice factors, including
+            fixed sample grids.
 
         Returns
         -------
@@ -206,8 +207,6 @@ class Chebfun2(eqx.Module):
         ------
         ValueError
             If ``domain`` does not have exactly 4 elements.
-        NotImplementedError
-            If ``n`` is given (fixed-degree construction not yet implemented).
 
         Notes
         -----
@@ -245,8 +244,6 @@ class Chebfun2(eqx.Module):
             if name not in names:
                 raise ValueError(f"Unsupported Chebfun2 technology {pref.tech!r}")
             base_tech = names[name]
-            if n is not None:
-                raise NotImplementedError("Explicit preferences with fixed-size construction are not supported")
             # Native reads tech.techPref, not pref.techPrefs overrides.
             tech_defaults = _factory_tech_prefs(pref.tech)
             pref_kwargs = dict(tol=float(pref.cheb2Prefs.chebfun2eps),
@@ -254,6 +251,9 @@ class Chebfun2(eqx.Module):
                                min_samples=int(tech_defaults.minSamples),
                                max_samples=int(tech_defaults.maxLength),
                                sample_test=bool(pref.cheb2Prefs.sampleTest))
+        if n is not None and pref is not None:
+            return _chebfun2_preference_input(
+                f, tuple(domain), tol, n, None, pref, trig or trigx, trig or trigy)
         if n is not None:
             # Fixed-size construction (MATLAB chebfun2(op, [m n])):
             # sample on an n-by-n 2nd-kind Chebyshev tensor grid and
@@ -641,7 +641,8 @@ class Chebfun2(eqx.Module):
     @property
     def pivot_locations(self) -> tuple:
         """Physical (x, y) pivot locations from construction (MATLAB
-        ``f.pivotLocations``); empty for non-constructed results."""
+        ``f.pivotLocations``). Native numeric matrices leave this empty;
+        numeric scalars recurse through callable construction."""
         return getattr(self.approx, "pivot_locations", ())
 
     def length(self) -> tuple[int, int]:
@@ -3113,9 +3114,8 @@ def chebfun2(
     MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
     Chebfun commit: 7574c77
     """
-    if pref is not None and (not callable(f) or n is not None or rank is not None
-                             or coeffs or coeffsx or coeffsy or equi or equix or equiy):
-        raise NotImplementedError("Explicit preferences currently require adaptive callable construction")
+    if pref is not None and (coeffs or coeffsx or coeffsy or equi or equix or equiy):
+        raise NotImplementedError("Explicit preferences with coefficient/equispaced data are not implemented")
     import numpy as _np
     if periodic:
         trig = True
@@ -3172,6 +3172,9 @@ def chebfun2(
             out = [_f0(jnp.asarray(xv), jnp.asarray(yv))
                    for xv, yv in zip(xb.ravel(), yb.ravel())]
             return jnp.asarray(_np.asarray(out)).reshape(xb.shape)
+    if pref is not None and (not callable(f) or n is not None or rank is not None):
+        return _chebfun2_preference_input(
+            f, dv, tol, n, rank, pref, trigx, trigy)
     if not callable(f) and _mixed:
         arr = _np.asarray(f)
         if arr.ndim == 1:
@@ -3214,6 +3217,85 @@ def chebfun2(
                                       trig=(trigx and trigy),
                                       trigx=trigx, trigy=trigy, pref=pref)
     return _chebfun2_impl(f, domain=domain, tol=tol, n=n, pref=pref)
+
+
+def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy):
+    """Native fixed-length sampling followed by preference-aware numeric CDR.
+
+    Provenance
+    ----------
+    MATLAB source: @chebfun2/constructor.m parseInputs/constructFromDouble/
+        fixTheRank, Chebfun commit:7574c77.
+    Only shape/rank/error metadata is handled eagerly; grids, values, ACA and
+    factor transforms use the shared JAX numerical implementations.
+    """
+    from chebfunjax.chebfun2d._numeric_constructor import numeric_points
+    from chebfunjax.chebpref import ChebfunPref
+
+    if not isinstance(pref, ChebfunPref):
+        raise TypeError("pref must be a ChebfunPref; paired preferences are not supported")
+    name = (pref.tech.__name__ if isinstance(pref.tech, type)
+            else str(pref.tech)).lower().lstrip("@")
+    names = {"chebtech1": "cheb1", "chebtech2": "cheb",
+             "chebtech": "cheb", "trigtech": "trig"}
+    if name not in names:
+        raise ValueError(f"Unsupported Chebfun2 technology {pref.tech!r}")
+    base = names[name]
+    techs = ("trig" if trigx else base, "trig" if trigy else base)
+    tolerance = float(pref.cheb2Prefs.chebfun2eps)
+    if tol is not None:
+        tolerance = max(tolerance, float(tol))
+    if callable(op) and sizes is None:
+        result = Chebfun2.from_function(op, domain=domain, tol=tol, pref=pref,
+                                       trigx=trigx, trigy=trigy)
+    else:
+        if callable(op):
+            dims = (tuple(sizes) if isinstance(sizes, (tuple, list))
+                    or getattr(sizes, "ndim", 0) > 0 else (sizes, sizes))
+            if len(dims) != 2 or any(int(v) != v or v <= 0 for v in dims):
+                raise ValueError("CHEBFUN:CHEBFUN2:constructor:parseInputs:domain2: "
+                                 "Fixed lengths must be positive integers")
+            m, n = map(int, dims)
+            x = numeric_points(m, domain[:2], techs[0])
+            y = numeric_points(n, domain[2:], techs[1])
+            xx, yy = jnp.meshgrid(x, y)
+            values = jnp.broadcast_to(jnp.asarray(op(xx, yy)), xx.shape)
+        else:
+            values = jnp.asarray(op)
+            if values.ndim == 1:
+                values = values.reshape(-1, 1)
+        result = Chebfun2(approx=SeparableApprox.from_values(
+            values, domain=domain, tol=tolerance, techs=techs))
+    if rank is None or not rank or result.isempty():
+        return result
+    if int(rank) != rank or rank < 0:
+        raise ValueError("CHEBFUN:CHEBFUN2:constructor:parseInputs:domain3: "
+                         "Fixed rank must be a nonnegative integer")
+    k = int(rank)
+    approx = result.approx
+    cols, rows = list(approx.cols[:k]), list(approx.rows[:k])
+    pivots = approx.pivots[:k]
+    raw = None if approx.pivot_values is None else approx.pivot_values[:k]
+    if k > result.rank:
+        from chebfunjax.tech.trigtech import Trigtech
+
+        # Native appends default nonperiodic zero chebfuns. Nonperiodic
+        # horzcat keeps the joint technology/length. A periodic factor and
+        # a default zero instead remain a heterogeneous quasimatrix.
+        def zero_column(factor):
+            if isinstance(factor, Trigtech):
+                return Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
+            return type(factor).from_coeffs(jnp.zeros_like(factor.coeffs))
+
+        for _ in range(k-result.rank):
+            cols.append(zero_column(approx.cols[0]))
+            rows.append(zero_column(approx.rows[0]))
+        pivots = jnp.concatenate((pivots, jnp.zeros(k-result.rank)))
+        if raw is not None:
+            raw = jnp.concatenate((raw, jnp.zeros(k-result.rank)))
+    return Chebfun2(approx=SeparableApprox(
+        cols=cols, rows=rows, pivots=pivots, pivot_values=raw, domain=approx.domain,
+        pivot_locations=approx.pivot_locations, techs=approx.techs))
 
 
 def _chebfun2_from_matrix(A, dv, xkind: str, ykind: str):

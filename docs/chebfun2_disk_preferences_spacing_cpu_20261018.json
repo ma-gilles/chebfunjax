@@ -1,0 +1,65 @@
+{
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "9cae4bc530cca49791c5f5e4053079a6495bd1b0",
+  "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions",
+  "actual_parent_passes": 194,
+  "disjoint_runs": {
+    "root": {
+      "passed": 96,
+      "pytest_seconds": 36.881,
+      "wall_seconds": 46.87749490328133,
+      "sampled_peak_summed_rss_kib": 2262632,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "observed_guarded_imports": 1541
+    },
+    "disk": {
+      "passed": 98,
+      "pytest_seconds": 34.799,
+      "wall_seconds": 44.591838592197746,
+      "sampled_peak_summed_rss_kib": 1989816,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "observed_guarded_imports": 1496
+    }
+  },
+  "children": [
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_preferences_packet_20261018.tar.gz",
+      "sha256": "1a8c701501ba62b10cf3d4339b5c4a51ae8134fc002e78576f0a8c766f24121e",
+      "payloads_verified": 173
+    },
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_adaptive_spacing_candidate_20261018.tar.gz",
+      "sha256": "cf151563c7e0038d02392c568d3fe7623210206fffd8e59f5689e4bf78e2dd66",
+      "payloads_verified": 139,
+      "unlisted_payloads": 0
+    }
+  ],
+  "source_evidence": [
+    "Chebfun2 native18base+23extra+2heterogeneous-rank+30metadata records; one prior collector failure explicitly superseded by successful targeted capture.",
+    "Chebfun2 child18baselineFAIL,18PASS,41PASS,61PASS12empty-decoderFAIL then30metadataPASS; unchanged final production numeric78PASS and C1/CI27PASS. Final parent73preference+23CI=96PASS. All failures retained.",
+    "Disk native32stage decisions and8public constructors; angular words sourceexact at grids4/8/16/32, hx=2*pi/grid, rankCount>=width forces nothappy. Original public evaluation bound unchanged.",
+    "Final parent source/test/fixture hashes stable; all observed runtimeimports preguarded, no process survivors.",
+    "Test formatting ASTexact; unchanged original assertions/fixtures/bounds;1123owner prefixes retained,1125owners/13lanes/Hermite12/79%."
+  ],
+  "timeout_attribution_erratum": {
+    "supersedes": "Older report attribution to clause10 after9passes is unsupported and retracted.",
+    "observation": "Raw progress has14dots at41%, then4dots, eighteen completed dots without namednode/stack. Exact live case is unknown.",
+    "raw": {
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_scalar_source_candidate_20261018/original_constructor_run/stdout": "39af5bbfe7cb11bd6434f859f98ad9bbaf50538388c52c91f7ce3ae01c06bc80",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_scalar_source_candidate_20261018/original_constructor_run/receipt.json": "8fcdfb288d7440023ea62c75e645dcd010edf7b55198f70c4e7b90a80dc8cadf",
+      "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_scalar_source_candidate_20261018/original_constructor_run/guard.json": "3ee367a86ec127c08f1fe6441299f295651f5e6ac9545442282cea1f036847ec"
+    },
+    "wall_seconds": 241.9219674631022,
+    "sampled_peak_summed_rss_kib": 6033932,
+    "limits": "Historical archives remain immutable. This censor establishes no named-case failure or performance location."
+  },
+  "limits": [
+    "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+    "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+    "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+  ]
+}

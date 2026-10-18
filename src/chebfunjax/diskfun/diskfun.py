@@ -55,7 +55,7 @@ from chebfunjax.utils._gradual import (
 )
 from chebfunjax.utils._ordered_binary import binary
 from chebfunjax.utils.misc import standard_chop
-from chebfunjax.utils.quadrature import chebpts
+from chebfunjax.utils.quadrature import chebpts, trigpts
 from chebfunjax.utils.transforms import vals2coeffs
 
 
@@ -202,7 +202,10 @@ def _disk_row_pts(n: int) -> np.ndarray:
     MATLAB source : @diskfun/constructor.m  (getPoints subfunction)
     Chebfun commit: 7574c77
     """
-    return np.linspace(-np.pi, np.pi, 2 * n, endpoint=False, dtype=np.float64)
+    # Global trigpts normalizes and antisymmetrizes before mapping the domain.
+    # A direct linspace has different binary64 coordinates. NumPy only stores
+    # the source JAX result for the adaptive constructor.
+    return np.asarray(trigpts(2 * n, (-np.pi, np.pi))[0])
 
 
 # ============================================================================
@@ -401,6 +404,10 @@ def _phase_one_disk(
         idxm = int(np.argmax(np.abs(Fm))) if maxm_val > 0 else 0
 
     is_happy = max(maxp_val, maxm_val) <= tol
+    # Native PhaseOne resets happiness after reaching its width budget,
+    # even when the final update has eliminated the residual exactly.
+    if rank_count >= width:
+        is_happy = False
 
     if len(pivot_indices) == 0:
         # Native GE leaves the nonzero/no-pivot result empty. Keep the
@@ -1100,7 +1107,9 @@ class Diskfun(eqx.Module):
                         "Function returned NaN when evaluated",
                     )
 
-            tol_abs, vscale = _get_tol(F, 2.0 * np.pi / (2 * grid), 1.0 / grid, pseudo_level)
+            # Native getPoints(grid, grid) returns 2*grid angular samples,
+            # but constructor.m passes hx=2*pi/grid to getTol literally.
+            tol_abs, vscale = _get_tol(F, 2.0 * np.pi / grid, 1.0 / grid, pseudo_level)
             # (no 1e4*eps floor: MATLAB's getTol is used as computed)
 
             pivot_indices, pivot_array, remove_poles, happy_rank = _phase_one_disk(

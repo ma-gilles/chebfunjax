@@ -65,9 +65,8 @@ def test_native_public_empty_pivot_and_unaffected_routes(case):
                          ids=lambda c: c["name"])
 def test_no_pivot_uses_actual_production_tolerance(case):
     values = array(case["initial_values"])
-    # This is the unchanged adaptive Python tolerance call, including its
-    # separately documented angular-spacing gap. No native tol injection.
-    tol = _get_tol(values, 2*np.pi/(2*8), 1/8,
+    # Literal native adaptive tolerance call. No native tol injection.
+    tol = _get_tol(values, 2*np.pi/8, 1/8,
                    float(array(case["level"]).reshape(())))[0]
     indices, pivots, pole, happy = _phase_one_disk(values, tol, 100., 8.)
     assert indices.shape == pivots.shape == (0, 2)

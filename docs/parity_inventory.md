@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [Chebfun2 preferences/disk source grids](chebfun2_disk_preferences_spacing_cpu_20261018.json):194parentPASS in two disjoint scopes; single-preference fixed/numeric/rank support and native sampling/tolerance/rank stopping. Remaining full-item statuses stay unverified. Prior constructor timeout attribution is explicitly corrected in this report.
+
 Latest [TAN phase/disk errors/division](tan_disk_remaining_parent_cpu_20261018.json):251parentPASS/1strictXFAIL; original native assertions/bounds retained. Expected failures/full-item qualification remain open.
 
 Latest [root filter and adaptive scalar qualification](root_disk_parent_cpu_20261018.json):223parent passes in two disjoint scopes. Inverse first-call compilation reduced; native words/speed and full-item statuses remain unverified.

@@ -101,6 +101,21 @@
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
       "sha256": "0fa2b85937e671fa8da2b74887d3c7f94e396c18e2e842d6c409301185442aef"
     },
+    "chebfun2_disk_preferences_spacing_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_disk_parent_cpu_20261018.tar.gz",
+        "sha256": "2e67b0c334b29bbeaac8cbfdfee9fa7196410ea8df14073403b97afe159ed666",
+        "verified_payloads": 105
+      },
+      "limits": [
+        "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+        "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+        "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+      ],
+      "path": "docs/chebfun2_disk_preferences_spacing_cpu_20261018.json",
+      "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions",
+      "sha256": "5525be6ecc8d2ea9afd11dedbc34be3097364739ef5840fb4074f3f3ef3b6188"
+    },
     "chebfun3t_current_transform_cpu_20261017": {
       "path": "docs/chebfun3t_current_transform_cpu_20261017.json",
       "scope": "Unchanged original constructor predicate7 still fails on47a CPU; strict xfail retained, no repair claimed",
@@ -57270,6 +57285,15 @@
         {
           "artifact": "c1_nodots_cpu_20261017",
           "scope": "Original technology/no-dots predicates and stated controls only; full-item status remains unverified"
+        },
+        {
+          "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+          "limits": [
+            "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+            "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+            "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
         }
       ],
       "functions": [
@@ -57282,7 +57306,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "254",
@@ -57314,7 +57348,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "448",
@@ -57346,7 +57390,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "563",
@@ -57354,7 +57408,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "596",
@@ -75782,6 +75846,15 @@
             "Full native function/assertion/API/JAX/AD audit,322final-sourcepages/1305figures, matched CPU speed and latest-mainCI/coverage>=79% remain open."
           ],
           "scope": "Source TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division"
+        },
+        {
+          "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+          "limits": [
+            "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+            "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+            "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
         }
       ],
       "functions": [
@@ -75810,7 +75883,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "189",
@@ -75826,7 +75909,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "722",
@@ -75853,6 +75946,15 @@
                 "Latest-main CI and79%coverage acceptance"
               ],
               "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
+            },
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
             }
           ],
           "implementation_status": "unverified",
@@ -75890,7 +75992,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "817",
@@ -75898,7 +76010,17 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_disk_preferences_spacing_cpu_20261018",
+              "limits": [
+                "Single Chebfun2 preferences qualified only; paired/coefficient/equispaced preferences and wider API/JAX/AD/provider/speed remain open.",
+                "Disk harmonic rowFFT component differences persist; child273PASS1strictXFAIL is a separate overlapping scope, not part of194parent count. No whole-adaptive-JAX/AD/performance claim.",
+                "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "944",

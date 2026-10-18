@@ -1,3 +1,35 @@
+# Chebfun2 preferences and adaptive disk source grids — 2026-10-18
+
+Actual integration **194 PASS**, two disjoint processes:73Chebfun2 native
+preference controls+23CI protocol checks, and98disk source controls. Every
+observed runtime import was preguarded; inputs stable, no censor/survivors.
+All1123prior owner prefixes retained;1125owners/13lanes/Hermite12/79%unchanged.
+
+Chebfun2 single explicit preferences now support fixed callable grids, numeric
+and string input, rank truncation/padding and genuine C1/C2/trigonometric
+factors. Native heterogeneous periodic rank padding is retained. Native numeric
+matrices leave pivot locations empty; scalar locations follow callable recursion.
+Native18base+23extra+2targeted+30metadata records are preserved. Child78numeric
+and27C1/CI regressions pass separately; overlapping counts are not summed.
+The raw61PASS12authored-empty-decoderFAIL gate and its AST-isolated decoder
+correction remain evidence; final parent includes all73preference cases passing.
+Paired/coefficient/equispaced preferences, broader API/JAX/AD and speed remain open.
+
+Disk adaptive source coordinates reuse JAX trigpts; literal hx=2*pi/grid and
+rank-width stopping now match native.32stage decisions and8public controls
+qualified; child273PASS1strictXFAIL is a separate overlapping scope. Harmonic
+row FFT/provider words and general adaptive host/JAX/AD/speed remain open.
+
+**Erratum:** earlier descriptions of the original34case constructor timeout
+as clause10 after9passes are retracted. Preserved stdout contains18completed
+dots and no named active node/stack. Its241.92s wall censor cannot identify
+the case being executed. Historical raw archives remain unchanged; hashes and
+limitations are recorded in the new report.
+
+All322final-sourcepages/1305scientific figures, complete original assertion/API
+coverage, matched CPU speed and green latest-mainCI remain required.
+Evidence: docs/chebfun2_disk_preferences_spacing_cpu_20261018.json.
+
 # TAN phase, adaptive disk errors and extrapolation division — 2026-10-18
 
 Actual parent **251 PASS / 1 strict XFAIL**, two disjoint processes:
