@@ -434,6 +434,16 @@
       "report_sha256": "a9c8106d460cdc42053ab1945c422c10350bc17158812f204f13695f3f95b7c5",
       "scope": "Diagnosed supplemental cosine/provider discrepancy, unresolved; not whole polyfitL1 qualification."
     },
+    "polyfit_l1_cosine_parent_cpu_20261018": {
+      "path": "docs/polyfit_l1_cosine_parent_cpu_20261018.json",
+      "scope": "Source-backed supplemental cosine L1 test contract correction, no production/provider or original8 change",
+      "sha256": "bae3b13a489e21c1004eff631b29d221f8694f6dc4c7ea60b2a6df3508b5a6db"
+    },
+    "polyfit_l1_cosine_test_contract_cpu_20261018": {
+      "path": "docs/polyfit_l1_cosine_test_contract_cpu_20261018.json",
+      "scope": "Supplemental cos4 test-contract correction only; no production/provider change or full API parity claim",
+      "sha256": "84ce769b6e38311fcb29ab37c42c3a97aed2f63a778c52aec7ccaa1c08d3ee0b"
+    },
     "power_original41_cpu_20261017": {
       "path": "docs/power_original41_cpu_20261017.json",
       "scope": "All41 literal default original Chebfun power predicates with verified native seed6178 draw operands. Test-only coverage restoration; no library fix.",
@@ -54521,11 +54531,30 @@
         {
           "evidence_id": "original_system2_polyfit8_cpu_20261017",
           "scope": "Default original test clauses only; full function/API remains unverified."
+        },
+        {
+          "artifact": "polyfit_l1_cosine_parent_cpu_20261018",
+          "limits": [
+            "Externalprovider/nativecosinewordparity remains open; finiteexternal and nativeMAXITER paths are distinct legitimate suppliedfloatinginputs.",
+            "No librarybug repair or new nativepredicate asserted; this corrects an incorrect supplementaltest expectation.",
+            "FullpolyfitL1API/JAX/performance,latest-mainCI/79%coverage andallpages/figures remain open."
+          ],
+          "scope": "Source-backed supplemental cosine L1 test contract correction, no production/provider or original8 change"
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "polyfit_l1_cosine_parent_cpu_20261018",
+              "limits": [
+                "Externalprovider/nativecosinewordparity remains open; finiteexternal and nativeMAXITER paths are distinct legitimate suppliedfloatinginputs.",
+                "No librarybug repair or new nativepredicate asserted; this corrects an incorrect supplementaltest expectation.",
+                "FullpolyfitL1API/JAX/performance,latest-mainCI/79%coverage andallpages/figures remain open."
+              ],
+              "scope": "Source-backed supplemental cosine L1 test contract correction, no production/provider or original8 change"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",

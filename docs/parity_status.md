@@ -1,3 +1,14 @@
+# Supplemental cosine L1 test contract — 2026-10-18
+
+External JAX cosine now tests finite continuous L1 optimality at original1e-8,
+with unchangedcallback/degree/20queries. A separate source-compatiblecallback
+asserts15native constructorwords+2endpointcallbackwords before retaining exact
+MAXITER/20NaN/noInf checks. Actual parent25checks pass; original8predicatebytes,
+all production and all other test ASTs unchanged. Prior incorrect warningtest
+and its actual failure preserved. This is a supplementaltest correction, not a
+library repair or externalproviderword-parity claim. Existing1094owners retained.
+Evidence: docs/polyfit_l1_cosine_parent_cpu_20261018.json.
+
 # Public small Hermite, disk maps and original query adapters — 2026-10-18
 
 Explicit small Hermite ASY now uses the source-derived pure-JAX trajectory.

@@ -1,0 +1,37 @@
+{
+  "actual_parent": "25PASS:2supplemental cos4controls plus23CIprotocol checks. Counts do not extend original8nativecoverage.",
+  "base": "a3f1c99e86be6a8b1428838d33afd6b1bbcce474",
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/cos4_contract_package_20261018.tar.gz",
+    "sha256": "93bff13e840dd3d695df47b4121cc347b6027992df80d802c3b748db93b1eae2",
+    "verified_payloads": 414
+  },
+  "child_report": "docs/polyfit_l1_cosine_test_contract_cpu_20261018.json",
+  "limits": [
+    "Externalprovider/nativecosinewordparity remains open; finiteexternal and nativeMAXITER paths are distinct legitimate suppliedfloatinginputs.",
+    "No librarybug repair or new nativepredicate asserted; this corrects an incorrect supplementaltest expectation.",
+    "FullpolyfitL1API/JAX/performance,latest-mainCI/79%coverage andallpages/figures remain open."
+  ],
+  "native_fixture": "Root independently verified exactcaptureSHA8dee325470ee519747be2dd5a0de03a8d13ea14718a5b9f97037263a73e5d122; runtime control asserts15constructorcoeffwords+2capturedendpointcallbackwords. Native pointValues not separately captured.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/cos4_parent_cpu_20261018.tar.gz",
+    "sha256": "46e4aef09157c29bc9a12c1c23046babacea43c5eaeac67a7d4a22232524b8a9",
+    "verified_payloads": 391
+  },
+  "preservation": [
+    "Externaljnp.cos,degree4 and20queries retained; continuous L1momentnorm bound1e-8 comes from originaltest criterion.",
+    "Exact priorMAXITER context and20NaN/noInf assertions retained in separate explicit source-compatiblecallback control; actual nativeconstructorwords asserted before solver.",
+    "Oldbody andactualDIDNOTWARNfailure preserved in childarchive.",
+    "Original8literaltest bytes, production source and all other test ASTs unchanged; existing1094coreowners retained,one new node within existingfile."
+  ],
+  "receipt": {
+    "censored_limit": null,
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "sampled_peak_summed_rss_kib": 1468080,
+    "supervisor_exit_code": 0,
+    "wall_seconds": 48.03292708704248
+  },
+  "scope": "Source-backed supplemental cosine L1 test contract correction, no production/provider or original8 change"
+}

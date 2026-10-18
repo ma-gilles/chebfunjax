@@ -13,7 +13,7 @@ Checked items certify only their stated scope.
 | Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
 | Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
-| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T constructor, external cosine warning and broader original-test/API gaps |
+| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T constructor, external cosine provider rounding, C1 CI reproducibility and broader original-test/API gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
 | Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
@@ -26,6 +26,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Correct supplementalcos4test contract:external callback finite continuousL1optimality at1e-8; separate matchednativeinput MAXITER/NaNcontrol asserts15coeff+2endpointwords. Actual parent25checks pass; original8 and production unchanged. [Evidence](polyfit_l1_cosine_parent_cpu_20261018.json).
+- [ ] External cosine provider-word parity, full solver/JAX/performance and latestCI remain open. Test correction is not a library repair.
+
 
 - [x] Public small Hermite ASY source integration:full30-node public file/all18valid orders meet original complex-modulus bounds/native finite storage; actual parent47checks include cold cache-disabledn2, actual child coverage merge, original18+largeJIT+dtype controls and23CIprotocol checks. [Evidence](hermite_public_parent_cpu_20261018.json).
 - [ ] Small whole-call JIT/AD, nonfinite native storage, full hermpts API and matched CPU speed/memory remain open. DedicatedCore12 retains all1092old owners; aggregate79%gate unchanged/unproven.
@@ -53,12 +57,12 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] AbsoluteValue complete application: source public plotData/error Chebfun, unclipped error arrays, five600x270figures, empty stdout, zero scientific warnings; fresh native five-cell comparison and parent3956payload archive review. [Evidence](absolute_value_parent_cpu_20261017.json).
 - [ ] AbsoluteValue representation lengths, visible error patterns and all five raster comparisons differ; complete page/figure parity remains open.
 - [x] Paired cos4 source/provider controls: source-compatible constructor15/15native words and MAXITER/20NaNs; external JAX callback finite L1 fit passes original1e-8moment bound. [Evidence](cosine_watson_paired_controls_cpu_20261017.json).
-- [ ] External cosine word/warning parity remains unresolved; existing strict test is unchanged.
+- [ ] External cosine provider-word parity remains unresolved. The incorrect supplemental warning expectation is corrected in the source-backed test-contract entry above.
 
 
 - [x] All6default original system2 cell/autonomous predicates pass onfc at unchanged1e-9; no library edit, stale unsupported callback entry corrected. New regression+21protocol checks preserve1088prior owners+1new. [Evidence](original_system2_polyfit8_cpu_20261017.json).
 - [x] All8default original polyfitL1 predicates pass on frozen36e at unchanged1e-8; fresh unmodified native testfunction also all8true. [Per-clause table](polyfit_l1_original8_current_cpu_20261017.md).
-- [ ] Broader API/backend/performance and latest-source/CI qualification remain open; supplemental external cosine warning remains separate.
+- [ ] Broader API/backend/performance and latest-source/CI qualification remain open; external cosine provider rounding remains separate.
 
 
 - [x] Repair3recorded nonfinite ABS mask cases through shared C1/C2 transforms:24new native-stage,16exact C1/JIT/AD,44original transform,111parent tech/native/protocol,3unbounded and20complex AD nodes pass (counts overlap). [Evidence](nonfinite_transform_native_cpu_20261017.json).
@@ -66,7 +70,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Bounded source cosine analytic derivatives:15new+8existing checks and unchanged fixed48 PDE pass;1040independent native vector/scalar and50actual sample words exact; parent21protocol checks. [Evidence](bounded_cosine_parent_cpu_20261017.json).
-- [ ] Supplemental polyfitL1(cos,4) warning parity remains open: two external cosine sample words differ1ULP; same-input transforms agree. [Diagnosis](polyfit_cos4_first_divergence_cpu_20261017.json). No constructor/provider or full solver closure.
+- [ ] Two external cosine sample words differ1ULP; same-input transforms agree. Source-backed supplementaltest expectations are corrected above; external provider-word parity remains open. [Diagnosis](polyfit_cos4_first_divergence_cpu_20261017.json). No constructor/provider or full solver closure.
 
 
 - [x] Source existing-grid C1/C2 ABS storage dispatch and representation:87parent tech/original/protocol checks and3literal unbounded assertions pass, all1085prior core owners preserved+1new. [Evidence](abs_existing_grid_parent_cpu_20261017.json).

@@ -1,0 +1,35 @@
+{
+  "scope": "Captured native constructor input identity for a supplemental Watson control; no production lookup",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+  "source": "@chebfun/polyfitL1.m; native chebfun(@cos) constructor",
+  "capture_sha256": "8dee325470ee519747be2dd5a0de03a8d13ea14718a5b9f97037263a73e5d122",
+  "capture": "bounded_cosine_qualification_evidence_20261017/native_constructor.json",
+  "observer_coefficients_identical": true,
+  "domain": [
+    -1.0,
+    1.0
+  ],
+  "coefficient_words": [
+    "3fe87c7fdbd7b8f0",
+    "0000000000000000",
+    "bfcd6a5095fa9be6",
+    "0000000000000000",
+    "3f7449e36b5af1b6",
+    "0000000000000000",
+    "bf05f497a1995e6d",
+    "0000000000000000",
+    "3e894afc50fb7a6c",
+    "0000000000000000",
+    "be0213d3a6a48000",
+    "0000000000000000",
+    "3d71974f40000000",
+    "0000000000000000",
+    "bcd8b00000000000"
+  ],
+  "endpoint_words": [
+    "3fe14a280fb5068c",
+    "3fe14a280fb5068c"
+  ],
+  "endpoint_provenance": "Actual callback values at -1/+1 in the 17-node constructor call; no separate native pointValues field was captured."
+}

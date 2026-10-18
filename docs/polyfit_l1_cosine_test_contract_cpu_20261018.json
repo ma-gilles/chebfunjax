@@ -1,0 +1,76 @@
+{
+  "scope": "Supplemental cos4 test-contract correction only; no production/provider change or full API parity claim",
+  "base": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "diagnosis": "Original native eight predicates have no cos4 warning predicate. Watson warns only after actual iteration100. External jnp.cos sampling differs from native cosine; transferring native observed nonconvergence to that callback is an incorrect supplemental test contract.",
+  "changes": [
+    "Keep external jnp.cos, degree4 and original20query points; require finite shape20 and original-style continuous moment norm2<1e-8.",
+    "Separate explicit bounded-cosine matched-input control: assert15captured native coefficient words and both captured endpoint callback words, then retain exact MAXITER context and20NaN/noInf assertions.",
+    "Original8 literal test bytes, all production bytes, original tolerances unchanged."
+  ],
+  "native_fixture": {
+    "path": "tests/fixtures/polyfit_l1_cosine_native_input.json",
+    "sha256": "7359cd86dba1d6bd45509a89f18d8b460b2c206b20f5cd26d6e4c654b7c54a33",
+    "limitation": "Endpoint words come from actual captured constructor callback; native pointValues property was not separately collected. Current point_values match those callback words; no universal complete-object identity claim."
+  },
+  "evidence": {
+    "paired_report": "docs/cosine_watson_paired_controls_cpu_20261017.json",
+    "paired_archive_sha256": "413d3365b53e831f9b798132752d62089ab467a079ec4abfaa0ab6aaf2be94b2",
+    "historical_external_moment_norm": 2.6104258505924134e-12,
+    "native_source": [
+      "@chebfun/polyfitL1.m",
+      "tests/chebfun/test_polyfitL1.m"
+    ],
+    "current_constructor_preflight": "15/15native coefficients and2/2endpoint words match; domain[-1,1]",
+    "old_body": "Evidence snapshot old_test_evaluable.txt and old_test_new_functions.py retain strict warning expectation unchanged. Current baseline_run002 fails missing RuntimeWarning; no solver failure is repaired.",
+    "failed_observer": "baseline_run001 is a preserved pre-solver diagnostic error: observer requested nonexistent pointValues instead of point_values; run002 corrects observer only."
+  },
+  "gates": {
+    "cos4_contract_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 8.994851050898433,
+      "sampled_peak_summed_rss_kib": 844696,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "cos4_contract_baseline_run002": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 21.099794432986528,
+      "sampled_peak_summed_rss_kib": 1013956,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "cos4_contract_candidate_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 53.3612827793695,
+      "sampled_peak_summed_rss_kib": 1444036,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "candidate": "2PASS in current final supplemental tests; baseline uses oldbody1FAIL, so no same-final-predicate library fail-to-pass claim. Original8 not rerun: exact bytes and production source unchanged; already published current literal receipts retained separately.",
+  "static_proof": {
+    "exact_old_warning_context_and_last3assertion_ASTs_retained": true,
+    "all_other_existing_test_ASTs_unchanged": true,
+    "original8_literal_bytes_unchanged": true,
+    "production_delta": [],
+    "ruff_check": "PASS",
+    "format_check": "Existing whole-file formatting differences; no unrelated full-file format applied."
+  },
+  "selectors": [
+    "tests/test_new_functions.py::TestPolyfitL1::test_evaluable",
+    "tests/test_new_functions.py::TestPolyfitL1::test_native_input_nonconvergence"
+  ],
+  "ownership": "Existing core owner test_new_functions.py retained; one new selector, no new owner file. Parent updates ownership baseline/protocol if required.",
+  "limitations": [
+    "External provider/native cosine word parity remains open.",
+    "These are two supplemental controls, not additional original native predicates.",
+    "No forced warnings/NaNs, callback rewriting, constructor identity routing, or public cosine API expansion."
+  ]
+}

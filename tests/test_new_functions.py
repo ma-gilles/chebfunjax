@@ -506,14 +506,50 @@ class TestPolyfitL1:
         assert err5 < err3, "Higher degree polyfitL1 should give lower L1 error"
 
     def test_evaluable(self):
-        """Preserve native Watson nonconvergence for the cos degree-4 case."""
-        from chebfunjax.chebfun1d.chebfun import chebfun
+        """The external JAX cosine fit is finite and satisfies L1 optimality."""
+        from chebfunjax.chebfun1d.chebfun import chebfun, chebpoly
 
-        # Native Chebfun 7574c776 (MATLAB R2025b) reaches MAXITER and
-        # returns NaN at all 20 points for this exact input. The symmetric
-        # initial residual has only four computed real roots for five
-        # coefficients, so its Newton Hessian is rank deficient.
+        # This is a supplemental callback control, not an original native
+        # predicate. Different cosine sample words can change Watson's path;
+        # require the continuous moment criterion used by the original tests,
+        # rather than transferring native cosine's observed MAXITER event.
         f = chebfun(jnp.cos)
+        p = f.polyfitL1(4)
+        xs = jnp.linspace(-0.9, 0.9, 20)
+        vals = p(xs)
+        assert vals.shape == (20,)
+        assert jnp.all(jnp.isfinite(vals))
+        T = chebpoly(jnp.arange(5))
+        moments = (T * (f - p).sign()).sum()
+        assert jnp.linalg.norm(jnp.asarray(moments)) < 1e-8
+
+    def test_native_input_nonconvergence(self):
+        """Preserve observed MAXITER for the matched native cosine input."""
+        import json
+        from pathlib import Path
+
+        from chebfunjax.chebfun1d.chebfun import chebfun
+        from chebfunjax.utils._fdlibm_boundary_cosine import _cos_boundary_angles
+
+        fixture = json.loads(
+            (Path(__file__).parent / "fixtures/polyfit_l1_cosine_native_input.json")
+            .read_text()
+        )
+        # This explicit callback is a separate same-input solver control.
+        # It does not replace the external callback above or route constructors.
+        f = chebfun(_cos_boundary_angles)
+        coeffs = f.funs[0].tech.coeffs.reshape(-1)
+        expected = jnp.array(
+            [int(word, 16) for word in fixture["coefficient_words"]], dtype=jnp.uint64
+        )
+        assert jnp.array_equal(jax.lax.bitcast_convert_type(coeffs, jnp.uint64), expected)
+        endpoints = jnp.array(
+            [int(word, 16) for word in fixture["endpoint_words"]], dtype=jnp.uint64
+        )
+        assert jnp.array_equal(
+            jax.lax.bitcast_convert_type(f.point_values.reshape(-1), jnp.uint64),
+            endpoints,
+        )
         with pytest.warns(
             RuntimeWarning,
             match=r"^CHEBFUN:POLYFIT:MAXITER: The maximum number of iterations "
