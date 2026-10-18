@@ -1,3 +1,16 @@
+# Native nonfinite transform components — 2026-10-17
+
+Three previously reported ABS Inf/NaN mask discrepancies are repaired in
+shared C1/C2 primitives. Direct complex construction avoids zero*Inf cross
+terms; C1 nonfinite real transforms retain the infinite constant through a
+real inverse-prefix route. Established finite FFT arithmetic remains unchanged.
+New24native-stage tests repair7baseline failures;16existing exact C1/JIT/AD
+and44original transform nodes pass. Parent111tech/native/protocol+3unbounded
+and20complex DCT/602 AD nodes pass. All1087prior core owners retained+1new.
+Eight captured cases do not qualify full nonfinite/native FFT/API behavior.
+Matched speed, all pages/figures, cos4warning and latestCI/coverage remain open.
+Evidence: docs/nonfinite_transform_native_cpu_20261017.json.
+
 # Bounded source cosine derivatives and polyfit diagnosis — 2026-10-17
 
 Bounded source cosine retains its exact primal AST and now uses analytic

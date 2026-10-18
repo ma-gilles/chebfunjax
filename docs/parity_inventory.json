@@ -298,6 +298,25 @@
       "scope": "Public Chebfun rank>2 array-valued query adapter; restore literal subspace original domains/row predicates1-6",
       "sha256": "f76c51e773bf1f3937ae15af8b59a2c677eb0e6ed661bab4f4cf570ac59304d0"
     },
+    "nonfinite_transform_native_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonfinite_transform_native_cpu_20261017.tar.gz",
+        "sha256": "856f0c4c5fed8307dad7c570e5cb635365081133f2ed5e7423d518ef42ea2a49",
+        "verified_payloads": 174
+      },
+      "limits": [
+        "Eight captured input cases only; no full nonfinite/extreme/storage/API/native FFT word claim.",
+        "Finite100eps bound retained from original C1 test; NaN/Inf component masks and infinity signs exact for these cases.",
+        "All16existing C1 finite arithmetic/JIT/AD controls retain exact-word assertions unchanged.",
+        "Nonfinite derivatives are not qualified; CPU only, no GPU testing.",
+        "Prototype001did not repair remaining C1Inf; prototype002changed finite FFT arithmetic and was superseded by finite-preserving003; raw diagnostics/snapshots retained.",
+        "Two actual MATLAB startup failures before operands remain failed receipts; short shared TMP repaired socket-path assertion.",
+        "Matched CPU performance, broader original assertions, full pages/figures, latest-main CI/coverage and cos4 warning mismatch remain open."
+      ],
+      "report": "docs/nonfinite_transform_native_cpu_20261017.json",
+      "report_sha256": "00488ffcd7bb24b60561f8a7b2f7f00dd48b3be64394c8cd16faf131fe4d07b8",
+      "scope": "C1/C2 real and pure-imaginary finite/Inf transform-stage components and previously reported ABS masks"
+    },
     "official_example_archive_20261017": {
       "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/official_example_figures_20261017.zip",
       "archive_sha256": "272cb7bb5b79326586f4b960321ee75a43a9f013b5abecc58bfa1c14ff154075",
@@ -69256,6 +69275,10 @@
         {
           "evidence_id": "abs_existing_grid_parent_cpu_20261017",
           "scope": "Existing-grid representation/storage dispatch and selected original clauses; full original file/API remains unverified."
+        },
+        {
+          "evidence_id": "nonfinite_transform_native_cpu_20261017",
+          "scope": "Eight captured finite/Inf cases and unchanged original controls only; full-file/API status remains unverified."
         }
       ],
       "functions": [
@@ -71249,7 +71272,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "nonfinite_transform_native_cpu_20261017",
+          "scope": "Eight captured finite/Inf cases and unchanged original controls only; full-file/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -71407,7 +71435,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "nonfinite_transform_native_cpu_20261017",
+          "scope": "Eight captured finite/Inf cases and unchanged original controls only; full-file/API status remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -71545,6 +71578,10 @@
         {
           "artifact": "ratinterp_real602_cpu_20261017",
           "scope": "Real602FFT diagnostic exact275424nonredundant words and sourceD302exact91204words; no production/fullAPI/pole acceptance."
+        },
+        {
+          "evidence_id": "nonfinite_transform_native_cpu_20261017",
+          "scope": "Eight captured finite/Inf cases and unchanged original controls only; full-file/API status remains unverified."
         }
       ],
       "functions": [

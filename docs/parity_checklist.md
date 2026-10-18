@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Repair3recorded nonfinite ABS mask cases through shared C1/C2 transforms:24new native-stage,16exact C1/JIT/AD,44original transform,111parent tech/native/protocol,3unbounded and20complex AD nodes pass (counts overlap). [Evidence](nonfinite_transform_native_cpu_20261017.json).
+- [ ] Full nonfinite/extreme/storage/API and native FFT-word coverage, matched CPU speed and final CI remain open;8captured cases are a scoped qualification.
+
+
 - [x] Bounded source cosine analytic derivatives:15new+8existing checks and unchanged fixed48 PDE pass;1040independent native vector/scalar and50actual sample words exact; parent21protocol checks. [Evidence](bounded_cosine_parent_cpu_20261017.json).
 - [ ] Supplemental polyfitL1(cos,4) warning parity remains open: two external cosine sample words differ1ULP; same-input transforms agree. [Diagnosis](polyfit_cos4_first_divergence_cpu_20261017.json). No constructor/provider or full solver closure.
 

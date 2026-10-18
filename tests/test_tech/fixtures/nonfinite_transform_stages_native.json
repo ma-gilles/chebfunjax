@@ -1,0 +1,60 @@
+{
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/abs_nonfinite_native_stages_20261017/capture.mat",
+  "capture_sha256": "9bdca03af5a7ea29ef366d5074279af1baa9e955aee49b5c5968fb82c1fe3b12",
+  "driver_sha256": "a3b2205419c2de61d2cc0ca2bad05ebb59aa8375577e79605664c159f1140eeb",
+  "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/abs_nonfinite_native_stages_run003/receipt.json",
+  "receipt_sha256": "0a26890fada1dc2a99edb90ee1007170893efd20edcfc050a06c75d753a571e9",
+  "fixture_sha256": "39bc52f2876b3dcc413fa55f6a164cc1693aee554c9e47b6599212cb3494e416",
+  "rows": [
+    {
+      "id": "1_real",
+      "tech": 1,
+      "name": "real",
+      "input_storage_real": true
+    },
+    {
+      "id": "1_pure_imaginary",
+      "tech": 1,
+      "name": "pure_imaginary",
+      "input_storage_real": false
+    },
+    {
+      "id": "1_real_inf",
+      "tech": 1,
+      "name": "real_inf",
+      "input_storage_real": true
+    },
+    {
+      "id": "1_pure_imaginary_inf",
+      "tech": 1,
+      "name": "pure_imaginary_inf",
+      "input_storage_real": false
+    },
+    {
+      "id": "2_real",
+      "tech": 2,
+      "name": "real",
+      "input_storage_real": true
+    },
+    {
+      "id": "2_pure_imaginary",
+      "tech": 2,
+      "name": "pure_imaginary",
+      "input_storage_real": false
+    },
+    {
+      "id": "2_real_inf",
+      "tech": 2,
+      "name": "real_inf",
+      "input_storage_real": true
+    },
+    {
+      "id": "2_pure_imaginary_inf",
+      "tech": 2,
+      "name": "pure_imaginary_inf",
+      "input_storage_real": false
+    }
+  ],
+  "scope": "Eight source-bound finite/Inf transform-stage cases; component masks/signs exact, finite components original100eps absolute bound; no full transform API/word claim."
+}

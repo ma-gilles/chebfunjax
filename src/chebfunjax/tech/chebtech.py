@@ -4950,10 +4950,31 @@ class Chebtech2(eqx.Module):
 
 @jax.jit
 def _chebtech1_forward_fft(values: jax.Array) -> jax.Array:
-    """Compiled mirrored IFFT stage; weighting remains outside this kernel."""
+    """Real-input inverse Fourier prefix with componentwise normalization.
+
+    The real mirror needs only the first half of its inverse transform;
+    conjugating an RFFT supplies that prefix without complex zero products.
+    Source: @chebtech1/vals2coeffs.m (7574c77).
+    """
+    from chebfunjax.utils._ordered_binary import binary
+
     n = values.shape[0]
-    tmp = jnp.concatenate([values[::-1], values]).astype(jnp.complex128)
-    return jnp.fft.ifft(tmp, axis=0)[:n]
+    tmp = jnp.concatenate([values[::-1], values]).astype(jnp.float64)
+
+    def cpu(a):
+        raw = jnp.fft.rfft(a, axis=0)[:n]
+        length = jnp.asarray(2*n, dtype=jnp.float64)
+        return jax.lax.complex(binary(jnp.real(raw), length, 3),
+                               binary(-jnp.imag(raw), length, 3))
+
+    def ordinary(a):
+        return jnp.fft.ifft(a.astype(jnp.complex128), axis=0)[:n]
+
+    # Retain the established finite FFT arithmetic. For nonfinite real input,
+    # use the real transform to avoid artificial cross-component zero*Inf.
+    return jax.lax.platform_dependent(
+        tmp, cpu=lambda a: jax.lax.cond(jnp.all(jnp.isfinite(a)), ordinary, cpu, a),
+        default=ordinary)
 
 
 @jax.jit
@@ -5055,8 +5076,8 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     # final jnp.real would silently DROP the imaginary part -- Fable 5
     # audit, bug #6).  Split like MATLAB @chebtech1/vals2coeffs.m.
     if jnp.iscomplexobj(values):
-        return (_chebtech1_vals2coeffs(jnp.real(values))
-                + 1j * _chebtech1_vals2coeffs(jnp.imag(values)))
+        return jax.lax.complex(_chebtech1_vals2coeffs(jnp.real(values)),
+                               _chebtech1_vals2coeffs(jnp.imag(values)))
     # Preserve the tested source arithmetic boundaries: form weights eagerly,
     # compile the mirrored IFFT, then multiply and scale c[0] eagerly before
     # the separately compiled symmetry correction. The intended benefit is
@@ -5065,12 +5086,16 @@ def _chebtech1_vals2coeffs(values: jax.Array) -> jax.Array:
     k = jnp.arange(n, dtype=jnp.float64)
     weights = 2.0 * jnp.exp(1j * k * jnp.pi / (2.0 * n))
     weights = weights.reshape((n,) + (1,) * (values.ndim - 1))
-    coeffs_complex = _chebtech1_forward_fft(values) * weights
-
-    # Scale the constant term (c_0 halved)
-    coeffs_complex = coeffs_complex.at[0].multiply(0.5)
-
-    coeffs = jnp.real(coeffs_complex)
+    transformed = _chebtech1_forward_fft(values)
+    coeffs_complex = transformed * weights
+    ordinary = jnp.real(coeffs_complex.at[0].multiply(0.5))
+    # Only the real component is retained by the source real-storage branch.
+    # Construct it directly: complex reconstruction/scaling would introduce
+    # cross-component zero*Inf products absent from that source branch.
+    coeffs = (jnp.real(transformed) * jnp.real(weights)
+              - jnp.imag(transformed) * jnp.imag(weights))
+    coeffs = coeffs.at[0].multiply(0.5)
+    coeffs = jnp.where(jnp.all(jnp.isfinite(values)), ordinary, coeffs)
 
     # MATLAB @chebtech1/vals2coeffs.m lines 74-76: enforce exact even/odd
     # coefficient zeros, with correction stopped for autodiff parity.
@@ -5122,8 +5147,8 @@ def _chebtech1_coeffs2vals(coeffs: jax.Array) -> jax.Array:
     # assumes real data; jnp.real dropped the imaginary part -- Fable 5
     # audit, bug #6).
     if jnp.iscomplexobj(coeffs):
-        return (_chebtech1_coeffs2vals(jnp.real(coeffs))
-                + 1j * _chebtech1_coeffs2vals(jnp.imag(coeffs)))
+        return jax.lax.complex(_chebtech1_coeffs2vals(jnp.real(coeffs)),
+                               _chebtech1_coeffs2vals(jnp.imag(coeffs)))
     if n <= 1:
         return coeffs.astype(jnp.float64)
 

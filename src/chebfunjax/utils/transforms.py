@@ -177,8 +177,8 @@ def _coeffs2vals_jax(coeffs: jnp.ndarray) -> jnp.ndarray:
     if jnp.iscomplexobj(coeffs):
         # Real-linear FFT evaluation preserves real/imaginary components and
         # conjugacy exactly, as in the inverse transform above.
-        values = (jnp.real(jnp.fft.fft(jnp.real(tmp), axis=0))
-                  + 1j*jnp.real(jnp.fft.fft(jnp.imag(tmp), axis=0)))
+        values = jax.lax.complex(jnp.real(jnp.fft.fft(jnp.real(tmp), axis=0)),
+                                 jnp.real(jnp.fft.fft(jnp.imag(tmp), axis=0)))
     elif n == 302 and coeffs.dtype == jnp.float64:
         values = jax.lax.platform_dependent(
             tmp, cpu=real_forward602_values,

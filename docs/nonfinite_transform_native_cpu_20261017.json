@@ -1,0 +1,277 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonfinite_transform_native_cpu_20261017.tar.gz",
+    "sha256": "856f0c4c5fed8307dad7c570e5cb635365081133f2ed5e7423d518ef42ea2a49",
+    "verified_payloads": 174
+  },
+  "base_commit": "a9a6aeba317197e2997f304358769450962bb33d",
+  "candidate_source_base": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb",
+  "core_ownership": {
+    "added": {
+      "tests/test_tech/test_nonfinite_native_transform_stages.py": 7
+    },
+    "final": 1088,
+    "moved": [],
+    "prior": 1087
+  },
+  "limits": [
+    "Eight captured input cases only; no full nonfinite/extreme/storage/API/native FFT word claim.",
+    "Finite100eps bound retained from original C1 test; NaN/Inf component masks and infinity signs exact for these cases.",
+    "All16existing C1 finite arithmetic/JIT/AD controls retain exact-word assertions unchanged.",
+    "Nonfinite derivatives are not qualified; CPU only, no GPU testing.",
+    "Prototype001did not repair remaining C1Inf; prototype002changed finite FFT arithmetic and was superseded by finite-preserving003; raw diagnostics/snapshots retained.",
+    "Two actual MATLAB startup failures before operands remain failed receipts; short shared TMP repaired socket-path assertion.",
+    "Matched CPU performance, broader original assertions, full pages/figures, latest-main CI/coverage and cos4 warning mismatch remain open."
+  ],
+  "mechanism": [
+    "Complex reconstruction by real+1j*imag creates zero*Inf real NaNs; direct lax.complex preserves independent components.",
+    "C1 real IFFT normalization/complex weighting lost the native infinite constant. Nonfinite real input uses a real FFT inverse prefix and componentwise normalization/projection; established finite FFT arithmetic remains."
+  ],
+  "native_fixture": {
+    "capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/abs_nonfinite_native_stages_20261017/capture.mat",
+    "capture_sha256": "9bdca03af5a7ea29ef366d5074279af1baa9e955aee49b5c5968fb82c1fe3b12",
+    "driver_sha256": "a3b2205419c2de61d2cc0ca2bad05ebb59aa8375577e79605664c159f1140eeb",
+    "fixture_sha256": "39bc52f2876b3dcc413fa55f6a164cc1693aee554c9e47b6599212cb3494e416",
+    "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/abs_nonfinite_native_stages_run003/receipt.json",
+    "receipt_sha256": "0a26890fada1dc2a99edb90ee1007170893efd20edcfc050a06c75d753a571e9",
+    "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+    "rows": [
+      {
+        "id": "1_real",
+        "input_storage_real": true,
+        "name": "real",
+        "tech": 1
+      },
+      {
+        "id": "1_pure_imaginary",
+        "input_storage_real": false,
+        "name": "pure_imaginary",
+        "tech": 1
+      },
+      {
+        "id": "1_real_inf",
+        "input_storage_real": true,
+        "name": "real_inf",
+        "tech": 1
+      },
+      {
+        "id": "1_pure_imaginary_inf",
+        "input_storage_real": false,
+        "name": "pure_imaginary_inf",
+        "tech": 1
+      },
+      {
+        "id": "2_real",
+        "input_storage_real": true,
+        "name": "real",
+        "tech": 2
+      },
+      {
+        "id": "2_pure_imaginary",
+        "input_storage_real": false,
+        "name": "pure_imaginary",
+        "tech": 2
+      },
+      {
+        "id": "2_real_inf",
+        "input_storage_real": true,
+        "name": "real_inf",
+        "tech": 2
+      },
+      {
+        "id": "2_pure_imaginary_inf",
+        "input_storage_real": false,
+        "name": "pure_imaginary_inf",
+        "tech": 2
+      }
+    ],
+    "scope": "Eight source-bound finite/Inf transform-stage cases; component masks/signs exact, finite components original100eps absolute bound; no full transform API/word claim."
+  },
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "C1/C2 real and pure-imaginary finite/Inf transform-stage components and previously reported ABS masks",
+  "source_sha256": {
+    "src/chebfunjax/tech/chebtech.py": "999c8788091d625e74516ca1dea9fdda4b4e1af7fd7102230f0281969b1aceca",
+    "src/chebfunjax/utils/transforms.py": "c85f868be088d853e02c81760101e1fb11a85b11c73e8514ad50ac76b0ca5e33",
+    "tests/test_tech/fixtures/nonfinite_transform_stages_native.json": "d5c88b4279eda8cc9fe4130604c5e51a8a38a9e8424e70f18e26ff387ecd1157",
+    "tests/test_tech/fixtures/nonfinite_transform_stages_native.npz": "39bc52f2876b3dcc413fa55f6a164cc1693aee554c9e47b6599212cb3494e416",
+    "tests/test_tech/test_nonfinite_native_transform_stages.py": "2f546e9f4a0ed75d333be64db45e1a50652bab0d4ff389beb808706b4c2a7d29"
+  },
+  "verification": {
+    "abs_nonfinite_native_forward_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1257336,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 82.44864169415087
+    },
+    "abs_nonfinite_native_stages_run001": {
+      "censored_limit": "root_exited_with_live_descendants",
+      "command_exit_code": -9,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 377464,
+      "supervisor_exit_code": -9,
+      "wall_seconds": 5.069047110155225
+    },
+    "abs_nonfinite_native_stages_run002": {
+      "censored_limit": "root_exited_with_live_descendants",
+      "command_exit_code": -9,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 431904,
+      "supervisor_exit_code": -9,
+      "wall_seconds": 4.039259587880224
+    },
+    "abs_nonfinite_native_stages_run003": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1281240,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 80.4375314139761
+    },
+    "abs_nonfinite_stage_candidate2_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 563660,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.802137385122478
+    },
+    "abs_nonfinite_stage_candidate3_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 574848,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.802947278134525
+    },
+    "abs_nonfinite_stage_candidate_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 565344,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.956460454966873
+    },
+    "abs_nonfinite_stage_replay_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 570276,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.790451173204929
+    },
+    "nonfinite_transform_baseline_run001": {
+      "censored_limit": null,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "7 failed, 17 passed, 1 warning in 3.83s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 526816,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 5.436286560725421
+    },
+    "nonfinite_transform_candidate_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "24 passed, 1 warning in 3.61s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 538484,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 5.2516608270816505
+    },
+    "nonfinite_transform_dct_ad_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "15 passed, 1 warning in 7.61s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 758636,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.589546096976846
+    },
+    "nonfinite_transform_fft602_ad_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "5 passed, 1 warning in 36.75s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1315544,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 39.536694935988635
+    },
+    "nonfinite_transform_originals_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "44 passed, 1 warning in 7.09s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 635148,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.08120116405189
+    },
+    "nonfinite_transform_parent_tech_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "111 passed, 1 warning in 27.54s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1577616,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 31.10208110511303
+    },
+    "nonfinite_transform_parent_unbounded_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "3 passed, 1 warning in 35.29s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2066084,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 39.31243891036138
+    },
+    "nonfinite_transform_split_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "pytest_summary": [
+        "16 passed, 1 warning in 25.84s"
+      ],
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1888128,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.943223217967898
+    }
+  }
+}
