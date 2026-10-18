@@ -1,3 +1,16 @@
+# Native root normalization and CI lock metadata — 2026-10-18
+
+Real CPU Chebtech roots now retain source coefficient division rather than
+compiler reciprocal multiplication. Fresh native9word controls expose2baseline
+failures; final123focused controls and38unchanged original roots checks pass.
+Actual parent184checks pass in two fresh processes, including23CIprotocol.
+All1098prior owners retained+1;13lanes and79%gate unchanged. No tolerance change.
+CI3396 failed before numerical tests because editable pytest-cov metadata was
+stale. Pixi-generated metadata is refreshed; every locked dependency/version
+is retained and pixi lock --check --no-install passes with no changes.
+Checkmark construction, full roots/API/JAX/speed, pages/figures and latest-main
+scientificCI remain open. Evidence: docs/roots_normalization_parent_cpu_20261018.json.
+
 # Disk reciprocal and zero-pivot evaluation — 2026-10-18
 
 Disk CDR and its verified consumers now follow the source reciprocal policy:

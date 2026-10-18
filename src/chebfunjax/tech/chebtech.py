@@ -1581,6 +1581,26 @@ def _matlab_sort_roots(roots: jax.Array) -> jax.Array:
     return jnp.sort(roots)
 
 
+@jax.jit
+def _roots_normalize_source_cpu(coefficients, scale):
+    """Keep native roots_scalar coefficient division as individual quotients.
+
+    MATLAB @chebtech/roots.m: c = f.coeffs/vscale(f), Chebfun7574c77.
+    The ordered execution prevents scalar reciprocal hoisting on CPU binary64;
+    all other dtype/backend routes retain the existing division provider.
+    """
+    from chebfunjax.utils._ordered_binary import binary
+
+    return binary(coefficients, jnp.broadcast_to(scale, coefficients.shape), 3)
+
+
+def _roots_normalize_source(coefficients, scale):
+    """Use the qualified CPU binary64 path; retain other division adapters."""
+    if coefficients.dtype == jnp.float64 and jax.default_backend() == "cpu":
+        return _roots_normalize_source_cpu(coefficients, scale)
+    return coefficients / scale
+
+
 def _roots_colleague(coeffs: jax.Array, qz: bool = False,
                      all_roots: bool = False, prune: bool = False,
                      recurse: bool = True, *, zero_fun: bool = True,
@@ -1658,7 +1678,8 @@ def _roots_colleague(coeffs: jax.Array, qz: bool = False,
     else:
         # Preserve source division, including zero/nonfinite outcomes. There
         # is no denominator floor or fallback to coefficient scaling.
-        c_scaled = np.asarray(jnp.asarray(c) / jnp.asarray(normalization_scale))
+        c_scaled = np.asarray(_roots_normalize_source(
+            jnp.asarray(c), jnp.asarray(normalization_scale)))
 
     r = _roots_main(c_scaled, htol, qz=qz, all_roots=all_roots,
                     prune=prune, recurse=recurse, zero_fun=zero_fun)

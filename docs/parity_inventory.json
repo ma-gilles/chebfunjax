@@ -563,6 +563,11 @@
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
     },
+    "roots_normalization_parent_cpu_20261018": {
+      "path": "docs/roots_normalization_parent_cpu_20261018.json",
+      "scope": "Source coefficient normalization for public Chebtech roots on real CPU binary64, native word controls and unchanged roots regression gates; editable package metadata repair for CI setup",
+      "sha256": "939c9d72995b9d653351b49dfad97cd32cd5ea05a648d92b06e218f751817d70"
+    },
     "roots_original19_joint_cpu_20261017": {
       "path": "docs/roots_original19_joint_cpu_20261017.json",
       "scope": "Native breakpoint-root grammar, JAX getRootsForBreaks, NaN-padded quasimatrix roots, numeric MATLAB imaginary suffixes, all19default original roots predicates.",
@@ -70993,16 +70998,43 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/tech/chebtech.py"
+      ],
       "evidence": [
         {
           "artifact": "inverse_sampled_four_stage_cpu_20261017",
           "scope": "Sampled recurrence runtime scheduling only; original degree/trim/split/eig dimensions unchanged; full roots/JAX qualification open"
+        },
+        {
+          "artifact": "roots_normalization_parent_cpu_20261018",
+          "limits": [
+            "Native9 controls do not establish full root coefficient-word/API/JAX/AD/performance parity; inherited NumPy/SciPy recursion and QZ debt remain.",
+            "Original38 passes qualify their unchanged Python assertions, not a new fresh complete native original-suite invocation.",
+            "Checkmark paired9 callback/domain observations change two cases; full degree3 candidate construction still running separately. No Checkmark page/figure/performance qualification.",
+            "Test semicolon formatting changed after numerical gates with exact AST equality; before/after files and bridge are archived. Production bytes are exact tested bytes.",
+            "All322final-sourcepages/1305scientificfigures and matched CPU slow paths remain open. Generic eigensolver replacement remains isolated under development.",
+            "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
+          ],
+          "scope": "Native9 real CPU coefficient-normalization/root-word controls and existing C1/C2 gates; not complete root API/words/backend/AD/speed."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_normalization_parent_cpu_20261018",
+              "limits": [
+                "Native9 controls do not establish full root coefficient-word/API/JAX/AD/performance parity; inherited NumPy/SciPy recursion and QZ debt remain.",
+                "Original38 passes qualify their unchanged Python assertions, not a new fresh complete native original-suite invocation.",
+                "Checkmark paired9 callback/domain observations change two cases; full degree3 candidate construction still running separately. No Checkmark page/figure/performance qualification.",
+                "Test semicolon formatting changed after numerical gates with exact AST equality; before/after files and bridge are archived. Production bytes are exact tested bytes.",
+                "All322final-sourcepages/1305scientificfigures and matched CPU slow paths remain open. Generic eigensolver replacement remains isolated under development.",
+                "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
+              ],
+              "scope": "Native9 real CPU coefficient-normalization/root-word controls and existing C1/C2 gates; not complete root API/words/backend/AD/speed."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -118270,10 +118302,36 @@
         "tests/test_matlab_port/spherefun/test_roots_matlab.py",
         "tests/test_matlab_port/trigtech/test_roots_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "roots_normalization_parent_cpu_20261018",
+          "limits": [
+            "Native9 controls do not establish full root coefficient-word/API/JAX/AD/performance parity; inherited NumPy/SciPy recursion and QZ debt remain.",
+            "Original38 passes qualify their unchanged Python assertions, not a new fresh complete native original-suite invocation.",
+            "Checkmark paired9 callback/domain observations change two cases; full degree3 candidate construction still running separately. No Checkmark page/figure/performance qualification.",
+            "Test semicolon formatting changed after numerical gates with exact AST equality; before/after files and bridge are archived. Production bytes are exact tested bytes.",
+            "All322final-sourcepages/1305scientificfigures and matched CPU slow paths remain open. Generic eigensolver replacement remains isolated under development.",
+            "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
+          ],
+          "scope": "Unchanged ported original assertions pass with normalization; no fresh complete native original-suite invocation claimed."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "roots_normalization_parent_cpu_20261018",
+              "limits": [
+                "Native9 controls do not establish full root coefficient-word/API/JAX/AD/performance parity; inherited NumPy/SciPy recursion and QZ debt remain.",
+                "Original38 passes qualify their unchanged Python assertions, not a new fresh complete native original-suite invocation.",
+                "Checkmark paired9 callback/domain observations change two cases; full degree3 candidate construction still running separately. No Checkmark page/figure/performance qualification.",
+                "Test semicolon formatting changed after numerical gates with exact AST equality; before/after files and bridge are archived. Production bytes are exact tested bytes.",
+                "All322final-sourcepages/1305scientificfigures and matched CPU slow paths remain open. Generic eigensolver replacement remains isolated under development.",
+                "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
+              ],
+              "scope": "Unchanged ported original assertions pass with normalization; no fresh complete native original-suite invocation claimed."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",

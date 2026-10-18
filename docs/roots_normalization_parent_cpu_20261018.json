@@ -1,0 +1,67 @@
+{
+  "actual_parent": {
+    "processes": [
+      "146PASS8.64s:123focusedrootscontrols+23CIprotocol",
+      "38PASS75.62s:unchangedportedChebtech/classicfun/Chebfunoriginalroots"
+    ],
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 2059824,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 93.50489708781242
+    },
+    "unique_nodes": 184
+  },
+  "base": "3396e84cc339d463b5803fd253ec78d88604476c",
+  "ci_metadata_repair": {
+    "failed_run": 39103025041,
+    "failure": "All numerical jobs failed at setup pixi install --locked: editable package metadata still recorded unbounded pytest-cov after pyproject required>=7.1.0. Numerical tests did not run.",
+    "fix": "Copy only actual Pixi-generated editable chebfunjax block into old lock; all other lockfile bytes identical.",
+    "preserved_versions": "JAX/jaxlib0.11.0,ml_dtypes0.5.4 and every locked dependency retained. Full re-solve JAX0.11.2/ml_dtypes0.6.0/CUDA transitive upgrades rejected and preserved as evidence.",
+    "repair": {
+      "after_sha256": "9afdbd6546e901bf3a540ffa07b55053439223044518c8c5c6c24ac92c5065f6",
+      "all_other_lockfile_bytes_identical": true,
+      "before_sha256": "0aa1a4e57b2f1215f20175094163485d1311f6291585571dd2c9acd8498ca845",
+      "pixi_version": "0.62.2",
+      "reason": "Full metadata re-solve upgraded JAX0.11.0->0.11.2/ml_dtypes0.5.4->0.6.0 and inherited CUDA transitive packages. No environment installed; retain all qualified locked dependencies. Copy only tool-generated editable block and verify with strict checker next.",
+      "rejected_full_refresh_sha256": "dcde1efe423bc2fbc8a8961ecce2c05079f9aa13f7f1fcaeb4e8b49baefc3481",
+      "scope": "Tool-generated editable-package metadata refresh only; reject resolver dependency upgrades"
+    },
+    "strict_check": "pixi0.62.2 lock --check --no-install --json exit0; environment={} (no changes). No installed environment modified."
+  },
+  "limits": [
+    "Native9 controls do not establish full root coefficient-word/API/JAX/AD/performance parity; inherited NumPy/SciPy recursion and QZ debt remain.",
+    "Original38 passes qualify their unchanged Python assertions, not a new fresh complete native original-suite invocation.",
+    "Checkmark paired9 callback/domain observations change two cases; full degree3 candidate construction still running separately. No Checkmark page/figure/performance qualification.",
+    "Test semicolon formatting changed after numerical gates with exact AST equality; before/after files and bridge are archived. Production bytes are exact tested bytes.",
+    "All322final-sourcepages/1305scientificfigures and matched CPU slow paths remain open. Generic eigensolver replacement remains isolated under development.",
+    "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "1098prior owner positions/13lanes retained; new9nodefile appendedCore1,1099owners; dedicatedHermiteCore12/aggregate79%threshold unchanged.",
+  "paired_native_controls": {
+    "baseline": "Same9 source-facing tests:2FAIL7PASS1.46s; two genuine scaled-coefficient word failures, not missing helpers.",
+    "candidate": "Initial9PASS1.18s; final CPU-only source123controlsPASS7.41s (includes9native). Final unchanged original roots38PASS74.30s.",
+    "native": "Clean root-only retry9cases, sourcewhich/pin/guard stable/no survivors. Native c/v and c./v words agree; vscale/scaledcoefficients/roots/maps captured. Earlier combined disk/root observer failed on mapping constructor; no root data accepted from it.",
+    "source": "capture_root_normalization.m with documented chebtech2({[],[-a;1]}) and actual roots/mapping.For",
+    "test_format_bridge": {
+      "AST_equal": true,
+      "after_sha256": "d733215b567b6c8451a201a3d89f6616e4cbf6ecb25abe30d598ae7cd051bd20",
+      "applied": true,
+      "before_sha256": "41932e545ae377f169edf1e2a9e8f64cbdcf0d4d4238bcb470f0ef753e009b86",
+      "executed_source_archived": true,
+      "scope": "Post-gate E702 formatting only; all9test AST nodes/constants/source operand/expectations unchanged"
+    }
+  },
+  "parent_archive": {
+    "guarded_parent_inputs": 3084,
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_normalization_parent_cpu_20261018.tar.gz",
+    "sha256": "6c4519c112eda7f8bc7fdadecbffc7a3cc55b57db705d2c2cdc8201e239a90ff",
+    "verified_payloads": 3177
+  },
+  "scope": "Source coefficient normalization for public Chebtech roots on real CPU binary64, native word controls and unchanged roots regression gates; editable package metadata repair for CI setup",
+  "source_operation": "@chebtech/roots.m roots_scalar: c=f.coeffs/vscale(f). Local ordered division prevents scalar reciprocal hoisting; all coefficient-only/resultant policies and root filtering stay unchanged. CPU-only compiled path retains prior fallback division for other types/backends."
+}

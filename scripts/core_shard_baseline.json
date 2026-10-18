@@ -192,7 +192,8 @@
       "tests/test_utils/test_ifft_normalization_source.py",
       "tests/test_operators/test_c1_eigs_adaptive_source.py",
       "tests/test_operators/test_eigs_system2_original_cells_source.py",
-      "tests/test_cheb_bernoulli_source.py"
+      "tests/test_cheb_bernoulli_source.py",
+      "tests/test_roots_normalization_native_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -1128,6 +1129,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "01d33a18c17ddf3b963e5a33f4a91aea7930228d",
+  "last_update_parent": "3396e84cc339d463b5803fd253ec78d88604476c",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

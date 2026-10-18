@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Native root normalization:9source word controls repair2baseline scaled-coefficient failures;123focused+38unchanged original roots checks pass. Actual parent184checks include23CIprotocol;1098priorowners retained+1. Editable pytest-cov lock metadata refreshed with all dependencies byte-identical and strict Pixi check passing. [Evidence](roots_normalization_parent_cpu_20261018.json).
+- [ ] Complete roots words/API/JAX/AD/performance, actual final Checkmark/page/figures and latest-main scientificCI/coverage remain open. Source callback low-word differences persist outside the repaired normalization.
+
+
 - [x] Source CDR reciprocal policy and zero-pivot consumers: actual parent104checks pass, including unchanged original31/32. All16native reciprocal words and22,130signed independent exact-rational controls pass; compiled local JAX arithmetic avoids eager dispatch regression. All1096prior CI owners retained+2. [Evidence](disk_cdr_parent_cpu_20261018.json).
 - [ ] Native zero-result storage/pivots/flags, inherited host iszero debt, downstream subnormal arithmetic, complete Diskfun/API/IEEE/JAX and matched speed remain unqualified. Latest-main scientificCI/coverage remains required.
 
