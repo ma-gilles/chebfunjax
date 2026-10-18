@@ -1,3 +1,29 @@
+# TAN/TANH exact-axis zero conventions — 2026-10-18
+
+TAN exact-real-axis imaginary output is positive zero; at both-component-zero
+inputs it retains the input real-zero sign. TANH real output is positive zero
+only for exact-zero real input with finite nonzero imaginary input. TANH origin
+and all other primitive component words remain unchanged. Word-aware masks
+exclude nonzero subnormals. Custom JVPs retain original primitive analytic
+tangents; independent real-coordinate first/second/transverse/RHS checks pass.
+Nine original records repaired,23→14. Original fixtures/assertions/bounds retained;
+one authored primitive-preservation oracle superseded only on the stated masks.
+
+Actual parent1,919PASS28XFAIL: unary1,852PASS28XFAIL plus67PDE/protocol checks.
+28expected-failure cases comprise14original+14fresh-fixture cases, including
+7repeated original inputs and7supplementary gap rows; not28distinct defects.
+Observed Python-import files preguarded/stable; no exhaustive native-library
+guard claim. Native34call capture has9late unpreguarded libraries, explicitly
+retained. Root streamverified3,558child archive payloads. Failed root launcher
+stopped before tests; corrected launcher and successful receipt retained.
+
+Follow-up corrects a diagnostic attribution: pure-imaginary Inf already agrees
+with native; the differing class occurs at imaginary NaN. Neither shape nor
+array-context dependence is established. No Inf repair is justified. All14
+original gaps, supplementary cases, broader API/JAX/provider semantics,
+322pages/1,305scientific figures, CPU performance and latest-mainCI remain open.
+Evidence: docs/tan_tanh_parent_cpu_20261018.json.
+
 ## Grouped disk construction and SIN/COS boundaries — 2026-10-18
 
 Actual parent1,951PASS23XFAIL, all runtime imports preguarded/stable. Source-static

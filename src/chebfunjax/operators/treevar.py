@@ -33,6 +33,7 @@ from chebfunjax.utils.elementary import (
     _conj_numeric,
     _sin_cos_numeric,
     _tan_numeric,
+    _tanh_numeric,
     _uminus_numeric,
 )
 
@@ -765,7 +766,7 @@ _UNARY_FNS_RAW = {
     "sech": lambda x: _reciprocal_direct_branch(x, "sech"),
     "sin": _sin_cos_numeric, "sind": lambda x: _direct_degree_branch(x, "sind"),
     "sinh": _sinh_branch, "sqrt": _sqrt_branch, "tan": _tan_numeric,
-    "tand": lambda x: _direct_degree_branch(x, "tand"), "tanh": jnp.tanh,
+    "tand": lambda x: _direct_degree_branch(x, "tand"), "tanh": _tanh_numeric,
     "uminus": _uminus_numeric, "uplus": lambda x: +x,
 }
 

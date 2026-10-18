@@ -789,6 +789,22 @@
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
       "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
     },
+    "tan_tanh_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tanh_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3598,
+        "sha256": "2523d48b1a7fb23f951041de897f99b569fee920ee625cc3ccd85ce5af147559"
+      },
+      "limits": [
+        "14original unary records and supplementary nonfinite/subnormal cases; wider API/JAX/provider words.",
+        "Numeric Diskfun constructor/storage repair under separate qualification.",
+        "Full function/original assertion audit,322final-source pages and1305scientific figures.",
+        "Matched native CPU performance and latest-mainCI/coverage>=79%."
+      ],
+      "report": "docs/tan_tanh_parent_cpu_20261018.json",
+      "report_sha256": "72d453b816f7c91d949fee677b04c2c15f7052c82833c233032863258c617702",
+      "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure."
+    },
     "threeplanets_parent_cpu_20261017": {
       "path": "docs/threeplanets_parent_cpu_20261017.json",
       "scope": "Parent-reviewed actual ThreePlanets warning visibility, with preserved resource-receipt race label; no warning/native/trajectory/raster/JAXprovider parity claim",
@@ -89934,6 +89950,10 @@
         {
           "artifact": "disk_unary_parent_cpu_20261018",
           "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
+        },
+        {
+          "artifact": "tan_tanh_parent_cpu_20261018",
+          "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure. Checked scope only; full API/assertion parity unverified."
         }
       ],
       "functions": [
@@ -90453,6 +90473,10 @@
             {
               "artifact": "unary_tan_axis_parent_cpu_20261018",
               "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only. No full-item parity or closure."
+            },
+            {
+              "artifact": "tan_tanh_parent_cpu_20261018",
+              "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure. Checked scope only; full API/assertion parity unverified."
             }
           ],
           "implementation_status": "unverified",
@@ -90470,7 +90494,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "tan_tanh_parent_cpu_20261018",
+              "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure. Checked scope only; full API/assertion parity unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "521",

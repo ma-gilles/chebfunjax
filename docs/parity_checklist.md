@@ -19,9 +19,9 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** grouped disk construction plus SIN/COS boundary semantics; parent1,951PASS23XFAIL. Prior scalar PDE endpoint package remains qualified in its stated scope.
-- **Unary work:** fresh TAN/TANH captures support nine narrowly scoped sign-record repairs under development; seven infinite-imaginary TAN phase/sign records and new shape-sensitive/subnormal gaps remain separate.
-- **Disk work:** investigate coeffs2diskfun numeric-constructor storage routing and extra simplification; native storage capture pending, no new repair credited.
+- **Latest verified integration:** TAN/TANH exact-axis conventions; parent1,919PASS28XFAIL. Nine original records repaired23→14; repeated-fixture failures counted separately.
+- **Unary work:** fourteen original records remain (seven TAN phase/sign and seven minimum-subnormal loss). Supplementary pure-imaginary NaN and TANH sign gaps remain. Pure-imaginary Inf agrees; no shape/context dependence established.
+- **Disk work:** numeric/coefficient constructor storage, branch order and pivot-location grids under qualification;35native/source controls pass, affected original callers still required, no published repair credited.
 - **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
 
 ### Active work, not yet credited as complete
@@ -33,6 +33,9 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] TAN exact-real-axis imaginary+0 and both-zero real sign; TANH finite nonzero imaginary-axis real+0 with origin excluded. Nine original records repaired23→14; independent first/second/transverse/RHS controls pass. Actual parent **1,919 PASS / 28 XFAIL**, including67PDE/protocol checks. [Evidence](tan_tanh_parent_cpu_20261018.json).
+- [ ] Fourteen original unary records plus supplementary cases remain.28xfail cases include repeated fixture inputs and do not count distinct bugs. Pure-imaginary TAN Inf matches; earlier NaN/Inf and shape/context diagnosis corrected. Full API/JAX/pages/figures/performance/latestCI remain open.
 
 - [x] Group disk static construction while retaining literal shared recurrence and source outputs: observed public515cold7.50→4.40s, warm timing did not improve. Mechanical public AST reconstruction and1,324,024assembled/public component-word comparisons exact;13original child checks pass with exact source bridge. [Parent evidence](disk_unary_parent_cpu_20261018.json).
 - [x] SIN/COS exact-axis imaginary+0 with analytic first/second transverse derivatives; complexSIN exact-both-zero input real sign preserved. Two original metadata gaps repaired; three newly exposed real-sign assertions now pass normally. Actual combined parent **1,951 PASS / 23 XFAIL**; all runtime files preguarded/stable. [Evidence](disk_unary_parent_cpu_20261018.json).

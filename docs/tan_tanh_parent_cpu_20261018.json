@@ -1,0 +1,697 @@
+{
+  "base_head": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+  "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_passed": 1919,
+  "parent_xfailed": 28,
+  "stages": {
+    "unary": {
+      "passed": 1852,
+      "xfailed": 28,
+      "observed_python_import_guard": {
+        "count": 1541,
+        "missing_or_changed": []
+      }
+    },
+    "consumers": {
+      "passed": 67,
+      "xfailed": 0,
+      "observed_python_import_guard": {
+        "count": 1592,
+        "missing_or_changed": []
+      }
+    }
+  },
+  "receipt": {
+    "wall_seconds": 330.75213656388223,
+    "sampled_peak_summed_rss_kib": 1652560,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "source_snapshots": 3497,
+  "static_review": {
+    "base_head": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+    "qualified_child_source_bridge": {
+      "docs/unary_tan_tanh_axis_cpu_20261018.json": "47202bd0932ab499c30fb198e8f15601f3f5e7aede0f2db009047742352f72c2",
+      "src/chebfunjax/operators/treevar.py": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+      "src/chebfunjax/utils/elementary.py": "9b6952b70be9618818005cc09df10250c2a00f8334b1b0316b85980302709399",
+      "tests/test_matlab_port/treeVar/data/tan_tanh_axis_native_20261018.json": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "57b1d07651a11c7a58c117af93dc86e1e10e1316f461ae7c35e77a07a433ebc8",
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "4e0b45a1f2744a124f62804fcff3e61424793b1f3870fcdb6fec38f2517ef5bc"
+    },
+    "all_other_elementary_AST_exact": true,
+    "all_other_prior_test_AST_prefix_exact": true,
+    "prior_authored_oracle_exception": [
+      "test_tan_nonfinite_axis_only_selected_imaginary_words_change"
+    ],
+    "exception_scope": "Retain all16inputs/both dtypes; exact-real-axis TAN imaginary+0; realzero input sign only both exact zero. Original native fixtures/assertions/bounds unchanged.",
+    "removed_original_metadata": [
+      {
+        "packet": "unary_storage_native36.json",
+        "method": "tanh",
+        "label": "imag_n1",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_re_nzero_im_nzero",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_re_nzero_im_pzero",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_zero_axis_mixed",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_b_with_nonzero_imag",
+        "failures": [
+          "imag_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_re_nzero_im_n1",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_re_nzero_im_p1",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_re_nzero_im_n2",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_re_nzero_im_p2",
+        "failures": [
+          "real_zero_sign"
+        ]
+      }
+    ],
+    "remaining_original_records": 14,
+    "full_gate_expected_failures": 28,
+    "xfail_count_explanation": "14original +14fresh-fixture cases, including7repeat TAN original inputs and7supplementary gap rows; not28distinctbugs.",
+    "native_runtime_limits": "9late mapped libraries lack pre-call hashes; changing noncode identity cache recorded. Not exhaustive installed MATLAB runtime qualification.",
+    "array_context_limit": "Neighbors and shape confounded; no shape-only causal claim."
+  },
+  "child_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_tanh_axis_package_20261018.tar.gz",
+    "sha256": "3926bd712af298e7769cdda240a135bb7bcceb9a0b50268d3b48411f88292143",
+    "manifest_sha256": "ff0df5363270e334edd125059b54e3ef3bbcd1879a5d293fdd383c1caf78f5e9",
+    "root_stream_verified_payloads": 3558
+  },
+  "child_report": {
+    "scope": "Bounded TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis zero representations; CPU only. No universal IEEE/API/page or exhaustive MATLAB-runtime qualification.",
+    "base_head": "bbb312ddaf56688200c06720369def5541a38a6f",
+    "native": {
+      "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+      "version": "25.2.0.3055257 (R2025b) Update 2",
+      "recorded_calls": 34,
+      "original16record_inputs_and_outputs_reproduced_word_exact": true,
+      "supplemental_matrices": 18,
+      "requested_real_imag_words_shapes_storage_asserted_before_every_call": true,
+      "components_extracted_before_any_complex_flatten": true,
+      "unrecorded_warmup": "Each requested dispatch runs once before runtime-map hashing to preload numerical code; all pre-call input assertions also apply to warmup. Only the later34calls populate fixture outputs.",
+      "native_source_capture_executable_guard_inputs": 3446,
+      "active_source_guards_stable": true,
+      "runtime_coverage": {
+        "mapped_initial": 881,
+        "mapped_final": 890,
+        "late_unpreguarded_libraries": [
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/ddux/ddux_logging/ddux_logging/mwddux_logging.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/matlabdata/startupplugin/libmwmda_startupplugin.so",
+          "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/shared_deviceplugindetection/mwdevicepluginstartup.so"
+        ],
+        "changed_initial_noncode_identity_cache": [
+          "/var/lib/sss/mc/passwd"
+        ],
+        "transient_mappings": [
+          {
+            "path": "/dev/shm/9a6f85f4be8dd10c",
+            "permissions": "rw-s",
+            "reason": "transient/generated mapping"
+          }
+        ],
+        "all_mapped_runtime_preguarded": false,
+        "interpretation": "Initial stable mapped files hashed before recorded calls and checked afterward. Nine late MATLAB startup/logger/install/foundation libraries lack pre-call hashes; identity cache changed. No exhaustive MATLAB runtime-library guard claim. Raw map inventories and unchanged false audit flag retained."
+      },
+      "fixture_sha256": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+      "native_slot": "released; no later native run"
+    },
+    "source_change": {
+      "tan": "On word-exact-zero imaginary input, imag becomes+0; when both components are exact zeros, real retains input-zero sign. Real-input path and other primitive words remain unchanged.",
+      "tanh": "Only word-exact-zero real input with finite nonzero imaginary input gets real+0. Origin retains its primitive/input real sign; nonzero real subnormals and nonfinite imaginary inputs excluded.",
+      "derivative": "Complex custom JVP delegates to jax.jvp of the original TAN/TANH primitive, retaining its analytic tangent arithmetic; finite first/second behavior is independently tested. Independent cmath real-coordinate Jacobians/Hessians, jacfwd/jacrev, transverse JVPs and RHS controls qualify finite cases; no nonfinite/extreme derivative claim."
+    },
+    "qualified_baseline": {
+      "total": 118,
+      "passed": 73,
+      "failed": 31,
+      "xfailed": 14,
+      "seconds": 49.652,
+      "new_controls": 116,
+      "new_xfailed": 14
+    },
+    "qualified_full_candidate": {
+      "total": 1880,
+      "passed": 1852,
+      "failed": 0,
+      "xfailed": 28,
+      "seconds": 294.235,
+      "new_controls": 116,
+      "new_xfailed": 14
+    },
+    "new_test_breakdown": {
+      "full_native34": {
+        "pass_after": 20,
+        "strict_expected_failures": 14,
+        "same_original_TAN_infinite_inputs": 7,
+        "additional_supplemental_gap_rows": 7
+      },
+      "same34input_primitive_component_word_scope": 34,
+      "complex64_128_subnormal_origin_negative_controls": 4,
+      "independent_real_first_second_transverse": 32,
+      "RHS_first_second_transverse": 8,
+      "real_input_primitive_words": 4
+    },
+    "test_scope": "Full original unary storage module plus inherited SIN/COS/CONJ/UMINUS/TAN/real-SIN controls, all116new TAN/TANH checks and original univariate/RHS modules. Original assertions/bounds retained; no unrelated heavy PDE/page run.",
+    "runtime_guards": {
+      "stages": {
+        "loaded_files": 1343,
+        "all_preguarded": true,
+        "changed_source_bound_to_preimages": [
+          "src/chebfunjax/operators/treevar.py",
+          "src/chebfunjax/utils/elementary.py"
+        ]
+      },
+      "baseline": {
+        "loaded_files": 1485,
+        "all_preguarded": true,
+        "changed_source_bound_to_preimages": [
+          "src/chebfunjax/operators/treevar.py",
+          "src/chebfunjax/utils/elementary.py"
+        ]
+      },
+      "candidate": {
+        "loaded_files": 1541,
+        "all_preguarded": true,
+        "changed_source_bound_to_preimages": []
+      }
+    },
+    "supervision": {
+      "unary_tan_tanh_native_run001_20261018": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 105.04597001802176,
+        "sampled_peak_summed_rss_kib": 1309696,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "unary_tan_tanh_stages_run001_20261018": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 15.08483604900539,
+        "sampled_peak_summed_rss_kib": 1042992,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "unary_tan_tanh_baseline_run001_20261018": {
+        "command_exit_code": 1,
+        "censored_limit": null,
+        "wall_seconds": 55.179340610746294,
+        "sampled_peak_summed_rss_kib": 1141248,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      },
+      "unary_tan_tanh_candidate_run001_20261018": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 299.88829525373876,
+        "sampled_peak_summed_rss_kib": 1395640,
+        "inputs_stable": true,
+        "remaining_owned_pids": []
+      }
+    },
+    "static_review": {
+      "base_head": "bbb312ddaf56688200c06720369def5541a38a6f",
+      "source": "Only TAN router replaced, three new TAN/TANH functions, _tanh_numeric import and raw TANH map value change. All other elementary/TreeVar AST exact, including SIN/COS and their JVPs, ASINH, CONJ/UMINUS.",
+      "prior_test_AST_exception": {
+        "function": "test_tan_nonfinite_axis_only_selected_imaginary_words_change",
+        "changes": [
+          "selected imaginary expectation broadens nonfinite-real exact-axis to all exact-axis",
+          "expected TAN real input-zero word only when both components word-exact zeros"
+        ],
+        "all_16_inputs_dtype_assertions_and_all_outside_mask_words_preserved": true,
+        "all_other_prior_AST_unchanged": true
+      },
+      "native_fixtures_assertions_bounds_unchanged": true,
+      "new_fixture_exact_capture_sha256": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+      "removed_original_xfails": [
+        {
+          "packet": "unary_storage_native36.json",
+          "method": "tanh",
+          "label": "imag_n1",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tan",
+          "label": "complex_re_nzero_im_nzero",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tan",
+          "label": "complex_re_nzero_im_pzero",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tan",
+          "label": "complex_zero_axis_mixed",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tan",
+          "label": "complex_b_with_nonzero_imag",
+          "failures": [
+            "imag_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tanh",
+          "label": "complex_re_nzero_im_n1",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tanh",
+          "label": "complex_re_nzero_im_p1",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tanh",
+          "label": "complex_re_nzero_im_n2",
+          "failures": [
+            "real_zero_sign"
+          ]
+        },
+        {
+          "packet": "unary_storage_native_arrays.json",
+          "method": "tanh",
+          "label": "complex_re_nzero_im_p2",
+          "failures": [
+            "real_zero_sign"
+          ]
+        }
+      ],
+      "remaining_original_records": 14,
+      "new_full_native_strict_xfails": {
+        "same_original_TAN_infinite_inputs_repeated_fresh": 7,
+        "supplemental_gap_rows": 7,
+        "total": 14
+      },
+      "protected_bytes": {
+        "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+        "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+        "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+        "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+        "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78"
+      },
+      "published_parent_bridge": {
+        "commit": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+        "critical_preimages_byte_exact": {
+          "src/chebfunjax/utils/elementary.py": "b10cc12d09541bfeb74c7968d50b6ea65edfd69df4eb5ded5a459464467d4d2f",
+          "src/chebfunjax/operators/treevar.py": "c8fff194786c8f73fa938681c41a1b6bd0edb51155c6288757131bb83ac645a0",
+          "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "4f2258430ef9e7a8364978534cbf7044edb34c7f8072d11fa2e0c4ddda90e367",
+          "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "4b17298243daa73e43a35002b29e7a0e1e48813bb21030efea38174aa1cc0d21",
+          "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+          "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+          "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+          "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696"
+        },
+        "independent_disk_ultras_PDE_library_deltas_not_replayed_by_child": true
+      },
+      "no_CI_owner_or_config_changes": true
+    },
+    "validation": "Fullruff src/tests/scripts/examples and git diff --check pass. Exactly9obsolete metadata records removed23\u219214. One authored two-dtype TAN preservation function superseded only on approved masks; all16inputs and outside-mask component words/assertions retained. Every other prior test AST and original native fixtures/assertions/bounds unchanged.",
+    "remaining": [
+      "14original metadata records remain:7TAN infinite-imaginary signed-zero records plus7minimum-subnormal imaginary-loss records.",
+      "New fixture14strict xfails consist of7fresh repetitions of those same original TAN inputs and7supplemental gap rows, not14additional independent API defects. Supplementals:4subnormal rows,1pure-nonfinite-imaginary TAN row with realNaN-vs0,1TAN infinite-imaginary phase matrix,1infinite-real TANH imaginary-zero-sign matrix. Passing mask controls do not replace these separate full-native failures.",
+      "Identical \u00b10\u00b1iInf point words show differing JAX real classes in different array contexts; shape and neighboring values are confounded. No shape-only cause or production repair inferred.",
+      "Infinite-imaginary TAN nonzero-real zero-sign dependence is not repaired using a fitted phase/sign table. Nonfinite-axis conventions, general transcendental bit accuracy, subnormal arithmetic and broad IEEE/AD/backends/performance/pages remain open.",
+      "Native runtime audit has nine late unpreguarded libraries and a changed noncode identity cache; retain this limitation despite stable source/executable guards.",
+      "Root must verify actual published source bridge and full actual-parent final selection. No Q edits, push, publication, CI ownership/config changes or native fixture runtime oracle."
+    ],
+    "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_tanh_axis_evidence_20261018",
+    "archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_tanh_axis_package_20261018.tar.gz",
+      "sha256": "3926bd712af298e7769cdda240a135bb7bcceb9a0b50268d3b48411f88292143",
+      "bytes": 37366751,
+      "payloads": 3558
+    },
+    "streamed_hash_manifest": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_tanh_axis_stream_hashes_20261018.json",
+      "sha256": "ff0df5363270e334edd125059b54e3ef3bbcd1879a5d293fdd383c1caf78f5e9"
+    }
+  },
+  "original_metadata_records_repaired": 9,
+  "original_metadata_records_remaining": 14,
+  "xfail_accounting": "28test cases=14original metadata+14fresh-fixture expected failures. Fresh cases repeat7original inputs and include7supplementary gaps; not28distinct defects.",
+  "runtime_scope": "Observed Python-import-file hashes preguarded/stable; not exhaustive dynamic native-library coverage. Native capture has9late unpreguarded mapped libraries and a changing noncode identity cache, explicitly retained.",
+  "failed_launch": "run001 terminal1 before Python/test execution: taskset option lacked required space. Old launcher/receipt preserved; run002 corrects launcher only, scientific source unchanged.",
+  "ownership": "No new core test file;1112owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "diagnostic_corrigendum": {
+    "scope": "Corrigendum and bounded negative evidence for pure-imaginary TAN infinity diagnosis. No production repair.",
+    "base_head": "4d02d90368df97a918a5e4f9e07bc139544e9808",
+    "corrected_claim": "There is NO demonstrated infinite-imaginary class discrepancy or array-context dependence: all12captured exact-zero-real/infinite-imaginary observations match native real+0/imag\u00b11 already. Earlier attribution arose from aggregating component-class mismatch counts without inspecting affected element indices.",
+    "actual_gap": "The four differing real components are at imaginary NaN, not infinity: native real+quietNaN versus primitive real+0. Imaginary NaN sign also differs for negative NaN input; current original assertions check NaN class, not payload/sign.",
+    "infinity_word_observations": [
+      {
+        "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+        "shape": [
+          6,
+          4
+        ],
+        "index0_columnmajor": 0,
+        "input_real": "8000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+        "shape": [
+          6,
+          4
+        ],
+        "index0_columnmajor": 1,
+        "input_real": "0000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+        "shape": [
+          6,
+          4
+        ],
+        "index0_columnmajor": 6,
+        "input_real": "8000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      },
+      {
+        "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+        "shape": [
+          6,
+          4
+        ],
+        "index0_columnmajor": 7,
+        "input_real": "0000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 0,
+        "input_real": "8000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 1,
+        "input_real": "0000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 2,
+        "input_real": "8000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 3,
+        "input_real": "0000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      },
+      {
+        "row": "infinite_imaginary_phase_controls__tan",
+        "shape": [
+          12,
+          2
+        ],
+        "index0_columnmajor": 5,
+        "input_real": "8000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "infinite_imaginary_phase_controls__tan",
+        "shape": [
+          12,
+          2
+        ],
+        "index0_columnmajor": 6,
+        "input_real": "0000000000000000",
+        "input_imag": "fff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "bff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "bff0000000000000"
+      },
+      {
+        "row": "infinite_imaginary_phase_controls__tan",
+        "shape": [
+          12,
+          2
+        ],
+        "index0_columnmajor": 17,
+        "input_real": "8000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      },
+      {
+        "row": "infinite_imaginary_phase_controls__tan",
+        "shape": [
+          12,
+          2
+        ],
+        "index0_columnmajor": 18,
+        "input_real": "0000000000000000",
+        "input_imag": "7ff0000000000000",
+        "native_real": "0000000000000000",
+        "native_imag": "3ff0000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "3ff0000000000000"
+      }
+    ],
+    "actual_NaN_word_observations": [
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 4,
+        "input_real": "8000000000000000",
+        "input_imag": "fff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "fff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 5,
+        "input_real": "0000000000000000",
+        "input_imag": "fff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "fff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 6,
+        "input_real": "8000000000000000",
+        "input_imag": "7ff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "7ff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 7,
+        "input_real": "0000000000000000",
+        "input_imag": "7ff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "7ff8000000000000"
+      }
+    ],
+    "new_baseline": {
+      "passed": 90,
+      "failed": 0,
+      "seconds": 26.13,
+      "new_native_point_checks": 12,
+      "new_synthetic_context_checks": 40,
+      "inherited_word_scope_checks": 38,
+      "context_description": "Five shape configurations \u00d7 four neighbor cohorts \u00d7 two dtypes; two 2\u00d72 configurations coincide for the four-point cohort. No context-dependent Inf failure observed."
+    },
+    "runtime": {
+      "loaded_files": 1482,
+      "all_preguarded": true,
+      "active_guards_stable": true,
+      "no_survivors": true,
+      "changed_test_bound_to_immutable_qualified_preimage": true
+    },
+    "static_bridge": "After replacing only one TAN_TANH_OPEN_NAMES reason string, complete test AST equals4d02d903. Every production source byte unchanged. Temporary new52diagnostic tests/Inf expected-mask model retained as immutable evidence, not shipped. Original assertions/fixtures/bounds and expected-failure count unchanged.",
+    "native_limit": "Existing34direct-component calls reused, no new native session. Nine late unpreguarded MATLAB libraries and changed noncode identity cache remain limitations of original capture audit.",
+    "archive_policy": "Original nine-record archive3926bd712af298e7769cdda240a135bb7bcceb9a0b50268d3b48411f88292143 remains frozen; this corrigendum supersedes its remaining-claim text about Inf context dependence.",
+    "remaining": "Pure-imaginary NaN class repair is a separate next task; seven nonzero-real infinite-imaginary TAN signed-zero conventions remain unchanged. No IEEE/API/page closure.",
+    "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_infinity_evidence_20261018"
+  },
+  "corrigendum_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinity_corrigendum_package_20261018.tar.gz",
+    "sha256": "7e3d071a4cd8f5b19c5a3c7a71c79068ee211c6142fbb0ff9464e550433c6774",
+    "root_stream_verified_payloads": 34
+  },
+  "reason_only_AST_bridge": {
+    "test_path": "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py",
+    "qualified_test_sha256": "4e0b45a1f2744a124f62804fcff3e61424793b1f3870fcdb6fec38f2517ef5bc",
+    "final_test_sha256": "1335dbd59c779bcf404f96e62e09a29b6dd87f52033fec1d96a1e7ccc5621750",
+    "entire_test_AST_exact_after_restoring_one_xfail_reason": true,
+    "old_reason": "Fresh shape-sensitive pure-infinite-imaginary TAN real NaN versus native zero",
+    "corrected_reason": "Exact-zero real with imaginary NaN: native real NaN versus primitive positive zero",
+    "assertions_bounds_fixtures_unchanged": true
+  },
+  "superseded_claim": "Archived original child report misattributes imaginary-NaN element class failures to imaginaryInf/context. Exact12Inf observations already match0/\u00b11; four mismatches are imaginaryNaN. No shape/context dependence established. Corrigendum supersedes those archived diagnostic claims; fixtures/assertions/bounds unchanged.",
+  "remaining": [
+    "14original unary records and supplementary nonfinite/subnormal cases; wider API/JAX/provider words.",
+    "Numeric Diskfun constructor/storage repair under separate qualification.",
+    "Full function/original assertion audit,322final-source pages and1305scientific figures.",
+    "Matched native CPU performance and latest-mainCI/coverage>=79%."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_tanh_parent_cpu_20261018.tar.gz",
+    "sha256": "2523d48b1a7fb23f951041de897f99b569fee920ee625cc3ccd85ce5af147559",
+    "root_stream_verified_payloads": 3598
+  }
+}

@@ -1,0 +1,255 @@
+{
+  "scope": "Corrigendum and bounded negative evidence for pure-imaginary TAN infinity diagnosis. No production repair.",
+  "base_head": "4d02d90368df97a918a5e4f9e07bc139544e9808",
+  "corrected_claim": "There is NO demonstrated infinite-imaginary class discrepancy or array-context dependence: all12captured exact-zero-real/infinite-imaginary observations match native real+0/imag\u00b11 already. Earlier attribution arose from aggregating component-class mismatch counts without inspecting affected element indices.",
+  "actual_gap": "The four differing real components are at imaginary NaN, not infinity: native real+quietNaN versus primitive real+0. Imaginary NaN sign also differs for negative NaN input; current original assertions check NaN class, not payload/sign.",
+  "infinity_word_observations": [
+    {
+      "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+      "shape": [
+        6,
+        4
+      ],
+      "index0_columnmajor": 0,
+      "input_real": "8000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+      "shape": [
+        6,
+        4
+      ],
+      "index0_columnmajor": 1,
+      "input_real": "0000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+      "shape": [
+        6,
+        4
+      ],
+      "index0_columnmajor": 6,
+      "input_real": "8000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    },
+    {
+      "row": "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4",
+      "shape": [
+        6,
+        4
+      ],
+      "index0_columnmajor": 7,
+      "input_real": "0000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 0,
+      "input_real": "8000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 1,
+      "input_real": "0000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 2,
+      "input_real": "8000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 3,
+      "input_real": "0000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    },
+    {
+      "row": "infinite_imaginary_phase_controls__tan",
+      "shape": [
+        12,
+        2
+      ],
+      "index0_columnmajor": 5,
+      "input_real": "8000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "infinite_imaginary_phase_controls__tan",
+      "shape": [
+        12,
+        2
+      ],
+      "index0_columnmajor": 6,
+      "input_real": "0000000000000000",
+      "input_imag": "fff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "bff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "bff0000000000000"
+    },
+    {
+      "row": "infinite_imaginary_phase_controls__tan",
+      "shape": [
+        12,
+        2
+      ],
+      "index0_columnmajor": 17,
+      "input_real": "8000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    },
+    {
+      "row": "infinite_imaginary_phase_controls__tan",
+      "shape": [
+        12,
+        2
+      ],
+      "index0_columnmajor": 18,
+      "input_real": "0000000000000000",
+      "input_imag": "7ff0000000000000",
+      "native_real": "0000000000000000",
+      "native_imag": "3ff0000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "3ff0000000000000"
+    }
+  ],
+  "actual_NaN_word_observations": [
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 4,
+      "input_real": "8000000000000000",
+      "input_imag": "fff8000000000000",
+      "native_real": "7ff8000000000000",
+      "native_imag": "7ff8000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "fff8000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 5,
+      "input_real": "0000000000000000",
+      "input_imag": "fff8000000000000",
+      "native_real": "7ff8000000000000",
+      "native_imag": "7ff8000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "fff8000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 6,
+      "input_real": "8000000000000000",
+      "input_imag": "7ff8000000000000",
+      "native_real": "7ff8000000000000",
+      "native_imag": "7ff8000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "7ff8000000000000"
+    },
+    {
+      "row": "nonfinite_imaginary_axis__tan",
+      "shape": [
+        2,
+        4
+      ],
+      "index0_columnmajor": 7,
+      "input_real": "0000000000000000",
+      "input_imag": "7ff8000000000000",
+      "native_real": "7ff8000000000000",
+      "native_imag": "7ff8000000000000",
+      "primitive_real": "0000000000000000",
+      "primitive_imag": "7ff8000000000000"
+    }
+  ],
+  "new_baseline": {
+    "passed": 90,
+    "failed": 0,
+    "seconds": 26.13,
+    "new_native_point_checks": 12,
+    "new_synthetic_context_checks": 40,
+    "inherited_word_scope_checks": 38,
+    "context_description": "Five shape configurations \u00d7 four neighbor cohorts \u00d7 two dtypes; two 2\u00d72 configurations coincide for the four-point cohort. No context-dependent Inf failure observed."
+  },
+  "runtime": {
+    "loaded_files": 1482,
+    "all_preguarded": true,
+    "active_guards_stable": true,
+    "no_survivors": true,
+    "changed_test_bound_to_immutable_qualified_preimage": true
+  },
+  "static_bridge": "After replacing only one TAN_TANH_OPEN_NAMES reason string, complete test AST equals4d02d903. Every production source byte unchanged. Temporary new52diagnostic tests/Inf expected-mask model retained as immutable evidence, not shipped. Original assertions/fixtures/bounds and expected-failure count unchanged.",
+  "native_limit": "Existing34direct-component calls reused, no new native session. Nine late unpreguarded MATLAB libraries and changed noncode identity cache remain limitations of original capture audit.",
+  "archive_policy": "Original nine-record archive3926bd712af298e7769cdda240a135bb7bcceb9a0b50268d3b48411f88292143 remains frozen; this corrigendum supersedes its remaining-claim text about Inf context dependence.",
+  "remaining": "Pure-imaginary NaN class repair is a separate next task; seven nonzero-real infinite-imaginary TAN signed-zero conventions remain unchanged. No IEEE/API/page closure.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_infinity_evidence_20261018"
+}

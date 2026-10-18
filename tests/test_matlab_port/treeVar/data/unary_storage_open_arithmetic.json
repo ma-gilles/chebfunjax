@@ -10,14 +10,6 @@
       ]
     },
     {
-      "packet": "unary_storage_native36.json",
-      "method": "tanh",
-      "label": "imag_n1",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
       "packet": "unary_storage_native_arrays.json",
       "method": "atan",
       "label": "complex_min_subnormal_imag",
@@ -65,41 +57,9 @@
     {
       "packet": "unary_storage_native_arrays.json",
       "method": "tan",
-      "label": "complex_re_nzero_im_nzero",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
-      "label": "complex_re_nzero_im_pzero",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
-      "label": "complex_zero_axis_mixed",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
       "label": "complex_mixed",
       "failures": [
         "real_zero_sign",
-        "imag_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
-      "label": "complex_b_with_nonzero_imag",
-      "failures": [
         "imag_zero_sign"
       ]
     },
@@ -148,38 +108,6 @@
       "packet": "unary_storage_native_arrays.json",
       "method": "tan",
       "label": "tan_cross_grid_6by4",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tanh",
-      "label": "complex_re_nzero_im_n1",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tanh",
-      "label": "complex_re_nzero_im_p1",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tanh",
-      "label": "complex_re_nzero_im_n2",
-      "failures": [
-        "real_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tanh",
-      "label": "complex_re_nzero_im_p2",
       "failures": [
         "real_zero_sign"
       ]

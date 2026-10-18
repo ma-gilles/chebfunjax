@@ -384,11 +384,14 @@ def test_tan_nonfinite_axis_only_selected_imaginary_words_change(dtype):
                   tiny, -tiny, tiny, -tiny, np.inf, -np.inf, np.nan, -np.nan]
     original = np.asarray(jnp.tan(jnp.asarray(value)))
     zero_imag = (value.imag.copy().view(word_dtype) & magnitude_mask) == 0
-    selected = ~np.isfinite(value.real) & zero_imag
+    selected = zero_imag
+    expected_real = original.real.copy()
+    zero_real = (value.real.copy().view(word_dtype) & magnitude_mask) == 0
+    expected_real[zero_imag & zero_real] = value.real[zero_imag & zero_real]
     for fn in (_UNARY_FNS_RAW['tan'], jax.jit(_UNARY_FNS_RAW['tan'])):
         got = np.asarray(fn(jnp.asarray(value)))
         assert got.dtype == original.dtype and got.shape == original.shape
-        assert got.real.tobytes() == original.real.tobytes()
+        assert got.real.tobytes() == expected_real.tobytes()
         assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
         assert np.all(got.imag[selected].copy().view(word_dtype) == 0)
 
@@ -585,3 +588,157 @@ def test_sin_real_zero_boundary_word_scope(name, dtype):
         assert got.dtype == expected.dtype
         assert got.real.tobytes() == expected.real.tobytes()
         assert got.imag.tobytes() == expected.imag.tobytes()
+
+
+TAN_TANH_AXIS_CAPTURE = json.loads((DATA/'tan_tanh_axis_native_20261018.json').read_text())
+TAN_TANH_OPEN_NAMES = {'unary_storage_native36.json__tan__complex_1_inf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__complex_mixed': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_grid_6by4': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'nonfinite_imaginary_axis__tan': 'Exact-zero real with imaginary NaN: native real NaN versus primitive positive zero', 'infinite_imaginary_phase_controls__tan': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
+TAN_TANH_NATIVE_CASES = [pytest.param(r, id=r['name'], marks=(
+    pytest.mark.xfail(strict=True, reason=TAN_TANH_OPEN_NAMES[r['name']])
+    if r['name'] in TAN_TANH_OPEN_NAMES else [])) for r in TAN_TANH_AXIS_CAPTURE['rows']]
+
+
+def _decode_tan_tanh_axis(v):
+    a = np.empty(len(v['real']), dtype=np.complex128)
+    a.real = np.array([int(h, 16) for h in v['real']], dtype=np.uint64).view(np.float64)
+    a.imag = np.array([int(h, 16) for h in v['imag']], dtype=np.uint64).view(np.float64)
+    return a.reshape(v['shape'], order='F')
+
+
+@pytest.mark.parametrize('row', TAN_TANH_NATIVE_CASES)
+def test_tan_tanh_axes_fresh_native_full_components(row):
+    value = _decode_tan_tanh_axis(row['input'])
+    value = value.real if row['input']['isreal'] else value
+    argument = jnp.asarray(value)
+    expected = _decode_tan_tanh_axis(row['output'])
+    eager = np.asarray(_UNARY_FNS[row['method']](argument))
+    assert (not np.iscomplexobj(eager)) == row['output']['isreal']
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW[row['method']])(argument))):
+        assert got.shape == expected.shape
+        for actual, target in ((got.real, expected.real), (got.imag, expected.imag)):
+            assert np.array_equal(np.isnan(actual), np.isnan(target))
+            assert np.array_equal(np.isposinf(actual), np.isposinf(target))
+            assert np.array_equal(np.isneginf(actual), np.isneginf(target))
+            finite = np.isfinite(target)
+            assert np.all(np.abs(actual[finite]-target[finite]) <=
+                          8*np.finfo(float).eps*np.maximum(1., np.abs(target[finite])))
+            zero = target == 0
+            assert np.array_equal(actual == 0, zero)
+            assert np.array_equal(np.signbit(actual[zero]), np.signbit(target[zero]))
+
+
+def _tan_tanh_expected_axis_words(name, value, original):
+    expected = np.array(original, copy=True)
+    if not np.iscomplexobj(value):
+        return expected
+    word_dtype = np.uint32 if value.dtype == np.complex64 else np.uint64
+    mask = word_dtype(0x7fffffff if value.dtype == np.complex64 else 0x7fffffffffffffff)
+    zero_real = (value.real.copy().view(word_dtype) & mask) == 0
+    zero_imag = (value.imag.copy().view(word_dtype) & mask) == 0
+    if name == 'tan':
+        expected.real[zero_real & zero_imag] = value.real[zero_real & zero_imag]
+        expected.imag[zero_imag] = 0.
+    else:
+        selected = zero_real & ~zero_imag & np.isfinite(value.imag)
+        expected.real[selected] = 0.
+    return expected
+
+
+@pytest.mark.parametrize('row', TAN_TANH_AXIS_CAPTURE['rows'], ids=lambda r:r['name'])
+def test_tan_tanh_axes_capture_word_scope(row):
+    value = _decode_tan_tanh_axis(row['input'])
+    value = value.real if row['input']['isreal'] else value
+    argument = jnp.asarray(value)
+    primitive = getattr(jnp, row['method'])
+    for original_fn, current_fn in ((primitive, _UNARY_FNS_RAW[row['method']]),
+                                    (jax.jit(primitive), jax.jit(_UNARY_FNS_RAW[row['method']]))):
+        expected = _tan_tanh_expected_axis_words(row['method'], value, np.asarray(original_fn(argument)))
+        got = np.asarray(current_fn(argument))
+        assert got.dtype == expected.dtype and got.shape == expected.shape
+        assert got.real.tobytes() == expected.real.tobytes()
+        assert got.imag.tobytes() == expected.imag.tobytes()
+
+
+@pytest.mark.parametrize('name', ['tan', 'tanh'])
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_tan_tanh_axes_subnormal_and_origin_word_scope(name, dtype):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    normal = np.finfo(real_dtype).tiny
+    value = np.empty(24, dtype=dtype)
+    value.real = [0., -0., 0., -0., 0., -0., 0., -0., tiny, -tiny, normal, -normal,
+                  .4, -.4, 0., -0., np.inf, -np.inf, np.nan, -np.nan, .4, -.4, 0., -0.]
+    value.imag = [0., 0., -0., -0., tiny, -tiny, 1., -2., 0., -0., .3, -.3,
+                  tiny, -tiny, np.inf, -np.inf, 0., -0., 0., -0., .3, -.3, np.nan, -np.nan]
+    argument = jnp.asarray(value)
+    primitive = getattr(jnp, name)
+    for original_fn, current_fn in ((primitive, _UNARY_FNS_RAW[name]),
+                                    (jax.jit(primitive), jax.jit(_UNARY_FNS_RAW[name]))):
+        expected = _tan_tanh_expected_axis_words(name, value, np.asarray(original_fn(argument)))
+        got = np.asarray(current_fn(argument))
+        assert got.dtype == expected.dtype
+        assert got.real.tobytes() == expected.real.tobytes()
+        assert got.imag.tobytes() == expected.imag.tobytes()
+
+
+def _tan_tanh_independent_derivatives(name, point):
+    import cmath
+
+    z = complex(float(point[0]), float(point[1]))
+    f = cmath.tan(z) if name == 'tan' else cmath.tanh(z)
+    first = 1+f*f if name == 'tan' else 1-f*f
+    second = 2*f*first if name == 'tan' else -2*f*first
+    jacobian = np.array([[first.real, -first.imag], [first.imag, first.real]])
+    hessian = np.array([[[second.real, -second.imag], [-second.imag, -second.real]],
+                        [[second.imag, second.real], [second.real, -second.imag]]])
+    return jacobian, hessian
+
+
+@pytest.mark.parametrize('name', ['tan', 'tanh'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(0., 0.), (-0., -0.), (-0., 1.), (0., -1.),
+                                   (-0., 2.), (0., -2.), (.4, 0.), (.4, .3)])
+def test_tan_tanh_axes_independent_real_jacobian_hessian(name, dtype, point):
+    def embedded(v):
+        out = _UNARY_FNS_RAW[name](jax.lax.complex(v[0], v[1]))
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    first, second = _tan_tanh_independent_derivatives(name, value)
+    eps = np.finfo(np.float32 if dtype == jnp.float32 else np.float64).eps
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_allclose(jax.jacfwd(fn)(value), first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacrev(fn)(value), first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacfwd(jax.jacfwd(fn))(value), second, rtol=10*eps, atol=10*eps)
+        for direction in [(1., 0.), (0., 1.)]:
+            _, got = jax.jvp(fn, (value,), (jnp.asarray(direction, dtype=dtype),))
+            np.testing.assert_allclose(got, first @ np.array(direction), rtol=10*eps, atol=10*eps)
+
+
+@pytest.mark.parametrize('name', ['tan', 'tanh'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(-0., 1.), (-0., -2.)])
+def test_tan_tanh_axes_rhs_real_jacobian_hessian(name, dtype, point):
+    op = lambda u:u.diff()-getattr(u, name)()
+    rhs = to_first_order(op, 0., (-1., 1.))[0]
+    def embedded(v):
+        out = jnp.asarray(rhs(0., jnp.asarray([jax.lax.complex(v[0], v[1])]))).reshape(-1)[0]
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    first, second = _tan_tanh_independent_derivatives(name, value)
+    eps = np.finfo(np.float32 if dtype == jnp.float32 else np.float64).eps
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_allclose(jax.jacfwd(fn)(value), first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacfwd(jax.jacfwd(fn))(value), second, rtol=10*eps, atol=10*eps)
+        _, got = jax.jvp(fn, (value,), (jnp.asarray([0., 1.], dtype=dtype),))
+        np.testing.assert_allclose(got, first[:, 1], rtol=10*eps, atol=10*eps)
+
+
+@pytest.mark.parametrize('name', ['tan', 'tanh'])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_tan_tanh_axes_real_input_primitive_words(name, dtype):
+    value = jnp.asarray(np.array([-2., -.4, -0., 0., .4, 2., -np.inf, np.inf, -np.nan, np.nan], dtype=dtype))
+    primitive = getattr(jnp, name)
+    for original_fn, current_fn in ((primitive, _UNARY_FNS_RAW[name]),
+                                    (jax.jit(primitive), jax.jit(_UNARY_FNS_RAW[name]))):
+        expected = np.asarray(original_fn(value))
+        got = np.asarray(current_fn(value))
+        assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()
