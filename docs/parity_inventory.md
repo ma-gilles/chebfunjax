@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [paired adaptive/EQUI qualification](chebfun2_paired_equi_parent_cpu_20261018.json):196actual parent PASS/7strictXFAIL; full original constructor2 and EQUI/mixed-technology child tests, per-axis grids/rank budgets and source sample-before-finalize staging. Seven factor/cutoff/location contracts, callback orientation and full-item statuses remain open.
+
 Latest [minimax panel compilation qualification](minimax_panel_compilation_cpu_20261018.json):44actual parent PASS/66isolated PASS, ten original polynomial clauses unchanged. Full degree3Checkmark replay preserves517callback words and19snapshot arrays; recorded383.88→296.44s is not matched MATLAB performance. Seven-curve page and whole-item statuses remain unverified.
 
 Latest [edge failure handling and original tests](edge_roundoff_original_tests_cpu_20261018.json):44parentPASS, all7default originalpredicates at unchanged bounds; actualdegree3 Checkmark representation recovered. Exact knot/provider words/fullpage/speed remain open. Full-item statuses remain unverified.

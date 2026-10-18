@@ -1,0 +1,240 @@
+{
+  "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_base": "fc1f9ce1798d7efd0e57deab2fac601198185d8e",
+  "actual_parent": {
+    "nodes": 203,
+    "pass": 196,
+    "strict_xfail": 7,
+    "pytest_seconds": 68.48,
+    "observed_imports_preguarded": 1543,
+    "xml_sha256": "3c92999083f6382d0c1ede2fb089134ce48fea038e599663643f7c7b2be4d716",
+    "receipt": {
+      "wall_seconds": 78.79659498203546,
+      "sampled_peak_summed_rss_kib": 3363320,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_paths": {
+    "src/chebfunjax/chebfun2d/chebfun2.py": "f2b4109e888982d28cb194f0b1def96cb2f0e385b245ab013260978ce85cf084",
+    "src/chebfunjax/chebfun2d/separable_approx.py": "1d162f751af19987f01122e044adabf1c888635ab1804b2c89245e5bd60aa74e",
+    "src/chebfunjax/chebfun2d/_numeric_constructor.py": "d8f84ef05c255e6659fa523b28446e9f9f36763468b8ac63e17ff630c9679b90",
+    "tests/test_chebfun2/test_paired_equi_preferences_source.py": "25da9cdd4a0779eb8e21258e7de1df3f864178b596a3787a9adcd06722ee6648",
+    "tests/fixtures/chebfun2_paired_equi_source_20261018.json": "02fc379f8933981d259dc4ef88a5bc472dcc342bd96cd5c83bb9831bbba28bea",
+    "docs/chebfun2_paired_equi_source_cpu_20261018.json": "af39681fba8306e6e24a8353fc0da2b9685129fa45d6fe0a26c7d03685fd9200"
+  },
+  "native_frontend": {
+    "frontend": {
+      "cases": 37,
+      "success": 35,
+      "required_errors": 2,
+      "initial_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/native.json",
+      "extra_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/extra_native/native.json",
+      "inputs": "Requested full-double real/imag words and real/complex storage asserted before call; actual preferences asserted; source pin and all REF source bytes guarded.",
+      "coverage": "Both C1/C2 orientations; both periodic mixtures; missing axes; sampleTest00/01/10; axis eps; ignored factory-pref min/max overrides; independent maxRank13vs9; numeric EQUI each axis, periodic overrides, coefficient transforms, complex/scaled data, fixed callable, zero/scalar/one-row/one-column."
+    },
+    "stages": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/stages_native_v3/native.json",
+      "aca": 3,
+      "funqui": 2,
+      "adaptive_zero": 3,
+      "actual_sample_decisions": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/sample_decision_native_v2/native.json",
+      "sample_decisions": {
+        "all_nan": true,
+        "mixed_nan_finite_miss": false
+      }
+    },
+    "failed_collectors_preserved": [
+      "equi_prototype_run (JSON bool/rank1 storage collector)",
+      "stages_native/run (heterogeneous cell indexing before numerical call)",
+      "stages_native_v2/run (is_real versus complex_storage decoder metadata before numerical call)",
+      "sample_decision_native/run (external dot indexing intercept before callback)"
+    ]
+  },
+  "child_qualifications": {
+    "strict_gate": {
+      "counts": {
+        "pass": 158,
+        "fail": 9
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/strict_gate_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/strict_gate_run/stdout",
+      "summary": "============= 9 failed, 158 passed, 2 warnings in 63.31s (0:01:03) =============",
+      "peak_summed_rss_kib": 3126548,
+      "observed_scientific_modules": 840,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "protected": {
+      "counts": {
+        "pass": 231,
+        "xfail": 1
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/protected_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/protected_run/stdout",
+      "summary": "============= 231 passed, 1 xfailed, 1 warning in 99.36s (0:01:39) =============",
+      "peak_summed_rss_kib": 4006912,
+      "observed_scientific_modules": 841,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "original_constructor2": {
+      "counts": {
+        "pass": 1,
+        "original_clauses": 26
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_constructor2_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_constructor2_run/stdout",
+      "summary": "=================== 1 passed, 1 warning in 73.75s (0:01:13) ====================",
+      "peak_summed_rss_kib": 3879412,
+      "observed_scientific_modules": 842,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "original_equi_mixed": {
+      "counts": {
+        "pass": 2,
+        "equi_original_sizes": [
+          100,
+          100
+        ]
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_equi_mixed_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_equi_mixed_run/stdout",
+      "summary": "======================== 2 passed, 1 warning in 56.31s =========================",
+      "peak_summed_rss_kib": 2872932,
+      "observed_scientific_modules": 843,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "final_focused": {
+      "counts": {
+        "pass": 162,
+        "xfail": 7
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/final_focused_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/final_focused_run/stdout",
+      "summary": "============ 162 passed, 7 xfailed, 2 warnings in 63.31s (0:01:03) =============",
+      "peak_summed_rss_kib": 3120740,
+      "observed_scientific_modules": 840,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    }
+  },
+  "child_source_bridge": {
+    "base": "0b530b426b1cecd3bc8060131116346f076ad735",
+    "published": "e8360120492aefb6494f9367b8d95131bf6a5149",
+    "source_changed": [
+      "src/chebfunjax/chebfun1d/chebfun.py"
+    ],
+    "class_bridges": {
+      "src/chebfunjax/chebfun1d/chebfun.py": {
+        "sha_old": "81ea402acca604e3807273bca54d3967ee9422c0d8fad67651fb73a70a3b7ba7",
+        "sha_new": "366477b7f458ad48a6bb0fd84c475cd6ee12f5db67e95237793007630bdf758d",
+        "all_class_ast_exact": true,
+        "changed_top_functions": [
+          "_find_jump",
+          "_detect_edge_matlab"
+        ]
+      }
+    }
+  },
+  "latest_source_bridge": {
+    "e836_to_fc1f9_source_delta": [
+      "src/chebfunjax/utils/_minimax_rootsdiff_source.py"
+    ],
+    "disjoint_from_candidate_source": true
+  },
+  "ownership": {
+    "before": 1128,
+    "after": 1129,
+    "all_prior_prefixes_exact": true,
+    "added": [
+      [
+        6,
+        "tests/test_chebfun2/test_paired_equi_preferences_source.py"
+      ]
+    ],
+    "lanes": 13,
+    "hermite_unchanged": true
+  },
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018.tar.gz",
+    "sha256": "905f4c6744c780e12c99ae36892a87f7406f78f97d39b1883bcbbb2247e328c0",
+    "verified_payloads": 330
+  },
+  "source_chain_review": {
+    "status": "Mistaken late audit retracted; no tolerance repair and no production change",
+    "sealed_archive_sha256": "905f4c6744c780e12c99ae36892a87f7406f78f97d39b1883bcbbb2247e328c0",
+    "sealed_paths_unchanged": true,
+    "source_file": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun2/constructor.m",
+    "source_sha256": "a626a46dfe6abea3c83ccf1096aec0b0ce867d31efac078a63e4db11880f355c",
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "source_sha_matches_original_native_guard": true,
+    "actual_source_lines": {
+      "87-92": "87:     \n88:     % Two-dimensional version of CHEBFUN's tolerance:\n89:     [relTol, absTol] = getTol(xx, yy, vals, dom, pseudoLevel);\n90:     prefx.chebfuneps = relTol;\n91:     prefy.chebfuneps = relTol;\n92:     ",
+      "105-110": "105:         vscale = max(abs(vals(:)));\n106:         % New tolerance:\n107:         [relTol, absTol] = getTol(xx, yy, vals, dom, pseudoLevel);\n108:         prefx.chebfuneps = relTol;\n109:         prefy.chebfuneps = relTol;\n110:         % New GE:",
+      "241-246": "241: end\n242: \n243: % Simplifying rows and columns after they are happy.\n244: mineps = min(prefx.chebfuneps, prefy.chebfuneps);\n245: g = simplify( g, mineps );\n246: ",
+      "280-285": "280: \n281: mineps = min(prefx.cheb2Prefs.chebfun2eps, prefy.cheb2Prefs.chebfun2eps);\n282: [relTol, absTol] = getTol(xx, yy, op, dom, mineps);\n283: prefx.chebfuneps = relTol;\n284: prefy.chebfuneps = relTol;\n285: "
+    },
+    "mistaken_statement": "Native adaptive finalization calls simplify(g,min(prefx.chebfuneps,prefy.chebfuneps)); unchanged prior helper caller receives construction relTol. I incorrectly called this a confirmed additional parameter-routing debt after reading only finalization lines.",
+    "retraction": "That conclusion was WRONG: constructor89-91 assigns BOTH prefx.chebfuneps=prefy.chebfuneps=relTol, and107-109 repeats after every PhaseOne refinement. Therefore final244 minimum equals latest relTol, exactly current caller. Changing to original user1DEPS would violate source.",
+    "proof": "Both axis fields contain the same latest binary64 relTol when the final minimum is read. Current closure likewise retains latest PhaseOne rel_tol. This is source assignment-chain equivalence, not observed-value fitting. Original input1DEPS is not the final effective field value. Numeric EQUI branch also assigns relTol to both fields at283-284.",
+    "parent_independent_review": "Root independently read89-91/107-109/244 and agreed; proposed tolerance followup cancelled.",
+    "action": "No source edit, no new native tolerance capture. Next separate worktree package: ACA first unequal update and column-major pivot/tie ordering.",
+    "latest_published_bridge": {
+      "head": "fc1f9ce1798d7efd0e57deab2fac601198185d8e",
+      "source_changes_since_e836": [
+        "src/chebfunjax/utils/_minimax_rootsdiff_source.py"
+      ],
+      "sealed_patch_touches_only_three_Chebfun2_source_files": true
+    }
+  },
+  "original_assertions_and_bounds": "unchanged",
+  "open_contracts": [
+    {
+      "tests": 2,
+      "where": "rank5 low-budget adaptive row factor length",
+      "current": "7x5",
+      "native": "8x5",
+      "attribution": "Exact native17x17 grid coordinates; only2callback values differ by1.11e-16. Native-value crossfeed restores native cutoff8; isolated same-native ACA pivot positions agree, factors differ <=2.22e-16. No correction/fitted cutoff."
+    },
+    {
+      "tests": 3,
+      "where": "refined rank7 factors and locations",
+      "attribution": "Exact native33x51 sampled matrix AND exact native/current production tolerance4.0706522766001385e-15 still diverge in unchanged prior shared numeric_aca; positions differ up to34indices, selected factors~.00477. Public values still within existing100eps. This is an existing ACA-stage gap; no unsupported BLAS/FMA/provider attribution. Next package: first unequal update and column-major pivot/tie selection."
+    },
+    {
+      "tests": 1,
+      "where": "fixed callable EQUI C1factor",
+      "current": "63x2",
+      "native": "50x2",
+      "attribution": "Occurs with exact native ACA factors/tolerance; FUNQUI degree2 agrees, N6source nodes differ1ulp and weights3.55e-15. Cannot attribute final cutoff solely to grid without further source-stage proof."
+    },
+    {
+      "tests": 1,
+      "where": "fixed callable equix C2factor",
+      "current": "66x2",
+      "native": "62x2",
+      "attribution": "Occurs with exact native ACA factors/tolerance; degree0, nodes/weights exact; interpolant matches all129native queries exactly. Final technology sampling/happiness/FFT cutoff stage not yet resolved."
+    }
+  ],
+  "limitations": [
+    "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+    "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+    "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+    "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/paired_equi_actual_parent_20261018.tar.gz",
+    "sha256": "2af098a4b04ed33e9d28c0168cf4ab20723da18068c6d0b7df6bfcb8ac502fd3",
+    "verified_payloads": 24
+  }
+}

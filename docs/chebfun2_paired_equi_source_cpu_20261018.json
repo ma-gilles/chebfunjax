@@ -1,0 +1,245 @@
+{
+  "package": "Chebfun2 paired adaptive and per-axis EQUI source routing/staging",
+  "base": "0b530b426b1cecd3bc8060131116346f076ad735",
+  "bridge_to_main": "e8360120492aefb6494f9367b8d95131bf6a5149",
+  "pinned_native_source": "7574c77680d7e82b79626300bf255498271a72df",
+  "runtime": "JAX0.11.0 CPU/x64/cacheoff/BLAS1, CPU32-35; MATLABR2025b singleCompThread; shared-host qualification, no performance claim",
+  "changes": [
+    "Native separate x/y preferences, missing axis defaults, effective source factory grids/limits; minimum axis epsilon, OR sampleTest, independent rank budgets.",
+    "One-attempt raw factor construction, source-ordered sampleTest, then one finalization; explicit failure state, post-skeleton >=axis limit check, source relTol strike check.",
+    "All public EQUI numeric/fixed paths use shared source ACA/getTol; periodic axes override EQUI; fixed callable sampling and y-before-x plain-transpose coefficient conversions precede EQUI interpretation.",
+    "Joint array-valued existing FUNQUI followed by selected C1/C2 adaptive technology, source relative tolerance and physical hscale.",
+    "Native adaptivezero selected-axis technology and literal [0,0] pivot locations; existing source Inf raw pivot retained.",
+    "Source sample-test decision with omitted NaNs: any point error >100*absTol rejects. Subtraction/abs/threshold unchanged; exact finite predicate bridge retained."
+  ],
+  "source_options_and_order": {
+    "source": "@chebfun2/constructor.m parseInputs/constructFromDouble/completeACA/getTol/gridRefine; @smoothfun/smoothfun.m funqui/fhBaryWts; @separableApprox/sampleTest.m",
+    "pref_pair_order": "x then y; matrix rows vary y; missing member uses default. One-member preference cell retains native badsubscript.",
+    "grammar": "Callable EQUI without fixed sizes errors with exact source identifier; fixed callable sizes are sampled first and succeed. Coefficients convert y then x via plain transpose, not conjugate transpose.",
+    "new_routes_not_full_API": "Pure vectorized callbacks; prior vectorCheck/scalar preflight, flat skeleton adapter, custom/unsupported tech and all error/option combinations not universally qualified."
+  },
+  "native_controls": {
+    "frontend": {
+      "cases": 37,
+      "success": 35,
+      "required_errors": 2,
+      "initial_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/native.json",
+      "extra_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/extra_native/native.json",
+      "inputs": "Requested full-double real/imag words and real/complex storage asserted before call; actual preferences asserted; source pin and all REF source bytes guarded.",
+      "coverage": "Both C1/C2 orientations; both periodic mixtures; missing axes; sampleTest00/01/10; axis eps; ignored factory-pref min/max overrides; independent maxRank13vs9; numeric EQUI each axis, periodic overrides, coefficient transforms, complex/scaled data, fixed callable, zero/scalar/one-row/one-column."
+    },
+    "stages": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/stages_native_v3/native.json",
+      "aca": 3,
+      "funqui": 2,
+      "adaptive_zero": 3,
+      "actual_sample_decisions": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/sample_decision_native_v2/native.json",
+      "sample_decisions": {
+        "all_nan": true,
+        "mixed_nan_finite_miss": false
+      }
+    },
+    "failed_collectors_preserved": [
+      "equi_prototype_run (JSON bool/rank1 storage collector)",
+      "stages_native/run (heterogeneous cell indexing before numerical call)",
+      "stages_native_v2/run (is_real versus complex_storage decoder metadata before numerical call)",
+      "sample_decision_native/run (external dot indexing intercept before callback)"
+    ]
+  },
+  "qualifications": {
+    "strict_gate": {
+      "counts": {
+        "pass": 158,
+        "fail": 9
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/strict_gate_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/strict_gate_run/stdout",
+      "summary": "============= 9 failed, 158 passed, 2 warnings in 63.31s (0:01:03) =============",
+      "peak_summed_rss_kib": 3126548,
+      "observed_scientific_modules": 840,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "protected": {
+      "counts": {
+        "pass": 231,
+        "xfail": 1
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/protected_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/protected_run/stdout",
+      "summary": "============= 231 passed, 1 xfailed, 1 warning in 99.36s (0:01:39) =============",
+      "peak_summed_rss_kib": 4006912,
+      "observed_scientific_modules": 841,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "original_constructor2": {
+      "counts": {
+        "pass": 1,
+        "original_clauses": 26
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_constructor2_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_constructor2_run/stdout",
+      "summary": "=================== 1 passed, 1 warning in 73.75s (0:01:13) ====================",
+      "peak_summed_rss_kib": 3879412,
+      "observed_scientific_modules": 842,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "original_equi_mixed": {
+      "counts": {
+        "pass": 2,
+        "equi_original_sizes": [
+          100,
+          100
+        ]
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_equi_mixed_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/original_equi_mixed_run/stdout",
+      "summary": "======================== 2 passed, 1 warning in 56.31s =========================",
+      "peak_summed_rss_kib": 2872932,
+      "observed_scientific_modules": 843,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    },
+    "final_focused": {
+      "counts": {
+        "pass": 162,
+        "xfail": 7
+      },
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/final_focused_run/receipt.json",
+      "stdout": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/final_focused_run/stdout",
+      "summary": "============ 162 passed, 7 xfailed, 2 warnings in 63.31s (0:01:03) =============",
+      "peak_summed_rss_kib": 3120740,
+      "observed_scientific_modules": 840,
+      "all_observed_imports_guarded": true,
+      "stable": true,
+      "no_survivors": true
+    }
+  },
+  "finite_predicate_original_bridge": {
+    "file": "src/chebfunjax/chebfun2d/separable_approx.py",
+    "old_sha256": "56a4d20fcec3838c98449ce8d0676bd69d34770a76e71a18e78336e18484de6c",
+    "new_sha256": "1d162f751af19987f01122e044adabf1c888635ab1804b2c89245e5bd60aa74e",
+    "only_change": "sample-test boolean predicate; subtraction, abs and 100*absTol source arithmetic unchanged",
+    "finite_decision_proof": "For nonempty errors e with no NaNs and a non-NaN real T, max(e)<=T iff for every i e_i<=T iff not(any(e_i>T)). Max and comparisons select/compare existing binary64 values without new arithmetic. Thus the old/new decision is exact for qualified finite constructor paths.",
+    "source_nan_decision_proof": "MATLAB max omits NaNs. If any non-NaN error exceeds T, reject; if none exceeds, including all-NaN maximum and NaN threshold, comparison is false and accept. Pointwise any(e>T) implements this source decision.",
+    "old_raw_receipts_retained": [
+      "protected_run",
+      "original_constructor2_run",
+      "original_equi_mixed_run"
+    ],
+    "new_controls": "two native direct sampleTest callbacks and two independent actual Python controller decision controls; no original assertion/bound change"
+  },
+  "source_AST_and_import_audit": {
+    "candidate_probe": {
+      "observed_modules": 839,
+      "unguarded": {}
+    },
+    "candidate_probe_v2": {
+      "observed_modules": 837,
+      "unguarded": {}
+    },
+    "equi_prototype_v2": {
+      "observed_modules": 836,
+      "unguarded": {}
+    },
+    "strict_gate": {
+      "observed_modules": 840,
+      "unguarded": {}
+    },
+    "src/chebfunjax/chebfun2d/_numeric_constructor.py": {
+      "numeric_aca": true,
+      "numeric_tolerances": true,
+      "numeric_factors": true,
+      "numeric_points": true,
+      "scalar_cdr": true
+    },
+    "src/chebfunjax/chebfun2d/separable_approx.py": {
+      "_complete_aca": true,
+      "_ge_on_skeleton": true,
+      "_get_tol": true,
+      "_simplify_cheb_slices": true,
+      "_simplify_trig_slices": true
+    }
+  },
+  "published_source_bridge": {
+    "base": "0b530b426b1cecd3bc8060131116346f076ad735",
+    "published": "e8360120492aefb6494f9367b8d95131bf6a5149",
+    "source_changed": [
+      "src/chebfunjax/chebfun1d/chebfun.py"
+    ],
+    "class_bridges": {
+      "src/chebfunjax/chebfun1d/chebfun.py": {
+        "sha_old": "81ea402acca604e3807273bca54d3967ee9422c0d8fad67651fb73a70a3b7ba7",
+        "sha_new": "366477b7f458ad48a6bb0fd84c475cd6ee12f5db67e95237793007630bdf758d",
+        "all_class_ast_exact": true,
+        "changed_top_functions": [
+          "_find_jump",
+          "_detect_edge_matlab"
+        ]
+      }
+    }
+  },
+  "open_contracts": [
+    {
+      "tests": 2,
+      "where": "rank5 low-budget adaptive row factor length",
+      "current": "7x5",
+      "native": "8x5",
+      "attribution": "Exact native17x17 grid coordinates; only2callback values differ by1.11e-16. Native-value crossfeed restores native cutoff8; isolated same-native ACA pivot positions agree, factors differ <=2.22e-16. No correction/fitted cutoff."
+    },
+    {
+      "tests": 3,
+      "where": "refined rank7 factors and locations",
+      "attribution": "Exact native33x51 sampled matrix AND exact native/current production tolerance4.0706522766001385e-15 still diverge in unchanged prior shared numeric_aca; positions differ up to34indices, selected factors~.00477. Public values still within existing100eps. This is an existing ACA-stage gap; no unsupported BLAS/FMA/provider attribution. Next package: first unequal update and column-major pivot/tie selection."
+    },
+    {
+      "tests": 1,
+      "where": "fixed callable EQUI C1factor",
+      "current": "63x2",
+      "native": "50x2",
+      "attribution": "Occurs with exact native ACA factors/tolerance; FUNQUI degree2 agrees, N6source nodes differ1ulp and weights3.55e-15. Cannot attribute final cutoff solely to grid without further source-stage proof."
+    },
+    {
+      "tests": 1,
+      "where": "fixed callable equix C2factor",
+      "current": "66x2",
+      "native": "62x2",
+      "attribution": "Occurs with exact native ACA factors/tolerance; degree0, nodes/weights exact; interpolant matches all129native queries exactly. Final technology sampling/happiness/FFT cutoff stage not yet resolved."
+    }
+  ],
+  "assertion_policy": "All original tests/fixtures/bounds unchanged. Seven new narrowly marked strict expected failures retain their original component/shape assertions; passing native rank/class/pivots/publicvalue/callback controls separate. New factor bound100*eps*max(1,maxabs(expected)) reuses existing coefficient-preference source-control bound; no universal native word equality claim. Raw strict158PASS9FAIL source/receipt retained. Two additional authored shape failures corrected as test-design adapter assumptions, not numerical repairs.",
+  "orientation_and_provider_limits": {
+    "native_source": "constructor.m PhaseTwo evaluate(op,x(Piv)*ones(size(y)),y) columns and evaluate(op,x,y(Piv)*ones(size(x))) rows",
+    "native_expected_orientation": "column[m,1], row[1,n] from actual source coordinate arrays",
+    "python_inherited_adapter": "flat[n] x/y arrays; not native orientation/API parity",
+    "controls_scope": "source post-update >=axisbudget, strict requested51 samples, varying/constant coordinate content, failure state; no source/native orientation equality claim",
+    "raw_incorrect_authored_assertions_retained": "strict_gate_source/tests/test_chebfun2/test_paired_equi_preferences_source.py"
+  },
+  "JAX_limits": "New EQUI numerical array work uses existing JAX ACA/transform/FUNQUI/tech kernels. Existing adaptive NumPy driver/getTol/simplification and FUNQUI Python scalar weight/search work remain inherited; no full no-host-numerics, whole-constructor JIT or AD claim. Native factor lengths/components are not universally closed; no tables, native fallback, output padding or fitted cutoffs in production.",
+  "preservation": "Existing numeric_aca/numeric_tolerances/numeric_factors/numeric_points/scalar_cdr and adaptive _complete_aca/_ge_on_skeleton/_get_tol/_simplify_* ASTs exact baseline. Existing coefficient/fixed non-EQUI source controls231PASS1oldXF. Published Diskfun numeric route unchanged. e836 changes only two Chebfun1D edge helpers, all Chebfun class AST exact; new EQUI invokes tech.from_function directly, no Chebfun edge constructor.",
+  "raw_preimages": {
+    "audit": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018/guard_preimages_audit.json",
+    "prior_guard_path_records": 29,
+    "all_recovered_exact_hash": true,
+    "meaning": "Earlier scientific source bytes preserved by original snapshots or exact guarded-hash preimages. Failed new controls not overwritten."
+  },
+  "six_paths": [
+    "src/chebfunjax/chebfun2d/chebfun2.py",
+    "src/chebfunjax/chebfun2d/separable_approx.py",
+    "src/chebfunjax/chebfun2d/_numeric_constructor.py",
+    "tests/test_chebfun2/test_paired_equi_preferences_source.py",
+    "tests/fixtures/chebfun2_paired_equi_source_20261018.json",
+    "docs/chebfun2_paired_equi_source_cpu_20261018.json"
+  ],
+  "new_test_owner": "tests/test_chebfun2/test_paired_equi_preferences_source.py",
+  "initial_implementation_failures_retained": {
+    "candidate_probe_run": "Initial EQUI helper passed default fixedLength=None to jnp.isfinite; raw per-case failures/first_candidate_source retained. Production metadata guard corrected to fixed is not None before finite check. Empty native array decoder correction separately recorded, no bound change.",
+    "strict_gate_run": "Raw strict158PASS9FAIL; seven numerical/storage/location contracts retained as strictXF, two adapter-shape test assumptions corrected, original raw source preserved."
+  }
+}

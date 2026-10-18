@@ -655,23 +655,27 @@ class SeparableApprox(eqx.Module):
         yt = ya + (yb - ya) * _halton_1d(100, 3)
         xtj = jnp.asarray(xt)[:, None]
         ytj = jnp.asarray(yt)[:, None]
-        fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel() if sample_test else None
-        n0 = tuple(_initial_tech_grid(int(min_samples), tech) for tech in techs)
+        minimums = min_samples if isinstance(min_samples, tuple) else (min_samples, min_samples)
+        n0 = tuple(_initial_tech_grid(int(m), tech) for m, tech in zip(minimums, techs))
         while True:
-            approx, abs_tol = cls._construct_once(f, domain=domain, tol=tol,
-                                                  max_rank=max_rank,
-                                                  min_samples=n0,
-                                                  max_samples=max_samples,
-                                                  techs=techs)
+            attempt = cls._construct_once(
+                f, domain=domain, tol=tol, max_rank=max_rank, min_samples=n0,
+                max_samples=max_samples, techs=techs,
+                _defer_simplify=bool(sample_test))
             if not sample_test:
-                return approx
-            avals = np.asarray(approx(jnp.asarray(xt),
-                                      jnp.asarray(yt))).ravel()
-            if np.max(np.abs(avals - fvals)) <= 100.0 * abs_tol:
-                return approx
+                return attempt[0]
+            approx, abs_tol, finalize, failure = attempt
+            # Native tests complete factors after their construction, before
+            # the one final global simplification. Re-evaluate each attempt.
+            fvals = np.asarray(jnp.asarray(f(xtj, ytj))).ravel()
+            avals = np.asarray(approx(jnp.asarray(xt), jnp.asarray(yt))).ravel()
+            # Source rejects iff any max(abs(error)) exceeds 100*absTol.
+            # Comparing each nonnegative error is equivalent, including
+            # MATLAB's omitted NaNs (all-NaN comparisons likewise reject none).
+            missed = np.any(np.abs(avals - fvals) > 100.0 * abs_tol)
+            if not missed or failure:
+                return finalize()
             n0 = tuple(_tech_grid_refine(n, tech)[0] for n, tech in zip(n0, techs))
-            if max(n0) > max_samples // 4:
-                return approx
 
     @classmethod
     def from_values(
@@ -727,6 +731,7 @@ class SeparableApprox(eqx.Module):
         min_samples: int = 17,
         max_samples: int = 2**14 + 1,
         techs: tuple = ("cheb", "cheb"),
+        _defer_simplify: bool = False,
     ) -> "SeparableApprox":
         """Construct a SeparableApprox from a callable f(x, y).
 
@@ -785,6 +790,10 @@ class SeparableApprox(eqx.Module):
         xa, xb, ya, yb = float(domain[0]), float(domain[1]), float(domain[2]), float(domain[3])
         factor = 4  # Ratio between grid size and number of pivots
 
+        max_rank_x, max_rank_y = (max_rank if isinstance(max_rank, tuple)
+                                   else (max_rank, max_rank))
+        max_samples_x, max_samples_y = (max_samples if isinstance(max_samples, tuple)
+                                         else (max_samples, max_samples))
         tech_x, tech_y = techs
         if tech_x not in ("cheb", "cheb1", "trig") or tech_y not in ("cheb", "cheb1", "trig"):
             raise ValueError(
@@ -898,8 +907,8 @@ class SeparableApprox(eqx.Module):
         strike = 1
         while (
             ifail
-            and grid_x <= factor * (max_rank - 1) + 1
-            and grid_y <= factor * (max_rank - 1) + 1
+            and grid_x <= factor * (max_rank_x - 1) + 1
+            and grid_y <= factor * (max_rank_y - 1) + 1
             and strike < 3
         ):
             grid_x = _refine_x(grid_x)
@@ -913,10 +922,10 @@ class SeparableApprox(eqx.Module):
             )
             if row_vals_mat.ndim == 1:
                 row_vals_mat = row_vals_mat[np.newaxis, :]
-            if abs(pivot_vals[0]) < 1e4 * vscale * tol:
+            if abs(pivot_vals[0]) < 1e4 * vscale * rel_tol:
                 strike += 1
 
-        if grid_x > factor * (max_rank - 1) + 1 or grid_y > factor * (max_rank - 1) + 1:
+        if grid_x > factor * (max_rank_x - 1) + 1 or grid_y > factor * (max_rank_y - 1) + 1:
             warnings.warn(
                 "SeparableApprox.from_function: function appears to be high rank. "
                 "Returning best approximation found.",
@@ -927,17 +936,32 @@ class SeparableApprox(eqx.Module):
 
         # Handle zero function
         if len(pivot_vals) == 1 and pivot_vals[0] == 0.0:
-            zero_col = (Chebtech1 if tech_y == "cheb1" else Chebtech2).from_coeffs(jnp.zeros(1, dtype=jnp.float64))
-            zero_row = (Chebtech1 if tech_x == "cheb1" else Chebtech2).from_coeffs(jnp.zeros(1, dtype=jnp.float64))
-            return cls(
+            from chebfunjax.chebfun2d._numeric_constructor import numeric_factors
+            zero_values = jnp.zeros((1, 1), dtype=jnp.float64)
+            zero_col = numeric_factors(zero_values, tech_y, tol)[0]
+            zero_row = numeric_factors(zero_values, tech_x, tol)[0]
+            zero = cls(
                 cols=[zero_col],
                 rows=[zero_row],
                 # Source zero representation stores pivotValue=Inf.
                 pivots=jnp.array([0.0], dtype=jnp.float64),
                 pivot_values=jnp.array([jnp.inf], dtype=jnp.float64),
+                pivot_locations=((0.0, 0.0),),
                 domain=(xa, xb, ya, yb),
                 techs=(tech_x, tech_y),
-            ), abs_tol
+            )
+            if _defer_simplify:
+                finalized = False
+
+                def finalize_zero():
+                    nonlocal finalized
+                    if finalized:
+                        raise RuntimeError("adaptive construction attempt finalized twice")
+                    finalized = True
+                    return zero
+
+                return zero, abs_tol, finalize_zero, failure
+            return zero, abs_tol
 
         r = len(pivot_vals)
 
@@ -962,16 +986,6 @@ class SeparableApprox(eqx.Module):
                 if tech_y == "cheb1":
                     nested_pivots[:, 0] = 3 * nested_pivots[:, 0] + 1
                 ny = _refine_y(ny)
-                if ny > max_samples:
-                    warnings.warn(
-                        "SeparableApprox.from_function: column slices not resolved "
-                        f"with {ny} points. Stopping.",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                    failure = True
-                    break
-                # Resample columns at new y-resolution
                 col_vals_new = np.zeros((ny, r), dtype=vals.dtype)
                 for j in range(r):
                     col_vals_new[:, j] = _sample_col(float(piv_x_phys[j]), ny)
@@ -984,15 +998,6 @@ class SeparableApprox(eqx.Module):
                 if tech_x == "cheb1":
                     nested_pivots[:, 1] = 3 * nested_pivots[:, 1] + 1
                 nx = _refine_x(nx)
-                if nx > max_samples:
-                    warnings.warn(
-                        "SeparableApprox.from_function: row slices not resolved "
-                        f"with {nx} points. Stopping.",
-                        RuntimeWarning,
-                        stacklevel=2,
-                    )
-                    failure = True
-                    break
                 row_vals_new = np.zeros((r, nx), dtype=vals.dtype)
                 for j in range(r):
                     row_vals_new[j, :] = _sample_row(float(piv_y_phys[j]), nx)
@@ -1019,45 +1024,68 @@ class SeparableApprox(eqx.Module):
             if r == 1:
                 row_vals_mat = row_vals_mat.reshape(1, -1)
 
-            resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1))
-            resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0))
+            if not resolved_cols:
+                resolved_cols = _happy_y(np.sum(col_vals_mat, axis=1))
+            if not resolved_rows:
+                resolved_rows = _happy_x(np.sum(row_vals_mat, axis=0))
             is_happy = resolved_cols and resolved_rows
+            # Source checks both dimensions after updating the skeleton and
+            # happiness, including equality at the factory maximum length.
+            if nx >= max_samples_x or ny >= max_samples_y:
+                warnings.warn(
+                    "SeparableApprox.from_function: slices not resolved within maximum length.",
+                    RuntimeWarning, stacklevel=2)
+                failure = True
 
-        # ================================================================
-        # Build Chebtech2 objects for each column and row slice
-        # ================================================================
-
-        # MATLAB: g.cols = chebfun(colVals, ...); g.rows = chebfun(rowVals.',
-        # ...); g = simplify(g, mineps) with mineps = relTol ('globaltol'):
-        # every slice is chopped to a common length relative to the largest
-        # slice.
-        if tech_y != "trig":
-            cols_list = _simplify_cheb_slices(col_vals_mat, rel_tol, 1 if tech_y == "cheb1" else 2)
-        else:
-            cols_list = _simplify_trig_slices(col_vals_mat, rel_tol)
-        if tech_x != "trig":
-            rows_list = _simplify_cheb_slices(row_vals_mat.T, rel_tol, 1 if tech_x == "cheb1" else 2)
-        else:
-            rows_list = _simplify_trig_slices(row_vals_mat.T, rel_tol)
-
+        col_vals_mat = np.array(col_vals_mat, copy=True)
+        row_vals_mat = np.array(row_vals_mat, copy=True)
+        col_vals_mat.setflags(write=False)
+        row_vals_mat.setflags(write=False)
         # Store d_j = 1/piv_j so that f(x,y) = Σ_j d_j * c_j(y) * r_j(x)
         # (This matches the CDR formula: C * diag(1/pivotValues) * R.')
         from chebfunjax.chebfun2d._pivot_metadata import _cdr_weights
         raw_pivots = jnp.asarray(pivot_vals)
         d_arr = _cdr_weights(raw_pivots)
 
-        return cls(
-            cols=cols_list,
-            rows=rows_list,
-            pivots=d_arr,
-            pivot_values=raw_pivots,
-            domain=(xa, xb, ya, yb),
-            pivot_locations=tuple(
-                (float(piv_x_phys[j]), float(piv_y_phys[j]))
-                for j in range(r)
-            ),
-            techs=(tech_x, tech_y),
-        ), abs_tol
+        finalized = False
+
+        def finalize():
+            nonlocal finalized
+            if finalized:
+                raise RuntimeError("adaptive construction attempt finalized twice")
+            finalized = True
+            if tech_y != "trig":
+                cols_list = _simplify_cheb_slices(col_vals_mat, rel_tol, 1 if tech_y == "cheb1" else 2)
+            else:
+                cols_list = _simplify_trig_slices(col_vals_mat, rel_tol)
+            if tech_x != "trig":
+                rows_list = _simplify_cheb_slices(row_vals_mat.T, rel_tol, 1 if tech_x == "cheb1" else 2)
+            else:
+                rows_list = _simplify_trig_slices(row_vals_mat.T, rel_tol)
+
+            return cls(
+                cols=cols_list,
+                rows=rows_list,
+                pivots=d_arr,
+                pivot_values=raw_pivots,
+                domain=(xa, xb, ya, yb),
+                pivot_locations=tuple(
+                    (float(piv_x_phys[j]), float(piv_y_phys[j]))
+                    for j in range(r)
+                ),
+                techs=(tech_x, tech_y),
+            )
+
+        if not _defer_simplify:
+            return finalize(), abs_tol
+        from chebfunjax.chebfun2d._numeric_constructor import numeric_factors
+        raw = cls(
+            cols=numeric_factors(jnp.asarray(col_vals_mat), tech_y, rel_tol),
+            rows=numeric_factors(jnp.asarray(row_vals_mat.T), tech_x, rel_tol),
+            pivots=d_arr, pivot_values=raw_pivots, domain=(xa, xb, ya, yb),
+            pivot_locations=tuple((float(piv_x_phys[j]), float(piv_y_phys[j]))
+                                  for j in range(r)), techs=(tech_x, tech_y))
+        return raw, abs_tol, finalize, failure
 
     # ------------------------------------------------------------------
     # Evaluation (JIT-safe)

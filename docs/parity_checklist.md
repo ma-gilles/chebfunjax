@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover shared JAX minimax panel kernels, restored original edge predicates, the native JAX default numeric disk route and Chebfun2 preference fixes. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Chebfun2 paired adaptive/EQUI preferences, shared JAX minimax panel kernels, restored original edge predicates and the native JAX default numeric disk route. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,13 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** edge failure handling44PASS, all7default originalpredicates restored at exactnativeinputs/unchangedbounds. Actual Checkmarkdegree3 representation45/12/12/45 recovered; exactknot/provider words and full7curvepage remain open. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
+- **Edge correctness:** edge failure handling44PASS, all7default originalpredicates restored at exactnativeinputs/unchangedbounds. Actual Checkmarkdegree3 representation45/12/12/45 recovered; exactknot/provider words and full7curvepage remain open. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
 - **Root:** shared minimax panel kernels pass44actual parent/66isolated checks. Full degree3curve preserves all517callback words and19snapshot arrays; recorded runtime383.88→296.44s. Next: audit the full seven-curve Checkmark source computation and finish its page/figure qualification. [Evidence](minimax_panel_compilation_cpu_20261018.json). Matched MATLAB speed remains open.
-- **Unary worker:** compiletime initialization/global JIT tail migration pass27controls. Exact disjoint continuation of2168existing cases:1806completed PASS+1strictXF,361remaining at the latest live observation; bounded8GiB remainder running, then110new controls. Prior RSS censors retained; Inf-real TANH native-context zero-sign contradiction remains open. Not published yet.
-- **Disk worker:** paired adaptive/equispaced source staging candidate final162PASS/7strictXF; prior protected231PASS/1strictXF and three original tests pass (including full1001×1001constructor2). Sealed candidate awaits actual parent integration. Seven factor/cutoff/location contracts and callback orientation remain open.
+- **Unary worker:** compiletime initialization/global JIT tail migration pass27controls. Existing2168case selection remains under verification in exact disjoint shards after retained RSS censors, then110new controls. Inf-real TANH native-context zero-sign contradiction remains open; not published yet.
+- **Constructor package published:** paired adaptive/EQUI preferences and source staging pass196actual parent checks/7strictXF. Full original constructor2 and EQUI/mixed-technology tests pass in the child qualification. Seven factor/cutoff/location contracts, callback orientation and whole API/JAX/AD remain open. [Evidence](chebfun2_paired_equi_parent_cpu_20261018.json).
 - **Other numerical/API gaps:** full original assertion audit; complex poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
 - **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Prior descriptive inverse/disk timings are not complete qualification.
 - **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish finalpage parity.
+- **CI follow-up:** older2b review fails the same original Diskfunv third-derivative identity in core6 and disk jobs. Current-main original-node reproduction reached a5GiB RSS cap without an assertion result; a traced6.5GiB retry is running, source and all eleven original predicates unchanged. No current-main failure or pass is established yet.
 - **Final gates:** latest-main scientific CI, aggregate coverage>=79%, provenance/lint and requirement-by-requirement completion audit. No current green latest-main claim.
 - **Evidence corrections:** constructor censor18dots/no named active node and coarseGE2/5 narrative retraction preserved; nativebatch parse/static-workspace observerfailures and baseline collector/staleguardchecker raw evidence retained in the newpacket.
 
@@ -43,6 +44,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Chebfun2 paired adaptive/EQUI source routing and sample-before-finalize staging:196actual parent PASS/7strictXF; original constructor2/full1001×1001 and EQUI/mixed-technology child tests pass. All1128prior CIowner prefixes retained,1129total. [Evidence](chebfun2_paired_equi_parent_cpu_20261018.json).
+- [ ] Seven factor/cutoff/location contracts, native callback orientation, inherited host numerics, whole API/JAX/JIT/AD, matched speed and full page/figure qualification remain open.
 
 - [x] Shared JAX minimax panel/colleague kernels:44actual parent PASS/66isolated PASS; all ten original polynomial clauses retain their assertions and bounds. Actual degree3curve preserves517callback words and19snapshot arrays, recorded383.88→296.44s. [Evidence](minimax_panel_compilation_cpu_20261018.json).
 - [ ] Full seven-curve Checkmark source/page/stdout/figures, native knots/provider words, whole minimax JAX/JIT/AD and matched MATLAB performance remain open.

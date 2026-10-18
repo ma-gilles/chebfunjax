@@ -194,8 +194,9 @@ class Chebfun2(eqx.Module):
             function periodically (Fourier/trigtech slices) in both
             directions, in x only, or in y only.
 
-        pref : ChebfunPref, optional
-            Shared axis preference for callable construction. Selects genuine
+        pref : ChebfunPref or pair, optional
+            Shared or separate x/y preferences for callable construction.
+            A missing member of a pair uses the default axis preference. Selects genuine
             first-kind, second-kind or trigonometric slice factors, including
             fixed sample grids.
 
@@ -229,28 +230,31 @@ class Chebfun2(eqx.Module):
                 f"Chebfun2.from_function: domain must have exactly 4 elements "
                 f"(xa, xb, ya, yb), got {len(domain)}."
             )
-        # @chebfun2/constructor.m parseInputs (7574c77): one preference
-        # selects the technology and construction controls for both axes.
-        base_tech = "cheb"
+        # Native parseInputs keeps one effective preference per axis.
+        base_techs = ("cheb", "cheb")
         pref_kwargs = {}
         if pref is not None:
-            from chebfunjax.chebpref import ChebfunPref, _factory_tech_prefs
-            if not isinstance(pref, ChebfunPref):
-                raise TypeError("pref must be a ChebfunPref; paired preferences are not supported")
-            name = (pref.tech.__name__ if isinstance(pref.tech, type)
-                    else str(pref.tech)).lower().lstrip("@")
+            from chebfunjax.chebpref import _factory_tech_prefs
+            preferences = _chebfun2_axis_preferences(pref)
             names = {"chebtech1": "cheb1", "chebtech2": "cheb",
                      "chebtech": "cheb", "trigtech": "trig"}
-            if name not in names:
-                raise ValueError(f"Unsupported Chebfun2 technology {pref.tech!r}")
-            base_tech = names[name]
-            # Native reads tech.techPref, not pref.techPrefs overrides.
-            tech_defaults = _factory_tech_prefs(pref.tech)
-            pref_kwargs = dict(tol=float(pref.cheb2Prefs.chebfun2eps),
-                               max_rank=int(pref.cheb2Prefs.maxRank),
-                               min_samples=int(tech_defaults.minSamples),
-                               max_samples=int(tech_defaults.maxLength),
-                               sample_test=bool(pref.cheb2Prefs.sampleTest))
+            selected = []
+            defaults = []
+            for axis_pref, periodic in zip(preferences, (trig or trigx, trig or trigy)):
+                name = (axis_pref.tech.__name__ if isinstance(axis_pref.tech, type)
+                        else str(axis_pref.tech)).lower().lstrip("@")
+                if name not in names:
+                    raise ValueError(f"Unsupported Chebfun2 technology {axis_pref.tech!r}")
+                selected.append(names[name])
+                # Explicit trig flags replace the corresponding source tech.
+                defaults.append(_factory_tech_prefs("trigtech" if periodic else axis_pref.tech))
+            base_techs = tuple(selected)
+            pref_kwargs = dict(
+                tol=min(float(p.cheb2Prefs.chebfun2eps) for p in preferences),
+                max_rank=tuple(float(p.cheb2Prefs.maxRank) for p in preferences),
+                min_samples=tuple(int(d.minSamples) for d in defaults),
+                max_samples=tuple(int(d.maxLength) for d in defaults),
+                sample_test=any(bool(p.cheb2Prefs.sampleTest) for p in preferences))
         if n is not None and pref is not None:
             return _chebfun2_preference_input(
                 f, tuple(domain), tol, n, None, pref, trig or trigx, trig or trigy)
@@ -274,8 +278,8 @@ class Chebfun2(eqx.Module):
         kwargs: dict = dict(domain=domain, **pref_kwargs)
         if tol is not None:
             kwargs["tol"] = max(tol, kwargs.get("tol", tol))
-        kwargs["techs"] = ("trig" if (trig or trigx) else base_tech,
-                           "trig" if (trig or trigy) else base_tech)
+        kwargs["techs"] = ("trig" if (trig or trigx) else base_techs[0],
+                           "trig" if (trig or trigy) else base_techs[1])
         # Native constructor keeps complex values in one GE construction;
         # getTol therefore uses the full function scale, including roundoff
         # in a small real or imaginary component.
@@ -3114,8 +3118,6 @@ def chebfun2(
     MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
     Chebfun commit: 7574c77
     """
-    if pref is not None and (equi or equix or equiy):
-        raise NotImplementedError("Explicit preferences with equispaced data are not implemented")
     import numpy as _np
     if periodic:
         trig = True
@@ -3141,7 +3143,9 @@ def chebfun2(
 
         def f(x, y, _g=_g):
             return _g._eval_xy(x, y)
-    if (equix or equiy) and callable(f):
+    if pref is not None:
+        pref = _chebfun2_axis_preferences(pref)
+    if (equix or equiy) and callable(f) and n is None:
         raise ValueError("CHEBFUN:CHEBFUN2:constructor:equi: The EQUI flag "
                          "is valid only when constructing from numeric "
                          "data")
@@ -3172,9 +3176,10 @@ def chebfun2(
             out = [_f0(jnp.asarray(xv), jnp.asarray(yv))
                    for xv, yv in zip(xb.ravel(), yb.ravel())]
             return jnp.asarray(_np.asarray(out)).reshape(xb.shape)
-    if pref is not None and (not callable(f) or n is not None or rank is not None):
+    if (pref is not None or equix or equiy) and (not callable(f) or n is not None or rank is not None):
         return _chebfun2_preference_input(
-            f, dv, tol, n, rank, pref, trigx, trigy, coeffsx, coeffsy)
+            f, dv, tol, n, rank, pref, trigx, trigy, coeffsx, coeffsy,
+            equix, equiy)
     if not callable(f) and _mixed:
         arr = _np.asarray(f)
         if arr.ndim == 1:
@@ -3219,8 +3224,30 @@ def chebfun2(
     return _chebfun2_impl(f, domain=domain, tol=tol, n=n, pref=pref)
 
 
+def _chebfun2_axis_preferences(pref):
+    """Literal source shared preference / cell{x,y} selection.
+
+    @chebfun2/constructor.m parseInputs, pin7574c77: each cell member
+    that is not a preference leaves the corresponding default in place.
+    """
+    from chebfunjax.chebpref import ChebfunPref
+    if pref is None:
+        return ChebfunPref(), ChebfunPref()
+    if isinstance(pref, ChebfunPref):
+        return pref, pref
+    if isinstance(pref, (tuple, list)):
+        if len(pref) == 1 and isinstance(pref[0], ChebfunPref):
+            error = IndexError("MATLAB:badsubscript: Index exceeds the number of array elements. Index must not exceed 1.")
+            error.identifier = "MATLAB:badsubscript"
+            raise error
+        if len(pref) == 2:
+            return tuple(p if isinstance(p, ChebfunPref) else ChebfunPref()
+                         for p in pref)
+    raise TypeError("pref must be a ChebfunPref or an x/y preference pair")
+
+
 def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy,
-                             coeffsx=False, coeffsy=False):
+                             coeffsx=False, coeffsy=False, equix=False, equiy=False):
     """Native fixed-length sampling followed by preference-aware numeric CDR.
 
     Provenance
@@ -3231,11 +3258,8 @@ def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy,
     factor transforms use the shared JAX numerical implementations.
     """
     from chebfunjax.chebfun2d._numeric_constructor import numeric_points
-    from chebfunjax.chebpref import ChebfunPref
 
-    preferences = tuple(pref) if isinstance(pref, (tuple, list)) else (pref, pref)
-    if len(preferences) != 2 or any(not isinstance(p, ChebfunPref) for p in preferences):
-        raise TypeError("pref must be a ChebfunPref or a pair of ChebfunPref objects")
+    preferences = _chebfun2_axis_preferences(pref)
     names = {"chebtech1": "cheb1", "chebtech2": "cheb",
              "chebtech": "cheb", "trigtech": "trig"}
     techs = []
@@ -3281,8 +3305,17 @@ def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy,
                 values = transforms[techs[1]](values)
             if coeffsx:
                 values = transforms[techs[0]](values.T).T
-        result = Chebfun2(approx=SeparableApprox.from_values(
-            values, domain=domain, tol=tolerance, techs=techs))
+        if equix or equiy:
+            values = jnp.atleast_2d(values)
+            from chebfunjax.chebfun2d._numeric_constructor import numeric_cdr
+            # Source fixed callable sampling and coefficient transforms above
+            # precede numeric EQUI interpretation. Periodic axes override EQUI.
+            result = Chebfun2(approx=SeparableApprox(**numeric_cdr(
+                values, domain, tolerance, techs, equi=(equix, equiy),
+                preferences=preferences)))
+        else:
+            result = Chebfun2(approx=SeparableApprox.from_values(
+                values, domain=domain, tol=tolerance, techs=techs))
     if rank is None or not rank or result.isempty():
         return result
     if int(rank) != rank or rank < 0:

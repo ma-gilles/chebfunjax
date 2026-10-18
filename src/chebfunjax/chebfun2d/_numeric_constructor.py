@@ -176,7 +176,8 @@ def numeric_factors(values, tech, tolerance, chop=False):
     return result
 
 
-def numeric_cdr(values, domain, tolerance, techs, chop=False):
+def numeric_cdr(values, domain, tolerance, techs, chop=False, *,
+                equi=(False, False), preferences=None):
     """Prepare ordinary SeparableApprox factors from numeric values.
 
     Provenance
@@ -186,14 +187,26 @@ def numeric_cdr(values, domain, tolerance, techs, chop=False):
     Chebfun commit: 7574c77
     Python stores inverse CDR weights and retains the original raw pivot values.
     """
-    x = numeric_points(values.shape[1], domain[:2], techs[0])
-    y = numeric_points(values.shape[0], domain[2:], techs[1])
-    _, absolute = numeric_tolerances(x, y, values, domain, tolerance)
+    equi = tuple(bool(flag and tech != "trig") for flag, tech in zip(equi, techs))
+    def points(n, interval, tech, is_equi):
+        if not is_equi:
+            return numeric_points(n, interval, tech)
+        if n == 1:
+            return jnp.asarray([interval[1]], dtype=jnp.float64)
+        from chebfunjax.utils._matlab_linspace import source_grid
+        return source_grid(interval[0], interval[1], n)
+    x = points(values.shape[1], domain[:2], techs[0], equi[0])
+    y = points(values.shape[0], domain[2:], techs[1], equi[1])
+    relative, absolute = numeric_tolerances(x, y, values, domain, tolerance)
     pivots, _, rows, cols, _ = numeric_aca(values, absolute)
     inverse = 1/pivots
     inverse = jnp.where(_source_inf_magnitude(inverse), 0, inverse)
-    return dict(cols=numeric_factors(cols, techs[1], tolerance, chop),
-                rows=numeric_factors(rows.T, techs[0], tolerance, chop), pivots=inverse,
+    def factors(data, axis):
+        if not equi[axis]:
+            return numeric_factors(data, techs[axis], tolerance, chop)
+        return _equi_factors(data, techs[axis], relative,
+                             domain[2*axis:2*axis+2], preferences[axis])
+    return dict(cols=factors(cols, 1), rows=factors(rows.T, 0), pivots=inverse,
                 domain=domain, techs=techs, pivot_locations=(),
                 pivot_values=pivots)
 
@@ -241,3 +254,29 @@ def scalar_cdr(value, domain):
     return dict(cols=[factor], rows=[factor], pivots=inverse[None],
                 pivot_values=raw, domain=domain, techs=("cheb", "cheb"),
                 pivot_locations=locations)
+
+
+def _equi_factors(values, tech, tolerance, interval, preference):
+    """Literal numeric EQUI array-valued FUNQUI followed by selected tech.
+
+    Source: @chebfun2/constructor.m constructFromDouble and
+    @smoothfun/smoothfun.m funqui, pin7574c77. Existing rational/interpolation
+    and adaptive-tech kernels are reused; their provider limits remain.
+    """
+    from chebfunjax.utils.interpolation import funqui
+    prefs = preference.techPrefs
+    tech_class = Chebtech1 if tech == "cheb1" else Chebtech2
+    kwargs = dict(
+        tol=float(tolerance), hscale=max(abs(float(x)) for x in interval),
+        max_length=int(prefs.maxLength), min_samples=int(prefs.minSamples),
+        sample_test=bool(prefs.sampleTest), check=prefs.happinessCheck,
+        refinement_function=prefs.refinementFunction)
+    fixed = prefs.get("fixedLength", float("nan"))
+    if fixed is not None and bool(jnp.isfinite(fixed)):
+        kwargs["n"] = int(fixed)
+    joint = tech_class.from_function(funqui(values), **kwargs)
+    coeffs = joint.coeffs
+    if coeffs.ndim == 1:
+        return [joint]
+    return [tech_class(coeffs=coeffs[:, j], ishappy=joint.ishappy)
+            for j in range(coeffs.shape[1])]

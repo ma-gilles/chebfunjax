@@ -738,7 +738,8 @@
       "tests/test_diskfun/test_helmholtz_jax_provider.py",
       "tests/test_discretization/test_ultras_multmat_source_tail.py",
       "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
-      "tests/test_diskfun/test_numeric_phase_one_jax.py"
+      "tests/test_diskfun/test_numeric_phase_one_jax.py",
+      "tests/test_chebfun2/test_paired_equi_preferences_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1158,6 +1159,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "06258290065e1764922388f2defae47eef428d5f",
+  "last_update_parent": "fc1f9ce1798d7efd0e57deab2fac601198185d8e",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

@@ -131,6 +131,27 @@
       "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions",
       "sha256": "5525be6ecc8d2ea9afd11dedbc34be3097364739ef5840fb4074f3f3ef3b6188"
     },
+    "chebfun2_paired_equi_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/paired_equi_actual_parent_20261018.tar.gz",
+        "sha256": "2af098a4b04ed33e9d28c0168cf4ab20723da18068c6d0b7df6bfcb8ac502fd3",
+        "verified_payloads": 24
+      },
+      "child_archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_paired_equi_candidate_20261018.tar.gz",
+        "sha256": "905f4c6744c780e12c99ae36892a87f7406f78f97d39b1883bcbbb2247e328c0",
+        "verified_payloads": 330
+      },
+      "limits": [
+        "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+        "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+        "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+        "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+      ],
+      "report": "docs/chebfun2_paired_equi_parent_cpu_20261018.json",
+      "report_sha256": "d17304d1d35c0b6cdaa6fe02670e88e03d5041f04538dd494a583963b4466921",
+      "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+    },
     "chebfun3t_current_transform_cpu_20261017": {
       "path": "docs/chebfun3t_current_transform_cpu_20261017.json",
       "scope": "Unchanged original constructor predicate7 still fails on47a CPU; strict xfail retained, no repair claimed",
@@ -57426,11 +57447,32 @@
             "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
           ],
           "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
+        },
+        {
+          "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+          "limits": [
+            "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+            "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+            "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+            "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -57456,6 +57498,16 @@
                 "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
               ],
               "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
+            },
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
             }
           ],
           "implementation_status": "unverified",
@@ -57567,6 +57619,16 @@
                 "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
               ],
               "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
+            },
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
             }
           ],
           "implementation_status": "unverified",
@@ -83127,10 +83189,32 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+          "limits": [
+            "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+            "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+            "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+            "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -85209,11 +85293,32 @@
         {
           "artifact": "bary_rounding_joint_cpu_20261017",
           "scope": "Actual captured EQUI constructor72 and12listed FUNQUI/EQUI checks; full item status unchanged"
+        },
+        {
+          "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+          "limits": [
+            "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+            "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+            "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+            "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "33",
@@ -85229,7 +85334,18 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "86",
@@ -108588,10 +108704,32 @@
         "tests/test_matlab_port/chebfun3/test_constructor2_matlab.py",
         "tests/test_matlab_port/chebfun3v/test_constructor2_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+          "limits": [
+            "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+            "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+            "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+            "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -108872,10 +109010,32 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun2/test_equiOption_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+          "limits": [
+            "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+            "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+            "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+            "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "chebfun2_paired_equi_parent_cpu_20261018",
+              "limits": [
+                "Seven strict expected failures remain OPEN: two rank5row cutoffs, three refinedrank7 factor/location contracts, two fixedEQUI technology cutoffs. Native-input crossfeeds and stage attribution are retained; no fitted cutoffs or assertion relaxation.",
+                "Inherited flat skeleton callback adapter differs from native row/column orientation; arbitrary callback/API shape parity remains open.",
+                "New array numerics reuse existing JAX kernels; inherited adaptive NumPy drivers/getTol/simplification and FUNQUI Python work remain. No whole-constructor JIT/AD, full API or matched speed closure.",
+                "All final322pages/1305figures, complete original library/test/assertion coverage, known numerical issues and latest-main CI/coverage>=79% remain required."
+              ],
+              "scope": "Actual publication-checkout integration of separate Chebfun2 axis preferences, adaptive sampleTest-before-finalize staging and native EQUI numeric/fixed routing."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",

@@ -1,3 +1,27 @@
+# Chebfun2 paired adaptive and equispaced preferences — 2026-10-18
+
+Actual publication-checkout integration: **196 PASS / 7 strict XFAIL**, 203
+nodes, all 1,543 observed imports guarded, stable inputs and no surviving
+process. Separate axis preferences now reach adaptive construction; numeric
+and fixed callable EQUI routes use source grids and existing JAX kernels.
+Sample testing occurs on raw factors before one final simplification.
+The original assertions and bounds remain unchanged.
+
+Child verification includes 162 PASS/7 strict XFAIL, protected 231 PASS/1
+existing strict XFAIL, the full 26-clause original constructor2 test at its
+1001×1001 evaluation size, and the original EQUI/mixed-technology tests.
+All 1,128 prior CI ownership prefixes remain; 1,129 owners/13 lanes,
+dedicated Hermite lane 12 and coverage gate 79% are retained.
+
+Seven factor/cutoff/location contracts remain OPEN; passing public-value,
+rank, technology and staging checks do not close them. The inherited flat
+callback adapter still differs from native row/column orientation. Host
+adaptive/FUNQUI work, whole-constructor JIT/AD, full APIs, pages/figures,
+matched CPU speed and latest-main CI remain open. A mistaken tolerance
+routing concern was retracted after following native relTol assignments;
+its source-chain evidence is retained and no incorrect repair was made.
+Evidence: docs/chebfun2_paired_equi_parent_cpu_20261018.json. Goal incomplete.
+
 # Minimax panel compilation on CPU — 2026-10-18
 
 Shared JAX kernels now transform each fixed-size extrema panel and solve its
