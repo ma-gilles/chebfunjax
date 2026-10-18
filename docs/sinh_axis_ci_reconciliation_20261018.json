@@ -1,0 +1,71 @@
+{
+  "scope": "Reconcile obsolete authored SINH failure/preservation expectations with previously published native subnormal repair",
+  "base": "24d7683b15a485ca5ced48b35845b97b30b5f15d",
+  "ci_failure": {
+    "run": 39147084903,
+    "job": 117733350291,
+    "log_sha256": "d0d57133fdee321e51ccf8efdffca2e40bd47b9ea4353e02ec9571bdd4b3de79",
+    "failures": [
+      "strictXPASS of native minimum-subnormal record",
+      "old primitive-loss preservation expectation"
+    ]
+  },
+  "runs": {
+    "baseline": {
+      "tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "2",
+        "time": "3.021",
+        "timestamp": "2026-10-18T13:41:49.770445-04:00",
+        "hostname": "della-mol.princeton.edu"
+      },
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 10.288394904695451,
+      "sampled_peak_summed_rss_kib": 638596,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_imports": 1486
+    },
+    "final": {
+      "tests": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "158",
+        "time": "67.060",
+        "timestamp": "2026-10-18T13:42:43.878786-04:00",
+        "hostname": "della-mol.princeton.edu"
+      },
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 74.51902433624491,
+      "sampled_peak_summed_rss_kib": 1509488,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "guarded_imports": 1489
+    }
+  },
+  "bridge": {
+    "native_assertion_body_AST_exact": true,
+    "other_test_bodies_AST_exact": true,
+    "production_unchanged": true,
+    "old_sha256": "228e987b051fff7e4f6bbf93af8451004a007d12f43bf26f5764b24637080723",
+    "new_sha256": "b015ae958f7aeda9c76604c3d87093ac1f087ad1109180a788263c31e13d178f",
+    "changes": "Remove obsolete one-row strictxfail; strengthen selected imaginary components to exact native words, preserve all other imaginary words and old real-axis tests."
+  },
+  "production_unchanged": true,
+  "native_fixture_assertions_and_bounds_unchanged": true,
+  "all_prior_owner_prefixes_retained": 1125,
+  "lanes": 13,
+  "coverage_gate": 79,
+  "limitations": [
+    "158-module checks do not establish complete unary or native test/API/JAX/AD parity.",
+    "Latest-main GitHubCI reproduction and coverage remain required; older9caeCI failure is retained.",
+    "Remaining unary tinyTAN/TANH, numerical/provider/API gaps,322pages/1305figures and matchedCPUperformance remain open."
+  ]
+}

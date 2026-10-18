@@ -1,3 +1,15 @@
+# Reconcile stale SINH CI expectations — 2026-10-18
+
+Older9cae scientificCI39147084903 failed job117733350291 on an obsolete
+strictXFAIL and a preservation check that required the already repaired loss
+of minimum-subnormal imaginary SINH. Both failures reproduced locally.
+Production is unchanged. The native assertion body, fixtures and bounds are
+unchanged; the repaired tiny imaginary words now must equal captured native
+words exactly, with every other imaginary word still matching the primitive.
+The complete module passes **158checks**, stable guarded inputs/no survivors.
+1125owners/13lanes/Hermite12/79%unchanged. Latest-mainCI still required.
+Evidence: docs/sinh_axis_ci_reconciliation_20261018.json. Full parity goal remains active/incomplete.
+
 # Chebfun2 preferences and adaptive disk source grids — 2026-10-18
 
 Actual integration **194 PASS**, two disjoint processes:73Chebfun2 native

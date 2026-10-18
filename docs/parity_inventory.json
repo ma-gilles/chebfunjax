@@ -926,6 +926,21 @@
       "report_sha256": "729c9434e42716c65a7034c3b304474d6378a88b9cc865725a2811208e1bc7dc",
       "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
     },
+    "sinh_axis_ci_reconciliation_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sinh_axis_ci_reconciliation_20261018.tar.gz",
+        "sha256": "849159899dd51dc130f8522fa38511275ca77d499080cd0261719a9f3fc1eb0e",
+        "verified_payloads": 33
+      },
+      "limits": [
+        "158-module checks do not establish complete unary or native test/API/JAX/AD parity.",
+        "Latest-main GitHubCI reproduction and coverage remain required; older9caeCI failure is retained.",
+        "Remaining unary tinyTAN/TANH, numerical/provider/API gaps,322pages/1305figures and matchedCPUperformance remain open."
+      ],
+      "path": "docs/sinh_axis_ci_reconciliation_20261018.json",
+      "scope": "Reconcile obsolete authored SINH failure/preservation expectations with previously published native subnormal repair",
+      "sha256": "e29b886246d5e03073dfd1231537040f530d4b2abe90fbd4908a8659d3163b46"
+    },
     "sphere_extrema_tie_cpu_20261017": {
       "path": "docs/sphere_extrema_tie_cpu_20261017.json",
       "scope": "Ten original sphere optimization predicates and two bounded even-polynomial authored controls; no general antipode closure",

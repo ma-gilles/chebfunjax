@@ -33,11 +33,7 @@ def decode(row):
     return value.reshape(row['shape'], order='F')
 
 
-@pytest.mark.parametrize('row', [
-    pytest.param(r, marks=pytest.mark.xfail(strict=True, reason=
-        'Retained primitive minimum-subnormal imaginary loss and consequent storage mismatch'))
-    if r['label'] == 'complex_min_subnormal_imag' else r for r in SINH_ROWS
-], ids=lambda r:r['label'])
+@pytest.mark.parametrize('row', SINH_ROWS, ids=lambda r:r['label'])
 def test_native_sinh_values_storage_and_signs(row):
     expected = decode(row['output'])
     got = np.asarray(_UNARY_FNS['sinh'](jnp.asarray(decode(row['input']))))
@@ -56,13 +52,25 @@ def test_native_sinh_values_storage_and_signs(row):
 
 
 @pytest.mark.parametrize('row', SINH_ROWS, ids=lambda r:r['label'])
-def test_only_finite_imaginary_axis_real_zero_word_can_change(row):
+def test_only_axis_zero_and_native_subnormal_imaginary_words_can_change(row):
     x = decode(row['input'])
     values = jnp.asarray(x)
     baseline = np.asarray(jnp.sinh(values))
     got = np.asarray(_sinh_branch(values))
     assert got.shape == baseline.shape and got.dtype == baseline.dtype
-    assert got.imag.tobytes() == baseline.imag.tobytes()
+    # The qualified SINH repair intentionally retains tiny imaginary words
+    # which the primitive loses. Require the captured native words there;
+    # every other imaginary word must still equal this runtime's primitive.
+    tiny = np.zeros(x.shape, dtype=bool)
+    if x.dtype == np.dtype(np.complex128):
+        bits = x.imag.copy().view(np.uint64) & np.uint64(0x7fffffffffffffff)
+        with np.errstate(over='ignore', invalid='ignore'):
+            finite_coefficient = np.isfinite(np.cosh(x.real))
+        tiny = ((bits > 0) & (bits < np.uint64(0x0010000000000000))
+                & np.isfinite(x.real) & finite_coefficient)
+    expected = decode(row['output'])
+    assert got.imag[tiny].tobytes() == expected.imag[tiny].tobytes()
+    assert got.imag[~tiny].tobytes() == baseline.imag[~tiny].tobytes()
     if not np.iscomplexobj(x):
         assert got.tobytes() == baseline.tobytes()
         return

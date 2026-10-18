@@ -24,6 +24,8 @@ open work.
 
 ### Current queue — 2026-10-18
 
+- **CI repair:** obsolete SINH expectations reconciled;158modulePASS, production/native assertions/bounds unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json). GitHub reproduction still required.
+
 - **Latest verified integration:** explicit Chebfun2 preferences and adaptive disk grids/tolerance/rank-width decisions;194actual parentPASS in two disjoint processes. [Evidence](chebfun2_disk_preferences_spacing_cpu_20261018.json).
 - **Unary worker:** remaining2original+5fresh TAN/TANH failures. Source quotient work still has a near-axis normal-input/subnormal-output discrepancy and a retained memory censor; not credited as repaired.
 - **Disk worker:** joint matrix PhaseTwo/factor simplification diagnosis. A named original rank102 case passes alone, but native factor storage differs; its CPU compilation cost remains under study. Final FFT factor/provider words and broader adaptive JAX/AD remain open.
@@ -43,6 +45,8 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Reconcile stale authored SINH strictXFAIL/preservation expectations:158modulePASS; exact native repaired words, production unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json).
 
 - [x] Explicit Chebfun2 fixed/numeric/rank preferences and adaptive disk source grids/tolerance/rank stopping: **194 actual parent PASS**, original bounds retained. [Evidence](chebfun2_disk_preferences_spacing_cpu_20261018.json).
 - [ ] Wider preferences/API/JAX/AD, unary/provider errors, full original tests,322pages/1305figures, matched speed and latest-mainCI remain open.
