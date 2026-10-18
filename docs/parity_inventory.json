@@ -37,6 +37,11 @@
       "scope": "Complete actual AbsoluteValue execution, source plotting/error repair and exact presentation bridge; numerical/figure/full-page parity remains open",
       "sha256": "a13115b0fd7c5ec22cebe76cfd401f6cf76c4c610819ba890fd4ab34fde2b3a5"
     },
+    "asinh_axis_parent_cpu_20261018": {
+      "path": "docs/asinh_axis_parent_cpu_20261018.json",
+      "scope": "Real-axis/underflow correction and bounded large finite analytic JVP qualification; complete APIs/words/speed/CI remain open",
+      "sha256": "a5377b942abbfcc8fae5bc59d53d59801dc4d9b52e47f9da3bdc88a769fe917e"
+    },
     "bary_complex_cpu_20261017": {
       "path": "docs/bary_complex_cpu_20261017.json",
       "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
@@ -49763,7 +49768,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "asinh_axis_parent_cpu_20261018",
+          "scope": "ASINH primitive numerical adapters and public consumer controls only; no whole source/API closure."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -89577,7 +89587,12 @@
         "src/chebfunjax/autodiff/treevar.py",
         "src/chebfunjax/operators/treevar.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "asinh_axis_parent_cpu_20261018",
+          "scope": "ASINH primitive numerical adapters and public consumer controls only; no whole source/API closure."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

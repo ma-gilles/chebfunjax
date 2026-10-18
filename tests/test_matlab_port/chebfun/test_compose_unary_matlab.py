@@ -20,6 +20,13 @@ XS = jnp.asarray(np.linspace(-0.97, 0.97, 100))
 
 
 class TestChebfunComposeUnary:
+    def test_asinh_complex_composition_and_inverse(self):
+        f = cj.chebfun(lambda x: x+.2j)
+        g = f.asinh()
+        expected = jnp.arcsinh(XS+.2j)
+        assert float(jnp.max(jnp.abs(g(XS)-expected))) < 1e-13
+        assert float((g.sinh()-f).norm(jnp.inf)) < 1e-13
+
     def test_smooth(self):
         f = cj.chebfun(lambda x: jnp.cos(2 * (x + 0.2)))
         h = f.compose(jnp.exp)

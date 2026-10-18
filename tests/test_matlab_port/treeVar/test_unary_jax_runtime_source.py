@@ -82,3 +82,59 @@ def test_complex_real_linear_jvp(name):
     assert got.dtype == jnp.complex128
     assert jnp.linalg.norm(got-expected) < bound
     assert jnp.linalg.norm(dgot-dexpected) < bound
+
+
+@pytest.mark.parametrize("x", [0., .4, -.4, 2., -2.])
+def test_asinh_real_axis_retains_transverse_first_and_second_tangents(x):
+    from chebfunjax.utils.elementary import _asinh_numeric
+
+    z = jnp.asarray(complex(x, 0.))
+    first, second = jnp.asarray(.3+.2j), jnp.asarray(-.1+.4j)
+    for function in (_asinh_numeric, jax.jit(_asinh_numeric)):
+        _, derivative = jax.jvp(function, (z,), (first,))
+        _, curvature = jax.jvp(
+            lambda value: jax.jvp(function, (value,), (first,))[1],
+            (z,), (second,),
+        )
+        assert jnp.abs(derivative-first/(1+x*x)**.5) < 20*jnp.finfo(float).eps
+        assert jnp.abs(curvature+x*first*second/(1+x*x)**1.5) < 20*jnp.finfo(float).eps
+
+
+def test_asinh_normal_imaginary_components_keep_existing_kernel_words():
+    import numpy as np
+
+    from chebfunjax.utils.elementary import _asinh_numeric
+
+    # IEEE word construction avoids flushing the input during test arithmetic.
+    real = np.asarray([.4, -.4, 1., -2.])
+    imag = np.asarray([0x3fd3333333333333,
+                       0xbfd3333333333333, 0x4000000000000000,
+                       0xbff0000000000000], np.uint64).view(np.float64)
+    values = np.empty(real.shape, np.complex128)
+    values.real, values.imag = real, imag
+    argument = jnp.asarray(values)
+    expected = np.asarray(jnp.arcsinh(argument))
+    for function in (_asinh_numeric, jax.jit(_asinh_numeric)):
+        actual = np.asarray(function(argument))
+        assert actual.real.tobytes() == expected.real.tobytes()
+        assert actual.imag.tobytes() == expected.imag.tobytes()
+
+
+@pytest.mark.parametrize('z', [complex(2.**600, 0.), complex(-2.**600, 0.),
+                              complex(2.**600, 2.**599),
+                              complex(-2.**600, 2.**599),
+                              complex(3*2.**510, 3*2.**510),
+                              complex(2.**-600, 2.**600),
+                              complex(-2.**-600, 2.**600),
+                              complex(2.**-600, -2.**600),
+                              complex(-2.**-600, -2.**600)])
+def test_asinh_large_finite_transverse_derivative(z):
+    from chebfunjax.utils.elementary import _asinh_numeric
+
+    tangent = jnp.asarray(.3+.2j)
+    # At these magnitudes the O(1/z^3) correction is far below binary64.
+    expected = complex(.3, .2) * ((-1. if z.real < 0 else 1.) / z)
+    for fn in (_asinh_numeric, jax.jit(_asinh_numeric)):
+        _, actual = jax.jvp(fn, (jnp.asarray(z),), (tangent,))
+        assert jnp.isfinite(actual)
+        assert abs((complex(actual)-expected)/expected) < 20*jnp.finfo(float).eps

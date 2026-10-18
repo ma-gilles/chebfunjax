@@ -1,3 +1,16 @@
+# ASINH axis/underflow and large finite derivatives — 2026-10-18
+
+ASINH retains native positive imaginary zero on the real axis, preserves tiny
+real values and binary64 subnormal imaginary components, and scales large
+finite analytic derivatives with signed branch-side preservation. Four ASINH
+expected-failure entries removed; native fixtures/assertions/bounds retained.
+Actual parent broad1392PASS35XFAIL precedes a JVP-only signed-root correction;
+final50runtime/public checks pass.33axis native inputs and4Pell controls captured.
+Pell imaginary words match native; real values differ1ULP. All3807archive
+payloads stream-verified. Existing test files retained; core ownership unchanged.
+Full API/nonfinite/branchpoint/IEEE words/extreme higher derivatives/speed and
+latest-main CI remain open. Evidence: docs/asinh_axis_parent_cpu_20261018.json.
+
 # HermiteQuad source plotting and checklist reconciliation — 2026-10-18
 
 HermiteQuad uses public plotData for the restricted Chebfun rather than manual

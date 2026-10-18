@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] ASINH real-axis signed-zero/nonfinite and tiny real/imaginary corrections remove four recorded expected failures. Actual parent broad cohort1392PASS35XFAIL and final50runtime/public checks pass across explicit JVP-only bridge;33native axis inputs and4Pell controls captured. [Evidence](asinh_axis_parent_cpu_20261018.json).
+- [ ] Full ASINH API/branchpoint/nonfinite/IEEE/native-word coverage, extreme higher derivatives, matched CPU speed and latest-main CI remain open.
+
 - [x] HermiteQuad uses public source plotData rather than manual curve sampling. Full current CPU example completes in37.61s with all original orders,9input blocks,7actual output blocks and one600×270figure. Root verifies2893archive payloads and source-byte bridge. [Evidence](hermitequad_page_cpu_20261018.json).
 - [ ] HermiteQuad final printed digits, native curve coordinates, font/raster parity and matched CPU timing remain open.
 - [x] Reconcile12historical checklist statements against newer scoped published evidence; full APIs/pages/CI remain open.

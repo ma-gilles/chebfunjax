@@ -122,3 +122,38 @@ def test_native_numeric_storage_and_components(row):
         assert np.array_equal(value == 0, zero)
         assert np.all(value[zero] == 0)
         assert np.array_equal(np.signbit(value[zero]), np.signbit(target[zero]))
+
+
+ASINH_AXIS = json.loads((DATA/'asinh_axis_native_20261018.json').read_text())
+
+
+@pytest.mark.parametrize('case,row', list(zip(
+    ASINH_AXIS['requested_inputs'], ASINH_AXIS['native_capture']['rows'])),
+    ids=[c['name'] for c in ASINH_AXIS['requested_inputs']])
+def test_asinh_native_axis_and_gradual_underflow(case, row):
+    from chebfunjax.utils.elementary import _asinh_numeric
+
+    def words(values):
+        return np.asarray([int(v, 16) for v in values], dtype=np.uint64)
+
+    x = np.empty(len(case['real']), np.complex128)
+    x.real = words(case['real']).view(np.float64)
+    x.imag = words(case['imag']).view(np.float64)
+    expected = row['output']
+    eager = np.asarray(_UNARY_FNS['asinh'](jnp.asarray(x)))
+    assert (not np.iscomplexobj(eager)) == expected['isreal']
+    for got in (eager, np.asarray(jax.jit(_asinh_numeric)(jnp.asarray(x)))):
+        for part, values in [('real_words', got.real), ('imag_words', got.imag)]:
+            target_words = words(expected[part])
+            target = target_words.view(np.float64)
+            actual_words = np.ascontiguousarray(values).view(np.uint64)
+            assert np.array_equal(np.isnan(values), np.isnan(target))
+            assert np.array_equal(np.isposinf(values), np.isposinf(target))
+            assert np.array_equal(np.isneginf(values), np.isneginf(target))
+            magnitude = target_words & np.uint64(0x7fffffffffffffff)
+            # Check zero/subnormal values by integer words, independent of FTZ.
+            tiny = magnitude < np.uint64(0x0010000000000000)
+            assert np.array_equal(actual_words[tiny], target_words[tiny])
+            normal = np.isfinite(target) & ~tiny
+            assert np.all(np.abs(values[normal]-target[normal]) <=
+                          8*np.finfo(float).eps*np.maximum(1., np.abs(target[normal])))

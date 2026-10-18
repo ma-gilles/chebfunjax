@@ -1,0 +1,67 @@
+{
+  "base_head": "9008f9e932db1678c9cf3440019bd244ea3f0da8",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "ASINH real-axis signed-zero/nonfinite handling, tiny real preservation, binary64 tiny imaginary first-order adaptation and large finite analytic JVP normalization",
+  "baseline": "Three original storage cases fail; four ASINH-only xfail entries removed after correction. Original native fixtures/assertions/tolerances unchanged. New33-input fixture added.",
+  "verification": [
+    {
+      "run": "asinh_parent_full_run001",
+      "passed": 1392,
+      "xfail": 35,
+      "seconds": 134.72,
+      "stage": "Before JVP signed-root side correction; primal ASTs identical to final."
+    },
+    {
+      "run": "asinh_parent_run003",
+      "passed": 50,
+      "seconds": 50.14,
+      "stage": "Final publication source; full runtime/public modules,9large derivative controls."
+    },
+    {
+      "run": "asinh_derivative_review_run001",
+      "passed": 17,
+      "stage": "Final candidate focused derivative check."
+    }
+  ],
+  "native_captures": {
+    "axis_inputs": 33,
+    "repeat_captures": 3,
+    "all_repeat_outputs_equal": true,
+    "pell_inputs": 4,
+    "pell_imaginary_words_exact": true,
+    "pell_real_words_differ_one_ULP": true,
+    "pell_native_imaginary_magnitude_units": 159140519,
+    "mathematical_note": "Exact mathematical Pell result rounds159140520units; native builtin and candidate both produce159140519. No universal correct-rounding/native-word claim."
+  },
+  "collector_limit": "Native z(:) observation canonicalizes all-negative-imaginary-zero packed input metadata. Requested words verified by direct real(z)/imag(z) assertions before call; fixture uses requested inputs. No causal claim about builtin mutation.",
+  "reviewed_failures_retained": [
+    "Parent002:115PASS2FAIL; branch side repaired.",
+    "Initial static import ordering failure.",
+    "Native packed-input diagnostic assertions.",
+    "Initial seal assertion incorrectly required exact Pell real words; observed1ULP differences retained in raw captures."
+  ],
+  "ast_bridge": "derivative_side_fix_bridge.json",
+  "source_paths": [
+    "src/chebfunjax/utils/elementary.py",
+    "src/chebfunjax/operators/treevar.py",
+    "src/chebfunjax/chebfun1d/chebfun.py",
+    "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py",
+    "tests/test_matlab_port/treeVar/test_unary_jax_runtime_source.py",
+    "tests/test_matlab_port/chebfun/test_compose_unary_matlab.py",
+    "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json",
+    "tests/test_matlab_port/treeVar/data/asinh_axis_native_20261018.json"
+  ],
+  "limits": [
+    "35expected failures in other unary primitives remain.",
+    "Full ASINH API/branchpoint/nonfinite grammar, universal IEEE/native words unqualified.",
+    "Subnormal/extreme higher derivatives and CPU performance unqualified.",
+    "Latest-main scientific CI/coverage>=79% required."
+  ],
+  "static_gate": "static_final.json",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/asinh_real_axis_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/asinh_parent_cpu_20261018.tar.gz",
+    "sha256": "5d171219ef1d865b9b48d0ff788bfa49678eb4ff0aac6506eab025a5ecfc7f3b",
+    "root_stream_verified_payloads": 3807
+  }
+}

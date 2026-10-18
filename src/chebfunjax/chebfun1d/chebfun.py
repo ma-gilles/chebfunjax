@@ -29,7 +29,7 @@ import jax.numpy as jnp
 from chebfunjax.chebfun1d._construction import OMITTED
 from chebfunjax.domain import Domain, _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
-from chebfunjax.utils.elementary import _atanh_log1p_real
+from chebfunjax.utils.elementary import _asinh_numeric, _atanh_log1p_real
 
 if TYPE_CHECKING:
     from chebfunjax.chebfun1d.linalg import Quasimatrix
@@ -10252,7 +10252,7 @@ _EXTRA_ELEMENTWISE = {
     "sech": lambda x: 1.0 / jnp.cosh(x),
     "csch": lambda x: 1.0 / jnp.sinh(x),
     "coth": lambda x: 1.0 / jnp.tanh(x),
-    "asinh": jnp.arcsinh,
+    "asinh": _asinh_numeric,
     "acosh": jnp.arccosh,
     "atanh": _atanh_log1p_real,
     "asec": lambda x: _reciprocal_inverse_trig(x, cosine=True),

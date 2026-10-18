@@ -28,6 +28,8 @@ import jax
 import jax.numpy as jnp
 import numpy as np  # uses-numpy: tree bookkeeping on concrete ID vectors
 
+from chebfunjax.utils.elementary import _asinh_numeric
+
 
 class TreeVarError(ValueError):
     """Error raised during syntax-tree analysis, carrying the MATLAB
@@ -737,7 +739,7 @@ _UNARY_FNS_RAW = {
     "asech": lambda x: _reciprocal_hyperbolic_branch(x, "asech"),
     "asin": _inverse_trig_branch,
     "asind": lambda x: _degrees_from_radians(_inverse_trig_branch(x)),
-    "asinh": jnp.arcsinh, "atan": _atan_branch,
+    "asinh": _asinh_numeric, "atan": _atan_branch,
     "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
     "atanh": _atanh_branch, "conj": jnp.conj, "cos": jnp.cos,
     "cosd": lambda x: _direct_degree_branch(x, "cosd"), "cosh": jnp.cosh,
