@@ -150,6 +150,11 @@
       "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion",
       "sha256": "8164e5f245a550bd70d36ba1b0eaeb6c53cee29384a6b9231c5c840dc78a5a8d"
     },
+    "interpolation_minimax_ci_cpu_20261017": {
+      "path": "docs/interpolation_minimax_ci_cpu_20261017.json",
+      "scope": "Repair actual CI interpolation predicate25 with native bary evaluation branches; integrate five minimax shape/scalar test adapters without changing numerical bounds",
+      "sha256": "43284e9608de8e069245e32018184b14a0a80c411c2a6d9c53e628572ff61bdf"
+    },
     "inverse_packed_color_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_color_cpu_20261017.zip",
@@ -51961,7 +51966,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "interpolation_minimax_ci_cpu_20261017",
+          "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -92771,7 +92781,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "interpolation_minimax_ci_cpu_20261017",
+          "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -102857,6 +102872,10 @@
           "path": "docs/interp_get_rat_joint_cpu_20261017.json",
           "recorded_source_commit": "5105d43139295a07b81ef36b3d5144c3f1b127eb",
           "scope": "All35literal original predicates passed; original norms/domains/bounds retained."
+        },
+        {
+          "artifact": "interpolation_minimax_ci_cpu_20261017",
+          "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
         }
       ],
       "functions": [
@@ -122614,7 +122633,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/misc/test_minimax_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "interpolation_minimax_ci_cpu_20261017",
+          "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

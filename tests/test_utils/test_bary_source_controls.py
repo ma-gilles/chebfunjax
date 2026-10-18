@@ -8,6 +8,7 @@ Chebfun commit: 7574c77.
 import jax
 import jax.numpy as jnp
 import numpy as np
+import pytest
 
 from chebfunjax.utils.interpolation import bary, cheb_bary_weights
 from chebfunjax.utils.quadrature import chebpts
@@ -52,3 +53,18 @@ def run_controls():
 
 def test_bary_source_api_controls():
     run_controls()
+
+
+@pytest.mark.parametrize("count", [31, 32])
+def test_bary_complex_jvp_across_source_loop_boundary(count):
+    # n=8 selects point/node loops immediately below/at4*n queries.
+    # Analytic cubic values and directional derivatives test both loops.
+    nodes = chebpts(8)
+    values = nodes**3-2*nodes+1
+    weights = cheb_bary_weights(8)
+    x = jnp.linspace(-.8, .8, count)+.1j
+    direction = jnp.full_like(x, .5+.25j)
+    evaluate = jax.jit(lambda z: bary(z, values, nodes, weights))
+    actual, tangent = jax.jvp(evaluate, (x,), (direction,))
+    np.testing.assert_allclose(actual, x**3-2*x+1, rtol=1e-12, atol=1e-12)
+    np.testing.assert_allclose(tangent, (3*x*x-2)*direction, rtol=1e-12, atol=1e-12)

@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] ActualCIinterp1predicate25 source-loop correction:65interpolation/bary checks pass unchanged bounds,2complex-JVP boundary checks. Five minimax scalar/shape adapters pass on finalsource. [Evidence](interpolation_minimax_ci_cpu_20261017.json).
+- [ ] Native low-word/weights/full APIs, matched speed and latest-main scientificCI/coverage remain open.
+
+
 - [x] Compare real-even C2R transforms on retained3inverse stages and same native363cubed tensor. Neither qualifies a production fix; reject coefficient-count matching as acceptance. [Evidence](transform_c2r_diagnostics_cpu_20261017.json).
 - [ ] Native actual724/32768plans, dense3Tstrictxfail and inverse representation/performance remain open.
 

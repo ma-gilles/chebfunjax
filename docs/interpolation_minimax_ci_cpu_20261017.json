@@ -1,0 +1,116 @@
+{
+  "scope": "Repair actual CI interpolation predicate25 with native bary evaluation branches; integrate five minimax shape/scalar test adapters without changing numerical bounds",
+  "base_commit": "67701a7607391fffb77e2c9f3c9920692682dd10",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "interpolation": {
+    "baseline_error": 2.220446049250313e-14,
+    "strict_original_bound": 2.220446049250313e-14,
+    "native_original_error": 1.5765166949677223e-14,
+    "native_original_pass": true,
+    "source_loop_diagnostic_error": 1.4876988529977098e-14,
+    "source_loop_diagnostic_pass": true,
+    "final_actual_checks": 65,
+    "final_actual_pytest_seconds": 36.88,
+    "original35_test_bytes_unchanged": true,
+    "source_fix": "bary.m chooses vector dot per query below4*n, otherwise per-node accumulation; JAX now uses lax.map/lax.fori_loop with materialized multiply before separate node addition. Existing shape/exact-node adapters retained.",
+    "native_comparison": {
+      "x_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 0,
+        "max_abs": 0.0
+      },
+      "nodes_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 0,
+        "max_abs": 0.0
+      },
+      "z_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 0,
+        "max_abs": 0.0
+      },
+      "values_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 7,
+        "max_abs": 8.881784197001252e-16
+      },
+      "weights_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 8,
+        "max_abs": 2.220446049250313e-16
+      },
+      "bary_values_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 11,
+        "max_abs": 6.772360450213455e-14
+      },
+      "p_coeffs_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 11,
+        "max_abs": 1.5810964327069368e-14
+      },
+      "y_coeffs_vs_jax": {
+        "count": 13,
+        "bit_mismatches": 11,
+        "max_abs": 1.227316859253591e-16
+      },
+      "same_input_weights_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 8,
+        "max_abs": 2.220446049250313e-16
+      },
+      "same_input_bary_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 10,
+        "max_abs": 4.1300296516055823e-14
+      },
+      "jax_weight_bary_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 9,
+        "max_abs": 5.839773109528323e-14
+      },
+      "same_input_coeffs_vs_jax": {
+        "count": 11,
+        "bit_mismatches": 11,
+        "max_abs": 1.042568809062061e-14
+      }
+    },
+    "remaining": "Native/JAX weights/evaluation/exp coefficients still differ in low words. Source loop fixes original strict bound; no bitwise/full API qualification."
+  },
+  "minimax": {
+    "child_archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_shape_ci_package_20261017.tar.gz",
+      "sha256": "083e6fab0242d4eea997b6e902c058f248d579506a2c2cdd0fd17691804c233b",
+      "independently_verified_payloads": 37
+    },
+    "baseline": "five exact selectors fail47.10s",
+    "child_candidate": "five pass45.76s on unchanged library",
+    "integration": "five pass39.95s on final bary source; integration required because minimax uses bary",
+    "adapter_scope": "Three supplemental literal-parser shape assertions plus two original minimax predicates10/11; not five native predicates",
+    "all_numerical_operands_bounds_and_native_test_AST_preserved_after_undoing_only_item_wrappers": true
+  },
+  "JAX_AD": {
+    "new_boundary_checks": 2,
+    "pytest_seconds": 6.65,
+    "scope": "Analytic complex cubic values/JVP immediately below/at4*n query branch boundary; jit enabled"
+  },
+  "source_bridge": {
+    "library_files": 362,
+    "other_library_files_identical": 361,
+    "other_interpolation_functions_AST_equal": true,
+    "65check_test_bodies_unchanged_when_new2AD_added": true,
+    "new_core_selectors": 0
+  },
+  "limits": [
+    "65pytest nodes include original interp1default35 and existing bary/shape/JIT/grad/nativefixture checks; no full bary or alternate-preference/API closure",
+    "Original misc bary random adapters retain NumPy draws, not native random-word equivalence",
+    "No full runtime-import/fixture freeze or matched performance claim from pytest gates",
+    "Minimax child scope is test-only; combined publication also changes bary library behavior",
+    "Latest-main CI/coverage, broader numerical gaps, examples/figures and complete goal remain required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/interpolation_minimax_cpu_20261017.tar.gz",
+    "sha256": "a5bb3be6da01d6dc82f1488b854dad87c49d55967e1c0b08480756e501a8ab9f",
+    "verified_payloads": 448
+  }
+}

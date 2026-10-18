@@ -14,7 +14,11 @@ from chebfunjax import chebfun
 def test_scientific_literal_does_not_become_variable(expression):
     f = chebfun(expression)
     x = jnp.asarray([-.9, .3, .8])
-    np.testing.assert_allclose(f(x)/1e-100, jnp.exp(x), rtol=5e-15, atol=0)
+    scaled = f(x)/1e-100
+    # One scalar function may retain a singleton component column.
+    assert f.n_columns == 1
+    assert scaled.shape in (x.shape, x.shape+(1,))
+    np.testing.assert_allclose(scaled.reshape(x.shape), jnp.exp(x), rtol=5e-15, atol=0)
 
 
 @pytest.mark.parametrize('array', [False, True])

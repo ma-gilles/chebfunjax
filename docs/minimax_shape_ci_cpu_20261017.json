@@ -1,0 +1,61 @@
+{
+  "base_commit": "67701a7607391fffb77e2c9f3c9920692682dd10",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Two test-only shape adapters for five current CI failures; no library, operands, bounds or scientific algorithm changes. Three added parser controls and two literal native predicates; not five native predicates.",
+  "ci_jobs": {
+    "117530152577": "Three scientific literal assertions fail only(3,1)vs(3,) layout before comparison; literalstrings unchanged.",
+    "117530152798": "Literal minimax native10 norm andnative11 point evaluation float(singletonrank1) conversion fails."
+  },
+  "correction": {
+    "tiny_literals": "Evaluate original f(x)/1e-100 first; assert f.n_columns==1 and shapeexactly x.shape or x.shape+(1,), then reshape comparisonview only. Preserve rtol5e-15,atol0,three expressions andquery[-.9,.3,.8]. Genuine multicolumn orotherlayout rejected.",
+    "native10_11": "jnp.asarray(...).item() accepts exactly oneelement, rejects truevectors; keeps source norms,queryobjecttypes,scalarPython subtractionorder and1e-3 strictbounds. No blanketcasts/firstelementselection.",
+    "deffa_distinction": "deffa3d6 fixed different test_minimax_initialization_source.py clause11; that file byteunchanged andnot executed here."
+  },
+  "source_evidence": [
+    "Chebfun._feval component-last evaluation can retain singleton componentcolumn; n_columns discriminates truearray functions.",
+    "Prior deffa shape_contract.json provesf1/f2 n_columns1 withrank0/rank1 query results anditem truevector rejection.",
+    "Pinned tests/misc/test_minimax.m69\u201380 literalhuge/tiny amplitude operands/norms/subtraction/bounds retained."
+  ],
+  "runs": {
+    "baseline": {
+      "result": "5failed",
+      "pytest_seconds": 47.1,
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_shape_ci_evidence_20261017/baseline_run/receipt.json",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 53.80361205106601,
+      "sampled_peak_summed_rss_kib": 2413900,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate": {
+      "result": "5passed",
+      "pytest_seconds": 45.76,
+      "receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_shape_ci_evidence_20261017/candidate_run/receipt.json",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 51.4356283377856,
+      "sampled_peak_summed_rss_kib": 2404852,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_bridge": "AST_SOURCE_BRIDGE.json: all362libraryfiles identical baseline/candidate; whole literal module identical afterreverting only6scalar extractions; whole dependency module identical afterreverting onlyshape comparisonadapter.",
+  "publication_paths": [
+    "tests/test_matlab_port/misc/test_minimax_dependency_source.py",
+    "tests/test_matlab_port/misc/test_minimax_matlab.py",
+    "docs/minimax_shape_ci_cpu_20261017.json"
+  ],
+  "no_native_or_extra_scientific_runs": "No MATLAB, nofixeddeffa clause11 retry, no full minimax original20/file/API rerun.",
+  "environment": "JAX/JAXlib0.11.0,ml_dtypes0.5.4,x64,CPU36\u201339 andworktree sourceorigin asserted. Source/config/tests guarded; no full externalimport/runtime freeze claimed.",
+  "static": "Ruff selectedfiles andgitdiffcheck pass; incrementalpatch independently applies on677source andmatches all3productpaths exactly.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_shape_ci_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_shape_ci_package_20261017.tar.gz",
+  "remaining": [
+    "No full minimax/native API/file promotion.",
+    "Latestmain completeCI/coverage gates remain required.",
+    "Parent owns separate interp1 strict100eps fault. Inverse nativeplan/profile remains deferred with proposal preserved."
+  ]
+}

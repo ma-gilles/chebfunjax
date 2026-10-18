@@ -90,13 +90,15 @@ class TestMiscMinimax:
             _rat(x ** 3, 0, 2)  # Native predicate is successful completion.
         elif clause == 10:
             f1, f2 = chebfun("exp(x)"), chebfun("1e100*exp(x)")
-            err1 = float((f1 - _poly(_mm(f1, 7))).norm(jnp.inf))
-            err2 = float((f2 - _poly(_mm(f2, 7))).norm(jnp.inf))
+            err1 = jnp.asarray((f1 - _poly(_mm(f1, 7))).norm(jnp.inf)).item()
+            err2 = jnp.asarray((f2 - _poly(_mm(f2, 7))).norm(jnp.inf)).item()
             assert abs(err1 - err2 / 1e100) < 1e-3
         elif clause == 11:
             f1, f2 = chebfun("exp(x)"), chebfun("1e-100*exp(x)")
-            sample1 = float(_rat(f1, 1, 3).r(np.asarray(.3))) - float(f1(jnp.asarray(.3)))
-            sample2 = float(_rat(f2, 1, 3).r(np.asarray(.3))) - float(f2(jnp.asarray(.3)))
+            sample1 = (jnp.asarray(_rat(f1, 1, 3).r(np.asarray(.3))).item()
+                       - jnp.asarray(f1(jnp.asarray(.3))).item())
+            sample2 = (jnp.asarray(_rat(f2, 1, 3).r(np.asarray(.3))).item()
+                       - jnp.asarray(f2(jnp.asarray(.3))).item())
             assert abs(sample1 - sample2 * 1e100) < 1e-3
         elif clause == 12:
             x = chebfun("x", domain=(-1e30, 2e30))

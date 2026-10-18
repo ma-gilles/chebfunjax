@@ -280,17 +280,30 @@ def bary(x: jnp.ndarray,
     # diff[i, k] = x[i] - xk[k], shape (m, n)
     diff = x[:, None] - xk[None, :]
 
-    # Quotients: vk[k] / (x[i] - xk[k]), shape (m, n)
-    quot = vk[None, :] / diff
+    # Follow bary.m's source branch: vector dot per evaluation point for
+    # fewer than4*n queries, otherwise accumulate one node at a time. A
+    # single matrix-vector product changes the source accumulation order.
+    if x.size < 4 * n:
+        def evaluate_point(z):
+            quot = vk / (z - xk)
+            return jnp.dot(quot, fvals) / jnp.sum(quot)
 
-    # Numerator and denominator of the barycentric formula.
-    # (array-valued data: fvals may be (n, cols) -> numer (m, cols);
-    # the trailing-axis reshape keeps the scalar path unchanged)
-    numer = jnp.dot(quot, fvals)   # shape (m,) or (m, cols)
-    denom = jnp.sum(quot, axis=1)  # shape (m,)
-    denom = denom.reshape((-1,) + (1,) * (fvals.ndim - 1))
+        fx = jax.lax.map(evaluate_point, x)
+    else:
+        dtype = jnp.result_type(x, xk, vk, fvals)
+        initial = (jnp.zeros((x.size,) + fvals.shape[1:], dtype=dtype),
+                   jnp.zeros(x.size, dtype=dtype))
 
-    fx = numer / denom
+        def accumulate_node(k, carry):
+            numer, denom = carry
+            quot = vk[k] / (x - xk[k])
+            product = quot.reshape((-1,) + (1,) * (fvals.ndim - 1)) * fvals[k]
+            # Source bsxfun(@times,...) rounds before the separate addition.
+            numer = numer + jax.lax.optimization_barrier(product)
+            return numer, denom + quot
+
+        numer, denom = jax.lax.fori_loop(0, n, accumulate_node, initial)
+        fx = numer / denom.reshape((-1,) + (1,) * (fvals.ndim - 1))
 
     # Fix NaNs where x == xk (0/0 case).
     # For each evaluation point, check if it coincides with any node.

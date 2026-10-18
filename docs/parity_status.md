@@ -1,3 +1,15 @@
+# Interpolation and minimax CI corrections — 2026-10-17
+
+Actual interpolation predicate25 failure reproduces at exactly100eps. Pinned
+native passes1.5765e-14; source-loop diagnostic passes1.4877e-14. Bary now follows
+native point/node accumulation branches instead of one matrix product.
+Final65interpolation/bary checks pass unchanged bounds; original35test bytes
+unchanged. Two additional complex-JVP loop-boundary checks pass.
+Five minimax CI checks use guarded scalar/shape comparison adapters; no operand
+or tolerance changes. Baseline5fail→5pass, then5pass on final bary source.
+Native low-word/weights/full API and latest-main CI/coverage remain open.
+Evidence: docs/interpolation_minimax_ci_cpu_20261017.json.
+
 # C2R transform diagnostics remain unqualified — 2026-10-17
 
 Same-input363cubed Chebfun3T diagnostic C2R transform matches fewer native words
