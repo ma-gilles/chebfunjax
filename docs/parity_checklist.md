@@ -24,10 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
+- **Latest verified integration:** disk shared-matrix simplification195PASS/2strictFFT-providerXFAIL; [evidence](disk_matrix_simplify_cpu_20261018.json). Numeric direct route is next; three stronger-than-native interpolation demands remain explicit expected failures under qualification.
+- **Checkmark:** current2b source still gives the wrong degree3 curve; actual callback error~5.03e-4 near native transition. Edge/happiness localization remains open. This diagnostic missed some imported user-site runtime guards; no all-importimmutability claim.
+
+
 - **CI repair:** obsolete SINH expectations reconciled;158modulePASS, production/native assertions/bounds unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json). GitHub reproduction still required.
 
 - **Latest verified integration:** Chebfun2 coefficient/paired fixed preferences;141actualPASS/1strictfactorXFAIL. [Evidence](chebfun2_coefficient_preferences_cpu_20261018.json). Previous explicit single preferences/adaptive disk grids package194PASS remains recorded separately.
-- **Unary worker:** remaining2original+5fresh TAN/TANH failures. Source quotient work still has a near-axis normal-input/subnormal-output discrepancy and a retained memory censor; not credited as repaired.
+- **Unary worker:** six finite tiny TAN/TANH candidates have focused native verification; full existing gate currently fails, suspected import-order tracer leak pending terminal traceback. Infinite-real TANH native-context zero-sign contradiction remains open. Not credited as published repair.
 - **Disk worker:** joint matrix PhaseTwo/factor simplification diagnosis. A named original rank102 case passes alone, but native factor storage differs; its CPU compilation cost remains under study. Final FFT factor/provider words and broader adaptive JAX/AD remain open.
 - **Root next:** review disk joint-factor staging candidate; paired adaptive/equispaced Chebfun2 preferences and wider original assertion/API audit remain. Coefficient and paired fixed/numeric preferences are now scoped-qualified, with one Fourier-provider factorXFAIL retained.
 - **CPU speed:** published inverse root-filter compilation optimization; rejected Brent padding experiment retained. Native inverse warm gap~2.51x remains in an earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and other paths require qualification.
@@ -45,6 +49,10 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Disk complete PhaseTwo matrices and shared global simplification:195actual parentPASS/2strictXFAIL; source bounds retained. [Evidence](disk_matrix_simplify_cpu_20261018.json).
+- [ ] NoisyFFT/provider words, direct numeric route, full API/JAX/AD/original tests and matched speed remain open.
+
 
 - [x] Chebfun2 coefficient transforms and paired fixed/numeric preferences:141actual parentPASS/1strictfactorXFAIL,45new native constructors, original bounds retained. [Evidence](chebfun2_coefficient_preferences_cpu_20261018.json).
 - [ ] Fourier-provider factor discrepancy, paired adaptive/equispaced preferences and wider API/JAX/AD/performance/full original assertion coverage remain open.

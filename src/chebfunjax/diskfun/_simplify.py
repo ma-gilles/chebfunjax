@@ -122,3 +122,47 @@ def slice_scale(tech):
     ):
         return float(_slice_scale_kernel(tech))
     return float(jnp.max(jnp.abs(jnp.asarray(tech.values))))
+
+
+def simplify_matrix(techs, tol):
+    """Simplify one homogeneous array-valued source FUN, or decline it.
+
+    Disk PhaseTwo supplies columns of a single numeric matrix. Native
+    chebfun/simplify.m passes one tolerance per column to that FUN;
+    chebtech/trigtech simplify retain their common maximum cutoff. Keep
+    the scalar/heterogeneous dispatcher for other Python representations.
+    """
+    if not techs or not 0 < tol < 1 or jax.default_backend() != "cpu":
+        return None
+    first = techs[0]
+    cheb = type(first) is Chebtech2
+    trig = type(first) is Trigtech
+    if not (cheb or trig) or first.n == 0:
+        return None
+    if any(type(t) is not type(first) or t.n != first.n or not t.ishappy
+           or t.coeffs.ndim != 1 for t in techs):
+        return None
+    if cheb and any(t.coeffs.dtype != jnp.float64 for t in techs):
+        return None
+    if trig and any(not t.is_real or t.coeffs.dtype not in
+                    (jnp.float64, jnp.complex128) for t in techs):
+        return None
+    coefficients = jnp.stack([t.coeffs for t in techs], axis=1)
+    if not bool(jnp.all(jnp.isfinite(coefficients))):
+        return None
+    # vscale.m recomputes values from coefficients, including for trigtech.
+    values = coeffs2vals(coefficients) if cheb else trig_coeffs2vals(coefficients)
+    scales = jnp.max(jnp.abs(values), axis=0)
+    # Literal chebfun/simplify.m: tol*vscaleGlobal./vscaleLocal. There is
+    # no floor/clamp; zero columns and tolerances >=1 reach standardChop.
+    from chebfunjax.utils._ordered_binary import binary
+
+    tolerances = binary(binary(jnp.asarray(tol), jnp.max(scales), 0), scales, 3)
+    if cheb:
+        matrix = Chebtech2.from_coeffs(coefficients).simplify(tolerances)
+        return [Chebtech2.from_coeffs(matrix.coeffs[:, j], ishappy=t.ishappy)
+                for j, t in enumerate(techs)]
+    matrix = Trigtech.from_coeffs(coefficients, is_real=True).simplify(tolerances)
+    return [Trigtech(coeffs=matrix.coeffs[:, j], is_real=t.is_real,
+                     real_columns=t.real_columns, ishappy=t.ishappy)
+            for j, t in enumerate(techs)]

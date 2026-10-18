@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [disk shared-matrix simplification](disk_matrix_simplify_cpu_20261018.json):195parentPASS/2strictXFAIL; complete PhaseTwo matrices, native global tolerance and original rank102 physical/storage checks. Full-item statuses remain unverified.
+
 Latest [coefficient and paired fixed preferences](chebfun2_coefficient_preferences_cpu_20261018.json):141parentPASS/1strictfactorXFAIL;45native constructors and prior preference/CI controls. Fourier provider factor choices and full-item qualification remain open.
 
 Latest [Chebfun2 preferences/disk source grids](chebfun2_disk_preferences_spacing_cpu_20261018.json):194parentPASS in two disjoint scopes; single-preference fixed/numeric/rank support and native sampling/tolerance/rank stopping. Remaining full-item statuses stay unverified. Prior constructor timeout attribution is explicitly corrected in this report.

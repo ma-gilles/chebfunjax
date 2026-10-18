@@ -1,3 +1,22 @@
+# Disk shared-matrix simplification — 2026-10-18
+
+Actual parent **195 PASS /2strictXFAIL**,197nodes; all1558observed imports
+preguarded, stable inputs/no censor/survivors. Complete PhaseTwo matrices now
+reach the existing JAX matrix technology transforms; final global tolerance
+uses coefficient-derived scales and literal multiply/divide order. No provider
+fitting or relaxed native bound. All1126prior owner prefixes retained;
+1127owners/13lanes/Hermite12/79%unchanged.
+
+Twelve actual native controls:11final matrices word-exact; noisyFFT cutoff53
+versus54 and one scale word remain strictXFAIL. Exact child original clause10
+passes unchanged physical bound with native rank102/storage and all204pivot
+locations exact; factor words still differ. Named originals17/19/33/34 pass.
+Separate100.38→32.35s profiles are not a matched timing qualification.
+Default numeric extra-simplify/legacyGE remains open for the next package.
+Earlier coarseGE2/5 narrative is retracted: actual raw/public/native ranks
+agree3/3/6/10/17/33/65/102. Historical34timeout has18dots/no named active node.
+Evidence: docs/disk_matrix_simplify_cpu_20261018.json. Full goal incomplete.
+
 # Chebfun2 coefficient transforms and paired fixed preferences — 2026-10-18
 
 Actual integration **141 PASS /1strictXFAIL**,142nodes:46new controls,

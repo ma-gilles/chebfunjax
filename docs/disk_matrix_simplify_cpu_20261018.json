@@ -1,0 +1,56 @@
+{
+  "base": "2b509c69fc4871bedfda86d48e5bb9841d6d574c",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms",
+  "actual_parent": {
+    "passed": 195,
+    "strict_xfailed": 2,
+    "tests": 197,
+    "pytest_seconds": 56.561,
+    "wall_seconds": 66.98424246395007,
+    "sampled_peak_summed_rss_kib": 2829988,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "observed_guarded_imports": 1558
+  },
+  "child": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matrix_simplify_candidate_20261018.tar.gz",
+    "sha256": "beee9c3c883cdc0f4e309a3fdab69186aada5aecb58c50a9cdaf7ba05a0041ab",
+    "payloads_verified": 187
+  },
+  "parent_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matrix_parent_20261018.tar.gz",
+    "sha256": "d13ff5a21a1d29900483bd54f7fab5718bb2f74491c6a4efc45d4eaf65922d04",
+    "payloads_verified": 84
+  },
+  "source_bridge": {
+    "base": "24d7683b15a485ca5ced48b35845b97b30b5f15d",
+    "paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "70ccf069ae0e368d9b3a664802ab66a973bbec9b5be99b57de263c6d42c2ab7c",
+      "src/chebfunjax/diskfun/_simplify.py": "b97806999427d438c0497a77551dd58221450ab914a2a2ad9d4e06bdfb49b4c2",
+      "tests/test_diskfun/test_matrix_simplify_source.py": "0754e03870aab4fd27716f77f739403800d16b220242abae12279fe9cfab6420",
+      "tests/fixtures/disk_matrix_simplify_native_20261018.json": "2a967e4de9fba9bc367399cbf3a978172461948fbbb01d387fe3defb633a5508"
+    }
+  },
+  "child_qualification": [
+    "12actual native matrix controls;11final output matrices component-word exact. All12captured noisy-pair chop cutoff controls pass. Independent T3/T8 globaltol256 case passes.",
+    "Exact final-source originalclause10 PASS32.35s,rank102,cols259x102/rows561x102;204pivot locations exact; physicalerror5.9952e-14 within unchanged8.8818e-12. Factor coefficients/pivots remain provider-limited.",
+    "Original named17/19/33/34 allPASS65.37s. Child focused172PASS2XF and caller162PASS1oldXF overlap; do not sum these as unique assertions.",
+    "Separate profiling100.38s/1224compiles to32.35s/387compiles is descriptive, not a matched warm/cold benchmark.",
+    "All1126 CI owner prefixes retained;1127owners,13lanes,Hermite12,79%gate unchanged."
+  ],
+  "errata": [
+    "Historical34constructor wallcensor has18dots and no named active node; no clause10/19 attribution possible.",
+    "Prior58payload narrative coarseGE2/5 claim is wrong and retracted: raw/public/native ranks all3/3/6/10/17/33/65/102. Historical archives remain unchanged."
+  ],
+  "limits": [
+    "Two narrow strict expected failures: noisy ChebFFT cutoff53 versus native54, and one coefficient-derived scale word. General factor/provider word parity remains open.",
+    "Default numeric legacy extra simplify/prune and host GE route remains open in this package; a separate native-direct routing candidate is under qualification. No adaptive-only restriction introduced to preserve incorrect baseline words.",
+    "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
+  ],
+  "post_gate_lint_cleanup": {
+    "change": "Remove now-unused standard_chop import only",
+    "all_other_AST_exact": true,
+    "diskfun_sha256": "2aff051f57aeb8b9e38841f6bd548a2547abb6ae9c757e0f266d4a6c741cf5b2"
+  }
+}

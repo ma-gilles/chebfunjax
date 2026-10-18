@@ -44,7 +44,7 @@ import numpy as np
 
 from chebfunjax.diskfun._numeric_extrema import source_abs_extrema
 from chebfunjax.diskfun._rank_one import phase_two_rank_one
-from chebfunjax.diskfun._simplify import simplify_slice, slice_scale
+from chebfunjax.diskfun._simplify import simplify_matrix, simplify_slice, slice_scale
 from chebfunjax.domain import _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
@@ -54,7 +54,6 @@ from chebfunjax.utils._gradual import (
     gradual_positive_divide,
 )
 from chebfunjax.utils._ordered_binary import binary
-from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts, trigpts
 from chebfunjax.utils.transforms import vals2coeffs
 
@@ -829,41 +828,14 @@ def _phase_two_disk(
             r = rows_minus[kk, :]
             rows_full[:, gidx] = np.concatenate([-r, r])
 
-    # Build Chebtech2 (for r on [-1,1] — the doubled domain) and Trigtech objects
-    cols_list = []
-    rows_list = []
-    # MATLAB simplify(g, pseudoLevel): every slice is chopped relative to
-    # the GLOBAL vertical scale of the quasimatrix, so small-pivot slices
-    # collapse to their true length instead of keeping the noise floor.
-    vs_cols = float(np.max(np.abs(cols_full))) if cols_full.size else 0.0
-    vs_rows = float(np.max(np.abs(rows_full))) if rows_full.size else 0.0
-    for j in range(total):
-        cv = jnp.asarray(cols_full[:, j], dtype=jnp.float64)
-        cc = vals2coeffs(cv)
-        cv_scale = float(jnp.max(jnp.abs(cv)))
-        if cv_scale > 0:
-            # MATLAB: chebfun(cols) keeps the sampled resolution and the
-            # constructor ends with simplify(g, pseudoLevel = eps); chopping
-            # at the (looser) construction tolerance here loses ~1e-14.
-            cutoff = standard_chop(cc, max(_EPS, _EPS * vs_cols / cv_scale))
-            cc = cc[:cutoff]
-        cols_list.append(Chebtech2.from_coeffs(cc))
-
-        # Row: values on doubled theta grid (length 2*n_cur) — periodic
-        rv = jnp.asarray(rows_full[:, j], dtype=jnp.float64)
-        rc = trig_vals2coeffs(rv.astype(jnp.complex128))
-        rv_scale = float(jnp.max(jnp.abs(rv)))
-        if rv_scale > 0:
-            from chebfunjax.tech.trigtech import _chop_cutoff_to_ncoeffs, _trig_abs_coeffs_for_chop
-
-            chop_in = _trig_abs_coeffs_for_chop(rc)
-            chop_rel = max(_EPS, _EPS * vs_rows / rv_scale)
-            cutoff_exp = standard_chop(chop_in.astype(jnp.float64), chop_rel)
-            n_keep = _chop_cutoff_to_ncoeffs(int(cutoff_exp), rc.shape[0])
-            from chebfunjax.tech.trigtech import _trig_prolong_coeffs
-
-            rc = _trig_prolong_coeffs(rc, n_keep)
-        rows_list.append(Trigtech.from_coeffs(rc, is_real=True))
+    # Native constructs array-valued chebfuns from the complete PhaseTwo
+    # matrices. Numeric tech construction preserves that resolution; only
+    # the outer constructor's final simplify may remove coefficients.
+    col_coeffs = vals2coeffs(jnp.asarray(cols_full, dtype=jnp.float64))
+    row_coeffs = trig_vals2coeffs(jnp.asarray(rows_full, dtype=jnp.float64))
+    cols_list = [Chebtech2.from_coeffs(col_coeffs[:, j]) for j in range(total)]
+    rows_list = [Trigtech.from_coeffs(row_coeffs[:, j], is_real=True)
+                 for j in range(total)]
 
     return (cols_list, rows_list, pivots_raw, idx_plus_raw,
             idx_minus_raw, locs_raw, failure)
@@ -4176,6 +4148,9 @@ def _simplify_global(techs, tol=None):
     """Chop each slice relative to the global vertical scale of the
     quasimatrix (MATLAB ``simplify(f.cols, pseudoLevel)``)."""
     base = _EPS if tol is None else float(tol)
+    matrix = simplify_matrix(techs, base)
+    if matrix is not None:
+        return matrix
     scales = [slice_scale(t) for t in techs]
     vs = max(scales) if scales else 0.0
     out = []

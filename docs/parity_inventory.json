@@ -318,6 +318,21 @@
       "report_sha256": "04f09d9423474b0c06750318284620a6420f58fcbcf7ddd7f44dd9e2a566e1b3",
       "scope": "Matched numeric input/resolution/dtypes/affinity44\u201347 and BLAS/OMP1, sequential processes on same shared host. First public call and five warmed calls; imports/startup excluded. No uniform warm speed advantage established because native range is broad."
     },
+    "disk_matrix_simplify_cpu_20261018": {
+      "archive": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matrix_parent_20261018.tar.gz",
+        "payloads_verified": 84,
+        "sha256": "d13ff5a21a1d29900483bd54f7fab5718bb2f74491c6a4efc45d4eaf65922d04"
+      },
+      "limits": [
+        "Two narrow strict expected failures: noisy ChebFFT cutoff53 versus native54, and one coefficient-derived scale word. General factor/provider word parity remains open.",
+        "Default numeric legacy extra simplify/prune and host GE route remains open in this package; a separate native-direct routing candidate is under qualification. No adaptive-only restriction introduced to preserve incorrect baseline words.",
+        "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
+      ],
+      "report": "docs/disk_matrix_simplify_cpu_20261018.json",
+      "report_sha256": "2d85c21d40c900a6caf60e55d3156e92604439fc41b20d508992f8ee0e09fcf4",
+      "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
+    },
     "disk_poles_bernoulli_parent_cpu_20261018": {
       "path": "docs/disk_poles_bernoulli_parent_cpu_20261018.json",
       "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately",
@@ -56027,6 +56042,15 @@
         {
           "evidence_id": "scalar_simplify_parent_cpu_20261017",
           "scope": "Native omitted scalar tolerance defaults to globalchebfuneps. Explicit tolerance and metadata controls included; full API remains unverified."
+        },
+        {
+          "artifact": "disk_matrix_simplify_cpu_20261018",
+          "limits": [
+            "Two narrow strict expected failures: noisy ChebFFT cutoff53 versus native54, and one coefficient-derived scale word. General factor/provider word parity remains open.",
+            "Default numeric legacy extra simplify/prune and host GE route remains open in this package; a separate native-direct routing candidate is under qualification. No adaptive-only restriction introduced to preserve incorrect baseline words.",
+            "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
         }
       ],
       "functions": [
@@ -75912,6 +75936,15 @@
             "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+        },
+        {
+          "artifact": "disk_matrix_simplify_cpu_20261018",
+          "limits": [
+            "Two narrow strict expected failures: noisy ChebFFT cutoff53 versus native54, and one coefficient-derived scale word. General factor/provider word parity remains open.",
+            "Default numeric legacy extra simplify/prune and host GE route remains open in this package; a separate native-direct routing candidate is under qualification. No adaptive-only restriction introduced to preserve incorrect baseline words.",
+            "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
         }
       ],
       "functions": [
@@ -83028,7 +83061,17 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_matrix_simplify_cpu_20261018",
+          "limits": [
+            "Two narrow strict expected failures: noisy ChebFFT cutoff53 versus native54, and one coefficient-derived scale word. General factor/provider word parity remains open.",
+            "Default numeric legacy extra simplify/prune and host GE route remains open in this package; a separate native-direct routing candidate is under qualification. No adaptive-only restriction introduced to preserve incorrect baseline words.",
+            "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
