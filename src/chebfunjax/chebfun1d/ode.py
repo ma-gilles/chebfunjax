@@ -198,7 +198,7 @@ def eigs(
     rbc=None,
     k: int = 6,
     n: int | None = None,
-    n_default: int = 64,
+    n_default: int | None = None,
     sigma=None,
     return_eigenfunctions: bool = False,
 ):
@@ -220,9 +220,10 @@ def eigs(
     k : int, default 6
         Number of eigenvalues.
     n : int or None
-        Discretization size (None = ``n_default``).
-    n_default : int, default 64
-        Default size when ``n`` is None.
+        Fixed input-grid size; omitted uses the native adaptive policy.
+    n_default : int or None, default None
+        Optional fixed system input grid when ``n`` is omitted. Explicit
+        ``n`` takes precedence; omitting both retains adaptivity.
     sigma : scalar, str, or None
         Target eigenvalue or selector string.
     return_eigenfunctions : bool, default False

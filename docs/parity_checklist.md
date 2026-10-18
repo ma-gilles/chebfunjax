@@ -27,6 +27,12 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Projected C2 system eigenproblem repair: both actual CI regressions, four original native predicates,38child scientific selectors and24parent integration nodes pass (counts overlap). Complex eigenfunctions and genuine repeated modes preserved. [Evidence](maxwell_system_eigs_parent_cpu_20261017.json).
+- [ ] Full eigs/BC grammar, C1/no-x clauses, generalized-eig JAX conversion, matched performance and latest CI remain open.
+- [x] Matched-input single-CPU inverse benchmark: MATLAB warm0.642599s, JAX1.710633s; matching8630coefficient counts and nearroundoff sample agreement. [Evidence](inverse_single_cpu_20261017.json).
+- [ ] Inverse speed parity remains open:2.662xwarm and32.8xfirst-after-setup in this descriptive shared-host measurement; full API/pages/figures and other known slow paths remain required.
+
+
 - [x] Four-stage ordered CPU Clenshaw:90existing scientific plus64original-source checks pass; actual inverse3warm median2.3134s→1.7380s,20output artifacts identical. [Evidence](clenshaw_four_stage_cpu_20261017.json).
 - [ ] Matched native CPU performance and full inverse/Clenshaw API/page/figure qualification remain open.
 

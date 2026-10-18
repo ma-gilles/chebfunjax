@@ -1,0 +1,130 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/maxwell_benchmark_parent_cpu_20261017.tar.gz",
+    "sha256": "7f9c2faa61511e559c729b2d6ec249fafad4b5061695ba85c41d96beceb2cf51",
+    "verified_payloads": 20
+  },
+  "base_commit": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/maxwell_system_eigs_package_20261017.tar.gz",
+    "sha256": "26f51323d5cd4ac88da24b918bb2258f50039770902f81b19b94a7c27c49a899",
+    "verified_payloads": 164
+  },
+  "limits": [
+    "Inherited generalized LAPACK/SciPy boundary remains; no new host numerical provider.",
+    "Core ownership preserved; new port file enters normal port-shard discovery and may shift subsequent file owners.",
+    "Parent guard covers source, selected tests, conftest, pyproject, CI runners/config, baseline and launcher, not all external runtime modules.",
+    "Existing CPU plugin incompatibility warning retained; CPU-only run.",
+    "Full eigs/BC grammar, C1/no-x clauses, matched eigs performance, latest-main CI and aggregate coverage remain open."
+  ],
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Projected C2 coupled system eigenproblem parent integration on current main",
+  "source_bridge": {
+    "base_and_parent_child_difference": "Parent incorporates e7a0eb81 Clenshaw; actual original Maxwell predicates and both CI regressions rerun here.",
+    "changed_library_paths": [
+      "src/chebfunjax/operators/chebop.py",
+      "src/chebfunjax/chebfun1d/ode.py"
+    ],
+    "unchanged_other_library_files": 362
+  },
+  "verification": {
+    "child_structural_observer": 1,
+    "child_unique_scientific_selectors": 38,
+    "counts_overlap": true,
+    "original_native_predicates_in_one_selector": 4,
+    "ownership_review": {
+      "existing_owners_unchanged": 1082,
+      "new_core_selectors": [
+        "tests/test_operators/test_system_eigs_projection_source.py"
+      ],
+      "raw_receipts": [
+        {
+          "censor": null,
+          "exit": 1,
+          "path": "adapter_baseline/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 1,
+          "path": "baseline_ci/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": "sampled_summed_RSS_cap",
+          "exit": 137,
+          "path": "candidate_callers/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "candidate_callers_split/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "candidate_ci/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "candidate_independent/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "candidate_original_four/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "candidate_svds/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "final_contract/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "final_wrapper/receipt.json",
+          "stable": true,
+          "survivors": 0
+        },
+        {
+          "censor": null,
+          "exit": 0,
+          "path": "structural_baseline/receipt.json",
+          "stable": true,
+          "survivors": 0
+        }
+      ],
+      "total_core_selections": 1083,
+      "verified_payloads": 164
+    },
+    "parent_pytest_nodes": 24,
+    "peak_summed_rss_kib": 2553644,
+    "protocol_nodes": 21,
+    "pytest_seconds": 50.16,
+    "scientific_selectors": 3,
+    "stable_inputs": true,
+    "uncensored": true
+  }
+}

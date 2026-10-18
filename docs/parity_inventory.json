@@ -180,6 +180,11 @@
       "sha256": "a19309513dc8b31448e78f569e662a2c62a792cff528653b96149c07d88a9fa2",
       "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731"
     },
+    "inverse_single_cpu_20261017": {
+      "path": "docs/inverse_single_cpu_20261017.json",
+      "scope": "Matched-input/hardware serial single-CPU inverse timing; shared host descriptive measurements, not exclusive/statistical or complete performance qualification",
+      "sha256": "eb91735079379c6ae48c96f34a995302efc4a8ef7331068d3972136c266037e5"
+    },
     "laplaceball_current_cpu_20261017": {
       "path": "docs/laplaceball_current_cpu_20261017.json",
       "scope": "Full current CPU LaplaceBall execution with captured-input limitation, actual stdout and three reference-sized unchanged PNGs; no full page status promotion",
@@ -205,6 +210,11 @@
       "path": "docs/lu_source_cpu_20261017.json",
       "scope": "JAX LU source arithmetic, original eight default predicates and bounded controls; full-item statuses unchanged",
       "sha256": "41b33c39b46aadaf0332cd27bd39becb2332bb06f4599041cd56c17bdc7fd724"
+    },
+    "maxwell_system_eigs_parent_cpu_20261017": {
+      "path": "docs/maxwell_system_eigs_parent_cpu_20261017.json",
+      "scope": "Projected C2 coupled system eigenproblem parent integration on current main",
+      "sha256": "b4cbe4b3649f6410a140e0ed682880d97845b81b770c94081e488342abd56e91"
     },
     "minmax_original14_cpu_20261017": {
       "path": "docs/minmax_original14_cpu_20261017.json",
@@ -52110,6 +52120,10 @@
         {
           "artifact": "clenshaw_four_stage_cpu_20261017",
           "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
+        },
+        {
+          "artifact": "inverse_single_cpu_20261017",
+          "scope": "Identical-input same-single-CPU inverse timing and sample checks; performance parity open"
         }
       ],
       "functions": [
@@ -67527,7 +67541,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "maxwell_system_eigs_parent_cpu_20261017",
+          "scope": "Projected C2 system extraction/recovery and listed parent/child predicates; full API status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -78674,7 +78693,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "maxwell_system_eigs_parent_cpu_20261017",
+          "scope": "Existing rectangular block pencil reused; full API/JAX boundary remains unverified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -113416,7 +113440,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebop/test_eigs_system_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "maxwell_system_eigs_parent_cpu_20261017",
+          "scope": "Four literal default C2 predicates pass; full item promotion awaits complete review"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -113439,7 +113468,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebop/test_eigs_system2_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "maxwell_system_eigs_parent_cpu_20261017",
+          "scope": "Repeated C2 CI regression passes; C1/no-x clauses unqualified"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

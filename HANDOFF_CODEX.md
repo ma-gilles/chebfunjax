@@ -1,3 +1,24 @@
+# Maxwell system eigenmodes and matched inverse CPU measurements — 2026-10-17
+
+Coupled C2 eigenproblems now use existing exact JAX AD extraction and native
+rectangular projection, removing the spurious second zero mode and preserving
+complex eigenfunctions. Both actual CI regressions pass; the four literal
+native smooth/piecewise predicates pass at unchanged1e-9 bounds. The reviewed
+child packet has38unique scientific selectors plus1structural observer;
+parent integration has24passing nodes (21protocol,3scientific selectors).
+Explicit n/n_default precedence and genuine repeated modes are controlled.
+All1082existing core owners remain; one new selector is appended. Existing
+generalized-eig host boundary and C1/no-x/full API qualification remain open.
+Evidence: docs/maxwell_system_eigs_parent_cpu_20261017.json.
+
+Matched retained-input single-CPU inverse timing: MATLAB warm median0.642599s,
+JAX1.710633s (2.662x); first-after-setup0.972099s vs31.864010s. Both return
+8630coefficients with native sample discrepancy3.886e-16. Serial shared-host
+descriptive measurement; no speed-parity claim. Cold profiling attributes
+25.62s to179backend compilation calls; cumulative profile categories overlap.
+Full inverse API/low words/pages/figures and other CPU paths remain open.
+Evidence: docs/inverse_single_cpu_20261017.json. Latest-main CI/coverage required.
+
 # Four-stage ordered CPU Clenshaw — 2026-10-17
 
 Each coefficient pair now uses4instruction iterations instead of6, retaining

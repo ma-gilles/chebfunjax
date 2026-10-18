@@ -702,7 +702,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_BMCsvd_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_svd_matlab]",
       "tests/test_operators/test_fourier_scalar_coefficient_layout.py",
-      "tests/test_utils/test_ratinterp_inherited_domain_source.py"
+      "tests/test_utils/test_ratinterp_inherited_domain_source.py",
+      "tests/test_operators/test_system_eigs_projection_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1110,6 +1111,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "c2c28eeaf26aff96f30ccafb6f86d192468d3333",
+  "last_update_parent": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

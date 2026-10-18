@@ -1,0 +1,438 @@
+{
+  "base": "1ebcc590a3665fe3ae7e49078bf38b2a257bdb31",
+  "status": "Isolated reviewed-scope correction; no child integration/publication.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_scope": {
+    "changed_library_files": [
+      "src/chebfunjax/chebfun1d/ode.py",
+      "src/chebfunjax/operators/chebop.py"
+    ],
+    "changed_methods": [
+      "Chebop._eigs_system",
+      "Chebop.eigs"
+    ],
+    "removed_helper": [
+      "Chebop._system_eig_values"
+    ],
+    "new_numeric_array_math": "JAX only exact AD linearization, homogeneous checks, projected assembly and complex function recovery. Existing unchanged blocklinop._geig uses SciPy LAPACK; no new numerical provider/import/waiver. Generalized-eig JAX closure remains debt.",
+    "return": "Legacy system (list[SystemSolution], JAX eigenvalue array) retained, scalar contract unchanged. Source projected complex Chebfuns bypass shared real-only constructor.",
+    "size": "Omittedn/n_default uses nativeadaptive C2policy; explicitn wins, otherwise explicitn_default selects fixedinputgrid. Equationn=maxinputgrid-maxcolumnorder. Actualmixedorders sizes24/23 at requested24 documented by observer assertions.",
+    "linearity": "Exact AD metadata plus exactzero coefficients/storedPV/numeric constraints at zero seeds; no norm threshold, sample-specific zero/mode filter or lookup. Solve initialguess unchanged. Inhomogeneous/nonlinear rejection is bounded supportedgrammar guard, not a claim complete native error semantics."
+  },
+  "causal_evidence": {
+    "actual_CI": "Both unchanged tests reproduceexact1.0000000000000022error andduplicated2.8918e-17magnitudes, then2pass. Originalstrict1e-10 retained.",
+    "structural": {
+      "n_input": 16,
+      "native_equation_n": 15,
+      "projection_orders": [
+        1,
+        1
+      ],
+      "constraint_count": 2,
+      "legacy_shape": [
+        32,
+        32
+      ],
+      "source_shape": [
+        32,
+        32
+      ],
+      "legacy_highmode_A_residual": 8.049116928532385e-15,
+      "source_highmode_A_residual": 91.35594542380277,
+      "source_highmode_B_residual": 1.9984014443252818e-15,
+      "legacy_constant_A_residual": 1.7763568394002505e-15,
+      "source_constant_A_residual": 1.4210854715202004e-14,
+      "legacy_kernel_dimension_at_fixed_1e_10": 2,
+      "source_kernel_dimension_at_fixed_1e_10": 1,
+      "bound_scope": "Independent low-degree n16 polynomial identities; fixed1e-10 before run. No eigenvalue blacklist or production threshold."
+    },
+    "meaning": "Old firstequation endpoint rowreplacement permits extraT_(n-1)finitezero. Source projects each blockcolumn C2toC1 and prepends unchanged BCs; physicalzero retained, spuriouspolynomial rejected structurally. No eigenvalue blacklist; genuine doublezero/nonzero multiplicities independently pass."
+  },
+  "qualification": {
+    "unique_scientific_test_selectors_passed": 38,
+    "structural_observer_passed": 1,
+    "counts": {
+      "baseline_ci": {
+        "cases": 2,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "structural_baseline": {
+        "cases": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_ci": {
+        "cases": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_independent": {
+        "cases": 11,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_original_four": {
+        "cases": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_svds": {
+        "cases": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_callers_split": {
+        "cases": 17,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "adapter_baseline": {
+        "cases": 5,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "final_contract": {
+        "cases": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "final_wrapper": {
+        "cases": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "baseline_adapter": "Reviewedadapter defect reproduced2fail3pass: explicitn_default24 ignored bymethod/wrapper. Final5pass actualdimensions; sourcebridge retains prioromittedn/explicitn/privateSVDS arithmetic.",
+    "final_wrapper": "Unchanged scalarwrapper eigenfunction regression1pass; finalcontract -k deselected it, so standalone final_wrapper run supplies its actual evidence.",
+    "completed32_bridge": "ADAPTER_SOURCE_BRIDGE.json: _eigs_system wholemethod AST unchanged; onlyselectedn forwarding/signature/default, wrappermetadata and orphanremoval changed. Prior11case bodies ASTidentical after appending6newcases; blankline Ruffdelta ASTequal.",
+    "original_native_four": {
+      "four_errors": [
+        6.435395355819934e-14,
+        2.453180046480074e-13,
+        1.567634910770721e-13,
+        1.668827074872982e-12
+      ],
+      "actual_outputs": [
+        {
+          "domain": [
+            0.0,
+            3.141592653589793
+          ],
+          "eigenvalues_real_imag": [
+            [
+              -6.435395355819934e-14,
+              0.0
+            ],
+            [
+              -0.5000000000000078,
+              -0.8660254037844335
+            ],
+            [
+              -0.5000000000000077,
+              0.8660254037844335
+            ],
+            [
+              -0.5000000000000033,
+              -1.9364916731037074
+            ],
+            [
+              -0.5000000000000033,
+              1.9364916731037074
+            ]
+          ],
+          "component_lengths": [
+            [
+              20,
+              1
+            ],
+            [
+              20,
+              20
+            ],
+            [
+              20,
+              20
+            ],
+            [
+              20,
+              20
+            ],
+            [
+              20,
+              20
+            ]
+          ]
+        },
+        {
+          "domain": [
+            0.0,
+            1.5707963267948966,
+            3.141592653589793
+          ],
+          "eigenvalues_real_imag": [
+            [
+              -7.71628292857914e-14,
+              0.0
+            ],
+            [
+              -0.4999999999998689,
+              -0.8660254037843335
+            ],
+            [
+              -0.499999999999869,
+              0.8660254037843335
+            ],
+            [
+              -0.500000000000151,
+              -1.9364916731037256
+            ],
+            [
+              -0.500000000000151,
+              1.9364916731037256
+            ]
+          ],
+          "component_lengths": [
+            [
+              30,
+              2
+            ],
+            [
+              29,
+              30
+            ],
+            [
+              29,
+              30
+            ],
+            [
+              30,
+              30
+            ],
+            [
+              30,
+              30
+            ]
+          ]
+        }
+      ]
+    },
+    "original_scope": "test_eigs_system.m all4default C2predicates represented literally smooth+piecewise eigenvalues and nativeFrobenius blockL2residuals, all<1e-9. Existing2stricter1e-10Python tests retained. System2 repeatsfirst4in cells then addsC1/no-x final2; those final2unqualified. No fullAPI promotion.",
+    "other_callers": "SVDS original1, coreexplicitn48Maxwell1, sharedsourcecontrols14 and originalC2generalizedsys1 pass unchanged bounds. AlternativeUS/C1 generalizedsys clauses notrerun."
+  },
+  "receipts": {
+    "baseline_ci": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 15.964507699944079,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 797216,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "structural_baseline": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.910657695028931,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 791920,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_ci": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 31.76884712325409,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1745536,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_independent": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 101.91021936014295,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 4011312,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_original_four": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 49.489062753971666,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 2470544,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_svds": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 67.04233273211867,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 3252848,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_callers_split": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 117.93828688422218,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 4109320,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "adapter_baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 29.46728546405211,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1716368,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "final_contract": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 38.701405060943216,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 2161412,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "final_wrapper": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 30.93974260101095,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1784036,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_callers": {
+      "command_exit_code": -15,
+      "supervisor_exit_code": 137,
+      "wall_seconds": 127.40722636925057,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "sampled_peak_summed_rss_kib": 4196168,
+      "remaining_owned_pids": [],
+      "sent_signals": [
+        {
+          "pid": 3198752,
+          "starttime": 342162310,
+          "signal": 15
+        },
+        {
+          "pid": 3198752,
+          "starttime": 342162310,
+          "signal": 15
+        }
+      ],
+      "inputs_stable": true
+    }
+  },
+  "resource_censor": "candidate_callers combined17 hit4GiB (exit137,4,196,168KiB), raw preserved. Source/tests stable,15passing progress dots not counted as completed gate. Exactoriginal17 split into SVDSalone and remaining16, with addedcomplexcoefficient control in latter; bothterminal0 below4GiB. No cap increase.",
+  "runtime_coverage": {
+    "baseline_ci": {
+      "observed_module_files": 1500,
+      "missing": [],
+      "changed": []
+    },
+    "structural_baseline": {
+      "observed_module_files": 1473,
+      "missing": [],
+      "changed": []
+    },
+    "candidate_ci": {
+      "observed_module_files": 1511,
+      "missing": [],
+      "changed": []
+    },
+    "candidate_independent": {
+      "observed_module_files": 1512,
+      "missing": [],
+      "changed": []
+    },
+    "candidate_original_four": {
+      "observed_module_files": 1511,
+      "missing": [],
+      "changed": []
+    },
+    "candidate_svds": {
+      "observed_module_files": 1511,
+      "missing": [],
+      "changed": []
+    },
+    "candidate_callers_split": {
+      "observed_module_files": 1518,
+      "missing": [],
+      "changed": []
+    },
+    "adapter_baseline": {
+      "observed_module_files": 1509,
+      "missing": [],
+      "changed": []
+    },
+    "final_contract": {
+      "observed_module_files": 1510,
+      "missing": [],
+      "changed": []
+    },
+    "final_wrapper": {
+      "observed_module_files": 1510,
+      "missing": [],
+      "changed": []
+    }
+  },
+  "guard_scope": "Executed source/tests/fixtures/gate/launchers/pinnedenv and all observedPythonmodule files preguarded in completed runs. Pytestconfig not explicitly preguarded; PYTEST_CONFIG_BRIDGE records unchangedbase currenthash/snapshot and scoped limitation. No blanket externalbinary/configimmutability claim.",
+  "warnings": "Two actualcomplexminmax RuntimeWarnings remain in authored smooth/piecewise infinitynorm residual controls; no warning suppression/tolerance change. LiteralnativeL2/Frobenius fourpredicate test has no suchlibrarywarning; onlypytest infrastructure warnings (rewrite/record_property). Librarywarning parity outside scope.",
+  "limits": [
+    "Existing generalized LAPACK/SciPy boundary remains; no complete JAX eigensolver claim.",
+    "No new native process, matched performance, full eigs/BC grammar, complex error semantics, C1/no-x clauses, full API/latestCI/coverage completion claim.",
+    "Parente7aClenshaw change is separate; PARENT_SOURCE_BRIDGE documents nonoverlap, childruns remain1ebsource.",
+    "Old preliminary source_review.patch is superseded by final maxwell_system_eigs.patch; pre_adapter snapshots/rawfaults retained."
+  ],
+  "selectors": {
+    "new_core": "tests/test_operators/test_system_eigs_projection_source.py (17cases)",
+    "new_ported": "tests/test_matlab_port/chebop/test_eigs_system_original_source.py (1selector,4nativepredicates)",
+    "owner_registration_delta": "2file selectors; parent updates corebaseline/owner registry/protocol."
+  },
+  "publication_paths": [
+    "src/chebfunjax/operators/chebop.py",
+    "src/chebfunjax/chebfun1d/ode.py",
+    "tests/test_operators/test_system_eigs_projection_source.py",
+    "tests/test_matlab_port/chebop/test_eigs_system_original_source.py",
+    "docs/maxwell_system_eigs_cpu_20261017.json"
+  ],
+  "source_proposal_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/maxwell_system_eigs_proposal_package_20261017.tar.gz",
+    "sha256": "23d50d52be111d4282bf7628f3f2ed7f205dc93913bcdea477ae725d9d743c23"
+  },
+  "actual_CI_log_bindings": {
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci47a_job_117530152527_20261017.log": "d02f1e3e9838d0b4207ce39bcbbe73e44431d7999b724a755c36dee30ea467c3",
+    "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci47a_job_117530152875_20261017.log": "2f2ed8cc62f9be988e5a3f57400cae09568980fbe4b6bb684a3e190c0fd1ad5f"
+  },
+  "archive_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/maxwell_system_eigs_package_20261017.tar.gz"
+}

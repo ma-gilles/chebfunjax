@@ -2069,211 +2069,63 @@ class Chebop:
 
         return ChebMatrix(typed_rows, domain=domain)
 
-    def _eigs_system(self, k: int = 6, n: int = 64):
-        """Eigenvalues of a linear system of ODEs (MATLAB eigs for
-        chebmatrix operators): the block collocation matrix with BC
-        rows enforced through a generalized eigenproblem
-        A U = lam B U, where B is the identity with zero rows at the
-        BC positions (spurious infinite eigenvalues filtered out).
+    def _eigs_system(self, k: int = 6, n: int | None = None, sigma=None):
+        """C2 system eigs through exact AD and native rectangular projection.
 
-        Returns ``(V, lam)``: a list of SystemSolution eigenfunctions
-        and the k eigenvalues closest to zero (by magnitude).
+        Omitted n uses the shared source adaptive policy. Explicit n counts
+        the largest input grid; each variable receives equation_n plus its
+        own differential order. Preserve the legacy (SystemSolution list,
+        eigenvalue array) system return used by eigs and svds.
 
-        Provenance
-        ----------
-        MATLAB source : @chebop/eigs.m (system branch), @linop/eigs.m
-        Chebfun commit: 7574c77
+        All new extraction, assembly and recovery use JAX. The unchanged
+        BlockLinop generalized eigensolver remains an inherited host boundary.
+        MATLAB: @chebop/eigs.m, @linop/eigs.m, @chebcolloc/reduce.m (7574c77).
         """
-        import numpy as _np
-        import scipy.linalg as _sla
+        import copy
 
         from chebfunjax.chebfun1d.chebfun import Chebfun
-        m = self._n_vars()
-        a, b = float(self.domain[0]), float(self.domain[-1])
-        kk = _np.arange(n)
-        xg = _np.cos(_np.pi * kk / (n - 1))[::-1]
-        xp = a + (b - a) * (xg + 1.0) / 2.0
-        x_fun = Chebfun.identity(Domain(self.domain))
-        zero = _chebfun_from_values(jnp.zeros(2), self.domain)
+        from chebfunjax.operators.chebop_altdisc import (
+            _linear_system_by_ad,
+            _linearize_coupled_ad,
+        )
 
-        def apply_op(us):
-            out = self._call_op(x_fun, us)
-            if not isinstance(out, (list, tuple)):
-                out = [out]
-            return [zero + o if isinstance(o, (int, float)) else o
-                    for o in out]
+        count = self._n_vars()
+        dom = tuple(self.domain)
+        if self._bc_general is not None or self._has_explicit_scalar_parameters():
+            raise NotImplementedError(
+                "Projected system eigs requires ordinary function variables "
+                "and endpoint conditions")
+        # An eigenproblem is independent of the solve initial guess. Probe
+        # exact AD linearity and homogeneity at zero without mutating self.
+        probe = copy.copy(self)
+        probe.init = None
+        if not _linear_system_by_ad(probe, dom, count):
+            raise ValueError(
+                "CHEBFUN:CHEBOP:eigs:nonlinear -- EIGS requires linear "
+                "operators and boundary conditions")
+        operator, residuals, _ = _linearize_coupled_ad(
+            probe, [0.0] * count, dom, count)
 
-        def rows_at(fun_list, pts):
-            return _np.concatenate([
-                _np.asarray(g(jnp.asarray(pts))) for g in fun_list])
+        def exact_zero(value):
+            if isinstance(value, Chebfun):
+                return (not value.deltas
+                        and all(bool(jnp.all(piece.tech.coeffs == 0))
+                                for piece in value.funs)
+                        and bool(jnp.all(value.point_values == 0)))
+            return bool(jnp.all(jnp.asarray(value) == 0))
 
-        zeros_list = [zero for _ in range(m)]
-        base = rows_at(apply_op(zeros_list), xp)
-        A = _np.zeros((m * n, m * n))
-        for var in range(m):
-            for j in range(n):
-                vals = _np.zeros(n)
-                vals[j] = 1.0
-                probe = list(zeros_list)
-                probe[var] = _chebfun_from_values(
-                    jnp.asarray(vals), self.domain)
-                A[:, var * n + j] = \
-                    rows_at(apply_op(probe), xp) - base
-
-        def bc_rows(bc_raw, x0):
-            if bc_raw is None:
-                return []
-            def bc_list(us):
-                out = bc_raw(*us)
-                if not isinstance(out, (list, tuple)):
-                    out = [out]
-                return [zero + o
-                        if isinstance(o, (int, float)) else o
-                        for o in out]
-            base_bc = _np.array([
-                _eval_chebfun_at(g, x0)
-                for g in bc_list(zeros_list)])
-            R = _np.zeros((len(base_bc), m * n))
-            for var in range(m):
-                for j in range(n):
-                    vals = _np.zeros(n)
-                    vals[j] = 1.0
-                    probe = list(zeros_list)
-                    probe[var] = _chebfun_from_values(
-                        jnp.asarray(vals), self.domain)
-                    R[:, var * n + j] = _np.array([
-                        _eval_chebfun_at(g, x0)
-                        for g in bc_list(probe)]) - base_bc
-            return list(R)
-
-        B = _np.eye(m * n)
-        ridx = 0
-        for row in bc_rows(self._lbc_raw, a):
-            r = (ridx % m) * n
-            A[r, :] = row
-            B[r, :] = 0.0
-            ridx += 1
-        ridx = 0
-        for row in bc_rows(self._rbc_raw, b):
-            r = (ridx % m) * n + n - 1
-            A[r, :] = row
-            B[r, :] = 0.0
-            ridx += 1
-
-        lam, W = _sla.eig(A, B)
-        finite = _np.isfinite(lam) & (_np.abs(lam) < 1e8)
-        lam, W = lam[finite], W[:, finite]
-        # Two-resolution agreement filter: spurious discrete
-        # eigenvalues move when n changes; genuine ones stay.
-        lam2 = self._system_eig_values(n + 17)
-        keep = []
-        used = set()
-        for i in _np.argsort(_np.abs(lam)):
-            d = _np.abs(lam2 - lam[i])
-            j = int(_np.argmin(d))
-            if d[j] < 1e-6 * max(1.0, abs(lam[i])) and j not in used:
-                keep.append(i)
-                used.add(j)
-            if len(keep) >= k:
-                break
-        order = _np.asarray(keep, dtype=int)
-        lam, W = lam[order], W[:, order]
-        V = []
-        for i in range(len(lam)):
-            w = W[:, i]
-            wmax = w[_np.argmax(_np.abs(w))]
-            w = _np.real(w / wmax) if _np.max(
-                _np.abs(_np.imag(w / wmax))) < 1e-8 else w
-            comps = []
-            for vi in range(m):
-                vals = w[vi * n: (vi + 1) * n]
-                comps.append(_chebfun_from_values(
-                    jnp.asarray(_np.real(vals)), self.domain))
-            V.append(SystemSolution(comps))
-        return V, jnp.asarray(lam)
-
-    def _system_eig_values(self, n: int):
-        """Eigenvalues only, at resolution n (helper for the
-        two-resolution spurious-mode filter in _eigs_system)."""
-        import numpy as _np
-        import scipy.linalg as _sla
-
-        from chebfunjax.chebfun1d.chebfun import Chebfun
-        m = self._n_vars()
-        a, b = float(self.domain[0]), float(self.domain[-1])
-        kk = _np.arange(n)
-        xg = _np.cos(_np.pi * kk / (n - 1))[::-1]
-        xp = a + (b - a) * (xg + 1.0) / 2.0
-        x_fun = Chebfun.identity(Domain(self.domain))
-        zero = _chebfun_from_values(jnp.zeros(2), self.domain)
-
-        def apply_op(us):
-            out = self._call_op(x_fun, us)
-            if not isinstance(out, (list, tuple)):
-                out = [out]
-            return [zero + o if isinstance(o, (int, float)) else o
-                    for o in out]
-
-        def rows_at(fun_list, pts):
-            return _np.concatenate([
-                _np.asarray(g(jnp.asarray(pts))) for g in fun_list])
-
-        zeros_list = [zero for _ in range(m)]
-        base = rows_at(apply_op(zeros_list), xp)
-        A = _np.zeros((m * n, m * n))
-        for var in range(m):
-            for j in range(n):
-                vals = _np.zeros(n)
-                vals[j] = 1.0
-                probe = list(zeros_list)
-                probe[var] = _chebfun_from_values(
-                    jnp.asarray(vals), self.domain)
-                A[:, var * n + j] = \
-                    rows_at(apply_op(probe), xp) - base
-
-        def bc_rows(bc_raw, x0):
-            if bc_raw is None:
-                return []
-
-            def bc_list(us):
-                out = bc_raw(*us)
-                if not isinstance(out, (list, tuple)):
-                    out = [out]
-                return [zero + o
-                        if isinstance(o, (int, float)) else o
-                        for o in out]
-
-            base_bc = _np.array([
-                _eval_chebfun_at(g, x0)
-                for g in bc_list(zeros_list)])
-            R = _np.zeros((len(base_bc), m * n))
-            for var in range(m):
-                for j in range(n):
-                    vals = _np.zeros(n)
-                    vals[j] = 1.0
-                    probe = list(zeros_list)
-                    probe[var] = _chebfun_from_values(
-                        jnp.asarray(vals), self.domain)
-                    R[:, var * n + j] = _np.array([
-                        _eval_chebfun_at(g, x0)
-                        for g in bc_list(probe)]) - base_bc
-            return list(R)
-
-        B = _np.eye(m * n)
-        ridx = 0
-        for row in bc_rows(self._lbc_raw, a):
-            r = (ridx % m) * n
-            A[r, :] = row
-            B[r, :] = 0.0
-            ridx += 1
-        ridx = 0
-        for row in bc_rows(self._rbc_raw, b):
-            r = (ridx % m) * n + n - 1
-            A[r, :] = row
-            B[r, :] = 0.0
-            ridx += 1
-        lam = _sla.eigvals(A, B)
-        return lam[_np.isfinite(lam) & (_np.abs(lam) < 1e8)]
+        if (not all(exact_zero(value) for value in residuals)
+                or not all(exact_zero(value) for _, value in operator.constraint)):
+            raise ValueError(
+                "CHEBFUN:CHEBOP:eigs:nonlinear -- EIGS requires homogeneous "
+                "operators and boundary conditions")
+        equation_n = None if n is None else int(n) - max(operator.proj_order())
+        if equation_n is not None and equation_n < 1:
+            raise ValueError("Fixed input dimension must exceed differential order")
+        lam, columns = operator.eigs(k=k, sigma=sigma, n=equation_n)
+        vectors = [SystemSolution([column.blocks[j][0] for j in range(count)])
+                   for column in columns]
+        return vectors, jnp.asarray(lam)
 
     def _solve_periodic_system(self, f=0.0, n: int | None = None,
                                max_iter: int = 25):
@@ -5061,7 +4913,7 @@ class Chebop:
         *,
         n: int | None = None,
         k: int = 6,
-        n_default: int = 64,
+        n_default: int | None = None,
         sigma=None,
         return_eigenfunctions: bool = False,
         pref=None,
@@ -5075,10 +4927,13 @@ class Chebop:
         ChebopPref or a mapping for the supported C2 preference path.
 
         return_eigenfunctions=True returns (eigenvalues, function list), while
-        the default returns eigenvalues alone. Periodic, system, piecewise and
-        general-boundary adapters retain their separate existing algorithms;
-        newly explicit prefs on those adapters are not silently ignored.
-        n_default remains relevant to the legacy system adapter only.
+        the default returns eigenvalues alone for scalar operators. Systems
+        retain the legacy (SystemSolution list, eigenvalue array) return and
+        share the C2 adaptive policy through exact AD coefficient blocks.
+        Periodic, piecewise scalar and general-boundary adapters retain their
+        existing algorithms; unsupported explicit prefs are not ignored.
+        n_default is an optional fixed system input-grid extension when n is
+        omitted; explicit n takes precedence. Omitting both uses adaptivity.
 
         The shared generalized LAPACK eigensolve remains an inherited host
         boundary. This scalar qualification is not full eigs backend parity.
@@ -5103,7 +4958,8 @@ class Chebop:
                 k=k, n=n, sigma=sigma,
                 return_eigenfunctions=return_eigenfunctions)
         if self._n_vars() >= 2:
-            return self._eigs_system(k=k, n=n or n_default)
+            requested_n = n if n is not None else n_default
+            return self._eigs_system(k=k, n=requested_n, sigma=sigma)
         # Discontinuous coefficients (e.g. an indicator-function potential)
         # defeat a single global Chebyshev grid -- the eigenvalues stall at
         # O(1e-2) accuracy from the Gibbs oscillations.  MATLAB breaks the

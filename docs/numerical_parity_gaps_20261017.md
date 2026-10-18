@@ -86,3 +86,18 @@ same-host wholeinverse medianwarm2.3134s to1.7380s while preserving all20output
 artifacts exactly. Ninety Clenshaw controls and64original-source checks pass.
 The matched MATLAB speed qualification and native low-word/API/page/figure
 work remain open; historical timings above describe their measured source.
+
+
+## Current Maxwell repair and matched inverse timing
+
+[Projected system eigs](maxwell_system_eigs_parent_cpu_20261017.json) removes
+the discrete spurious second zero and preserves complex eigenfunctions. Both
+actual CI failures and all four original default C2 predicates pass. This
+supersedes earlier open duplicate-zero reports; full APIs/C1/no-x/JAX generalized
+eigensolver/matched performance/latest CI remain required.
+
+[Matched single-CPU inverse benchmark](inverse_single_cpu_20261017.json):
+warm medians native0.642599s/JAX1.710633s (2.662x); first-after-setup
+0.972099s/31.864010s. Both produce8630coefficients. Cold profile has179backend
+compiles taking25.62s; profile categories overlap. Measurements are descriptive
+on a shared host. Performance parity and complete inverse qualification remain open.

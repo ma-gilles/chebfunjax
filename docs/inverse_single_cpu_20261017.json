@@ -1,0 +1,164 @@
+{
+  "scope": "Matched-input/hardware serial single-CPU inverse timing; shared host descriptive measurements, not exclusive/statistical or complete performance qualification",
+  "base_commit": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "hardware": {
+    "cpu_model": "AMD EPYC 7413 24-Core Processor",
+    "affinity": [
+      40
+    ],
+    "native_threads": 1,
+    "JAX_threads": "Process and descendants inherit CPU40 affinity; pinned OMP/OPENBLAS=1",
+    "order": "MATLAB then JAX, separate processes; timed calls serial"
+  },
+  "timing": {
+    "native_first_after_setup": 0.972099,
+    "jax_first_after_setup": 31.864010124001652,
+    "native_warm_seconds": [
+      0.677511,
+      0.642599,
+      0.640074,
+      1.555071,
+      0.591855
+    ],
+    "jax_warm_seconds": [
+      1.7064231797121465,
+      1.7177799683995545,
+      1.6893010032363236,
+      1.7106329528614879,
+      1.7149525531567633
+    ],
+    "native_warm_median": 0.642599,
+    "jax_warm_median": 1.7106329528614879,
+    "warm_jax_over_native": 2.662053555734584,
+    "first_after_setup_jax_over_native": 32.778564862222524,
+    "limit": "First-after-setup JAX includes shape specialization/JIT compilation. No warm sample removed, including native1.555071s outlier. Do not infer whole-process startup or statistical/native speed parity."
+  },
+  "correctness": {
+    "retained_input_coefficients": 2092,
+    "native_output_coefficients": 8630,
+    "jax_output_coefficients": 8630,
+    "input_native_exact_raw_words": true,
+    "input_jax_exact_raw_words": "Guarded driver verifies coefficients/domain/PV before and after all6calls",
+    "within_arm_output_stability": {
+      "coeffs": {
+        "native_all6_equal": true,
+        "jax_all6_equal": true,
+        "native_sha256": "d47e6718e1c1eeb49f2a06c5499e53ab631cbe530773deca11d5195bdb0975ea",
+        "jax_sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      "domain": {
+        "native_all6_equal": true,
+        "jax_all6_equal": true,
+        "native_sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+        "jax_sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      "pointValues": {
+        "native_all6_equal": true,
+        "jax_all6_equal": true,
+        "native_sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+        "jax_sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      }
+    },
+    "coefficient_max_abs": 5.551115123125783e-17,
+    "coefficient_word_mismatches": 8626,
+    "sample129_max_abs": 3.885780586188048e-16,
+    "native_roundtrip129_max_abs": 9.992007221626409e-16,
+    "jax_roundtrip129_max_abs": 1.1102230246251565e-15,
+    "roundtrip_bound": 1e-10,
+    "bound_scope": "Existing retained supplemental129control, not new original MATLAB assertion or universal word equality"
+  },
+  "runtime": {
+    "jax_observed_module_files": {
+      "observed": 1365,
+      "missing": [],
+      "changed": []
+    },
+    "native": "All3435referenceMfiles plus driver/inputs preguarded; MATLAB built-in/compiled runtime not fully hashed. Version/which/CPU/thread state recorded in raw report."
+  },
+  "limits": [
+    "Only this retained forward inverse/default algorithm, not full inv API/complex arc-length page/figures/other algorithms or all known slow paths",
+    "JAX remains about2.66xslower warm and32.8xfirst-after-setup in this measurement; no performance parity closure",
+    "Source/library unchanged by benchmark. Original predicates and output-preserving optimization qualified in prior linked reports; no rerun solely for timing metadata",
+    "Latest-main scientific CI/coverage and full objective remain incomplete"
+  ],
+  "cold_profile": {
+    "scope": "One cold first-after-setup cProfile diagnostic, CPU40, compilation cache disabled; overlapping cumulative categories must not be summed, observer overhead not a benchmark",
+    "total_seconds": 34.009371387000044,
+    "selected": [
+      {
+        "function": "_inverse",
+        "file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/src/chebfunjax/chebfun1d/inverse.py",
+        "line": 452,
+        "calls": 1,
+        "self_seconds": 0.00010649300000000001,
+        "cumulative_seconds": 34.043062536
+      },
+      {
+        "function": "compile_or_get_cached",
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "line": 384,
+        "calls": 179,
+        "self_seconds": 0.002759271,
+        "cumulative_seconds": 25.628529557
+      },
+      {
+        "function": "backend_compile_and_load",
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "line": 289,
+        "calls": 179,
+        "self_seconds": 25.621517114000003,
+        "cumulative_seconds": 25.621672084
+      },
+      {
+        "function": "_inverse_domain",
+        "file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/src/chebfunjax/chebfun1d/inverse.py",
+        "line": 363,
+        "calls": 1,
+        "self_seconds": 9.2565e-05,
+        "cumulative_seconds": 19.557534471
+      },
+      {
+        "function": "values",
+        "file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/src/chebfunjax/chebfun1d/inverse.py",
+        "line": 495,
+        "calls": 4,
+        "self_seconds": 5.6666e-05,
+        "cumulative_seconds": 6.362931661
+      },
+      {
+        "function": "lower_jaxpr_to_module",
+        "file": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/interpreters/mlir.py",
+        "line": 1300,
+        "calls": 179,
+        "self_seconds": 0.05513484900000001,
+        "cumulative_seconds": 2.535331561
+      },
+      {
+        "function": "_brent",
+        "file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/src/chebfunjax/chebfun1d/inverse.py",
+        "line": 99,
+        "calls": 4,
+        "self_seconds": 0.00029969700000000003,
+        "cumulative_seconds": 0.870343733
+      },
+      {
+        "function": "values",
+        "file": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/src/chebfunjax/tech/chebtech.py",
+        "line": 3462,
+        "calls": 2,
+        "self_seconds": 6.7820000000000005e-06,
+        "cumulative_seconds": 0.345574486
+      }
+    ],
+    "output_coefficients_byte_equal_to_matched_benchmark": true,
+    "first_failed_preparation": "Prior attempt failed from diagnostic filename profile.py shadowing stdlib profile during cProfile import. Raw terminal1 retained; renamed isolated script, no library/numeric change.",
+    "attribution": "179backendcompiles25.6217s; inverse_domain19.5575s/roots17.9771s cumulative. Categories overlap and must not be summed. Warm sampling profile remains a separate measurement."
+  },
+  "benchmark_source_unchanged": true,
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_single_cpu_v2_20261017.tar.gz",
+    "sha256": "8b339dea6e60a0395c912d30022f37874df0299bf8020528266509c3f1a8205b",
+    "verified_payloads": 493
+  }
+}
