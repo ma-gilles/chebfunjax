@@ -1,3 +1,35 @@
+# Root filter compilation and adaptive disk scalar repairs — 2026-10-18
+
+Actual parent **223 PASS**: 181 root/CI checks and 42 disk checks in two
+disjoint processes, stable guarded inputs, all observed imports preguarded,
+no censor or survivors. Original MATLAB assertions, fixtures and bounds remain.
+
+CPU root filtering shares power-of-two transfer buffers; same-precision complex
+storage and explicit tolerance dtype repair inherited tiny-tolerance acceptance.
+The numeric filter kernel and all other module ASTs are unchanged. Final child
+237 PASS; 38 public controls passed an intermediate transfer revision with an
+explicit exact-copy bridge. All 20 final inverse output arrays are byte-exact.
+One matched shared-host pair reduced first inverse call 31.89 to 28.54 seconds;
+244 to 196 total compilations, root filtering 25 to 2. Warm timing ranges overlap.
+Native warm inverse remains about 2.51 times faster in this set, and native
+coefficient words differ; performance/word parity remains open.
+
+Shared adaptive Diskfun zero metadata now follows native minus/Inf/pivot-grid
+storage; numeric PhaseOne zero remains separately qualified. Actual scalar
+routing, Inf-before-NaN errors and fixed-length numeric error identifiers are
+qualified. Final child 42 PASS; earlier 380 PASS/3 strict XFAIL is explicitly
+bridged through unchanged finite/nonzero arithmetic. Native minnormal memory
+censor and unchanged nonlinear clause10 wall censor remain raw evidence.
+
+All 1,120 previous CI owner prefixes remain; 1,121 owners, 13 lanes, Hermite
+lane12 and aggregate79% gate. Import ordering and missing runtime guard entries
+were corrected with raw failed wrapper observations preserved.
+
+Remaining: general adaptive no-pivot error/tolerance spacing, three disk word
+failures, broader unary/API/JAX/AD issues, all322final-sourcepages/1305figures,
+matched CPU speed and green latest-main CI. TAN phase worker results are not
+included in this publication. Evidence: docs/root_disk_parent_cpu_20261018.json.
+
 # Four unary subnormal repairs and JAX numeric disk construction — 2026-10-18
 
 ATAN, EXP, EXPM1 and SINH now retain qualified binary64 tiny imaginary
@@ -41,7 +73,7 @@ captures, final-source bridges and failed trials remain in the linked reports.
 No original MATLAB test assertion, fixture or bound was changed.
 
 A separate targeted TAN preservation gate passes **446 tests with 22
-expected failures. All component-byte assertions remain. The authored test now
+expected failures**. All component-byte assertions remain. The authored test now
 evaluates verbatim frozen prior source on the same runtime, rather than treating
 local-CPU NaN sign snapshots as portable. Three failures on older GitHub CI
 motivated this change; local AVX2 did not reproduce them. GitHub qualification

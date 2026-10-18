@@ -101,3 +101,26 @@ def test_matlab_sort_signed_zero_and_tiny_words(case):
     roots = jax.lax.complex(jnp.asarray(values), jnp.zeros_like(jnp.asarray(values)))
     actual = module._roots_filter_real(roots, 1e-10)
     assert _words(actual) == [word.lower() for word in case['sorted']['uint64_hex']]
+
+
+@pytest.mark.parametrize('length', [0, 1, 3, 15, 16, 17, 31, 32, 33, 49, 50, 51, 63, 64, 65, 127, 128, 129])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64, np.complex64, np.complex128])
+@pytest.mark.parametrize('device_input', [False, True])
+def test_filter_transfer_capacity_preserves_source_words(length, dtype, device_input):
+    # Shape boundaries and rejected padding must not change accepted roots,
+    # even with infinite/NaN tolerances or all-subnormal imaginary values.
+    base = np.empty(len(_REAL)*3, dtype=dtype)
+    base.real = np.tile(_REAL, 3)
+    if np.issubdtype(dtype, np.complexfloating):
+        real_dtype = np.float32 if dtype == np.complex64 else np.float64
+        tiny = np.nextafter(real_dtype(0), real_dtype(1))
+        base.imag = np.repeat([0., tiny, np.inf], len(_REAL))
+    value = np.resize(base, length)
+    argument = jnp.asarray(value) if device_input else value
+    real_dtype = np.float32 if dtype in (np.float32, np.complex64) else np.float64
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    for tolerance in [0., -0., -1., float(tiny), float(2*tiny), 1e-10, math.inf, math.nan]:
+        expected = np.asarray(_source(value, tolerance), dtype=real_dtype)
+        actual = module._roots_filter_real(argument, tolerance)
+        assert actual.dtype == expected.dtype and actual.flags.writeable
+        assert actual.tobytes() == expected.tobytes()

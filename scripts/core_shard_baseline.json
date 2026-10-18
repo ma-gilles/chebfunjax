@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Thirteen lanes: all1102 prior owners retained; FFT724controls appendCore1. DedicatedHermiteCore12 and aggregate79%gate unchanged.",
+  "scope": "Thirteen lanes: all1120 prior owner prefixes retained; adaptive scalar source controls append Core0. Dedicated Hermite Core12 and aggregate79% gate unchanged.",
   "groups": [
     [
       "tests/test_active_set_box_qp_source.py",
@@ -136,7 +136,8 @@
       "tests/test_utils/test_ratinterp_poles_nonfinite_source.py",
       "tests/test_utils/test_spline_kernel.py",
       "tests/test_utils/test_trigpade_legacy_controls.py",
-      "tests/test_utils/test_trigratinterp_robust_empty_source_contract.py"
+      "tests/test_utils/test_trigratinterp_robust_empty_source_contract.py",
+      "tests/test_diskfun/test_adaptive_scalar_source.py"
     ],
     [
       "tests/test_active_set_box_sqp_source.py",

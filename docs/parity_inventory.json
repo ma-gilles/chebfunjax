@@ -791,6 +791,18 @@
       "scope": "Superseding per-image observations for four republished ThreeBody PNGs only. The global 1,305-image dimensions/pixels audit remains bound to the earlier local image bytes at 43e5a5b7. This evidence does not close page computation, stdout, figure-content/pixel-parity, figure-size qualification, performance, or full scientific status.",
       "sha256": "dbd1a23a4c30a1251cdd853ea5cdeb8b15368917bff0fefcb1d231b29f68ac33"
     },
+    "root_disk_parent_cpu_20261018": {
+      "limits": [
+        "Expected failures remain open:22 unary and3disk on last published qualified cohorts. New TAN phase packet is still running and is not included.",
+        "Native inverse speed and coefficient words remain different; no performance parity closure.",
+        "Disk minnormal native memory censor and unchanged nonlinear original-clause10 wall censor retained; no full34clausepass claim.",
+        "General adaptive no-pivot fallback has a newly confirmed public native error mismatch; adaptive getTol angular spacing also remains open.",
+        "Full original assertion/API/JAX/AD audit, all322final-sourcepages/1305figures, matched CPU performance and latest-mainCI/coverage>=79% remain required."
+      ],
+      "path": "docs/root_disk_parent_cpu_20261018.json",
+      "scope": "CPU root filter transfer capacity/tiny tolerance and shared adaptive disk zero/error semantics",
+      "sha256": "25df09f43c8da06be63687947fb742677793b5eff9b0fa689aebeba5a2de49b3"
+    },
     "roots_filter_jax_cpu_20261018": {
       "archive": {
         "manifest_payloads_stream_verified": 3598,
@@ -71661,6 +71673,17 @@
             "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
           ],
           "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
+        },
+        {
+          "artifact": "root_disk_parent_cpu_20261018",
+          "limits": [
+            "Expected failures remain open:22 unary and3disk on last published qualified cohorts. New TAN phase packet is still running and is not included.",
+            "Native inverse speed and coefficient words remain different; no performance parity closure.",
+            "Disk minnormal native memory censor and unchanged nonlinear original-clause10 wall censor retained; no full34clausepass claim.",
+            "General adaptive no-pivot fallback has a newly confirmed public native error mismatch; adaptive getTol angular spacing also remains open.",
+            "Full original assertion/API/JAX/AD audit, all322final-sourcepages/1305figures, matched CPU performance and latest-mainCI/coverage>=79% remain required."
+          ],
+          "scope": "CPU root filter transfer capacity/tiny tolerance and shared adaptive disk zero/error semantics"
         }
       ],
       "functions": [
@@ -76126,7 +76149,19 @@
       "candidate_port_paths": [
         "src/chebfunjax/diskfun/diskfun.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "root_disk_parent_cpu_20261018",
+          "limits": [
+            "Expected failures remain open:22 unary and3disk on last published qualified cohorts. New TAN phase packet is still running and is not included.",
+            "Native inverse speed and coefficient words remain different; no performance parity closure.",
+            "Disk minnormal native memory censor and unchanged nonlinear original-clause10 wall censor retained; no full34clausepass claim.",
+            "General adaptive no-pivot fallback has a newly confirmed public native error mismatch; adaptive getTol angular spacing also remains open.",
+            "Full original assertion/API/JAX/AD audit, all322final-sourcepages/1305figures, matched CPU performance and latest-mainCI/coverage>=79% remain required."
+          ],
+          "scope": "CPU root filter transfer capacity/tiny tolerance and shared adaptive disk zero/error semantics"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

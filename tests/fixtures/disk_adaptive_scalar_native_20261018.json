@@ -1,0 +1,4549 @@
+{
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "normalization": "Actual public 1x1 scalar and independent callback native constructors. No padded scalar substitution. Input words/options and before-call checks retained in raw evidence. Zero-based Python parity indices compared to one-based native indices.",
+  "scalar": {
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "normalization": "Actual1x1 numeric operands, never padded1x2; exact requested component words/full storage before calls. Minimum subnormal is deferred to separately heavy-coordinated caller control. Safe follow-up excludes censored minimum-normal and uncaptured maximum-finite; neither is asserted to return.",
+    "complete": true,
+    "cases": [
+      {
+        "name": "zero",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.620419,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "negative_zero",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "8000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.121685,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.118121,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "negative",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "bfe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "bfe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "bfe6666666666666",
+              "bfe6666666666666",
+              "bfe6666666666666",
+              "bfe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.020313,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "unit",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3ff0000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000",
+              "3ff0000000000000",
+              "3ff0000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.083669,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "small_normal",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "20b0000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "20b0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "20b0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "20b0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "20b0000000000000",
+              "20b0000000000000",
+              "20b0000000000000",
+              "20b0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.008441,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "large_normal",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "5f30000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "5f30000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "5f30000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "5f30000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "5f30000000000000",
+              "5f30000000000000",
+              "5f30000000000000",
+              "5f30000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.010098,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "positive_inf",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "7ff0000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:inf",
+          "message": "Function returned INF when evaluated",
+          "stack_names": [
+            "constructor",
+            "constructFromDouble",
+            "constructor",
+            "diskfun.diskfun",
+            "capture_scalar_safe"
+          ]
+        },
+        "elapsed_seconds": 0.002053,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "negative_inf",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "fff0000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:inf",
+          "message": "Function returned INF when evaluated",
+          "stack_names": [
+            "constructor",
+            "constructFromDouble",
+            "constructor",
+            "diskfun.diskfun",
+            "capture_scalar_safe"
+          ]
+        },
+        "elapsed_seconds": 0.001153,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "nan",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "7ff8000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:nan",
+          "message": "Function returned NaN when evaluated",
+          "stack_names": [
+            "constructor",
+            "constructFromDouble",
+            "constructor",
+            "diskfun.diskfun",
+            "capture_scalar_safe"
+          ]
+        },
+        "elapsed_seconds": 0.001007,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "complex_normal",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": false,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "4000000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.018111,
+        "last_warning": {
+          "identifier": "DISKFUN:CONSTRUCTOR:COMPLEX",
+          "message": "Only real-valued diskfuns are currently supported. The imaginary part is being set to zero now."
+        }
+      },
+      {
+        "name": "imaginary_inf",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": false,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "7ff0000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.006764,
+        "last_warning": {
+          "identifier": "DISKFUN:CONSTRUCTOR:COMPLEX",
+          "message": "Only real-valued diskfuns are currently supported. The imaginary part is being set to zero now."
+        }
+      },
+      {
+        "name": "imaginary_nan",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": false,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "7ff8000000000000"
+          ]
+        },
+        "option": "default",
+        "requested_options": {},
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.00665,
+        "last_warning": {
+          "identifier": "DISKFUN:CONSTRUCTOR:COMPLEX",
+          "message": "Only real-valued diskfuns are currently supported. The imaginary part is being set to zero now."
+        }
+      },
+      {
+        "name": "normal_eps_loose",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "eps_loose",
+        "requested_options": {
+          "eps": "3f1a36e2eb1c432d"
+        },
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.01072,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal_eps_zero",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "eps_zero",
+        "requested_options": {
+          "eps": "0000000000000000"
+        },
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.006414,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal_pref_modified",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "pref_modified",
+        "requested_options": {
+          "pref_cheb2_eps": "3f1a36e2eb1c432d",
+          "pref_sampleTest": false,
+          "pref_maxRank": "3ff0000000000000"
+        },
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.010037,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal_fixed_rank_zero",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "fixed_rank_zero",
+        "requested_options": {
+          "fixed_rank": "0000000000000000"
+        },
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              0
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.035717,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal_fixed_rank_two",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "fixed_rank_two",
+        "requested_options": {
+          "fixed_rank": "4000000000000000"
+        },
+        "requested_words_storage_verified": true,
+        "constructor_returned": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              2,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 2,
+          "length": [
+            null,
+            null
+          ],
+          "cols": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": [
+            true,
+            true
+          ],
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.056316,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "normal_fixed_length",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "option": "fixed_length",
+        "requested_options": {
+          "fixed_length": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "4008000000000000",
+              "4010000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "requested_words_storage_verified": true,
+        "error": {
+          "identifier": "MATLAB:feval:argMustBeStringOrHandle",
+          "message": "Function to evaluate must be represented as a string scalar, character vector, or function_handle object.",
+          "stack_names": [
+            "evaluate",
+            "parseInputs",
+            "constructor",
+            "diskfun.diskfun",
+            "capture_scalar_safe"
+          ]
+        },
+        "elapsed_seconds": 0.006977,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      }
+    ]
+  },
+  "requests": {
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "normalization": "Actual1x1 numeric operands, never padded1x2; exact requested component words/full storage before calls. Minimum subnormal is deferred to separately heavy-coordinated caller control. Safe follow-up excludes censored minimum-normal and uncaptured maximum-finite; neither is asserted to return.",
+    "cases": [
+      {
+        "name": "zero",
+        "real_hex": "0000000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "negative_zero",
+        "real_hex": "8000000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "normal",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "negative",
+        "real_hex": "bfe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "unit",
+        "real_hex": "3ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "small_normal",
+        "real_hex": "20b0000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "large_normal",
+        "real_hex": "5f30000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "positive_inf",
+        "real_hex": "7ff0000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "negative_inf",
+        "real_hex": "fff0000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "nan",
+        "real_hex": "7ff8000000000000",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "default"
+      },
+      {
+        "name": "complex_normal",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "4000000000000000",
+        "is_real": false,
+        "option": "default"
+      },
+      {
+        "name": "imaginary_inf",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "7ff0000000000000",
+        "is_real": false,
+        "option": "default"
+      },
+      {
+        "name": "imaginary_nan",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "7ff8000000000000",
+        "is_real": false,
+        "option": "default"
+      },
+      {
+        "name": "normal_eps_loose",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "eps_loose"
+      },
+      {
+        "name": "normal_eps_zero",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "eps_zero"
+      },
+      {
+        "name": "normal_pref_modified",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "pref_modified"
+      },
+      {
+        "name": "normal_fixed_rank_zero",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "fixed_rank_zero"
+      },
+      {
+        "name": "normal_fixed_rank_two",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "fixed_rank_two"
+      },
+      {
+        "name": "normal_fixed_length",
+        "real_hex": "3fe6666666666666",
+        "imag_hex": "0000000000000000",
+        "is_real": true,
+        "option": "fixed_length"
+      }
+    ]
+  },
+  "callbacks": {
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "normalization": "Independent actual public callback constructor controls; fixed source handle definitions/probe classes and component words recorded before calls. No near-underflow operands.",
+    "complete": true,
+    "cases": [
+      {
+        "name": "zero_scalar_polar",
+        "probe": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.62548,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_theta_polar",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.118166,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_radius_polar",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.093485,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_cartesian",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.025888,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_vectorized",
+        "probe": {
+          "shape": [
+            1,
+            1
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.09101,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_fixed_length",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "8000000000000000",
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              0
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              3,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              8,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.035751,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "zero_fixed_rank_two",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "8000000000000000",
+            "0000000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              2,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "nonzero_poles": false,
+          "rank": 2,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": [
+            true,
+            true
+          ],
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.104229,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "nonzero_callback",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "3fe6666666666666",
+            "3fe6666666666666"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "actual": {
+          "isempty": false,
+          "domain": {
+            "shape": [
+              1,
+              4
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "400921fb54442d18",
+              "0000000000000000",
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "pivots": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "locations": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "c00921fb54442d18",
+              "0000000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "idx_plus": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "idx_minus": {
+            "shape": [
+              0,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              ""
+            ],
+            "im_hex": [
+              ""
+            ]
+          },
+          "nonzero_poles": true,
+          "rank": 1,
+          "size": {
+            "shape": [
+              1,
+              2
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "7ff0000000000000",
+              "7ff0000000000000"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          },
+          "cols": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "rows": {
+            "shape": [
+              1,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000"
+            ]
+          },
+          "row_is_real": true,
+          "row_ishappy": true,
+          "col_ishappy": true,
+          "values": {
+            "shape": [
+              4,
+              1
+            ],
+            "is_sparse": false,
+            "is_real": true,
+            "class": "double",
+            "re_hex": [
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666",
+              "3fe6666666666666"
+            ],
+            "im_hex": [
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000",
+              "0000000000000000"
+            ]
+          }
+        },
+        "elapsed_seconds": 0.038817,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "inf_callback",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "7ff0000000000000",
+            "7ff0000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:inf",
+          "message": "Function returned INF when evaluated",
+          "stack_names": [
+            "constructor",
+            "diskfun.diskfun",
+            "capture_callbacks"
+          ]
+        },
+        "elapsed_seconds": 0.002326,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "nan_callback",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "fff8000000000000",
+            "fff8000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:nan",
+          "message": "Function returned NaN when evaluated",
+          "stack_names": [
+            "constructor",
+            "diskfun.diskfun",
+            "capture_callbacks"
+          ]
+        },
+        "elapsed_seconds": 0.001434,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      },
+      {
+        "name": "mixed_inf_nan",
+        "probe": {
+          "shape": [
+            1,
+            2
+          ],
+          "is_sparse": false,
+          "is_real": true,
+          "class": "double",
+          "re_hex": [
+            "7ff0000000000000",
+            "fff8000000000000"
+          ],
+          "im_hex": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "probe_classes_and_storage_verified": true,
+        "error": {
+          "identifier": "CHEBFUN:DISKFUN:constructor:inf",
+          "message": "Function returned INF when evaluated",
+          "stack_names": [
+            "constructor",
+            "diskfun.diskfun",
+            "capture_callbacks"
+          ]
+        },
+        "elapsed_seconds": 0.00848,
+        "last_warning": {
+          "identifier": "",
+          "message": ""
+        }
+      }
+    ]
+  }
+}

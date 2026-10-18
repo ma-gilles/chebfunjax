@@ -536,11 +536,14 @@ def _phase_two_disk(
     total_rank = n_pos + n_neg
 
     if total_rank == 0:
-        # Zero function
+        # Native PhaseTwo retains the zero placeholder in the minus branch
+        # (evp == evm == 0). The outer constructor maps its zero pivot to Inf.
+        # Keep the selected source grid location; numeric matrix construction
+        # returns directly from PhaseOne and has its separate plus-zero branch.
         zero_col = Chebtech2.from_coeffs(jnp.zeros(1, dtype=jnp.float64))
         zero_row = Trigtech.from_coeffs(jnp.zeros(1, dtype=jnp.complex128))
-        return ([zero_col], [zero_row], np.array([1.0]), [0], [],
-                [(0.0, 1.0)], False)
+        return ([zero_col], [zero_row], np.array([np.inf]), [], [0],
+                [(float(col_pivots[0]), float(row_pivots[0]))], False)
 
     while not (happy_cols and happy_rows) and not failure:
         r_pts = _disk_col_pts(m_cur)
@@ -1081,10 +1084,19 @@ class Diskfun(eqx.Module):
             F = np.array(f(th2d, r2d), dtype=np.float64)
 
             vscale = float(np.max(np.abs(F)))
+            # Preserve the original finite-grid path. Native max(abs(F(:)))
+            # omits NaNs, so Inf must take precedence in a mixed class grid.
             if not np.isfinite(vscale):
-                raise ValueError(
-                    "Diskfun.from_function: function returned Inf or NaN on the initial grid."
-                )
+                if bool(jnp.any(jnp.isinf(jnp.asarray(F)))):
+                    raise DiskfunConstructorError(
+                        "CHEBFUN:DISKFUN:constructor:inf",
+                        "Function returned INF when evaluated",
+                    )
+                if bool(jnp.any(jnp.isnan(jnp.asarray(F)))):
+                    raise DiskfunConstructorError(
+                        "CHEBFUN:DISKFUN:constructor:nan",
+                        "Function returned NaN when evaluated",
+                    )
 
             tol_abs, vscale = _get_tol(F, 2.0 * np.pi / (2 * grid), 1.0 / grid, pseudo_level)
             # (no 1e4*eps floor: MATLAB's getTol is used as computed)
@@ -4389,7 +4401,12 @@ def diskfun(op=None, *source_args, coordinates=None, vectorize=False,
         elif callable(op):
             values = _prepare_disk_callable(op, mode, vectorize)(tt, rr)
         else:
-            raise TypeError("Fixed-degree diskfun construction needs a callable or Diskfun")
+            error = TypeError(
+                "Function to evaluate must be represented as a string scalar, "
+                "character vector, or function_handle object."
+            )
+            error.identifier = "MATLAB:feval:argMustBeStringOrHandle"
+            raise error
         return _fix_disk_rank(
             Diskfun.from_values(values, preserve_lengths=True), fixed_rank
         )

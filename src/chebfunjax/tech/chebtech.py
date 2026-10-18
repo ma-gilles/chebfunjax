@@ -1920,8 +1920,44 @@ def _roots_filter_real(roots, htol):
 
     Provenance: @chebtech/roots.m roots_main at Chebfun7574c77.
     All comparisons, ordering and clipping occur in _roots_filter_real_jax.
+    CPU spectra use power-of-two transfer buffers to reuse compiled filtering.
+    Padding has NaN real words, which are always rejected: for nonnegative
+    non-NaN tolerance, 1+htol is finite or infinity and the positive NaN
+    magnitude key exceeds it. Negative/NaN tolerances already reject all.
+    Stable sorting therefore preserves the entire accepted prefix, including
+    signed zeros and subnormals. NumPy owns transfer storage only.
     """
-    values, count = _roots_filter_real_jax(jnp.asarray(roots), htol)
+    host_input = isinstance(roots, np.ndarray)
+    if not host_input:
+        roots = jnp.asarray(roots)
+    if (roots.ndim == 1 and roots.size
+            and roots.dtype in (jnp.float32, jnp.float64, jnp.complex64, jnp.complex128)
+            and (jax.default_backend() == 'cpu' if host_input else roots.device.platform == 'cpu')):
+        n = roots.size
+        capacity = 1 << (n - 1).bit_length()
+        complex_input = jnp.iscomplexobj(roots)
+        if capacity != n or not complex_input:
+            device = None if host_input else roots.device
+            host = roots if host_input else jax.device_get(roots)
+            dtype = host.dtype if complex_input else (
+                np.complex128 if roots.dtype == jnp.float64 else np.complex64)
+            padded = np.empty(capacity, dtype=dtype)
+            if complex_input:
+                padded[:n] = host
+                padded[n:] = np.nan
+            else:
+                # Materialize exact zero imaginary words at the array boundary.
+                # A compiled constant imaginary component loses acceptance at
+                # tiny tolerances in the recorded real-spectrum controls.
+                padded.real[:n] = host
+                padded.real[n:] = np.nan
+                padded.imag[:] = 0.
+            roots = jax.device_put(padded, device)
+        # Form the scalar at component precision before tracing the filter;
+        # an in-kernel binary64-to-binary32 cast can flush a tiny tolerance.
+        real_dtype = jnp.float64 if roots.dtype == jnp.complex128 else jnp.float32
+        htol = jnp.asarray(htol, dtype=real_dtype)
+    values, count = _roots_filter_real_jax(roots, htol)
     values, count = jax.device_get((values, count))
     return values[:int(count)].copy()
 

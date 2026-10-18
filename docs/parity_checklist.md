@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover four unary tiny-component repairs and non-scalar JAX disk construction/projection. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover CPU root filter capacity/tiny tolerance and adaptive disk scalar metadata/error repairs. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,14 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** ATAN/EXP/EXPM1/SINH tiny-component repairs and non-scalar JAX disk construction/projection. Actual parent **231 PASS** across two disjoint gates; child unary **2,064 PASS / 22 XFAIL**, child disk **376 PASS / 3 XFAIL** are separate overlapping scopes. [Evidence](unary_disk_constructor_parent_cpu_20261018.json).
-- **Unary worker:** nine original records remain (two TAN/TANH subnormal and seven TAN phase/sign records), plus thirteen fresh-control expected failures. Bounded native phase/sign investigation underway. Provider words outside the qualified four-method masks and broader API/JAX/AD remain open.
-- **Disk worker:** actual 1x1 adaptive scalar route, callback-zero metadata and source error/options semantics. A minnormal native control hit its memory cap; no completed result or hidden stable-constant substitute is claimed. Three existing transform/GEMM word expected failures remain.
-- **CI:** latest-main CI and coverage ≥79% remain required. The prior publication repaired authored TAN snapshot portability and split the timed-out operators partition while retaining all files and limits. GitHub reproduction remains required.
-- **Numerical gaps:** complex rational poles, dense Chebfun3T representation/provider words, Hermite printed values/representation, external elementary providers, disk transform words and broader API/JAX/AD. [Detailed gaps](numerical_parity_gaps_20261017.md).
-- **Original tests:** full function/assertion audit across 2,333 library files and 1,102 original test files remains open; scoped predicate mappings and passing counterparts are linked below.
-- **Pages and figures:** final-source computation/stdout and scientific/raster qualification for all 322 pages / 1,305 figures remain open. Historical structural and dimension checks do not close these items.
-- **CPU performance:** inverse, Hermite, Checkmark, QR/LU, BVP and roots need matched native qualification and remaining repairs. Recursive root mapping has observed 9–20% warm overhead in one descriptive pair.
+- **Latest verified integration:** root filter capacity/tiny tolerance and adaptive disk scalar metadata/error repairs. Actual parent **223 PASS** in two disjoint gates; final child root237PASS, disk42PASS. [Evidence](root_disk_parent_cpu_20261018.json).
+- **Unary worker:** TAN finite-real/infinite-imaginary phase correction in final full qualification; no completion/count credited before terminal evidence. Last published cohort22XFAIL.
+- **Disk worker:** newly confirmed public adaptive no-pivot error mismatch; angular tolerance spacing gap and two final factor-word differences under diagnosis. Three published strict XFAIL remain, one intermediate-only signed zero.
+- **CPU inverse:** first call31.89→28.54s, exact20baseline output arrays; warm timing ranges overlap, native warm gap~2.51x and coefficient/provider words remain open.
+- **CI:** latest-main scientific CI/coverage≥79% remains required;31488run39141854578 observed pending before this publication.
+- **Original tests:** full audit across2,333native library files/1,102original test files; remaining numerical/API/JAX/AD gaps.
+- **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1,305figures remain required.
+- **Other performance/numerics:** Hermite, Checkmark, complex poles, QR/LU, BVP, roots and dense Chebfun3T provider/representation qualification remain open.
 
 ### Active work, not yet credited as complete
 
@@ -42,6 +42,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Root filter capacity/tiny tolerance and adaptive disk scalar zero/error semantics: **223 actual parent PASS**, original bounds unchanged. [Evidence](root_disk_parent_cpu_20261018.json).
+- [ ] Native speed/provider words, adaptive no-pivot/tolerance, remaining expected failures, complete original assertion/API/JAX/AD audit,322pages/1305figures and latest-mainCI remain open.
 
 - [x] Four unary tiny-component repairs and non-scalar JAX disk construction/projection: **231 actual parent PASS** in two disjoint scoped gates. Child unary2,064PASS22XFAIL and disk376PASS3XFAIL remain separately scoped; all original native bounds unchanged. [Evidence](unary_disk_constructor_parent_cpu_20261018.json).
 - [ ] Nine original unary records /22unary expected failures, three disk word expected failures, actual scalar/callback routes, full original assertion/API/JAX/AD qualification, all322pages/1305figures, matched CPU speed and latest-mainCI remain open.
