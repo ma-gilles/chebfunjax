@@ -393,16 +393,33 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
     --------
     diffmat, convertmat
     """
+    a = _prolong_multmat(n, a)
+
+    # Scalar case
+    if n == 1 or jnp.all(a[1:] == 0):
+        return a[0] * jnp.eye(n, dtype=jnp.float64)
+
+    return _multmat_nonconstant(n, a, lam)
+
+
+def _prolong_multmat(n, a):
+    """Source coefficient prolongation shared by multmat construction paths."""
     # Prolong or truncate coefficients to length n
     if a.shape[0] < n:
         a = jnp.concatenate([a, jnp.zeros(n - a.shape[0], dtype=jnp.float64)])
     else:
         a = a[:n]
 
-    # Scalar case
-    if n == 1 or jnp.all(a[1:] == 0):
-        return a[0] * jnp.eye(n, dtype=jnp.float64)
+    return a
 
+
+def _multmat_nonconstant(n, a, lam, *, finite=None, traced_tail=False):
+    """Source arithmetic after prolongation and nonconstant dispatch.
+
+    ``finite`` and ``traced_tail`` are private construction controls. The public
+    dispatcher retains its value checks and Python recurrence. Disk construction
+    supplies fixed finite multipliers and traces the same recurrence/tail test.
+    """
     if lam == 0:
         # Multiplication in Chebyshev T.
         # M = Toeplitz([2a0; a1; ...; a_{n-1}], [2a0, a1, ..., a_{n-1}]) / 2
@@ -440,7 +457,9 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
     else:
         # lam >= 2: three-term recurrence in C^{(lam)}.
         # First convert a from C^{(0)} to C^{(lam)}.
-        if bool(jnp.all(jnp.isfinite(a))):
+        if finite is None:
+            finite = bool(jnp.all(jnp.isfinite(a)))
+        if finite:
             a = convertmat(n, 0, lam - 1) @ a
         else:
             a = _sparse_nonfinite_conversion(convertmat(n, 0, lam - 1), a)
@@ -492,24 +511,51 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
         Mcur = M1
         n_terms = a.shape[0] - 2
 
-        for nn in range(n_terms):
-            k = nn + 1.0  # MATLAB's 1-indexed loop variable
-            M2 = (2.0 * (k + lam) / (k + 1.0)) * Mx @ Mcur \
-                 - ((k + 2.0 * lam - 1.0) / (k + 1.0)) * M0
-            M = M + a[nn + 2] * M2
-            M0 = Mcur
-            Mcur = M2
-            # @ultraS/multmat.m: if (abs(a(nn+3:end)) < eps), break, end.
-            # MATLAB if requires a nonempty condition with every entry true.
-            # NaN/Inf comparisons are false. eps is source binary64 epsilon.
-            tail = a[nn + 3:]
-            if tail.size and bool(jnp.all(jnp.abs(tail) < jnp.finfo(jnp.float64).eps)):
-                break
+        if traced_tail:
+            positions = jnp.arange(a.shape[0])
+
+            def condition(state):
+                return (state[0] < n_terms) & ~state[4]
+
+            def step(state):
+                nn, value, previous, current, _ = state
+                value, previous, current = _multmat_recurrence_step(
+                    a, lam, Mx, nn, value, previous, current)
+                # Traced equivalent of the source nonempty all(abs(tail)<eps).
+                # The prefix is excluded by index, not by a fitted degree.
+                done = (nn + 3 < a.shape[0]) & jnp.all(jnp.where(
+                    positions >= nn + 3,
+                    jnp.abs(a) < jnp.finfo(jnp.float64).eps, True))
+                return nn + 1, value, previous, current, done
+
+            _, M, _, _, _ = jax.lax.while_loop(
+                condition, step, (0, M, M0, Mcur, False))
+        else:
+            for nn in range(n_terms):
+                M, M0, Mcur = _multmat_recurrence_step(
+                    a, lam, Mx, nn, M, M0, Mcur)
+                # @ultraS/multmat.m: if (abs(a(nn+3:end)) < eps), break, end.
+                # MATLAB if requires a nonempty condition with every entry true.
+                # NaN/Inf comparisons are false. eps is source binary64 epsilon.
+                tail = a[nn + 3:]
+                if tail.size and bool(jnp.all(jnp.abs(tail) < jnp.finfo(jnp.float64).eps)):
+                    break
 
         # Truncate to n x n
         M = M[:n, :n]
 
     return M
+
+
+def _multmat_recurrence_step(a, lam, Mx, nn, M, M0, Mcur):
+    """One literal source Gegenbauer recurrence and coefficient addition."""
+    k = nn + 1.0  # MATLAB's 1-indexed loop variable
+    M2 = (2.0 * (k + lam) / (k + 1.0)) * Mx @ Mcur \
+         - ((k + 2.0 * lam - 1.0) / (k + 1.0)) * M0
+    M = M + a[nn + 2] * M2
+    M0 = Mcur
+    Mcur = M2
+    return M, M0, Mcur
 
 
 # ===========================================================================

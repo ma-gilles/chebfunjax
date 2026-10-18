@@ -255,7 +255,8 @@
       "tests/test_disk_add_poles_source.py",
       "tests/test_operators/test_generalized_eig_invariants.py",
       "tests/test_operators/test_generalized_eig_rounding.py",
-      "tests/test_diskfun/test_helmholtz_banded.py"
+      "tests/test_diskfun/test_helmholtz_banded.py",
+      "tests/test_diskfun/test_helmholtz_static_construction.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1141,6 +1142,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "3072dda6fefccc7aa940191418bb3602a8c16ea3",
+  "last_update_parent": "04a5cae8a74afbbb5a4692571ff15d3a1da2caae",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

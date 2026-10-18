@@ -103,16 +103,62 @@ def _assemble_operator(m, K):
     """Build source operators after normalizing the wavenumber at entry."""
     from chebfunjax.discretization import ultras
 
-    # These source operators depend only on static resolution. The shared
-    # multmat dispatcher inspects its coefficient values in Python.
-    with jax.ensure_compile_time_eval():
-        first = ultras.diffmat(m, 1)
-        second = ultras.diffmat(m, 2)
-        radial = ultras.multmat(m, jnp.asarray([0., 1.]), 1)
-        radial_squared = ultras.multmat(m, jnp.asarray([.5, 0., .5]), 2)
-        cheb_radial_squared = ultras.multmat(m, jnp.asarray([.5, 0., .5]), 0)
-        conversion = ultras.convertmat(m, 0, 1)
-        adjacent_conversion = ultras.convertmat(m, 1, 1)
-        differential = radial_squared @ second + adjacent_conversion @ radial @ first
+    # Keep small degenerate shapes on the unchanged public dispatcher path.
+    # For m>=3, both literal degree1/2 multipliers are finite/nonconstant.
+    if m >= 3:
+        with jax.ensure_compile_time_eval():
+            radial_coefficients = jnp.asarray([0., 1.])
+            squared_coefficients = jnp.asarray([.5, 0., .5])
+        # Lower outside eager constant evaluation: that context would compile
+        # each coefficient-independent source operation separately. Execute the
+        # compiled group on concrete source operands to retain static constants.
+        compiled = _static_operators.lower(
+            m, radial_coefficients, squared_coefficients).compile()
+        with jax.ensure_compile_time_eval():
+            differential, conversion, cheb_radial_squared = compiled(
+                radial_coefficients, squared_coefficients)
+    else:
+        with jax.ensure_compile_time_eval():
+            first = ultras.diffmat(m, 1)
+            second = ultras.diffmat(m, 2)
+            radial = ultras.multmat(m, jnp.asarray([0., 1.]), 1)
+            radial_squared = ultras.multmat(m, jnp.asarray([.5, 0., .5]), 2)
+            cheb_radial_squared = ultras.multmat(m, jnp.asarray([.5, 0., .5]), 0)
+            conversion = ultras.convertmat(m, 0, 1)
+            adjacent_conversion = ultras.convertmat(m, 1, 1)
+            differential = radial_squared @ second + adjacent_conversion @ radial @ first
     operator = differential + (K**2 * conversion) @ cheb_radial_squared
     return operator[:-2], conversion, cheb_radial_squared
+
+
+@partial(jax.jit, static_argnames=('m',))
+def _static_operators(m, radial_coefficients, squared_coefficients):
+    """Group source-static disk arithmetic in one compilation.
+
+    Provenance
+    ----------
+    MATLAB source : @diskfun/helmholtz.m, @ultraS/multmat.m
+    Chebfun commit: 7574c77
+
+    Private caller supplies exactly the two source finite nonconstant degree1/2
+    polynomials, with m>=3. Coefficients remain runtime operands to this helper,
+    preserving source arithmetic instead of precomputing literal matrix buffers.
+    This is not a traceable public multmat dispatcher or a general AD contract.
+    """
+    from chebfunjax.discretization import ultras
+
+    assert m >= 3
+    assert radial_coefficients.shape == (2,) and squared_coefficients.shape == (3,)
+    radial_coefficients = ultras._prolong_multmat(m, radial_coefficients)
+    squared_coefficients = ultras._prolong_multmat(m, squared_coefficients)
+    first = ultras.diffmat(m, 1)
+    second = ultras.diffmat(m, 2)
+    radial = ultras._multmat_nonconstant(m, radial_coefficients, 1, finite=True)
+    radial_squared = ultras._multmat_nonconstant(
+        m, squared_coefficients, 2, finite=True, traced_tail=True)
+    cheb_radial_squared = ultras._multmat_nonconstant(
+        m, squared_coefficients, 0, finite=True)
+    conversion = ultras.convertmat(m, 0, 1)
+    adjacent_conversion = ultras.convertmat(m, 1, 1)
+    differential = radial_squared @ second + adjacent_conversion @ radial @ first
+    return differential, conversion, cheb_radial_squared

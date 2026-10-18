@@ -1,0 +1,557 @@
+{
+  "scope": "Complex TreeVar SIN both-word-exact-zero real sign; CPU-only bounded package. No universal signed-zero/IEEE/API/page claim.",
+  "base_head": "9bd0af0a33f6fb3151b4f20a96a1bba773f43259",
+  "first_divergence": "Pinned JAX complex SIN primitive returns real +0 for captured negative-real-zero inputs in BOTH eager and JIT. Prior helper copies that word. All40direct-native SIN/COS row comparisons establish primitive/prior-helper real equality in each execution mode. This corrects earlier JIT-only wording; both modes lose the sign.",
+  "source_supported_correction": "Only complex SIN with BOTH input components word-exact zeros retains the original input real-zero sign. Both input imaginary signs yield captured imaginary +0. COS, real-input path, all nonzero/off-axis/subnormal/NaN/Inf primal routes and all analytic JVP functions remain unchanged. Word-aware real_sign excludes subnormals in both components.",
+  "mathematical_basis": "SIN at zero has real component equal to input real zero; independent direct-component native controls establish its signed representation. Analytic derivative cos(z) and second derivative -sin(z) are already explicit and unchanged.",
+  "native_capture_sha256": "6428b61e81fbf5feeb28afc28c7d6f2c8d4a91568c263ac89764755d33c26f81",
+  "all80_requested_inputs_reverified": true,
+  "native": "Existing80rawcontrols/source7574c77680d7e82b79626300bf255498271a72df/R2025bUpdate2. Requested component words asserted before dispatch and extracted before flattening; all raw input/output words retained. No new native run or reservation.",
+  "baseline": {
+    "total": 43,
+    "passed": 40,
+    "failed": 3,
+    "xfailed": 0,
+    "seconds": 7.656,
+    "failures": [
+      "test_sin_cos_finite_axis_native_real_zero_sign_gap[nzero_pzero]",
+      "test_sin_cos_finite_axis_native_real_zero_sign_gap[nzero_nzero]",
+      "test_sin_cos_finite_axis_native_real_zero_sign_gap[finite_axis_mixed_zero_signs]"
+    ]
+  },
+  "full_candidate_before_preservation_mask_revision": {
+    "total": 1804,
+    "passed": 1776,
+    "failed": 5,
+    "xfailed": 23,
+    "seconds": 265.777,
+    "failures": [
+      "test_sin_cos_only_nonfinite_axis_imaginary_component_changes[sin_nzero_pzero]",
+      "test_sin_cos_only_nonfinite_axis_imaginary_component_changes[sin_nzero_nzero]",
+      "test_sin_cos_only_nonfinite_axis_imaginary_component_changes[sin_finite_axis_mixed_zero_signs]",
+      "test_sin_cos_finite_axis_component_word_scope[complex64-sin]",
+      "test_sin_cos_finite_axis_component_word_scope[complex128-sin]"
+    ]
+  },
+  "final_focused": {
+    "total": 169,
+    "passed": 169,
+    "failed": 0,
+    "xfailed": 0,
+    "seconds": 46.383,
+    "failures": []
+  },
+  "qualification_scope": "Full original unary+univariate+RHS selection and40source-bound stage controls ran on final production source. Exactly5failures are now-obsolete authored primitive real-sign preservation expectations. Production unchanged afterward; revise only exact SIN both-zero expectation mask in those two test functions. Final focused169PASS includes all related controls and40stage controls. Root actual-parent full final selection remains required.",
+  "real_word_stage_review": {
+    "baseline": {
+      "rows": 40,
+      "all_eager_jit_real_words_unchanged_except_exact_SIN_both_zero_mask": true,
+      "all_imaginary_words_unchanged": true,
+      "three_native_gap_rows": [
+        {
+          "name": "nzero_pzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "0000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "0000000000000000"
+          ],
+          "current_jit_real": [
+            "0000000000000000"
+          ]
+        },
+        {
+          "name": "nzero_nzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "8000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "0000000000000000"
+          ],
+          "current_jit_real": [
+            "0000000000000000"
+          ]
+        },
+        {
+          "name": "finite_axis_mixed_zero_signs",
+          "input": {
+            "shape": [
+              1,
+              7
+            ],
+            "isreal": false,
+            "real": [
+              "3fd999999999999a",
+              "bfd999999999999a",
+              "4000000000000000",
+              "c000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd999999999999a"
+            ],
+            "imag": [
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd3333333333333"
+            ]
+          },
+          "native_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ]
+        }
+      ]
+    },
+    "candidate": {
+      "rows": 40,
+      "all_eager_jit_real_words_unchanged_except_exact_SIN_both_zero_mask": true,
+      "all_imaginary_words_unchanged": true,
+      "three_native_gap_rows": [
+        {
+          "name": "nzero_pzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "0000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "8000000000000000"
+          ],
+          "current_jit_real": [
+            "8000000000000000"
+          ]
+        },
+        {
+          "name": "nzero_nzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "8000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "8000000000000000"
+          ],
+          "current_jit_real": [
+            "8000000000000000"
+          ]
+        },
+        {
+          "name": "finite_axis_mixed_zero_signs",
+          "input": {
+            "shape": [
+              1,
+              7
+            ],
+            "isreal": false,
+            "real": [
+              "3fd999999999999a",
+              "bfd999999999999a",
+              "4000000000000000",
+              "c000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd999999999999a"
+            ],
+            "imag": [
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd3333333333333"
+            ]
+          },
+          "native_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ]
+        }
+      ]
+    },
+    "final": {
+      "rows": 40,
+      "all_eager_jit_real_words_unchanged_except_exact_SIN_both_zero_mask": true,
+      "all_imaginary_words_unchanged": true,
+      "three_native_gap_rows": [
+        {
+          "name": "nzero_pzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "0000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "8000000000000000"
+          ],
+          "current_jit_real": [
+            "8000000000000000"
+          ]
+        },
+        {
+          "name": "nzero_nzero",
+          "input": {
+            "shape": [
+              1,
+              1
+            ],
+            "isreal": false,
+            "real": [
+              "8000000000000000"
+            ],
+            "imag": [
+              "8000000000000000"
+            ]
+          },
+          "native_real": [
+            "8000000000000000"
+          ],
+          "primitive_eager_real": [
+            "0000000000000000"
+          ],
+          "primitive_jit_real": [
+            "0000000000000000"
+          ],
+          "current_eager_real": [
+            "8000000000000000"
+          ],
+          "current_jit_real": [
+            "8000000000000000"
+          ]
+        },
+        {
+          "name": "finite_axis_mixed_zero_signs",
+          "input": {
+            "shape": [
+              1,
+              7
+            ],
+            "isreal": false,
+            "real": [
+              "3fd999999999999a",
+              "bfd999999999999a",
+              "4000000000000000",
+              "c000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd999999999999a"
+            ],
+            "imag": [
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "0000000000000000",
+              "8000000000000000",
+              "3fd3333333333333"
+            ]
+          },
+          "native_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "primitive_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "0000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_eager_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "current_jit_real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ]
+        }
+      ]
+    }
+  },
+  "runtime_guards": {
+    "baseline": {
+      "loaded_files": 1483,
+      "all_preguarded": true,
+      "changed_inputs_bound_to_immutable_preimages": [
+        "src/chebfunjax/utils/elementary.py",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "candidate": {
+      "loaded_files": 1542,
+      "all_preguarded": true,
+      "changed_inputs_bound_to_immutable_preimages": [
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "final": {
+      "loaded_files": 1486,
+      "all_preguarded": true,
+      "changed_inputs_bound_to_immutable_preimages": []
+    }
+  },
+  "supervision": {
+    "unary_sin_real_zero_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 13.529825493693352,
+      "sampled_peak_summed_rss_kib": 763744,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_sin_real_zero_candidate_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 273.4356158338487,
+      "sampled_peak_summed_rss_kib": 1314260,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_sin_real_zero_final_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 51.793263860046864,
+      "sampled_peak_summed_rss_kib": 1088936,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "static_review": {
+    "base_head": "9bd0af0a33f6fb3151b4f20a96a1bba773f43259",
+    "source_AST_change": "Only _sin_cos_complex_axis primal body: SIN input real zero retained when both input components are word-exact zeros; COS branch and all JVP functions/routers/other elementary AST unchanged.",
+    "prior_test_exception": "Remove one strict xfail decorator from three native real-sign controls, retaining their assertions. In test_sin_cos_only_nonfinite_axis_imaginary_component_changes and test_sin_cos_finite_axis_component_word_scope, supersede only complex SIN exact-both-zero expected real words with input real-zero words (and update former docstring). All inputs, imaginary/off-axis words, real words outside this mask, native assertions and bounds retained. Every other prior test AST unchanged. Four component-word scope controls appended.",
+    "preservation_scope": "Real words may change only for complex SIN with both input components exactly zero; no claim that all real words are globally unchanged. All imaginary/off-axis paths remain unchanged.",
+    "protected_bytes": {
+      "src/chebfunjax/operators/treevar.py": "c8fff194786c8f73fa938681c41a1b6bd0edb51155c6288757131bb83ac645a0",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "4b17298243daa73e43a35002b29e7a0e1e48813bb21030efea38174aa1cc0d21",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78"
+    },
+    "metadata_records": 23,
+    "supplemental_real_sign_xfails_removed": 3,
+    "no_CI_owner_config_changes": true
+  },
+  "validation": "Fullruff src/tests/scripts/examples and git diff --check pass; original native fixtures/assertions/bounds unchanged. Three strict xfails removed and their exact native real-sign assertions now pass normally. Original23open metadata records unchanged.",
+  "remaining": [
+    "23original unary records remain:16other zero-sign records and7minimum-subnormal imaginary-loss records; no supplemental real-SIN zero xfails remain.",
+    "Native captured real-zero controls cover scalar/mixed arrays and both input imaginary zero signs. No inference for nonzero imaginary input, subnormal approximation quality, or general transcendental correctly rounded words.",
+    "Root must verify actual published source bridge and full final selection; child base is frozen finite-axis packet9bd0af0a.",
+    "No native fixture/buffer is used by production; no Q edits, publication, push or CI ownership/config changes."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_sin_real_zero_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_sin_real_zero_package_20261018.tar.gz",
+    "sha256": "d445b4ae6a77601a70fbaf1b1d8e0979fa27c9cc4763259882e07606d504b60e",
+    "bytes": 36936681,
+    "payloads": 3546
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_sin_real_zero_stream_hashes_20261018.json",
+    "sha256": "e0a507585afa3835ba67784f5a14d69903a5c35fd251b61fb557f476163b6e1f"
+  }
+}

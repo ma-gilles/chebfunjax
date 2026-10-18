@@ -1,3 +1,34 @@
+# Grouped disk construction and SIN/COS boundary semantics — 2026-10-18
+
+Disk source-static operators now compile as one group outside eager evaluation,
+then execute on concrete source coefficients within it. One shared literal
+ultras recurrence retains the public Python scalar/finite/tail path; mechanical
+AST reconstruction exact,82old/candidate matrices/4,704words exact. Complete
+assembled/public coefficients/probes compare1,324,024componentwords exactly.
+Matched shared-host public515cold7.4983→4.4049s; warmmedians95.8→101.8ms, no warm
+advantage. Separate child13original tests pass256.89s; final consumed source and
+protected fixtures bridge exactly. Generic traced rounding differences19/64and
+11/64words and two ineffective integration attempts are retained explicitly.
+No fresh matched native-speed/full API/IEEE/JAX-transformation claim.
+
+Complex SIN/COS exact-real-axis imaginary output follows native+0, with analytic
+customJVPs preserving independent first/second transverse derivatives. Complex
+SIN preserves input real-zero sign only when both input components are word-
+exact zeros; three newly exposed primitive eager/JIT sign gaps now pass normal
+native assertions. Two original metadata records removed25→23; no extra real
+sign xfails remain. Native fixtures/assertions/bounds retained. Only authored
+primitive-preservation expectations on these exact masks are superseded, all
+other input/component word requirements retained. Failed intermediate child
+gates and immutable old-helper/staged evidence are preserved, not relabeled.
+
+Actual combined parent1,951PASS23XFAIL in three fresh stages: unary1,741PASS/
+23XFAIL, disk143PASS, PDE/protocol67PASS. All loaded runtime files preguarded,
+source stable/no censor/survivors.1,111prior lane prefixes retained plus one new
+11-node core file→1,112owners/13lanes/HermiteCore12/79%gate unchanged. Broader
+API/provider words/nonfinite/JAX/performance,322pages/1,305scientificfigures and
+latest-main scientificCI remain open.
+Evidence: docs/disk_unary_parent_cpu_20261018.json.
+
 # Numeric scalar PDE system endpoint targets — 2026-10-18
 
 Real numeric scalar lbc/rbc now repeat a Dirichlet endpoint target for every

@@ -1,3 +1,21 @@
+## Grouped disk construction and SIN/COS boundaries — 2026-10-18
+
+Actual parent1,951PASS23XFAIL, all runtime imports preguarded/stable. Source-static
+construction grouping reduces observed public515cold7.50→4.40s; warm95.8→101.8ms
+shows no warm improvement. Source public AST and1,324,024assembled/public words
+retained; separate13original child tests pass through exact source bridge.
+Generic traced19/64and11/64word differences remain explicit. No matched native
+speed closure or universal backend/API/JAX claim.
+
+SIN/COS exact-axis imag+0 and complexSIN both-word-zero real sign now match
+captured native controls, with analytic first/second transverse derivatives.
+Two metadata records removed25→23; three separate primitive real-sign defects
+now pass, no supplemental expected failures. Author-preservation oracle masks
+corrected only on these source-supported boundaries; native bounds unchanged.
+Remaining23unary records, complex multiplication/scalar grammar, constructor/
+provider words, pages/figures/performance and finalCI remain open.
+[Parent evidence](disk_unary_parent_cpu_20261018.json).
+
 ## Numeric scalar system PDE endpoints — 2026-10-18
 
 The real scalar numeric system-target rejection is repaired: repeat one

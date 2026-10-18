@@ -200,14 +200,18 @@ def test_sin_cos_native_nonfinite_real_axis(row):
 @pytest.mark.parametrize('row', SIN_COS_AXIS_ROWS,
                          ids=lambda r:r['method']+'_'+r['name'])
 def test_sin_cos_only_nonfinite_axis_imaginary_component_changes(row):
-    """All original real words and all out-of-scope imaginary words stay exact."""
+    """Preserve words outside exact SIN zero inputs and require captured axis zeros."""
     value = _decode_sin_cos_capture(row['input'])
     original = np.asarray(getattr(jnp, row['method'])(jnp.asarray(value)))
     got = np.asarray(_UNARY_FNS_RAW[row['method']](jnp.asarray(value)))
     assert got.shape == original.shape and got.dtype == original.dtype
-    assert got.real.tobytes() == original.real.tobytes()
     zero_imag = (value.imag.copy().view(np.uint64) & np.uint64(0x7fffffffffffffff)) == 0
-    selected = ~np.isfinite(value.real) & zero_imag
+    expected_real = original.real.copy()
+    if row['method'] == 'sin':
+        zero_real = (value.real.copy().view(np.uint64) & np.uint64(0x7fffffffffffffff)) == 0
+        expected_real[zero_real & zero_imag] = value.real[zero_real & zero_imag]
+    assert got.real.tobytes() == expected_real.tobytes()
+    selected = zero_imag
     assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
     assert np.all(got.imag[selected].copy().view(np.uint64) == 0)
 
@@ -422,3 +426,162 @@ def test_tan_nonfinite_axis_real_input_words_and_dtype_unchanged(dtype):
     for fn in (_UNARY_FNS_RAW['tan'], jax.jit(_UNARY_FNS_RAW['tan'])):
         got = np.asarray(fn(value))
         assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()
+
+
+SIN_COS_FINITE_AXIS_ROWS = [r for r in SIN_COS_AXIS_ROWS
+                            if r['name'] != 'complex_min_subnormal_imag']
+
+
+@pytest.mark.parametrize('row', SIN_COS_FINITE_AXIS_ROWS,
+                         ids=lambda r:r['method']+'_'+r['name'])
+def test_sin_cos_finite_axis_native_zero_signs_and_storage(row):
+    """Direct-component capture covers signed finite/nonfinite real-axis inputs."""
+    value = jnp.asarray(_decode_sin_cos_capture(row['input']))
+    expected = _decode_sin_cos_capture(row['output'])
+    eager = np.asarray(_UNARY_FNS[row['method']](value))
+    assert (not np.iscomplexobj(eager)) == row['output']['isreal']
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW[row['method']])(value))):
+        assert got.shape == expected.shape
+        for component, actual, target in (('real', got.real, expected.real),
+                                          ('imag', got.imag, expected.imag)):
+            assert np.array_equal(np.isnan(actual), np.isnan(target))
+            assert np.array_equal(np.isposinf(actual), np.isposinf(target))
+            assert np.array_equal(np.isneginf(actual), np.isneginf(target))
+            finite = np.isfinite(target)
+            assert np.all(np.abs(actual[finite]-target[finite]) <=
+                          8*np.finfo(float).eps*np.maximum(1., np.abs(target[finite])))
+            zero = target == 0
+            assert np.array_equal(actual == 0, zero)
+            # Keep the distinct real-zero sign gap in a strict control below.
+            if not (component == 'real' and row in SIN_COS_REAL_ZERO_GAP_ROWS):
+                assert np.array_equal(np.signbit(actual[zero]), np.signbit(target[zero]))
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_sin_cos_finite_axis_component_word_scope(dtype, name):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    mask = word_dtype(0x7fffffff if dtype == np.complex64 else 0x7fffffffffffffff)
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    value = np.empty(16, dtype=dtype)
+    value.real = [0., -0., .4, -.4, 2., -2., np.inf, np.nan,
+                  .4, -.4, np.inf, -np.inf, .4, -.4, .4, -.4]
+    value.imag = [0., -0., 0., -0., 0., -0., 0., -0.,
+                  tiny, -tiny, tiny, -tiny, .3, -.3, np.inf, np.nan]
+    original = np.asarray(getattr(jnp, name)(jnp.asarray(value)))
+    selected = (value.imag.copy().view(word_dtype) & mask) == 0
+    expected_real = original.real.copy()
+    if name == 'sin':
+        zero_real = (value.real.copy().view(word_dtype) & mask) == 0
+        expected_real[selected & zero_real] = value.real[selected & zero_real]
+    for fn in (_UNARY_FNS_RAW[name], jax.jit(_UNARY_FNS_RAW[name])):
+        got = np.asarray(fn(jnp.asarray(value)))
+        assert got.dtype == original.dtype and got.shape == original.shape
+        assert got.real.tobytes() == expected_real.tobytes()
+        assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
+        assert np.all(got.imag[selected].copy().view(word_dtype) == 0)
+
+
+def _sin_cos_independent_real_derivatives(name, point):
+    import cmath
+
+    z = complex(float(point[0]), float(point[1]))
+    first = cmath.cos(z) if name == 'sin' else -cmath.sin(z)
+    second = -cmath.sin(z) if name == 'sin' else -cmath.cos(z)
+    jacobian = np.array([[first.real, -first.imag], [first.imag, first.real]])
+    hessian = np.array([[[second.real, -second.imag], [-second.imag, -second.real]],
+                        [[second.imag, second.real], [second.real, -second.imag]]])
+    return jacobian, hessian
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(0., 0.), (-0., -0.), (.4, 0.), (-.4, -0.),
+                                   (2., 0.), (-2., -0.), (.4, .3), (-.4, -.3)])
+def test_sin_cos_finite_axis_independent_real_jacobian_hessian(name, dtype, point):
+    def embedded(v):
+        z = jax.lax.complex(v[0], v[1])
+        out = _UNARY_FNS_RAW[name](z)
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    expected_first, expected_second = _sin_cos_independent_real_derivatives(name, value)
+    eps = np.finfo(np.float32 if dtype == jnp.float32 else np.float64).eps
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_allclose(jax.jacfwd(fn)(value), expected_first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacrev(fn)(value), expected_first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacfwd(jax.jacfwd(fn))(value), expected_second,
+                                   rtol=10*eps, atol=10*eps)
+        for direction in [(1., 0.), (0., 1.)]:
+            tangent = jnp.asarray(direction, dtype=dtype)
+            _, got = jax.jvp(fn, (value,), (tangent,))
+            np.testing.assert_allclose(got, expected_first @ np.array(direction),
+                                       rtol=10*eps, atol=10*eps)
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(.4, 0.), (2., 0.)])
+def test_sin_cos_finite_axis_rhs_real_jacobian_hessian(name, dtype, point):
+    op = lambda u:u.diff()-getattr(u, name)()
+    rhs = to_first_order(op, 0., (-1., 1.))[0]
+    def embedded(v):
+        z = jax.lax.complex(v[0], v[1])
+        out = jnp.asarray(rhs(0., jnp.asarray([z]))).reshape(-1)[0]
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    expected_first, expected_second = _sin_cos_independent_real_derivatives(name, value)
+    eps = np.finfo(np.float32 if dtype == jnp.float32 else np.float64).eps
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_allclose(jax.jacfwd(fn)(value), expected_first, rtol=10*eps, atol=10*eps)
+        np.testing.assert_allclose(jax.jacfwd(jax.jacfwd(fn))(value), expected_second,
+                                   rtol=10*eps, atol=10*eps)
+        _, got = jax.jvp(fn, (value,), (jnp.asarray([0., 1.], dtype=dtype),))
+        np.testing.assert_allclose(got, expected_first[:, 1], rtol=10*eps, atol=10*eps)
+
+
+SIN_COS_REAL_ZERO_GAP_ROWS = [r for r in SIN_COS_FINITE_AXIS_ROWS
+                             if r['method'] == 'sin' and r['name'] in
+                             ('nzero_pzero', 'nzero_nzero', 'finite_axis_mixed_zero_signs')]
+
+
+@pytest.mark.parametrize('row', SIN_COS_REAL_ZERO_GAP_ROWS, ids=lambda r:r['name'])
+def test_sin_cos_finite_axis_native_real_zero_sign_gap(row):
+    value = jnp.asarray(_decode_sin_cos_capture(row['input']))
+    expected = _decode_sin_cos_capture(row['output'])
+    eager = np.asarray(_UNARY_FNS[row['method']](value))
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW[row['method']])(value))):
+        actual, target = got.real, expected.real
+        zero = target == 0
+        assert np.array_equal(actual == 0, zero)
+        assert np.array_equal(np.signbit(actual[zero]), np.signbit(target[zero]))
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_sin_real_zero_boundary_word_scope(name, dtype):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    magnitude_mask = word_dtype(0x7fffffff if dtype == np.complex64 else 0x7fffffffffffffff)
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    value = np.empty(24, dtype=dtype)
+    value.real = [0., -0., 0., -0., tiny, -tiny, tiny, -tiny,
+                  0., -0., 0., -0., .4, -.4, 2., -2.,
+                  np.inf, -np.inf, np.nan, -np.nan, .4, -.4, 0., -0.]
+    value.imag = [0., 0., -0., -0., 0., -0., tiny, -tiny,
+                  tiny, -tiny, .3, -.3, 0., -0., 0., -0.,
+                  0., -0., 0., -0., .3, -.3, np.inf, np.nan]
+    axis = (value.imag.copy().view(word_dtype) & magnitude_mask) == 0
+    zero_real = (value.real.copy().view(word_dtype) & magnitude_mask) == 0
+    argument = jnp.asarray(value)
+    primitive = getattr(jnp, name)
+    for original_fn, current_fn in ((primitive, _UNARY_FNS_RAW[name]),
+                                    (jax.jit(primitive), jax.jit(_UNARY_FNS_RAW[name]))):
+        expected = np.array(original_fn(argument), copy=True)
+        expected.imag[axis] = real_dtype(0)
+        if name == 'sin':
+            expected.real[axis & zero_real] = value.real[axis & zero_real]
+        got = np.asarray(current_fn(argument))
+        assert got.dtype == expected.dtype
+        assert got.real.tobytes() == expected.real.tobytes()
+        assert got.imag.tobytes() == expected.imag.tobytes()

@@ -277,6 +277,23 @@
       "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately",
       "sha256": "4975fca54db33aea54843836aa839539e34991af3b33bab644f50f907fdaf94d"
     },
+    "disk_unary_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_unary_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3598,
+        "sha256": "c4a508cb4d4839e699e6b38074049054e29041baff8480231e2486134a3b688a"
+      },
+      "limits": [
+        "23original unary arithmetic records remain; wider IEEE/native-word/storage/NaNpayload/nonfinite-derivative/API behavior is unqualified.",
+        "Public disk cold time still requires matched native qualification; warm timing did not improve. Dense operator assembly and constructor transforms/storage/provider/host-numeric debt remain.",
+        "Complex nonfinite scalar multiplication and original-numel/trailingzero multmat shortcut grammar remain unresolved; no guessed rule introduced.",
+        "No new page/stdout/figure qualification;322pages/1305scientificfigures and final provenance/full-function/assertion audit remain.",
+        "Green latest-main scientificCI/coverage>=79% remains required."
+      ],
+      "report": "docs/disk_unary_parent_cpu_20261018.json",
+      "report_sha256": "2a17f21466e17fda4a96685c87e563d7e0dac4b1c8ad7fd9f35454920cfc9fe4",
+      "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure."
+    },
     "disk_unbounded_parent_cpu_20261018": {
       "path": "docs/disk_unbounded_parent_cpu_20261018.json",
       "scope": "Actual parent disk factor maps and corrected unbounded test adapters; C1 CI discrepancy diagnosis only",
@@ -76085,6 +76102,10 @@
         {
           "artifact": "disk_matched_performance_cpu_20261018",
           "scope": "One matched public numeric515x256input; first-call overhead remains11.1x, warmvariance limits conclusions. Source projected-real complexK output; no full speed/API/word closure."
+        },
+        {
+          "artifact": "disk_unary_parent_cpu_20261018",
+          "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
         }
       ],
       "functions": [
@@ -76101,6 +76122,10 @@
             {
               "artifact": "disk_matched_performance_cpu_20261018",
               "scope": "One matched public numeric515x256input; first-call overhead remains11.1x, warmvariance limits conclusions. Source projected-real complexK output; no full speed/API/word closure."
+            },
+            {
+              "artifact": "disk_unary_parent_cpu_20261018",
+              "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
             }
           ],
           "implementation_status": "unverified",
@@ -89905,6 +89930,10 @@
         {
           "artifact": "unary_tan_axis_parent_cpu_20261018",
           "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only. No full-item parity or closure."
+        },
+        {
+          "artifact": "disk_unary_parent_cpu_20261018",
+          "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
         }
       ],
       "functions": [
@@ -90086,6 +90115,10 @@
             {
               "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
               "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
+            },
+            {
+              "artifact": "disk_unary_parent_cpu_20261018",
+              "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
             }
           ],
           "implementation_status": "unverified",
@@ -90363,6 +90396,10 @@
             {
               "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
               "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
+            },
+            {
+              "artifact": "disk_unary_parent_cpu_20261018",
+              "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
             }
           ],
           "implementation_status": "unverified",
@@ -92940,6 +92977,10 @@
         {
           "artifact": "ultras_complex_scalar_diagnosis_cpu_20261018",
           "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification. No full-item parity or closure."
+        },
+        {
+          "artifact": "disk_unary_parent_cpu_20261018",
+          "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
         }
       ],
       "functions": [
@@ -92956,6 +92997,10 @@
             {
               "artifact": "ultras_complex_scalar_diagnosis_cpu_20261018",
               "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification. No full-item parity or closure."
+            },
+            {
+              "artifact": "disk_unary_parent_cpu_20261018",
+              "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure. Checked scopes only; no whole-function/API parity."
             }
           ],
           "implementation_status": "unverified",

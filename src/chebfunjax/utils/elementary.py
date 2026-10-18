@@ -3,6 +3,8 @@
 Independently stated logarithmic identity, not MATLAB built-in internals.
 """
 
+from functools import partial
+
 import jax
 import jax.numpy as jnp
 
@@ -51,27 +53,47 @@ def _uminus_numeric_jvp(primals, tangents):
     return _uminus_numeric(value), -tangent
 
 
+@partial(jax.custom_jvp, nondiff_argnums=(1,))
+def _sin_cos_complex_axis(value, cosine):
+    result = jnp.cos(value) if cosine else jnp.sin(value)
+    real, imag = jnp.real(value), jnp.imag(value)
+    axis = real_sign(imag) == 0
+    result_real = jnp.real(result)
+    if not cosine:
+        # Direct-component native controls retain SIN's input real-zero sign
+        # when both input components are exact zeros; CPU JIT can lose it.
+        # Word-aware tests exclude nonzero subnormals in either component.
+        result_real = jnp.where(axis & (real_sign(real) == 0), real, result_real)
+    return jax.lax.complex(
+        result_real, jnp.where(axis, jnp.zeros_like(imag), jnp.imag(result)))
+
+
+@_sin_cos_complex_axis.defjvp
+def _sin_cos_complex_axis_jvp(cosine, primals, tangents):
+    (value,), (tangent,) = primals, tangents
+    slope = -jnp.sin(value) if cosine else jnp.cos(value)
+    return _sin_cos_complex_axis(value, cosine), slope * tangent
+
+
 def _sin_cos_numeric(value, *, cosine=False):
-    """Retain the captured nonfinite real-axis SIN/COS imaginary zero.
+    """Retain the captured exact-real-axis SIN/COS imaginary zero.
 
     Provenance
     ----------
     MATLAB source: @treeVar/treeVar.m numeric SIN/COS dispatch.
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
-    Independent R2025b scalar and mixed-array captures establish positive
-    imaginary zero for nonfinite real inputs on the exact real axis. This
-    is a builtin boundary convention, not a complex limit at infinity.
-    Preserve JAX's real component and all finite/off-axis arithmetic. The
+    Independent R2025b scalar and mixed-array direct-component captures
+    establish positive imaginary zero on the exact real axis, including
+    both input zero signs, finite real controls and nonfinite real inputs.
+    Preserve the original real component and all off-axis arithmetic. The
     word-aware axis test excludes nonzero subnormal imaginary components.
+    The complex helper supplies the ordinary analytic derivative explicitly
+    so the boundary representation retains transverse real-linear tangents.
     """
     value = jnp.asarray(value)
-    result = jnp.cos(value) if cosine else jnp.sin(value)
     if not jnp.iscomplexobj(value):
-        return result
-    real, imag = jnp.real(value), jnp.imag(value)
-    selected = ~jnp.isfinite(real) & (real_sign(imag) == 0)
-    return jax.lax.complex(
-        jnp.real(result), jnp.where(selected, jnp.zeros_like(imag), jnp.imag(result)))
+        return jnp.cos(value) if cosine else jnp.sin(value)
+    return _sin_cos_complex_axis(value, cosine)
 
 
 def _tan_numeric(value):

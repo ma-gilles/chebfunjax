@@ -1,0 +1,762 @@
+{
+  "base_head": "04a5cae8a74afbbb5a4692571ff15d3a1da2caae",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source-static disk operator compilation and complex SIN/COS exact-axis zero metadata/analytic derivatives; CPU only. No whole library/API/page/figure/performance closure.",
+  "parent_passed": 1951,
+  "parent_xfailed": 23,
+  "parent_stages": {
+    "unary": {
+      "passed": 1741,
+      "xfailed": 23,
+      "runtime_guard": {
+        "count": 1541,
+        "missing_or_changed": []
+      }
+    },
+    "disk": {
+      "passed": 143,
+      "xfailed": 0,
+      "runtime_guard": {
+        "count": 1506,
+        "missing_or_changed": []
+      }
+    },
+    "pde": {
+      "passed": 67,
+      "xfailed": 0,
+      "runtime_guard": {
+        "count": 1592,
+        "missing_or_changed": []
+      }
+    }
+  },
+  "receipt": {
+    "wall_seconds": 354.1842589788139,
+    "sampled_peak_summed_rss_kib": 3610804,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "source_snapshots": 3499,
+  "static_review": {
+    "base_head": "04a5cae8a74afbbb5a4692571ff15d3a1da2caae",
+    "qualified_child_source_bridge": {
+      "src/chebfunjax/discretization/ultras.py": "a371b7d6579d748a06ae423c32d75e5f7dcb6d3641d631d57f78bd30e560a694",
+      "src/chebfunjax/diskfun/_helmholtz.py": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+      "tests/test_diskfun/test_helmholtz_static_construction.py": "438afd989f48c5433288985d1695ed59b790d9cd950a9c756c5a554250d947d2",
+      "docs/unary_sin_cos_finite_axis_cpu_20261018.json": "6e6b5444401565f1eb381452b3e0c3c9c62e6c5633af91062d902160b122fb4e",
+      "docs/unary_sin_real_zero_cpu_20261018.json": "b907af2dda6bdd1fbff408c751c678477d8b67b954890a344575a41a74b39fd6",
+      "src/chebfunjax/utils/elementary.py": "b10cc12d09541bfeb74c7968d50b6ea65edfd69df4eb5ded5a459464467d4d2f",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "4b17298243daa73e43a35002b29e7a0e1e48813bb21030efea38174aa1cc0d21",
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "4f2258430ef9e7a8364978534cbf7044edb34c7f8072d11fa2e0c4ddda90e367"
+    },
+    "other_elementary_AST_exact": true,
+    "prior_test_exception": [
+      "test_sin_cos_only_nonfinite_axis_imaginary_component_changes"
+    ],
+    "exception_scope": "Only previously authored primitive-preservation oracle changes: exact-axis imaginary+0 and complex SIN both-word-zero input real sign. All original native assertions/fixtures/bounds retained; earlier helper oracle wrongly preserved primitive defects.",
+    "all_other_parent_test_AST_prefix_exact": true,
+    "removed_only_two_SIN_COS_metadata_records": [
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "cos",
+        "label": "complex_b_with_nonzero_imag",
+        "failures": [
+          "imag_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "sin",
+        "label": "complex_b_with_nonzero_imag",
+        "failures": [
+          "imag_zero_sign"
+        ]
+      }
+    ],
+    "open_original_records": 23,
+    "extra_real_SIN_xfails": 0,
+    "protected_exact_HEAD_bytes": {
+      "src/chebfunjax/operators/treevar.py": "c8fff194786c8f73fa938681c41a1b6bd0edb51155c6288757131bb83ac645a0",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "5d12b937d79332308024ef04e72b82fd3f9367fe8accc11b8714c8d3f7dfe895",
+      "tests/test_pde_shorthand_contracts.py": "ff4a9c524fd08593c9c6fd25466f63343b6f3dd10436c6fa9c4f0c7fc0d8ce20",
+      "tests/references/pde_numeric_targets_native_20261018.json": "e4a84c6e7b997d469504ab3ef1315aafe8ae1c328bd09e46ce6ef354b27c2b39",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f"
+    },
+    "ownership": "1111prior owner lane prefixes retained plus new11node file;1112total/13lanes/Hermite12/79%unchanged.",
+    "source_bridge_limits": "Child diskbase18decaf2 differs only unrelated later library fixes; unary baseline critical modules exact to c25b65fb. Root PDE numeric branch04a5cae8 is preserved unchanged and actual-parent regression repeats its67control cohort."
+  },
+  "disk_public_AST_reconstruction": {
+    "public_multmat_reconstructed_AST_exact": true,
+    "all_existing_other_ultras_definitions_AST_exact": true,
+    "border_correction_parity_band_solve_modes_public_normalization_AST_exact": true,
+    "wavenumber_squared_multiplication_order_and_return_AST_exact": true,
+    "method": "Inline prolongation/nonconstant/recurrence helpers; remove private traced-tail branch and restore identical public finite predicate. No numeric simplification."
+  },
+  "child_archive_reviews": {
+    "disk_grouped": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_grouped_candidate_20261018.tar.gz",
+      "sha256": "cc216e5dca85c9f0a92d651b921b7c7353d586bc680f8d78a15cefd04ea2a9a2",
+      "root_stream_verified_payloads": 186
+    },
+    "sin_cos_finite": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_sin_cos_finite_axis_package_20261018.tar.gz",
+      "sha256": "0e2f341b2b3d7323be7f80b0cb61e391ac1ba21adc7cad506d53cdc9f5b25886",
+      "root_stream_verified_payloads": 3542
+    },
+    "sin_real_zero": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_sin_real_zero_package_20261018.tar.gz",
+      "sha256": "d445b4ae6a77601a70fbaf1b1d8e0979fa27c9cc4763259882e07606d504b60e",
+      "root_stream_verified_payloads": 3546
+    }
+  },
+  "child_disk_report": {
+    "base": "18decaf2f02447a5f4e448c5d2f302480934dd76",
+    "patch_paths": [
+      "src/chebfunjax/discretization/ultras.py",
+      "src/chebfunjax/diskfun/_helmholtz.py",
+      "tests/test_diskfun/test_helmholtz_static_construction.py"
+    ],
+    "status": "Sealed reviewable candidate; no publication.",
+    "matched_performance": {
+      "assembly": {
+        "baseline": [
+          {
+            "mode": "baseline",
+            "scope": "assembly",
+            "m": 515,
+            "n": 256,
+            "cold_s": 3.6518803760409355,
+            "warm_s": [
+              0.011475380044430494,
+              0.010261377785354853,
+              0.010120864026248455,
+              0.00954687362536788,
+              0.009201806038618088
+            ],
+            "warm_median_s": 0.010120864026248455
+          },
+          {
+            "mode": "baseline",
+            "scope": "assembly",
+            "m": 17,
+            "n": 12,
+            "cold_s": 2.964481180999428,
+            "warm_s": [
+              0.0002294708974659443,
+              0.00011056801304221153,
+              0.00010330416262149811,
+              0.00010167108848690987,
+              0.00010537775233387947
+            ],
+            "warm_median_s": 0.00010537775233387947
+          }
+        ],
+        "candidate": [
+          {
+            "mode": "candidate",
+            "scope": "assembly",
+            "m": 515,
+            "n": 256,
+            "cold_s": 0.7993976641446352,
+            "warm_s": [
+              0.039924804121255875,
+              0.02039205003529787,
+              0.018030049744993448,
+              0.021132601890712976,
+              0.016961040906608105
+            ],
+            "warm_median_s": 0.02039205003529787
+          },
+          {
+            "mode": "candidate",
+            "scope": "assembly",
+            "m": 17,
+            "n": 12,
+            "cold_s": 0.32615528302267194,
+            "warm_s": [
+              0.000259988009929657,
+              0.00015637418255209923,
+              0.0001567038707435131,
+              0.00016252510249614716,
+              0.00014796806499361992
+            ],
+            "warm_median_s": 0.0001567038707435131
+          }
+        ]
+      },
+      "public": {
+        "baseline": [
+          {
+            "mode": "baseline",
+            "scope": "public",
+            "m": 515,
+            "n": 256,
+            "cold_s": 7.4982694503851235,
+            "warm_s": [
+              0.10272482503205538,
+              0.09463604120537639,
+              0.0957677778787911,
+              0.0988307660445571,
+              0.09073874587193131
+            ],
+            "warm_median_s": 0.0957677778787911
+          },
+          {
+            "mode": "baseline",
+            "scope": "public",
+            "m": 17,
+            "n": 12,
+            "cold_s": 5.614266403019428,
+            "warm_s": [
+              0.006642745807766914,
+              0.004726253915578127,
+              0.004715593997389078,
+              0.004702367819845676,
+              0.0047353110276162624
+            ],
+            "warm_median_s": 0.004726253915578127
+          }
+        ],
+        "candidate": [
+          {
+            "mode": "candidate",
+            "scope": "public",
+            "m": 515,
+            "n": 256,
+            "cold_s": 4.404870833735913,
+            "warm_s": [
+              0.17390222195535898,
+              0.1154140760190785,
+              0.10177384689450264,
+              0.09488619118928909,
+              0.09231954673305154
+            ],
+            "warm_median_s": 0.10177384689450264
+          },
+          {
+            "mode": "candidate",
+            "scope": "public",
+            "m": 17,
+            "n": 12,
+            "cold_s": 2.815267951693386,
+            "warm_s": [
+              0.00540565000846982,
+              0.004730210639536381,
+              0.0046316757798194885,
+              0.004857359919697046,
+              0.004692960996180773
+            ],
+            "warm_median_s": 0.004730210639536381
+          }
+        ]
+      }
+    },
+    "qualification": {
+      "public_multmat_old_source_matrices": 82,
+      "public_multmat_old_source_component_words": 4704,
+      "public_multmat_old_source_word_differences": 0,
+      "full_focused_before_final_invocation_change": 143,
+      "final_invocation_helmholtz_targeted": 33,
+      "union_focused_distinct_nodes": 143,
+      "shared_ultras_source_identical_across_final_invocation_change": true,
+      "original13": 13,
+      "source_AST_proof": "sourceproof.json",
+      "assembled_public_old_output_words": "comparison_assembly_public.json",
+      "assembled_public_component_words": 1324024,
+      "assembled_public_word_differences": 0,
+      "union_focused_and_original_distinct_nodes": 156,
+      "exploratory_generic_word_differences": [
+        {
+          "n": 8,
+          "lam": 2,
+          "coefficients": [
+            0.5,
+            0.0,
+            0.125,
+            0.0,
+            0.0,
+            0.25
+          ],
+          "different_words": 19,
+          "max_absolute_difference": 6.938893903907228e-17,
+          "all_differences": [
+            {
+              "index": [
+                0,
+                1
+              ],
+              "traced": "3fb5555555555551",
+              "eager": "3fb5555555555553"
+            },
+            {
+              "index": [
+                1,
+                2
+              ],
+              "traced": "bfc3fffffffffffc",
+              "eager": "bfc3fffffffffffd"
+            },
+            {
+              "index": [
+                2,
+                1
+              ],
+              "traced": "bfb5555555555554",
+              "eager": "bfb5555555555553"
+            },
+            {
+              "index": [
+                2,
+                3
+              ],
+              "traced": "bfb5555555555553",
+              "eager": "bfb5555555555554"
+            },
+            {
+              "index": [
+                3,
+                2
+              ],
+              "traced": "bfaaaaaaaaaaaaad",
+              "eager": "bfaaaaaaaaaaaaac"
+            },
+            {
+              "index": [
+                3,
+                4
+              ],
+              "traced": "bfaaaaaaaaaaaaaa",
+              "eager": "bfaaaaaaaaaaaab4"
+            },
+            {
+              "index": [
+                3,
+                6
+              ],
+              "traced": "bfaaaaaaaaaaaaa5",
+              "eager": "bfaaaaaaaaaaaaa8"
+            },
+            {
+              "index": [
+                4,
+                3
+              ],
+              "traced": "bfa249249249248a",
+              "eager": "bfa2492492492490"
+            },
+            {
+              "index": [
+                4,
+                5
+              ],
+              "traced": "bfa2492492492487",
+              "eager": "bfa249249249248c"
+            },
+            {
+              "index": [
+                4,
+                7
+              ],
+              "traced": "bfa249249249248d",
+              "eager": "bfa2492492492490"
+            },
+            {
+              "index": [
+                5,
+                2
+              ],
+              "traced": "bf9aaaaaaaaaaaaf",
+              "eager": "bf9aaaaaaaaaaab0"
+            },
+            {
+              "index": [
+                5,
+                4
+              ],
+              "traced": "bf9aaaaaaaaaaab2",
+              "eager": "bf9aaaaaaaaaaac0"
+            },
+            {
+              "index": [
+                5,
+                5
+              ],
+              "traced": "3fdfaaaaaaaaaaab",
+              "eager": "3fdfaaaaaaaaaaaa"
+            },
+            {
+              "index": [
+                5,
+                6
+              ],
+              "traced": "bf9aaaaaaaaaaabe",
+              "eager": "bf9aaaaaaaaaaac0"
+            },
+            {
+              "index": [
+                6,
+                3
+              ],
+              "traced": "bf94514514514510",
+              "eager": "bf94514514514514"
+            },
+            {
+              "index": [
+                6,
+                5
+              ],
+              "traced": "bf94514514514513",
+              "eager": "bf94514514514520"
+            },
+            {
+              "index": [
+                6,
+                7
+              ],
+              "traced": "bf94514514514529",
+              "eager": "bf94514514514518"
+            },
+            {
+              "index": [
+                7,
+                4
+              ],
+              "traced": "bf8fffffffffffde",
+              "eager": "bf8ffffffffffff0"
+            },
+            {
+              "index": [
+                7,
+                6
+              ],
+              "traced": "bf8ffffffffffffb",
+              "eager": "bf90000000000008"
+            }
+          ]
+        },
+        {
+          "n": 8,
+          "lam": 3,
+          "coefficients": [
+            0.5,
+            0.0,
+            0.0,
+            0.125
+          ],
+          "different_words": 11,
+          "max_absolute_difference": 2.7755575615628914e-17,
+          "all_differences": [
+            {
+              "index": [
+                0,
+                1
+              ],
+              "traced": "bfc599999999999a",
+              "eager": "bfc5999999999999"
+            },
+            {
+              "index": [
+                1,
+                0
+              ],
+              "traced": "bfa3333333333332",
+              "eager": "bfa3333333333333"
+            },
+            {
+              "index": [
+                2,
+                3
+              ],
+              "traced": "bfab6db6db6db6d6",
+              "eager": "bfab6db6db6db6da"
+            },
+            {
+              "index": [
+                3,
+                4
+              ],
+              "traced": "bfa283a83a83a834",
+              "eager": "bfa283a83a83a838"
+            },
+            {
+              "index": [
+                4,
+                3
+              ],
+              "traced": "bf9333333333332e",
+              "eager": "bf93333333333332"
+            },
+            {
+              "index": [
+                4,
+                5
+              ],
+              "traced": "bf9aaaaaaaaaaaa5",
+              "eager": "bf9aaaaaaaaaaaa4"
+            },
+            {
+              "index": [
+                5,
+                4
+              ],
+              "traced": "bf8e79e79e79e791",
+              "eager": "bf8e79e79e79e790"
+            },
+            {
+              "index": [
+                5,
+                6
+              ],
+              "traced": "bf941d41d41d41d5",
+              "eager": "bf941d41d41d41d4"
+            },
+            {
+              "index": [
+                6,
+                5
+              ],
+              "traced": "bf88af8af8af8aec",
+              "eager": "bf88af8af8af8af0"
+            },
+            {
+              "index": [
+                6,
+                7
+              ],
+              "traced": "bf8f6b0df6b0df53",
+              "eager": "bf8f6b0df6b0df50"
+            },
+            {
+              "index": [
+                7,
+                6
+              ],
+              "traced": "bf845d1745d1744e",
+              "eager": "bf845d1745d17458"
+            }
+          ]
+        }
+      ]
+    },
+    "negative_results": [
+      "Initial overly broad generic traced word controls fail19/64 and11/64 entries; source/tests/receipt retained. Revised generic controls use independent physical polynomial products with a newly authored64*n*eps*scale allowance, following existing source-control methodology; fixed disk words remain strict.",
+      "Ordinary grouped jit under ensure_compile_time_eval:515cold3.0883s, little benefit; source/arrays/timing preserved.",
+      "Explicit lowering inside ensure_compile_time_eval:515cold3.0666s, little benefit; source/arrays/timing preserved.",
+      "ensure_compile_time_eval in pinned JAX0.11 sets eager_constant_folding=True; final implementation lowers outside the context and executes the compiled group inside it."
+    ],
+    "limitations": [
+      "Single ordered shared-host cold pair and five warm samples, no statistical/general speed claim.",
+      "Imports, process startup and input construction excluded; compilation/setup included in first public call. Persistent compilation cache disabled; source frozen, CPU32\u201335, BLAS/OMP1.",
+      "515firstcall is fresh-process cold;17firstcall follows515within each process and shares primitive caches. Both arms use identical order/history, input shape and complex128 forcing/K.",
+      "Warm public median is slower at515; no warm advantage or full native performance parity established. No native capture launched.",
+      "Private traced multistep arithmetic is not generally word-identical to eager scalar arithmetic; public dispatcher remains exact old source.",
+      "Only fixed finite disk degree1/2 literals use grouped traced construction for m>=3. m1/2 retain original dispatcher path. No universal multmat JIT/AD/vmap/API claim.",
+      "Both public solvers retain source deliberate real projection for complexK; this is source behavior, not a complex PDE accuracy claim."
+    ],
+    "receipts": {
+      "aot_candidate_assembly_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 8.958260247018188,
+        "sampled_peak_summed_rss_kib": 1006012,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "aot_focused_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 95.74123677471653,
+        "sampled_peak_summed_rss_kib": 3782552,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": "================== 143 passed, 1 warning in 88.82s (0:01:28) ==================="
+      },
+      "aot_small_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 17.15742311393842,
+        "sampled_peak_summed_rss_kib": 1339128,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "baseline_assembly_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 10.535565433092415,
+        "sampled_peak_summed_rss_kib": 1001660,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "baseline_public_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 19.02763199713081,
+        "sampled_peak_summed_rss_kib": 1351512,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "candidate_assembly_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 9.024460908956826,
+        "sampled_peak_summed_rss_kib": 1008180,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "candidate_public_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 12.611364996060729,
+        "sampled_peak_summed_rss_kib": 992440,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "compare_assembly_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 1.8638467998243868,
+        "sampled_peak_summed_rss_kib": 36772,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "compare_final_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 1.5504809557460248,
+        "sampled_peak_summed_rss_kib": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "exploratory_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 7.1674122787080705,
+        "sampled_peak_summed_rss_kib": 593096,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "focused_final_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 95.8032562029548,
+        "sampled_peak_summed_rss_kib": 3785560,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": "================== 143 passed, 1 warning in 87.59s (0:01:27) ==================="
+      },
+      "focused_run": {
+        "supervisor_exit_code": 1,
+        "wall_seconds": 95.40904639381915,
+        "sampled_peak_summed_rss_kib": 3781404,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": "============= 2 failed, 141 passed, 1 warning in 88.41s (0:01:28) =============="
+      },
+      "original_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 269.50811431370676,
+        "sampled_peak_summed_rss_kib": 6945368,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": "================== 13 passed, 1 warning in 256.89s (0:04:16) ==================="
+      },
+      "split_eval_candidate_assembly_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 5.290672325063497,
+        "sampled_peak_summed_rss_kib": 619736,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      },
+      "split_eval_targeted_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 67.8304447918199,
+        "sampled_peak_summed_rss_kib": 2768012,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": "=================== 33 passed, 1 warning in 62.02s (0:01:02) ==================="
+      },
+      "wordproof_run": {
+        "supervisor_exit_code": 0,
+        "wall_seconds": 17.43710490409285,
+        "sampled_peak_summed_rss_kib": 1339380,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "pytest_summary": null
+      }
+    },
+    "prototype_archive_sha256": "7c75db1e3a1fd8d4ea08c7756f6ba24813c0dd87c356051280147a4cbc820fae",
+    "patch_sha256": "2491950950e9e2d50aae2341e82917e74de56268989b1066e38059ece12f5285",
+    "ruff": "All checks passed for two changed runtime modules and new test.",
+    "protected_archive_hashes": {
+      "disk_grouped_prototype_20261018.tar.gz": "7c75db1e3a1fd8d4ea08c7756f6ba24813c0dd87c356051280147a4cbc820fae",
+      "ultras_scalar_primitives_20261018.tar.gz": "a0653954a7f7079019522decc4d196744afa35dfa1d828bde061c37a48fb8575",
+      "ultras_nonfinite_packet_20261018.tar.gz": "1258d82ff9c15f71fb83be5c901b1492eda98381f4139fee9bb4d3396f68b579",
+      "ultras_complex_stages_20261018.tar.gz": "44b452beced824568dfccbbb9adf0da5a87292795784a28cfafcbf8430c610aa"
+    },
+    "manual_count_correction": {
+      "incorrect_earlier_update": 1191980,
+      "correct_component_words": 1324024,
+      "reason": "Complex public coefficient arrays have two binary64 components. Individual comparison rows and exact equality results were already correct.",
+      "initial_archive_preserved": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_grouped_candidate_initial_count_20261018.tar.gz",
+      "initial_archive_sha256": "915e2d03330708ed55391dc68c149142755a83e47dd9eb107847f46710c82829"
+    }
+  },
+  "child_original_disk_gate": {
+    "passed": 13,
+    "pytest_seconds": 256.89,
+    "supervised_seconds": 269.50811431370676,
+    "sampled_peak_summed_rss_kib": 6945368,
+    "source_bridge": "Both disk/ultras runtime files and every protected test/fixture exact child-final bytes on actual parent; separate156distinct-child-node qualification is not added to1951parent count. No second original-heavy run."
+  },
+  "child_unary_reports": [
+    "docs/unary_sin_cos_finite_axis_cpu_20261018.json",
+    "docs/unary_sin_real_zero_cpu_20261018.json"
+  ],
+  "unary_scientific_scope": {
+    "native_capture": "Existing80direct-component native rows; requested words/shapes verified before calls, components extracted before flattening. No fresh native run for these fixes.",
+    "imaginary_fix": "Exact-real-axis complexSIN/COS imaginary output+0, both input zero signs; custom analytic JVP retains transverse first/second real derivatives.",
+    "real_fix": "Only complexSIN with both real/imag input words exactly zero preserves the input real-zero sign; COS/real-input/nonzero/offaxis/subnormal/nonfinite paths retain prior arithmetic.",
+    "known_real_baseline": "Primitive lost real-0 in BOTH eager and JIT for3captured rows; immutable prior-helper/staged40controls prove baseline origin. Exact native3assertions now pass normally.",
+    "test_exceptions": "Previously authored primitive-preservation expectations are superseded only for these two exact boundary masks; all inputs and all other component words/bounds retained. Root prior testprefix differs only in its one old preservation-oracle function. All original native assertions/fixtures unchanged.",
+    "failed_runs_preserved": "Finite child1731PASS23XFAIL3newreal-signFAIL; subsequent real child1776PASS23XFAIL5obsoletepreservationFAIL. Production source unchanged after each full run; final childfocused169PASS and actual-parent full1741PASS23XFAIL qualify final assertions. No diagnostic failure relabeled passing.",
+    "open_records": "Two original SIN/COS metadata records removed25to23; separate3real-sign strictxfails introduced only in intermediate child are removed, no supplemental real-sign xfails remain.23remaining=16otherzero-sign+7minimum-subnormal-loss."
+  },
+  "disk_scientific_scope": {
+    "construction": "One shared literal recurrence body; public Python scalar/finite/tail path reconstructs exact oldAST. Disk finite degree1/2 literals use grouped traced construction with public lower/compile outside eager evaluation then concrete execution inside it. No native buffers/stencils or fitted coefficient values.",
+    "frozen_public_words": "82old/candidatepublic multmatrices/4704component words exact; actual full assembled/public coefficients/probes total1324024componentword comparisons exact. Diagnostic counts include repeated components/arms, not distinct API cases.",
+    "matched_public_515": "Shared-host frozen-source pair7.498269450sbaseline\u21924.404870834scandidate firstcall; warmmedians.095767778/.101773847s. No warm improvement; fresh native matched benchmark not run.",
+    "retained_negative_trials": "Ordinary JIT inside eager evaluation and lowering inside that same context did not transfer prototype speed; source/timings retained. Generic traced multistep/lam3 differs19/64and11/64words; raw arrays kept. New physical-polynomial tests use authored64*n*eps*scale, not a relaxed original MATLAB bound. Fixed disk word checks remain exact.",
+    "version_scope": "Pinned CPU JAX/jaxlib0.11.0/ml_dtypes0.5.4; no universal backend/GPU/JIT/AD/vmap or speed claim."
+  },
+  "ownership": "1111prior CI lane prefixes retained plus one new11node test file;1112owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "remaining": [
+    "23original unary arithmetic records remain; wider IEEE/native-word/storage/NaNpayload/nonfinite-derivative/API behavior is unqualified.",
+    "Public disk cold time still requires matched native qualification; warm timing did not improve. Dense operator assembly and constructor transforms/storage/provider/host-numeric debt remain.",
+    "Complex nonfinite scalar multiplication and original-numel/trailingzero multmat shortcut grammar remain unresolved; no guessed rule introduced.",
+    "No new page/stdout/figure qualification;322pages/1305scientificfigures and final provenance/full-function/assertion audit remain.",
+    "Green latest-main scientificCI/coverage>=79% remains required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_unary_parent_cpu_20261018.tar.gz",
+    "sha256": "c4a508cb4d4839e699e6b38074049054e29041baff8480231e2486134a3b688a",
+    "root_stream_verified_payloads": 3598
+  }
+}
