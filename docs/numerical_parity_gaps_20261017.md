@@ -1,3 +1,13 @@
+## CONJ/UMINUS and nonfinite sparse conversion — 2026-10-18
+
+Four CONJ/UMINUS imaginary-zero records and two real sparse-conversion expected
+failures repaired. Actual combined parent1,774PASS27XFAIL, all loaded runtime
+files preguarded. Prior unary/finite conversion arithmetic and original bounds
+preserved. Five complex nonfinite final recurrence cases remain unresolved;
+conversion-only class mismatches90→86 across8captures, no individual case worse.
+Remaining27unary records and full API/JAX/IEEE/performance/pages/CI remain open.
+[Parent evidence](nonfinite_pair_parent_cpu_20261018.json).
+
 ## SIN/COS boundary and matched disk CPU follow-up — 2026-10-18
 
 Four native SIN/COS nonfinite real-axis storage gaps repaired; parent1587PASS/

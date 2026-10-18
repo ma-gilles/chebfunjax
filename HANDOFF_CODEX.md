@@ -1,3 +1,30 @@
+# CONJ/UMINUS storage and sparse nonfinite conversion — 2026-10-18
+
+TreeVar CONJ/UMINUS preserve native positive imaginary zero while retaining
+primitive real/nonzero-imaginary words. Separate real-linear custom JVPs retain
+independent first/second real derivatives. Same80new controls28FAIL52PASS become
+80PASS; four obsolete expected-failure records removed,31→27. Existing native
+fixtures/assertions/bounds and all prior elementary numeric AST are unchanged.
+
+Ultraspherical multmat nonfinite conversion now visits source CSC nonzero
+support, sanitizes missing operands before multiplication, and separates
+product/add rounding. Real/imaginary components scale independently. Two old
+native expected failures now pass. Entire finite numeric AST retained; child
+24matrix/4,740word proof exact. Five complex nonfinite final-matrix cases remain
+open: conversion-only component-class mismatches90→86 across8nominal captures,
+no case worsens. Inherited lambda3 conversion-matrix provider word gaps remain.
+
+Actual parent1,774PASS27XFAIL across two fresh processes, all loaded runtime
+inputs preguarded: unary qualified inrun002, conversion repeated inrun003.
+Initial reporting-encoding and later cache-cleanup module guard omissions are
+preserved; numerical code/tests unchanged across repeats, no censor/survivors.
+Parent tests
+include original unary dispatch/RHS, all121conversion/ultras/disk-provider
+controls and23CIprotocol controls. All1110prior owners retained plus one;
+13lanes/HermiteCore12/79%gate unchanged. Full API/IEEE/JAX transformations,
+performance/pages/figures/latest-mainCI remain open.
+Evidence: docs/nonfinite_pair_parent_cpu_20261018.json.
+
 # TreeVar SIN/COS nonfinite real-axis storage — 2026-10-18
 
 SIN/COS preserve native positive imaginary zero on nonfinite exact-real-axis

@@ -28,7 +28,12 @@ import jax
 import jax.numpy as jnp
 import numpy as np  # uses-numpy: tree bookkeeping on concrete ID vectors
 
-from chebfunjax.utils.elementary import _asinh_numeric, _sin_cos_numeric
+from chebfunjax.utils.elementary import (
+    _asinh_numeric,
+    _conj_numeric,
+    _sin_cos_numeric,
+    _uminus_numeric,
+)
 
 
 class TreeVarError(ValueError):
@@ -741,7 +746,7 @@ _UNARY_FNS_RAW = {
     "asind": lambda x: _degrees_from_radians(_inverse_trig_branch(x)),
     "asinh": _asinh_numeric, "atan": _atan_branch,
     "atand": lambda x: _degrees_from_radians(_atand_radians(x)),
-    "atanh": _atanh_branch, "conj": jnp.conj,
+    "atanh": _atanh_branch, "conj": _conj_numeric,
     "cos": lambda x: _sin_cos_numeric(x, cosine=True),
     "cosd": lambda x: _direct_degree_branch(x, "cosd"), "cosh": jnp.cosh,
     "cot": lambda x: _reciprocal_direct_branch(x, "cot"),
@@ -760,7 +765,7 @@ _UNARY_FNS_RAW = {
     "sin": _sin_cos_numeric, "sind": lambda x: _direct_degree_branch(x, "sind"),
     "sinh": _sinh_branch, "sqrt": _sqrt_branch, "tan": jnp.tan,
     "tand": lambda x: _direct_degree_branch(x, "tand"), "tanh": jnp.tanh,
-    "uminus": lambda x: -x, "uplus": lambda x: +x,
+    "uminus": _uminus_numeric, "uplus": lambda x: +x,
 }
 
 

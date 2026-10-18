@@ -1,0 +1,745 @@
+{
+  "scope": "TreeVar CONJ/UMINUS captured imaginary-zero metadata and ordinary real-linear derivatives; CPU only. No whole IEEE/API/JAX/page/performance closure.",
+  "base_head": "70d2db9aa31580fdac517efcc4d0e47aeed25468",
+  "classification": {
+    "scope": "Read-only CONJ/UMINUS classification of existing independent native80 capture; no source edits, new scientific runs or native calls.",
+    "native_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_evidence_20261018/native/capture.json",
+    "native_capture_sha256": "6428b61e81fbf5feeb28afc28c7d6f2c8d4a91568c263ac89764755d33c26f81",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "native_version": "25.2.0.3055257 (R2025b) Update 2",
+    "methods": {
+      "conj": {
+        "cases": 20,
+        "elements": 37,
+        "real_input_classes": {
+          "positive_normal": 10,
+          "negative_normal": 6,
+          "positive_infinity": 5,
+          "negative_nan": 2,
+          "negative_infinity": 5,
+          "positive_zero": 3,
+          "negative_zero": 3,
+          "positive_nan": 3
+        },
+        "imaginary_input_classes": {
+          "positive_zero": 17,
+          "negative_zero": 14,
+          "positive_normal": 4,
+          "positive_subnormal": 1,
+          "negative_subnormal": 1
+        },
+        "imaginary_output_classes": {
+          "positive_zero": 31,
+          "negative_normal": 4,
+          "negative_subnormal": 1,
+          "positive_subnormal": 1
+        },
+        "ordinary_imaginary_differing_elements": 17,
+        "output_real_cases": 15,
+        "rows": [
+          {
+            "name": "complex_b_with_nonzero_imag",
+            "shape": [
+              1,
+              3
+            ],
+            "elements": 3,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "complex_c_nonfinite_zero_imag",
+            "shape": [
+              1,
+              3
+            ],
+            "elements": 3,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "name": "complex_d_nonfinite_mixed",
+            "shape": [
+              1,
+              4
+            ],
+            "elements": 4,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              2
+            ]
+          },
+          {
+            "name": "complex_min_subnormal_imag",
+            "shape": [
+              1,
+              2
+            ],
+            "elements": 2,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "pzero_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "pzero_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "nzero_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "nzero_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "p04_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "p04_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "n04_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "n04_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "pinf_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "pinf_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "ninf_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "ninf_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "nan_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "nan_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "finite_axis_mixed_zero_signs",
+            "shape": [
+              1,
+              7
+            ],
+            "elements": 7,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              2,
+              4
+            ]
+          },
+          {
+            "name": "nonfinite_axis_with_side_control",
+            "shape": [
+              2,
+              2
+            ],
+            "elements": 4,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              1
+            ]
+          }
+        ]
+      },
+      "uminus": {
+        "cases": 20,
+        "elements": 37,
+        "real_input_classes": {
+          "positive_normal": 10,
+          "negative_normal": 6,
+          "positive_infinity": 5,
+          "negative_nan": 2,
+          "negative_infinity": 5,
+          "positive_zero": 3,
+          "negative_zero": 3,
+          "positive_nan": 3
+        },
+        "imaginary_input_classes": {
+          "positive_zero": 17,
+          "negative_zero": 14,
+          "positive_normal": 4,
+          "positive_subnormal": 1,
+          "negative_subnormal": 1
+        },
+        "imaginary_output_classes": {
+          "positive_zero": 31,
+          "negative_normal": 4,
+          "negative_subnormal": 1,
+          "positive_subnormal": 1
+        },
+        "ordinary_imaginary_differing_elements": 17,
+        "output_real_cases": 15,
+        "rows": [
+          {
+            "name": "complex_b_with_nonzero_imag",
+            "shape": [
+              1,
+              3
+            ],
+            "elements": 3,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "complex_c_nonfinite_zero_imag",
+            "shape": [
+              1,
+              3
+            ],
+            "elements": 3,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              1,
+              2
+            ]
+          },
+          {
+            "name": "complex_d_nonfinite_mixed",
+            "shape": [
+              1,
+              4
+            ],
+            "elements": 4,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              2
+            ]
+          },
+          {
+            "name": "complex_min_subnormal_imag",
+            "shape": [
+              1,
+              2
+            ],
+            "elements": 2,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "pzero_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "pzero_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "nzero_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "nzero_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "p04_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "p04_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "n04_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "n04_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "pinf_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "pinf_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "ninf_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "ninf_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "nan_pzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0
+            ]
+          },
+          {
+            "name": "nan_nzero",
+            "shape": [
+              1,
+              1
+            ],
+            "elements": 1,
+            "output_isreal": true,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": []
+          },
+          {
+            "name": "finite_axis_mixed_zero_signs",
+            "shape": [
+              1,
+              7
+            ],
+            "elements": 7,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              0,
+              2,
+              4
+            ]
+          },
+          {
+            "name": "nonfinite_axis_with_side_control",
+            "shape": [
+              2,
+              2
+            ],
+            "elements": 4,
+            "output_isreal": false,
+            "real_all_ordinary_exact": true,
+            "imag_all_proposed_rule_exact": true,
+            "imag_ordinary_difference_positions_zero_based": [
+              1
+            ]
+          }
+        ]
+      }
+    },
+    "proposal": {
+      "primal": "Canonicalize exact zero imaginary output words to +0 after ordinary CONJ/UMINUS. Preserve all real output words and all nonzero imaginary words; retain existing whole-array eager real storage.",
+      "derivative": "Separate custom JVP wrappers sharing a primal helper: CONJ tangent=conj(tangent), UMINUS tangent=-tangent. These are real-linear maps; do not differentiate the zero-class selection.",
+      "independent_tests": "Embed inputs/outputs in R\u00b2. Jacobian CONJ=diag(1,-1), UMINUS=diag(-1,-1); Hessians identically zero. Check signed real-axis and normal off-axis inputs, transverse directions, mixed arrays, complex64/128, eager/JIT/RHS paths. Primal exact-word controls include all40 native cases and signed subnormal inputs.",
+      "native_limits": "No imaginary infinity/NaN or negative normal-imaginary value occurs in this capture; preserve ordinary primitive words there without upgrading native coverage. Exact word classification excludes subnormals."
+    }
+  },
+  "source_changes": "Shared primal helper changes only exact-zero imaginary output words to positive zero; all real and nonzero imaginary primitive words retained. Separate custom JVPs use conj(tangent) and -tangent. Existing eager storage policy unchanged.",
+  "mathematical_contract": "On real two-component coordinates, CONJ is diag(1,-1), UMINUS is diag(-1,-1). Both are real-linear, with zero Hessians. The primal zero-sign convention changes storage metadata without changing these mathematical maps.",
+  "qualified_baseline": {
+    "total": 80,
+    "failed": 28,
+    "xfailed": 0,
+    "passed": 52,
+    "seconds": 19.804,
+    "new_controls": 80,
+    "new_control_failures": 28
+  },
+  "candidate": {
+    "total": 1657,
+    "failed": 0,
+    "xfailed": 27,
+    "passed": 1630,
+    "seconds": 196.615,
+    "new_controls": 80,
+    "new_control_failures": 0
+  },
+  "test_scope": "Full original unary storage module plus inherited SIN/COS controls,80 new CONJ/UMINUS controls, original univariate dispatch and RHS JAX modules. No unrelated heavy PDE expansion.",
+  "new_test_breakdown": {
+    "exact_native_cases": 40,
+    "component_preservation_matrices_complex64_128": 4,
+    "independent_real_jacobian_hessian_transverse": 24,
+    "independent_RHS_real_jacobian_hessian_transverse": 8,
+    "real_input_words_dtype": 4
+  },
+  "baseline_initial_attempt": "Initial80-control attempt had28 intended primal failures plus8 new RHS test extraction-shape failures. Corrected RHS scalar extraction using existing output flattening before any production edit; retained original attempt/preimage. Qualified pre-edit replay28FAIL/52PASS uses the final assertions and has complete asset/runtime guards.",
+  "runtime_guards": {
+    "baseline": {
+      "count": 1484,
+      "all_preguarded": true,
+      "active_before_after_guards_stable": true,
+      "immutable_baseline_source_preimages": [
+        "src/chebfunjax/operators/treevar.py",
+        "src/chebfunjax/utils/elementary.py"
+      ]
+    },
+    "candidate": {
+      "count": 1540,
+      "all_preguarded": true,
+      "active_before_after_guards_stable": true,
+      "immutable_baseline_source_preimages": []
+    }
+  },
+  "supervision": {
+    "unary_conj_uminus_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 821588,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_conj_uminus_baseline_run002_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 848640,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_conj_uminus_candidate_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1309756,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "static_review": {
+    "base_head": "70d2db9aa31580fdac517efcc4d0e47aeed25468",
+    "source": "Five new functions only in elementary module. All prior elementary functions, including SIN/COS and ASINH, exact AST. TreeVar only imports new adapters and changes conj/uminus raw-map values; all other AST exact.",
+    "original_test_AST_prefix_unchanged": true,
+    "existing_native_fixtures_assertions_and_bounds_unchanged": true,
+    "only_four_obsolete_xfail_records_removed": true,
+    "open_records": 27,
+    "no_CI_owner_or_configuration_changes": true,
+    "protected_source_bytes": {
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78"
+    }
+  },
+  "published_source_bridge": {
+    "child_baseline_head": "70d2db9aa31580fdac517efcc4d0e47aeed25468",
+    "published_predecessor": "3072dda6fefccc7aa940191418bb3602a8c16ea3",
+    "critical_source_test_and_reference_bytes_exact": {
+      "src/chebfunjax/utils/elementary.py": "4d471fbad5d8ee6db213973365c90a109483b4dc397b580cd3b89b66999b3027",
+      "src/chebfunjax/operators/treevar.py": "ee3483066756bc8abd49f89931fd85486bc5bd33390c55ab6c1803b76fd3c536",
+      "src/chebfunjax/utils/numeric_sign.py": "16deb3de5e320f7cb9c22f1d3914a4a4c700a562026f52d0f7609c7df750c83e",
+      "src/chebfunjax/utils/_signed_gradual.py": "aae2b4bfece9e8c6052b3ff393473108e8f710637b3525b33b94089459e3c97b",
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "994373cba176c44f94bd3359e432a9c93f292495792dc978b9238ae938bae8e3",
+      "tests/test_matlab_port/treeVar/test_univariate_matlab.py": "4157d8cc4ac5e5cec4bb2b746520834397f9feb229d4e0d58543bf499fcef9b1",
+      "tests/test_matlab_port/treeVar/test_rhs_jax_source.py": "e1ec80ef6684a3c4ed28cbfa96695062ec3193e1edd111752ec3f2ebeaebb30a",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "71d903e76dcea29c6663b9aba41cb217608b27888f1c3da45382e23bd0b191a9",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f"
+    },
+    "all_library_differences": [
+      {
+        "path": "src/chebfunjax/discretization/ultras.py",
+        "scope": "Only multmat function body differs; all module imports/globals/other AST nodes exact. Source tail stopping independently qualified/published by root. This function is outside the new CONJ/UMINUS numeric/AD path.",
+        "baseline_sha256": "23672e5a53ef25d6c99c2e70486098a46eb51d3eda2a9e99e9620318520588e1",
+        "published_sha256": "80b8942a90a83f541b0dceb68c773164a8de11f87704c6cb6398c4ce5f245c89"
+      }
+    ],
+    "scope": "Read-only base bridge; candidate computational source remains the frozen tested child source. Root actual-parent integration gate remains required."
+  },
+  "validation": "Full ruff src/tests/scripts/examples and git diff --check pass. No native fixture/assertion/bound edits, no CI owner/config changes. Four obsolete xfail records removed,31\u219227.",
+  "warnings": "Existing incompatible CUDA plugin import warning and pytest jaxtyping rewrite warning retained; CPU backend/affinity and pinned versions/x64/cacheoff asserted.",
+  "remaining": [
+    "27 unary expected-failure records remain, including SIN/COS/TAN/TANH zero-sign conventions, TAN nonfinite-axis behavior and7 minimum-subnormal imaginary-loss records.",
+    "Existing native capture has no imaginary Inf/NaN or negative normal imaginary value. Those unchanged off-axis routes have exact primitive-word preservation controls, not new native IEEE qualification.",
+    "First/second real derivatives cover finite normal controls in complex64/128; no universal extreme derivative, integer AD, whole API/JIT/AD/vmap/backend/performance/page/latest-main CI closure inferred.",
+    "All native values remain independent test inputs. Production code never reads a native buffer or fixture."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_conj_uminus_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_conj_uminus_package_20261018.tar.gz",
+    "sha256": "1dbb4b6cd675cd886906906e9262bd8d8d8b3e1b9526393dc2c2511a6f8fe608",
+    "bytes": 36919885,
+    "payloads": 3541
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_conj_uminus_stream_hashes_20261018.json",
+    "sha256": "d8feeae1a696a6dc8157370bb7874d1afca1dd8a53c6c53cb6072275a5f6e146"
+  }
+}

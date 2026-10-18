@@ -781,7 +781,8 @@
       "tests/test_disk_source_maps.py",
       "tests/test_disk_cdr_source.py",
       "tests/test_disk_zero_storage_source.py",
-      "tests/test_diskfun/test_helmholtz_public_provider.py"
+      "tests/test_diskfun/test_helmholtz_public_provider.py",
+      "tests/test_discretization/test_ultras_multmat_nonfinite_conversion.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",
@@ -1140,6 +1141,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "0f0b6095c060c93807802a99356c873c70619ef7",
+  "last_update_parent": "3072dda6fefccc7aa940191418bb3602a8c16ea3",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

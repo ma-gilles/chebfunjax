@@ -59,7 +59,6 @@ def test_unmodified_native_finite_matrix_and_source_recurrence_steps(index, monk
 
 
 @pytest.mark.parametrize('index', [10,11])
-@pytest.mark.xfail(strict=True, reason='Native sparse conversion localizes NaN/Inf; dense conversion gap remains')
 def test_native_nonfinite_conversion_and_source_tail(index, monkeypatch):
     case, a = _case(index)
     steps = _record_recurrence_steps(monkeypatch)
@@ -116,10 +115,10 @@ def test_native_converted_nonfinite_tail_condition(index, monkeypatch):
     # Explicit input adapter isolates the source tail conditional from the
     # inherited sparse-vs-dense conversion gap documented above. These are
     # captured native converted words; public input assertions are separate.
-    class CapturedConversion:
-        def __matmul__(self, operand):
-            return converted
-    monkeypatch.setattr(ultras, 'convertmat', lambda *args:CapturedConversion())
+    # The normalization boundary now uses an explicit sparse matvec helper.
+    # Inject the same captured converted words at that boundary; this control
+    # continues to isolate the literal tail policy from normalization itself.
+    monkeypatch.setattr(ultras, '_sparse_nonfinite_conversion', lambda *args:converted)
     steps = _record_recurrence_steps(monkeypatch)
     actual = ultras.multmat(case['n'],a,case['lambda'])
     assert len(steps) == len(case['tail_decisions']) == 2

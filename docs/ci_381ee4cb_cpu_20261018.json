@@ -1,0 +1,15 @@
+{
+  "commit": "381ee4cb03590f2c6e26dd9045191f7121d69d73",
+  "run": 39114126640,
+  "url": "https://github.com/ma-gilles/chebfunjax/actions/runs/39114126640",
+  "status": "completed",
+  "conclusion": "success",
+  "successful_jobs": 46,
+  "aggregate_coverage_percent": 82,
+  "coverage_gate_percent": 79,
+  "coverage_log": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_381ee4cb_coverage_20261018.log",
+  "coverage_log_sha256": "94b859b8e4f39b149431c4662a1bb65f8aba956b752094652947029ab92da486",
+  "raw_job_state": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_381ee4cb_success_20261018.json",
+  "raw_job_state_sha256": "5180167a7d28ccd7c4e819afe7c6998054b549edf134ac9702cb93ea3a35b528",
+  "scope": "Only this381ee4cb source; newer-main scientificCI/coverage remains required."
+}

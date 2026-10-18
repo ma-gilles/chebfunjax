@@ -10,6 +10,47 @@ from chebfunjax.utils._signed_gradual import gradual_signed_divide
 from chebfunjax.utils.numeric_sign import real_sign
 
 
+def _positive_zero_imaginary(result):
+    """Retain the captured CONJ/UMINUS exact-zero imaginary convention.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric CONJ/UMINUS dispatch.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Independent R2025b scalar/mixed-array captures return positive imaginary
+    zero for both input zero signs. All real words and all nonzero imaginary
+    words retain the original primitive result, including signed subnormals.
+    The callers supply the ordinary real-linear derivatives explicitly.
+    """
+    if not jnp.iscomplexobj(result):
+        return result
+    imag = jnp.imag(result)
+    return jax.lax.complex(
+        jnp.real(result), jnp.where(real_sign(imag) == 0, jnp.zeros_like(imag), imag))
+
+
+@jax.custom_jvp
+def _conj_numeric(value):
+    return _positive_zero_imaginary(jnp.conj(value))
+
+
+@_conj_numeric.defjvp
+def _conj_numeric_jvp(primals, tangents):
+    (value,), (tangent,) = primals, tangents
+    return _conj_numeric(value), jnp.conj(tangent)
+
+
+@jax.custom_jvp
+def _uminus_numeric(value):
+    return _positive_zero_imaginary(-value)
+
+
+@_uminus_numeric.defjvp
+def _uminus_numeric_jvp(primals, tangents):
+    (value,), (tangent,) = primals, tangents
+    return _uminus_numeric(value), -tangent
+
+
 def _sin_cos_numeric(value, *, cosine=False):
     """Retain the captured nonfinite real-axis SIN/COS imaginary zero.
 

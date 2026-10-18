@@ -17,6 +17,13 @@ Checked items certify only their stated scope.
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
 | Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
+### Current queue — 2026-10-18
+
+- **Latest verified integration:** CONJ/UMINUS and ultraspherical nonfinite conversion; parent1,774PASS27XFAIL, evidence below.
+- **Next integration:** sealed TAN nonfinite-axis candidate; child1,650PASS25XFAIL, parent review still required.
+- **Active investigation:** group static disk operators to reduce cold JAX compilation overhead; preserve source arithmetic and independently measure CPU timings.
+- **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
+
 ### Active work, not yet credited as complete
 
 - **Spin API follow-up:** scoped JAX comparison/checkpoint behavior is published below; full native API, scheme matrix, long examples, graphics and matched performance remain open.
@@ -27,13 +34,17 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] CONJ/UMINUS exact-zero imaginary convention and independent real-linear first/second derivatives: four obsolete xfails removed,31→27. Combined actual parent **1,774 PASS / 27 XFAIL** includes conversion and CI protocol. [Evidence](nonfinite_pair_parent_cpu_20261018.json).
+- [x] Ultraspherical nonfinite sparse conversion: two prior native expected failures now pass; finite AST and24matrix/4,740word proof retained. All1110prior CI owners retained plus one new file,13lanes/Hermite12/79%unchanged. [Evidence](nonfinite_pair_parent_cpu_20261018.json).
+- [ ] Remaining27unary records; five complex nonfinite final multiplication cases; inherited finite conversion-matrix rounding; full API/JAX/pages/figures/performance/latestCI remain open.
+
 - [x] TreeVar SIN/COS nonfinite exact-real-axis storage: four obsolete xfail records removed; actual parent **1587PASS31XFAIL**, all1639runtime files guarded. Original fixtures/assertions/bounds and finite/off-axis arithmetic retained. [Evidence](unary_sin_cos_axis_parent_cpu_20261018.json).
-- [ ] Other31unary records, full IEEE/API/JAX, pages/figures/performance and latestCI remain open.
+- [ ] Remaining27unary records after the CONJ/UMINUS repair above; full IEEE/API/JAX, pages/figures/performance and latestCI remain open.
 - [x] Matched public disk Helmholtz CPU measurement: firstcallPython7.441s/native.6704s; warmmedians95/125ms with broad native63–155msrange. Probeerror3.33e-16; no exact-word or uniform warm speed claim. [Evidence](disk_matched_performance_cpu_20261018.json).
 - [ ] First-call overhead~11.1x remains in this pair. Full native performance across resolutions/inputs, complete API/status/JAX behavior and latestCI remain open.
 
 - [x] Restore native shared ultras multiplication tail stopping. Parent **122PASS2XFAIL**; original bounds retained. Single matched515assembly pair14.99→3.79s, outputs word-identical at threeKvalues. All1109prior core owners retained+1. [Evidence](ultras_tail_parent_cpu_20261018.json).
-- [ ] Native sparse NaN/Inf conversion remains incorrect in the dense adapter; two named expected failures now assert native behavior. Full API/JAX/performance/latestCI remain open.
+- [x] The two named real NaN/Inf conversion failures are superseded by the nonfinite-conversion repair above. Complex scalar/storage recurrence semantics, broader API/JAX/performance/latestCI remain open.
 - [x] HermiteQuad n11 printed discrepancy localized to external dot accumulation with fresh12row/native-cosine cross-replay and exact-rational controls. [Evidence](hermitequad_n11_attribution_cpu_20261018.json).
 - [ ] n11 printed row remains different; no guessed reduction, fitted output or callback replacement installed. Other printed/representation/figure/speed gaps remain.
 

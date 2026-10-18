@@ -292,6 +292,46 @@ def _sphankel(r: jnp.ndarray) -> jnp.ndarray:
     return H
 
 
+@jax.jit
+def _sparse_nonfinite_conversion(matrix, coefficients):
+    """Real source sparse conversion applied without implicit-zero products.
+
+    Only the multmat nonfinite-input branch uses this kernel. Source CSC
+    columns are visited in ascending order; exact zero entries are absent.
+    Real and imaginary parts scale independently by the real conversion.
+    """
+    real = jnp.real(coefficients)
+    dtype = jnp.result_type(matrix, real)
+    zero = jnp.zeros(coefficients.shape, dtype=dtype)
+
+    def apply(values):
+        def column_step(column, result):
+            weights = matrix[:, column]
+            present = weights != 0
+            # Sanitize the missing operand before multiplication. Masking a
+            # product afterward would still evaluate implicit zero*NaN/Inf.
+            operand = jnp.where(present, values[column], 0)
+            # Keep source multiplication rounding separate from CSC addition;
+            # a fused multiply-add changes cancellation in otherwise finite rows.
+            def instruction(value, item):
+                opcode, argument = item
+                value = jax.lax.switch(opcode, (
+                    lambda: value * argument,
+                    lambda: argument + value,
+                ))
+                return value, None
+            updated = jax.lax.scan(
+                instruction, operand,
+                (jnp.arange(2), jnp.stack((weights, result))), unroll=False)[0]
+            return jnp.where(present, updated, result)
+        return jax.lax.fori_loop(0, coefficients.shape[0], column_step, zero)
+
+    converted_real = apply(real)
+    if jnp.iscomplexobj(coefficients):
+        return jax.lax.complex(converted_real, apply(jnp.imag(coefficients)))
+    return converted_real
+
+
 def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
     """Multiplication matrix in the C^{(lam)} ultraspherical basis.
 
@@ -400,7 +440,10 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
     else:
         # lam >= 2: three-term recurrence in C^{(lam)}.
         # First convert a from C^{(0)} to C^{(lam)}.
-        a = convertmat(n, 0, lam - 1) @ a
+        if bool(jnp.all(jnp.isfinite(a))):
+            a = convertmat(n, 0, lam - 1) @ a
+        else:
+            a = _sparse_nonfinite_conversion(convertmat(n, 0, lam - 1), a)
 
         m = 2 * n
         eye = jnp.eye(m, dtype=jnp.float64)

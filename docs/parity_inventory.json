@@ -495,6 +495,22 @@
       "scope": "Public Chebfun rank>2 array-valued query adapter; restore literal subspace original domains/row predicates1-6",
       "sha256": "f76c51e773bf1f3937ae15af8b59a2c677eb0e6ed661bab4f4cf570ac59304d0"
     },
+    "nonfinite_pair_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonfinite_pair_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3680,
+        "sha256": "d0c9dc6cb7286cb32120fbf2c2c6d2418a8a972636a75730dfdf398d7cf57fa7"
+      },
+      "limits": [
+        "27unary source-bound expected failures remain. No general IEEE/NaNpayload/native-word/API/backend/JIT/AD/vmap closure.",
+        "Five complex nonfinite multiplication final-matrix cases still differ; conversion-only repair changes component-class mismatches90to86 across8nominal captures, no case worsens. Sparse scalar/storage semantics under investigation.",
+        "Whole-call conversion JIT/AD/vmap and dense finite convertmat native-word gap remain.",
+        "No fresh page/figure or matched performance claim; green latest-main scientificCI/coverage>=79% still required."
+      ],
+      "report": "docs/nonfinite_pair_parent_cpu_20261018.json",
+      "report_sha256": "60842f8cbcc2c2e4780f97f082317bd5266ae487a8adc7330531983a895660f2",
+      "scope": "TreeVar CONJ/UMINUS exact imaginary-zero metadata and source sparse nonfinite conversion in ultras.multmat. CPU only; no whole API/page/figure/performance closure."
+    },
     "nonfinite_transform_native_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/nonfinite_transform_native_cpu_20261017.tar.gz",
@@ -89745,6 +89761,10 @@
         {
           "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
           "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
+        },
+        {
+          "artifact": "nonfinite_pair_parent_cpu_20261018",
+          "scope": "CONJ/UMINUS captured imaginary-zero conventions and independent real-linear derivatives; no full TreeVar/API closure."
         }
       ],
       "functions": [
@@ -89909,7 +89929,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "nonfinite_pair_parent_cpu_20261018",
+              "scope": "CONJ/UMINUS captured imaginary-zero conventions and independent real-linear derivatives; no full TreeVar/API closure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "195",
@@ -90279,7 +90304,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "nonfinite_pair_parent_cpu_20261018",
+              "scope": "CONJ/UMINUS captured imaginary-zero conventions and independent real-linear derivatives; no full TreeVar/API closure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "543",
@@ -92757,6 +92787,10 @@
         {
           "artifact": "ultras_tail_parent_cpu_20261018",
           "scope": "Literal tail stopping,122parent passing checks and2known native nonfinite conversionxfails. Source-derived iteration policy, not instrumented native counts. Full API/JAX/provider/performance unqualified."
+        },
+        {
+          "artifact": "nonfinite_pair_parent_cpu_20261018",
+          "scope": "Nonfinite CSC conversion component classes/finitewords only; two real public failures fixed, five complex final-matrix cases still open. No whole multmat/API/transform closure."
         }
       ],
       "functions": [
@@ -92765,6 +92799,10 @@
             {
               "artifact": "ultras_tail_parent_cpu_20261018",
               "scope": "Literal tail stopping,122parent passing checks and2known native nonfinite conversionxfails. Source-derived iteration policy, not instrumented native counts. Full API/JAX/provider/performance unqualified."
+            },
+            {
+              "artifact": "nonfinite_pair_parent_cpu_20261018",
+              "scope": "Nonfinite CSC conversion component classes/finitewords only; two real public failures fixed, five complex final-matrix cases still open. No whole multmat/API/transform closure."
             }
           ],
           "implementation_status": "unverified",

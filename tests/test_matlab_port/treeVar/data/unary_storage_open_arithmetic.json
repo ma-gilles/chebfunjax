@@ -28,22 +28,6 @@
     },
     {
       "packet": "unary_storage_native_arrays.json",
-      "method": "conj",
-      "label": "complex_b_with_nonzero_imag",
-      "failures": [
-        "imag_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "conj",
-      "label": "complex_d_nonfinite_mixed",
-      "failures": [
-        "imag_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
       "method": "cos",
       "label": "complex_b_with_nonzero_imag",
       "failures": [
@@ -246,22 +230,6 @@
       "failures": [
         "storage",
         "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "uminus",
-      "label": "complex_b_with_nonzero_imag",
-      "failures": [
-        "imag_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "uminus",
-      "label": "complex_d_nonfinite_mixed",
-      "failures": [
-        "imag_zero_sign"
       ]
     }
   ]

@@ -238,3 +238,104 @@ def test_sin_cos_finite_transverse_jvp_retained(name, dtype, z):
         for fn in (_UNARY_FNS[name], jax.jit(_UNARY_FNS[name])):
             _, got = jax.jvp(fn, (value,), (tangent,))
             assert jnp.abs(got-expected) <= 10*np.finfo(real_dtype).eps
+
+
+CONJ_UMINUS_ROWS = [r for r in SIN_COS_AXIS_CAPTURE['capture']['rows']
+                    if r['method'] in ('conj', 'uminus')]
+
+
+def _conj_uminus_primitive(name, value):
+    return jnp.conj(value) if name == 'conj' else -value
+
+
+@pytest.mark.parametrize('row', CONJ_UMINUS_ROWS,
+                         ids=lambda r:r['method']+'_'+r['name'])
+def test_conj_uminus_native_words_and_storage(row):
+    """Existing requested-word capture independently covers all20 shapes/method."""
+    value = jnp.asarray(_decode_sin_cos_capture(row['input']))
+    expected = _decode_sin_cos_capture(row['output'])
+    eager = np.asarray(_UNARY_FNS[row['method']](value))
+    assert (not np.iscomplexobj(eager)) == row['output']['isreal']
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW[row['method']])(value))):
+        assert got.shape == expected.shape
+        for actual, target in ((got.real, expected.real), (got.imag, expected.imag)):
+            np.testing.assert_array_equal(np.ascontiguousarray(actual).view(np.uint64),
+                                          np.ascontiguousarray(target).view(np.uint64))
+
+
+@pytest.mark.parametrize('name', ['conj', 'uminus'])
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_conj_uminus_component_words_outside_zero_imaginary_unchanged(name, dtype):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    magnitude_mask = word_dtype(0x7fffffff if dtype == np.complex64 else 0x7fffffffffffffff)
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    value = np.empty(12, dtype=dtype)
+    value.real = [0., -0., .4, -.4, tiny, -tiny, np.inf, -np.inf,
+                  np.nan, -np.nan, .4, -.4]
+    value.imag = [0., -0., tiny, -tiny, -.3, .3, np.inf, -np.inf,
+                  np.nan, -np.nan, 0., -0.]
+    baseline = np.asarray(_conj_uminus_primitive(name, jnp.asarray(value)))
+    zero_imag = (value.imag.copy().view(word_dtype) & magnitude_mask) == 0
+    for fn in (_UNARY_FNS_RAW[name], jax.jit(_UNARY_FNS_RAW[name])):
+        got = np.asarray(fn(jnp.asarray(value)))
+        assert got.dtype == value.dtype and got.shape == value.shape
+        assert got.real.tobytes() == baseline.real.tobytes()
+        assert got.imag[~zero_imag].tobytes() == baseline.imag[~zero_imag].tobytes()
+        assert np.all(got.imag[zero_imag].copy().view(word_dtype) == 0)
+
+
+@pytest.mark.parametrize('name', ['conj', 'uminus'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(0., 0.), (-0., -0.), (.4, 0.),
+                                   (-.4, -0.), (.4, .3), (-.4, -.3)])
+def test_conj_uminus_independent_real_jacobian_and_hessian(name, dtype, point):
+    """Ordinary real-linear maps have fixed independent2x2 Jacobians and zero Hessians."""
+    def embedded(v):
+        z = jax.lax.complex(v[0], v[1])
+        out = _UNARY_FNS_RAW[name](z)
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    expected = jnp.diag(jnp.asarray([1. if name == 'conj' else -1., -1.], dtype=dtype))
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_array_equal(jax.jacfwd(fn)(value), expected)
+        np.testing.assert_array_equal(jax.jacrev(fn)(value), expected)
+        np.testing.assert_array_equal(jax.jacfwd(jax.jacfwd(fn))(value),
+                                      jnp.zeros((2, 2, 2), dtype=dtype))
+        for direction in [(1., 0.), (0., 1.), (.3, -.2)]:
+            tangent = jnp.asarray(direction, dtype=dtype)
+            _, got = jax.jvp(fn, (value,), (tangent,))
+            np.testing.assert_array_equal(got, expected @ tangent)
+
+
+@pytest.mark.parametrize('name', ['conj', 'uminus'])
+@pytest.mark.parametrize('dtype', [jnp.float32, jnp.float64])
+@pytest.mark.parametrize('point', [(.4, 0.), (.4, .3)])
+def test_conj_uminus_rhs_real_jacobian_and_hessian(name, dtype, point):
+    op = (lambda u:u.diff()-u.conj()) if name == 'conj' else (lambda u:u.diff()-(-u))
+    rhs = to_first_order(op, 0., (-1., 1.))[0]
+    def embedded(v):
+        z = jax.lax.complex(v[0], v[1])
+        out = jnp.asarray(rhs(0., jnp.asarray([z]))).reshape(-1)[0]
+        return jnp.stack([jnp.real(out), jnp.imag(out)])
+    value = jnp.asarray(point, dtype=dtype)
+    expected = jnp.diag(jnp.asarray([1. if name == 'conj' else -1., -1.], dtype=dtype))
+    for fn in (embedded, jax.jit(embedded)):
+        np.testing.assert_array_equal(jax.jacfwd(fn)(value), expected)
+        np.testing.assert_array_equal(jax.jacrev(fn)(value), expected)
+        np.testing.assert_array_equal(jax.jacfwd(jax.jacfwd(fn))(value),
+                                      jnp.zeros((2, 2, 2), dtype=dtype))
+        _, transverse = jax.jvp(fn, (value,), (jnp.asarray([0., 1.], dtype=dtype),))
+        np.testing.assert_array_equal(transverse, expected[:, 1])
+
+
+@pytest.mark.parametrize('name', ['conj', 'uminus'])
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_conj_uminus_real_input_words_and_dtype_unchanged(name, dtype):
+    tiny = np.nextafter(dtype(0), dtype(1))
+    value = jnp.asarray(np.array([0., -0., tiny, -tiny, .4, -.4,
+                                 np.inf, -np.inf, np.nan, -np.nan], dtype=dtype))
+    expected = np.asarray(_conj_uminus_primitive(name, value))
+    for fn in (_UNARY_FNS_RAW[name], jax.jit(_UNARY_FNS_RAW[name])):
+        got = np.asarray(fn(value))
+        assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()
