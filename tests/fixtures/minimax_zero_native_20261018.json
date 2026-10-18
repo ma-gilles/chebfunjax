@@ -1,0 +1,54 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "zero": {
+    "success": true,
+    "delta": {
+      "shape": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "order": "MATLAB column-major",
+      "real_words": [
+        "fff8000000000000"
+      ],
+      "imag_words": [
+        "0000000000000000"
+      ]
+    },
+    "error": {
+      "shape": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "order": "MATLAB column-major",
+      "real_words": [
+        "3bfd83c94fb6d2ac"
+      ],
+      "imag_words": [
+        "0000000000000000"
+      ]
+    },
+    "normf": {
+      "shape": [
+        1,
+        1
+      ],
+      "isreal": true,
+      "order": "MATLAB column-major",
+      "real_words": [
+        "0000000000000000"
+      ],
+      "imag_words": [
+        "0000000000000000"
+      ]
+    },
+    "warning_id": "",
+    "warning_message": ""
+  },
+  "source_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/generic_qz_20261018/native_dispatch030/capture.json",
+  "source_capture_sha256": "2b0f4f0a00b868fe947f33a159e2f15b512ccc9201015764b8f33424422ae4a1",
+  "call": "[p,e,s]=minimax(chebfun(0),1,'maxiter',1)",
+  "scope": "Exact zero error/norm/statusdelta; no complete minimax API/zero-degree matrix or coefficient storage qualification."
+}

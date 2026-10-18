@@ -1,3 +1,14 @@
+# Polynomial minimax zero-scale IEEE status — 2026-10-18
+
+Polynomial minimax retains the native zero norm and IEEE divisions, replacing
+an artificial EPS floor. Actual native degree1zero target has NaN correction,
+1e-19 exchange error and no warning; two public/input-adapter controls reproduce
+both baseline failures and pass with the repair.40candidate scientific checks
+and25actualparent checks pass;2overlap,63distinct. All source/test/fixture bytes
+match across candidate and parent.1101prior owners retained+1Core1;79%unchanged.
+Full minimax API/JAX/zero-storage/speed, Checkmark and latestCI remain open.
+Evidence: docs/minimax_zero_parent_cpu_20261018.json.
+
 # Polynomial minimax source normalization — 2026-10-18
 
 Polynomial minimax uses the source continuous L2 norm rather than a sampled

@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Polynomial minimax zero-scale IEEE status: actual native degree1zero returns NaN correction/1e-19 error/no warning;2baseline failures repaired.40candidate science+25actualparent checks,2overlap=63distinct; complete source/test/fixture byte bridge. [Evidence](minimax_zero_parent_cpu_20261018.json).
+- [ ] Full minimax API/JAX/zero-storage/alternateoptions/speed and Checkmark page/figures remain open; latest-main scientificCI/coverage required.
+
+
 - [x] Polynomial minimax continuousL2 source scale:3fresh native cases and independent formulas expose6baseline failures; actual parent61checks pass, including12original clauses and23CIprotocol. [Evidence](minimax_norm_parent_cpu_20261018.json).
 - [ ] Full minimax API/JAX/rational/zero-status/speed and Checkmark page/figures remain open; same9Checkmark probes unchanged. Latest-main scientificCI remains required.
 

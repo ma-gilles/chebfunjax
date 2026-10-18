@@ -373,6 +373,11 @@
       "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification.",
       "sha256": "2bbb7f5cbf5971135525ea41baa4b4e385a08a97781e6fd7531b63ba1d82d230"
     },
+    "minimax_zero_parent_cpu_20261018": {
+      "path": "docs/minimax_zero_parent_cpu_20261018.json",
+      "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure.",
+      "sha256": "efa75e0f844909829f0fdc1fa878777112fc2976aa1929dedb52d3240ede384b"
+    },
     "minmax_original14_cpu_20261017": {
       "path": "docs/minmax_original14_cpu_20261017.json",
       "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged",
@@ -96627,6 +96632,17 @@
             "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
           ],
           "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+        },
+        {
+          "artifact": "minimax_zero_parent_cpu_20261018",
+          "limits": [
+            "Native degree1 zero status/error/no-warning observations and callable adapter do not establish complete zero-input storage/alternate-degree/alternate-options/complex/nonfinite/fullAPI behavior.",
+            "Adaptive polynomial construction remains eager with inherited host NumPy/SciPy debt; no new provider/import/waiver or whole-call JIT/AD claim.",
+            "Nonzero denominator divisions retain exact prior host operation. No tolerance or mathematical stopping condition widened.",
+            "Checkmark first-step diagnosis independently localized native dot/bary provider differences; no full curve/page/figure repair or speed claim. See separate minimax_first_trial_archive_verified_20261018.json.",
+            "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
+          ],
+          "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
         }
       ],
       "functions": [
@@ -96643,6 +96659,17 @@
                 "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
               ],
               "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+            },
+            {
+              "artifact": "minimax_zero_parent_cpu_20261018",
+              "limits": [
+                "Native degree1 zero status/error/no-warning observations and callable adapter do not establish complete zero-input storage/alternate-degree/alternate-options/complex/nonfinite/fullAPI behavior.",
+                "Adaptive polynomial construction remains eager with inherited host NumPy/SciPy debt; no new provider/import/waiver or whole-call JIT/AD claim.",
+                "Nonzero denominator divisions retain exact prior host operation. No tolerance or mathematical stopping condition widened.",
+                "Checkmark first-step diagnosis independently localized native dot/bary provider differences; no full curve/page/figure repair or speed claim. See separate minimax_first_trial_archive_verified_20261018.json.",
+                "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
+              ],
+              "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
             }
           ],
           "implementation_status": "unverified",
@@ -123872,6 +123899,17 @@
             "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
           ],
           "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+        },
+        {
+          "artifact": "minimax_zero_parent_cpu_20261018",
+          "limits": [
+            "Native degree1 zero status/error/no-warning observations and callable adapter do not establish complete zero-input storage/alternate-degree/alternate-options/complex/nonfinite/fullAPI behavior.",
+            "Adaptive polynomial construction remains eager with inherited host NumPy/SciPy debt; no new provider/import/waiver or whole-call JIT/AD claim.",
+            "Nonzero denominator divisions retain exact prior host operation. No tolerance or mathematical stopping condition widened.",
+            "Checkmark first-step diagnosis independently localized native dot/bary provider differences; no full curve/page/figure repair or speed claim. See separate minimax_first_trial_archive_verified_20261018.json.",
+            "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
+          ],
+          "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
         }
       ],
       "functions": [
@@ -123888,6 +123926,17 @@
                 "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
               ],
               "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+            },
+            {
+              "artifact": "minimax_zero_parent_cpu_20261018",
+              "limits": [
+                "Native degree1 zero status/error/no-warning observations and callable adapter do not establish complete zero-input storage/alternate-degree/alternate-options/complex/nonfinite/fullAPI behavior.",
+                "Adaptive polynomial construction remains eager with inherited host NumPy/SciPy debt; no new provider/import/waiver or whole-call JIT/AD claim.",
+                "Nonzero denominator divisions retain exact prior host operation. No tolerance or mathematical stopping condition widened.",
+                "Checkmark first-step diagnosis independently localized native dot/bary provider differences; no full curve/page/figure repair or speed claim. See separate minimax_first_trial_archive_verified_20261018.json.",
+                "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
+              ],
+              "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
             }
           ],
           "implementation_status": "unverified",

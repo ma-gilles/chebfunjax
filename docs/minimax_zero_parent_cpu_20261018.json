@@ -1,0 +1,60 @@
+{
+  "actual_parent": {
+    "distinct_checks": 25,
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 854616,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 10.364377174060792
+    },
+    "scope": "2new native/public status checks +23CIprotocol checks",
+    "source_bridge": {
+      "candidate": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_zero_source_w_20261018",
+      "files": 3379,
+      "parent": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017",
+      "relative_hash_map_sha256": "d3d302b655cd272c311d3430a6a0c1cb78a832945aafe60ee219279af12f5dd2",
+      "scope": "Every src/test/fixture file byte-identical between candidate40-pass worktree and actual parent; no redundant repeat of38existing scientific checks. Actual parent new2+23CI verifies import/routing/ownership."
+    }
+  },
+  "base": "97ab0a23037a14555053053e12263f72de34dc8c",
+  "candidate_gate": {
+    "distinct_scientific_checks": 40,
+    "fresh_processes": [
+      "35PASS86.03s:2new+33existing(original9included)",
+      "5PASS42.32s:rationalcaller controls(original3included)"
+    ],
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3941604,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 141.86003383202478
+    }
+  },
+  "counting": "40candidate +25actualparent minus2repeated new tests =63distinct; not a claim that all63ran in parent. All src/tests/fixtures byte-identical across both sources, bridge retained.",
+  "limits": [
+    "Native degree1 zero status/error/no-warning observations and callable adapter do not establish complete zero-input storage/alternate-degree/alternate-options/complex/nonfinite/fullAPI behavior.",
+    "Adaptive polynomial construction remains eager with inherited host NumPy/SciPy debt; no new provider/import/waiver or whole-call JIT/AD claim.",
+    "Nonzero denominator divisions retain exact prior host operation. No tolerance or mathematical stopping condition widened.",
+    "Checkmark first-step diagnosis independently localized native dot/bary provider differences; no full curve/page/figure repair or speed claim. See separate minimax_first_trial_archive_verified_20261018.json.",
+    "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
+  ],
+  "mechanism": "Remove inherited EPS replacement at zero norm. Private scalar ratio retains prior host division for nonzero denominators and uses JAX IEEE division only for zero, avoiding Python ZeroDivisionError without altering source stopping predicates or substituting a nonzero scale.",
+  "native": "Fresh unchanged native030 actual minimax(chebfun(0),1,maxiter1) returns delta fff8000000000000 (NaN),error3bfd83c94fb6d2ac (1e-19),norm+0 and no warnings. Raw capture/script/guard/receipt included in archive.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "1101prior owner positions retained; new2node file appendedCore1,1102owners/13lanes; dedicatedHermiteCore12 and79%gate unchanged.",
+  "paired_controls": "Same final2 degree1 Chebfun/callable tests both baselineFAIL5.28s at returned delta0; initial2candidatePASS5.00s; final35science rerun includes samefinal2testbytes. First test import sorting fixed before finalbaseline/broadcandidate gates; earlier tests preserved.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_zero_parent_cpu_20261018.tar.gz",
+    "payloads": 3460,
+    "sha256": "f02d103abdb6fec488d1e46ee3844e5ffadfb529544cab4eccb63bd519689df7",
+    "stream_verified": true
+  },
+  "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure.",
+  "unique_combined_checks": 63
+}

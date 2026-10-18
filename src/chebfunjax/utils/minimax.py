@@ -322,8 +322,6 @@ def minimax(
     # Chebfuns. This scale controls the machine floor, overshoot guard and
     # returned status.delta; a sampled maximum changes all three contracts.
     normf = float(source.norm())
-    if normf == 0.0:
-        normf = float(np.finfo(np.float64).eps)
 
     # ---- Initialise reference set xk ----
     if init_xk is not None:
@@ -356,12 +354,12 @@ def minimax(
 
     # ---- Main Remez loop ----
     while (
-        abs(abs(h) - abs(err)) / abs(err) > tol
+        _polynomial_ratio(abs(abs(h) - abs(err)), abs(err)) > tol
         and iter_count < max_iter
         and diffx > 0
     ):
         # Machine-precision convergence guard
-        if abs(abs(h) - abs(err)) / normf < 1e-14:
+        if _polynomial_ratio(abs(abs(h) - abs(err)), normf) < 1e-14:
             break
 
         # ---- Compute trial polynomial ----
@@ -381,7 +379,7 @@ def minimax(
         )
 
         # If overshoot, fall back to one-point exchange
-        if err_new / normf > 1e5:
+        if _polynomial_ratio(err_new, normf) > 1e5:
             xk_new, err_new, flag = _exchange(
                 xo, h, 1, f, p_coeffs, n_ref, a, b, extra_bkpts
             )
@@ -428,13 +426,13 @@ def minimax(
 
     # Warn if not converged
     if (
-        abs(abs(h) - abs(err)) / abs(err) > tol
-        and abs(abs(h) - abs(err)) / normf >= 1e-14
+        _polynomial_ratio(abs(abs(h) - abs(err)), abs(err)) > tol
+        and _polynomial_ratio(abs(abs(h) - abs(err)), normf) >= 1e-14
     ):
         warnings.warn(
             f"minimax: algorithm did not converge after {iter_count} "
             f"iterations to tolerance {tol:.3e}. "
-            f"Best delta/normf = {delta_min / normf:.3e}.",
+            f"Best delta/normf = {_polynomial_ratio(delta_min, normf):.3e}.",
             RuntimeWarning,
             stacklevel=2,
         )
@@ -443,7 +441,7 @@ def minimax(
         coeffs=jnp.array(p_coeffs_final, dtype=jnp.float64),
         xk=jnp.array(xk_final, dtype=jnp.float64),
         err=float(err_final),
-        delta=float(delta_min) / normf,
+        delta=_polynomial_ratio(float(delta_min), normf),
         iter=iter_count,
         domain=(a, b),
     )
@@ -452,6 +450,22 @@ def minimax(
 # ---------------------------------------------------------------------------
 # Private helpers
 # ---------------------------------------------------------------------------
+
+
+def _polynomial_ratio(numerator: float, denominator: float) -> float:
+    """Retain native IEEE scalar division at a zero polynomial scale.
+
+    Provenance
+    ----------
+    MATLAB source : minimax.m, minimaxKernel scalar stopping/status divisions
+    Chebfun commit: 7574c77
+    """
+    if denominator != 0.0:
+        return numerator / denominator
+    # Python scalar division raises at zero. Native scalar arithmetic returns
+    # Inf/NaN; JAX division retains that behavior without an invented EPS scale.
+    return float(jnp.divide(jnp.asarray(numerator, dtype=jnp.float64),
+                            jnp.asarray(denominator, dtype=jnp.float64)))
 
 
 def _compute_trial_polynomial(
