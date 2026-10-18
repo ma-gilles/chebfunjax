@@ -1,0 +1,251 @@
+{
+  "scope": "Source CDR infinite-reciprocal policy and verified Diskfun consumers, real CPU binary64; phase1 safety before zero-storage metadata changes. No full CDR/Diskfun/API/IEEE/JAX closure claim.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "0afc015c94f933d1932ac6ab9af8138c625980c2 plus immutable disk_add_poles.patch v3; incremental patch excludes prior v3 changes",
+  "source": {
+    "@separableApprox/cdr.m": "d=1./piv; d(abs(d)==inf)=0; NaNs retained; reciprocal -Inf gives -0; either infinite reciprocal becomes +0",
+    "consumers": [
+      "Diskfun.__call__",
+      "Diskfun.cdr",
+      "Diskfun.coeffs2",
+      "Diskfun.sum2",
+      "Diskfun._partial_sum",
+      "Diskfun.integral(unitcircle)"
+    ],
+    "unchanged": "Constructor/scale/compression/pole representation/flags/iszero and global numerical providers unchanged. Existing host iszero divide warning/debt retained."
+  },
+  "native_actual": {
+    "zero_storage_cases": 5,
+    "independent_cdr_words": 16,
+    "zero_capture": "disk_pole_zero_native_run001",
+    "cdr_capture": "disk_cdr_ieee_native_run001",
+    "final_flag_correction": "Public plus overwrites local addPoles flag: retained pv0 zero column has nonZeroPoles TRUE, not local addPoles false. Equality shortcut gives pvInf/nonZeroPoles TRUE; canceled remainder pvInf/flag FALSE. Phase2 still open."
+  },
+  "paired_final36": {
+    "baseline": "8FAIL28PASS2.81s, same final test bytes, sealed-v3 source; all eight are public behavior failures, no missing helper",
+    "candidate": "36PASS9.96s final v2 source, peak1055900KiB",
+    "selectors": "tests/test_disk_cdr_source.py",
+    "owner_delta": "One new core test file, 36 selectors; parent owns stable inventory update"
+  },
+  "final_callers": "17PASS54.24s on exact final v2 source, peak2614412KiB, existing17.py selects existing compose/FEVAL/constructor tests",
+  "earlier_bridged_callers": {
+    "callers18": "18PASS60.80s/2816884KiB: 13pole+original31/32+3structural",
+    "svd17": "17PASS32.14s/2346024KiB:14SVD+3sum2",
+    "bridge": "Earlier caller18/SVD17 source v1 differs from final v2 ONLY iszero; full method restored exact baseline AST. All other class methods/module definitions identical. Final36+17 run exact v2. These 35 are bridged evidence, not an all-final-byte rerun claim."
+  },
+  "open_finite_ftz": {
+    "strict_run": "disk_cdr_strict16_candidate_run001:2FAIL14PASS1.07s, uncensored actual failure",
+    "cases": [
+      {
+        "input": "7fefffffffffffff",
+        "native": "0004000000000000",
+        "actual": "0000000000000000",
+        "cause": "subnormal reciprocal output flushed"
+      },
+      {
+        "input": "0008000000000000",
+        "native": "7fe0000000000000",
+        "actual": "0000000000000000",
+        "cause": "subnormal denominator flushed, then infinite reciprocal masked"
+      }
+    ],
+    "baseline": "same two inherited failures plus NaN masked to zero; candidate fixes NaN, not finite FTZ"
+  },
+  "preserved_failures": {
+    "candidate_adapter_v1": "27PASS9FAIL: uint64 expected-word adapter and unsupported Cartesian JIT guard; final tests scope compiled/AD to supported polar route; eager Cartesian checked",
+    "oversized_cohort": "disk_cdr_phase1_callers_run001 RSS censored at4196212KiB/4096MiB;33 observed passes not accepted as whole35 pass; then bounded split cohorts terminal",
+    "iszero_optional": "Actual maxfinite falsezero regression True vs baseline False. Rejected and full iszero method restored baseline. Final replay False/False. First raw stdout preserves True False; shared output JSON was overwritten by final replay, explicitly recorded ISZERO_OUTPUT_NOTE.json."
+  },
+  "limits": [
+    "Zero-only cancellation storage/pivot/nonZeroPoles transitions remain unimplemented; manually source-valid native zero output states qualify CDR safety only.",
+    "Complex pivots/storage, all dtypes/devices, Cartesian JIT/origin derivatives and universal correct rounding remain unqualified.",
+    "NaN/Inf/zero singular-boundary derivatives have no claim; finite signed first/second CDR derivatives and polar zero coordinate derivatives checked.",
+    "No numerical tolerance/operand changes, new NumPy/SciPy provider or waiver. No timing/performance claim."
+  ],
+  "source_bridge_to_parent": "Parent01d33a18 includes sealedv3; unrelated Bernoulli return-type changes not reached by disk. Child source remains frozen baseline+v3; parent final integrated gate required.",
+  "receipts": {
+    "disk_cdr_callers18_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 67.5210559759289,
+      "sampled_peak_summed_rss_kib": 2816884,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_existing17_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 60.51562150614336,
+      "sampled_peak_summed_rss_kib": 2614412,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_ieee_candidate_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.983523259870708,
+      "sampled_peak_summed_rss_kib": 474332,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_ieee_native_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 80.44238240690902,
+      "sampled_peak_summed_rss_kib": 1308632,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_iszero_edge_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 3.1220720908604562,
+      "sampled_peak_summed_rss_kib": 484504,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_phase1_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 5.931959092151374,
+      "sampled_peak_summed_rss_kib": 585624,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_phase1_callers_run001": {
+      "command_exit_code": -15,
+      "supervisor_exit_code": 137,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 91.9266944671981,
+      "sampled_peak_summed_rss_kib": 4196212,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [
+        {
+          "pid": 3483732,
+          "starttime": 343848349,
+          "signal": 15
+        },
+        {
+          "pid": 3483732,
+          "starttime": 343848349,
+          "signal": 15
+        }
+      ],
+      "events": []
+    },
+    "disk_cdr_phase1_candidate_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 14.26447076164186,
+      "sampled_peak_summed_rss_kib": 1060216,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_phase1_candidate_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 13.536394528113306,
+      "sampled_peak_summed_rss_kib": 1052020,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_phase1_final_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.140505310613662,
+      "sampled_peak_summed_rss_kib": 1055900,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_public_baseline_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.99372199177742,
+      "sampled_peak_summed_rss_kib": 466580,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_strict16_candidate_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 3.990321544930339,
+      "sampled_peak_summed_rss_kib": 471796,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_svd17_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 37.35078564612195,
+      "sampled_peak_summed_rss_kib": 2346024,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_pole_zero_native_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 82.99792637489736,
+      "sampled_peak_summed_rss_kib": 1370436,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_pole_zero_python_baseline_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.3800203576684,
+      "sampled_peak_summed_rss_kib": 1191412,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    }
+  },
+  "source_hashes": {
+    "baseline_v3_diskfun.py": "562440bbbcc6badc061d1d751f9bf7d4871f46e3149b7996687d44da3cfb7aa5",
+    "phase1_candidate_v1_rejected_iszero.py": "2cfc5cac9d7cdaa6b781cdcd9479d74bf03ed09e58fb13d60a9a924ffced163e",
+    "phase1_candidate_v2.py": "71f95741b0a416de01cb9664412268a6be5335896d83c906d8812f84bf270f6c"
+  },
+  "evidence_archive": "disk_cdr_phase1_package_20261018.tar.gz; full src/pyproject and actual guarded Python tests/drivers, raw receipts, targeted pinned native sources. All native m dependencies additionally external-hash-bound by raw guards; not a duplicated full MATLAB installation.",
+  "next": "General mathematically derived local reciprocal proposal separate; no gradual reciprocal algorithm implemented in this packet."
+}

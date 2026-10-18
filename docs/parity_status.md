@@ -1,3 +1,16 @@
+# Disk reciprocal and zero-pivot evaluation — 2026-10-18
+
+Disk CDR and its verified consumers now follow the source reciprocal policy:
+infinite reciprocals become zero and NaNs remain NaNs. Local JAX binary64
+arithmetic also preserves subnormal inputs/results; all16native captured
+words and22,130signed exact-rational controls pass. A CPU-only compiled helper
+avoids a measured eager dispatch regression. Shared providers are unchanged.
+Actual parent104checks pass in two fresh processes, including original31/32
+at unchanged EPS. All1096prior owners retained+2;13lanes and79%gate unchanged.
+Zero-result storage/flags, inherited host iszero debt, full APIs/IEEE/JAX,
+matched CPU speed, pages/figures and latest-main scientificCI remain open.
+Evidence: docs/disk_cdr_parent_cpu_20261018.json.
+
 # Source pole cancellation and callable Bernoulli columns — 2026-10-18
 
 Strict original disk31/32 now pass at unchanged EPS after source addPoles

@@ -1,0 +1,227 @@
+{
+  "scope": "Local CPU real binary64 Diskfun CDR reciprocal, preserving native d=1./piv; d(abs(d)==Inf)=0. Repairs the two inherited finite FTZ gaps retained by phase1. Zero-pole storage/flags remain next phase; no full API/IEEE/all-backend parity claim.",
+  "base": "01d33a18c17ddf3b963e5a33f4a91aea7930228d plus immutable phase1 patch. Incremental3path patch afterphase1 only.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_reuse": {
+    "capture": "disk_cdr_ieee_native_run001, all16public CDR words; no new MATLAB run",
+    "phase1_archive_sha256": "9e1e68f8855aadd2f8061a9095f4ec1f52e11b389dada3ed217cfc8244cc16c8",
+    "fixture_sha256": "5c570dfc9d84f472e0ffaab1cbd5cf7dce7713b7982e90ddaf36f5f41ca3ddb4"
+  },
+  "algorithm": [
+    "Extract magnitude/sign bits before subnormal arithmetic can flush input.",
+    "Ordinary finite positive denominator: existing gradual_positive_divide(1,x) preserves RNE subnormal output.",
+    "Subnormal denominator: unchanged _positive_parts obtains exact mantissa/exponent, existing ordered_binary divides1/m, unchanged _positive_pack rescales by power2. Normal output implies no underflow/double rounding; overflow boundary justified separately.",
+    "Reattach sign in bits, preserve ordinary source NaN/Inf/zero behavior, then apply exact infinite-reciprocal zero mask.",
+    "Analytic local customJVP -y*dx/x preserves meaningful normal first/second derivatives. Singular/overflow/NaN/Inf derivatives not qualified."
+  ],
+  "source_changes": {
+    "local_helpers_only": true,
+    "all_Diskfun_class_methods_AST_exact_phase1": true,
+    "global_gradual_provider_bytes_unchanged": true,
+    "iszero_exact_phase1_baseline": true,
+    "fallback": "Non-CPU/other dtype/complex original ordinary division/mask execution retained; actual float32/complex128 eager componentword regression controls pass. No native complex storage parity claim."
+  },
+  "oracle": {
+    "signed_finite_words": 22130,
+    "modes": [
+      "eager",
+      "jit",
+      "vmap",
+      "jit_vmap"
+    ],
+    "operand_design": "Every binary64 power2 plus neighbors, subnormal mantissa/overflow boundaries,4096seed6178independent finite words,both signs; exact stdlib Fraction conversion to binary64 is test-only oracle, never production lookup.",
+    "native16": "All16actual native words pass eager/JIT, including maxfinite reciprocal output and half-minnormal denominator.",
+    "intermediates": "833selected positive subnormal inputs: exact mantissa/exponent reconstruction, normalized RNE quotient and packed reciprocal verified; overflow inequality/proof metadata attached.",
+    "limits": "Broad independent testing plus representation argument, not exhaustive empirical all64bit/backend proof."
+  },
+  "paired_final10": {
+    "baseline": "6FAIL4PASS2.94s;90oracle mismatches per mode plus2native-word predicate failures. Actual public policy gaps, no missing helper.",
+    "candidate": "All10pass within final46; same final test bytes; original8tests first version also baseline6FAIL2PASS then candidate8PASS. Exact original8testbytes reconstructed from final prefix and hash-matched to old guard."
+  },
+  "final_scientific_gates": {
+    "total_unique_selectors": 98,
+    "final46": "46PASS16.71s/1174548KiB:10new+36phase1",
+    "callers18": "18PASS65.73s/2893948KiB:13pole+original31/32+3structural",
+    "svd17": "17PASS32.52s/2351848KiB",
+    "existing17": "17PASS;2706780KiB, compose/FEVAL/constructor/source callers",
+    "final_bytes": "All98 executed final candidate_v3_cpu_jit_only.py exact source, config/actual test inputs guarded; no bridge needed for accepted final98."
+  },
+  "performance": {
+    "cause": "Eager reciprocal source addition raised public CDR warm cost from~.34ms to50-56ms rank1/8, so accepted one local JIT boundary strictly inside CPU-f64 branch.",
+    "final_direct_CDR_ms": {
+      "rank1_phase1": 0.3375536762177944,
+      "rank1_final": 0.12234970927238464,
+      "rank8_phase1": 0.363002996891737,
+      "rank8_final": 0.14181574806571007
+    },
+    "first_calls_seconds": "rank1 .134phase1/.194final; rank8 .160/.214; shared primitive warmup, not matched cold-speed proof.",
+    "limitations": "Descriptive25warm repetitions on same public objects; no universal/fullpage performance claim. Initial monkeypatched FEVAL data invalid for candidate attribution because eqx.filter_jit cached baseline closure; raw kept, excluded. Final benchmark uses direct CDR only."
+  },
+  "rejected_attempts": {
+    "performance_run001": "Pre-timing import adapter resolved public function instead of module; preserved failure/source.",
+    "wrapper_v2": "JIT on entire weights altered complex128 fallback componentwords:45PASS1FAIL. Rejected; CPU-only execution boundary final retains exact fallback.",
+    "optional_iszero": "Earlier phase1 optional change rejected/reverted; no iszero change in this packet."
+  },
+  "remaining": [
+    "Zero-only cancellation pv0/pvInf/column-row shape/nonZeroPoles public storage transitions still open; generic factory unchanged.",
+    "Existing host constructor/compression/iszero and their warnings remain declared debt; no new NumPy/SciPy provider/import/waiver.",
+    "No arbitrary callback/root/coefficients substitution, tolerance/threshold changes, lookup or argument-fitted branch."
+  ],
+  "publication_paths": [
+    "src/chebfunjax/diskfun/diskfun.py",
+    "tests/test_disk_cdr_gradual_source.py",
+    "docs/disk_cdr_gradual_cpu_20261018.json"
+  ],
+  "ownership": "One new core test file,10selectors; parent owns stable selector inventory/protocol gate.",
+  "receipts": {
+    "disk_cdr_gradual_baseline_final10_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 6.075582796242088,
+      "sampled_peak_summed_rss_kib": 591016,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 5.76597583014518,
+      "sampled_peak_summed_rss_kib": 572124,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_callers18_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 72.5989205581136,
+      "sampled_peak_summed_rss_kib": 2893948,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_candidate_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 12.646479773335159,
+      "sampled_peak_summed_rss_kib": 951212,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_existing17_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 66.77575853606686,
+      "sampled_peak_summed_rss_kib": 2706780,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_final44_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 33.32304886402562,
+      "sampled_peak_summed_rss_kib": 1819680,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_final46_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 21.215849724132568,
+      "sampled_peak_summed_rss_kib": 1184496,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_final46_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 21.049977050162852,
+      "sampled_peak_summed_rss_kib": 1174548,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_intermediates_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.576001760084182,
+      "sampled_peak_summed_rss_kib": 498888,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_performance_final_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.6808217810466886,
+      "sampled_peak_summed_rss_kib": 522236,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_performance_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 2.7695836750790477,
+      "sampled_peak_summed_rss_kib": 423584,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_performance_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.51919589098543,
+      "sampled_peak_summed_rss_kib": 861728,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_cdr_gradual_svd17_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 38.17453556600958,
+      "sampled_peak_summed_rss_kib": 2351848,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    }
+  },
+  "artifact_scope": "Fullsrc/pyproject, all executed test modules/root conftests/2fixtures, source variants/driver versions/raw runs; broad guard hashes also bind unused test files externally. Targeted native source/fixture reused from immutable phase1 archive, not duplicated full native installation.",
+  "source_hashes": {
+    "baseline_phase1": "71f95741b0a416de01cb9664412268a6be5335896d83c906d8812f84bf270f6c",
+    "final": "8beee0d9ae103c3811343a6ca53e22138938f4c104dd5fd8357f0bf87b34c86a",
+    "gradual_unchanged": "a078f23348f070aeaffaa434866a15eb209250584ae351e98ccfc912c5db736a"
+  }
+}

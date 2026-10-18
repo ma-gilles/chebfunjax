@@ -712,7 +712,8 @@
       "tests/test_utils/test_ratinterp_inherited_domain_source.py",
       "tests/test_operators/test_system_eigs_projection_source.py",
       "tests/test_utils/test_bounded_cosine_derivatives_source.py",
-      "tests/test_utils/test_fft64_two_columns_native.py"
+      "tests/test_utils/test_fft64_two_columns_native.py",
+      "tests/test_disk_cdr_gradual_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -767,7 +768,8 @@
       "tests/test_utils/test_c2r_radix2_source.py",
       "tests/test_utils/test_bary_native_node_loop.py",
       "tests/test_tech/test_nonfinite_native_transform_stages.py",
-      "tests/test_disk_source_maps.py"
+      "tests/test_disk_source_maps.py",
+      "tests/test_disk_cdr_source.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",
@@ -1126,6 +1128,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "0afc015c94f933d1932ac6ab9af8138c625980c2",
-  "update_scope": "Ownership only; append disk pole and callable Bernoulli source files, preserve all1094priorowners and dedicatedHermite lane."
+  "last_update_parent": "01d33a18c17ddf3b963e5a33f4a91aea7930228d",
+  "update_scope": "Ownership only; includes current working-tree inventory."
 }

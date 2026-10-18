@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Source CDR reciprocal policy and zero-pivot consumers: actual parent104checks pass, including unchanged original31/32. All16native reciprocal words and22,130signed independent exact-rational controls pass; compiled local JAX arithmetic avoids eager dispatch regression. All1096prior CI owners retained+2. [Evidence](disk_cdr_parent_cpu_20261018.json).
+- [ ] Native zero-result storage/pivots/flags, inherited host iszero debt, downstream subnormal arithmetic, complete Diskfun/API/IEEE/JAX and matched speed remain unqualified. Latest-main scientificCI/coverage remains required.
+
+
 - [x] Source disk addPoles fixes unchanged original31/32EPS:directcoefficients/continuousL2/extractedrestscale;13new+17existing+3structural controls pass. Callable Bernoulli returnclass restored;5new+unchangedoriginalsmoke pass and fresh nativeN0/1/4/8 captured. Combined64actualparent checks. [Evidence](disk_poles_bernoulli_parent_cpu_20261018.json).
 - [ ] Canceled-only diskzero storage/pivot/flags, residualproviderwords, full APIs/JAX/performance andlatestCI remain open; Bernoulli returntype list→Chebfun is intentional source-API correction.
 

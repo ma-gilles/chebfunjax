@@ -47,6 +47,11 @@ from chebfunjax.diskfun._simplify import simplify_slice, slice_scale
 from chebfunjax.domain import _linear_inverse_map
 from chebfunjax.tech.chebtech import Chebtech2
 from chebfunjax.tech.trigtech import Trigtech, trig_vals2coeffs
+from chebfunjax.utils._gradual import (
+    _positive_pack,
+    _positive_parts,
+    gradual_positive_divide,
+)
 from chebfunjax.utils._ordered_binary import binary
 from chebfunjax.utils.misc import standard_chop
 from chebfunjax.utils.quadrature import chebpts
@@ -68,6 +73,66 @@ def _disk_inverse_map(x, a, b):
     left = binary(binary(x, a, 2), width, 3)
     right = binary(binary(b, x, 2), width, 3)
     return binary(left, right, 2)
+
+
+@jax.custom_jvp
+def _disk_real_reciprocal(pivots):
+    """Binary64 CPU reciprocal with gradual input/output representation.
+
+    Native CDR uses IEEE division. Decode subnormal denominators before CPU
+    arithmetic can flush them, and reuse the existing exact gradual division
+    for subnormal results. This helper does not change the global provider.
+    """
+    bits = jax.lax.bitcast_convert_type(pivots, jnp.uint64)
+    sign = bits & jnp.uint64(0x8000000000000000)
+    magnitude = bits & jnp.uint64(0x7FFFFFFFFFFFFFFF)
+    finite_nonzero = (magnitude != 0) & (magnitude < jnp.uint64(0x7FF0000000000000))
+    safe_bits = jnp.where(finite_nonzero, magnitude, jnp.uint64(0x3FF0000000000000))
+    positive = jax.lax.bitcast_convert_type(safe_bits, jnp.float64)
+    ordinary_positive = gradual_positive_divide(jnp.ones_like(positive), positive)
+    mantissa, exponent = _positive_parts(positive)
+    normalized = binary(jnp.ones_like(mantissa), mantissa, 3)
+    tiny_denominator = _positive_pack(normalized, -exponent)
+    subnormal = (magnitude != 0) & (magnitude < jnp.uint64(0x0010000000000000))
+    positive_result = jnp.where(subnormal, tiny_denominator, ordinary_positive)
+    result_bits = jax.lax.bitcast_convert_type(positive_result, jnp.uint64) | sign
+    ordinary = binary(jnp.ones_like(pivots), pivots, 3)
+    ordinary_bits = jax.lax.bitcast_convert_type(ordinary, jnp.uint64)
+    return jax.lax.bitcast_convert_type(
+        jnp.where(finite_nonzero, result_bits, ordinary_bits), jnp.float64
+    )
+
+
+@_disk_real_reciprocal.defjvp
+def _disk_reciprocal_jvp(primals, tangents):
+    (x,), (dx,) = primals, tangents
+    y = _disk_real_reciprocal(x)
+    # Finite nonsingular analytic tangent; no zero/overflow/NaN/Inf claim.
+    return y, -y * dx / x
+
+
+@jax.jit
+def _disk_real_cdr_weights(pivots):
+    """One local execution boundary for the CPU binary64 reciprocal policy."""
+    reciprocal = _disk_real_reciprocal(pivots)
+    return jnp.where(jnp.isinf(jnp.abs(reciprocal)),
+                     jnp.zeros_like(reciprocal), reciprocal)
+
+
+def _disk_cdr_weights(pivots):
+    """Native separableApprox CDR: zero infinite reciprocals, retain NaNs.
+
+    A zero pivot is a valid canceled-pole representation. It must not create
+    NaN evaluations through a raw infinity times a zero column. Signed zero
+    reciprocals of infinite pivots are retained by the source assignment.
+    """
+    pivots = jnp.asarray(pivots)
+    if pivots.dtype == jnp.float64 and jax.default_backend() == "cpu":
+        return _disk_real_cdr_weights(pivots)
+    # Preserve the existing fallback execution as well as its algebra.
+    reciprocal = binary(jnp.ones_like(pivots), pivots, 3)
+    return jnp.where(jnp.isinf(jnp.abs(reciprocal)),
+                     jnp.zeros_like(reciprocal), reciprocal)
 
 
 def _disk_add_poles(f, g, tol):
@@ -1178,10 +1243,11 @@ class Diskfun(eqx.Module):
         th_ref = _disk_inverse_map(theta, -jnp.pi, jnp.pi)
 
         result = jnp.zeros_like(jnp.broadcast_arrays(theta, r)[0], dtype=jnp.float64)
+        weights = _disk_cdr_weights(self.pivots)
         for j in range(len(self.cols)):
             cj_val = self.cols[j](r_ref)
             rj_val = self.rows[j](th_ref)
-            result = result + (1.0 / self.pivots[j]) * cj_val * rj_val
+            result = result + weights[j] * cj_val * rj_val
 
         return result
 
@@ -1259,6 +1325,7 @@ class Diskfun(eqx.Module):
             return jnp.array(0.0, dtype=jnp.float64)
 
         result = jnp.array(0.0, dtype=jnp.float64)
+        weights = _disk_cdr_weights(self.pivots)
 
         for j in self.idx_plus:
             # Integrate row over [-pi, pi]: ∫_{-pi}^{pi} row_j(theta) d(theta)
@@ -1285,7 +1352,7 @@ class Diskfun(eqx.Module):
             # Actually: ∫_{-1}^1 T_j(t)*t dt = 0 for j≠1 and... let's use a direct approach.
             int_col = _integrate_cheb_times_r(self.cols[j].coeffs)
 
-            result = result + (1.0 / self.pivots[j]) * int_col * int_row
+            result = result + weights[j] * int_col * int_row
 
         return result
 
@@ -1398,7 +1465,7 @@ class Diskfun(eqx.Module):
         svd, coeffs2
         """
         d = jnp.asarray(self.pivots, dtype=jnp.float64)
-        dinv = jnp.where(jnp.abs(d) > 0.0, 1.0 / d, 0.0)
+        dinv = _disk_cdr_weights(d)
         return list(self.cols), jnp.diag(dinv), list(self.rows)
 
     def coeffs2(self, m: int | None = None, n: int | None = None) -> jax.Array:
@@ -1449,7 +1516,7 @@ class Diskfun(eqx.Module):
             return jnp.zeros((0, 0), dtype=jnp.complex128)
 
         d = jnp.asarray(self.pivots, dtype=jnp.float64)
-        dinv = jnp.where(jnp.abs(d) > 0.0, 1.0 / d, 0.0).astype(jnp.complex128)
+        dinv = _disk_cdr_weights(d).astype(jnp.complex128)
 
         col_coeffs = [jnp.asarray(c.coeffs, dtype=jnp.float64) for c in self.cols]
         row_coeffs = [jnp.asarray(rw.coeffs, dtype=jnp.complex128) for rw in self.rows]
@@ -1875,10 +1942,11 @@ class Diskfun(eqx.Module):
             # int row_j dtheta = 2*pi*real(c0_j); minus (odd) rows vanish.
             total = jnp.array(0.0, dtype=jnp.float64)
             one = jnp.asarray(1.0, dtype=jnp.float64)
+            weights = _disk_cdr_weights(self.pivots)
             for j in range(len(self.cols)):
                 rc = self.rows[j].coeffs
                 int_row = 2.0 * jnp.pi * jnp.real(rc[rc.shape[0] // 2])
-                total = total + (1.0 / self.pivots[j]) * self.cols[j](one) * int_row
+                total = total + weights[j] * self.cols[j](one) * int_row
             return total
         # Line integral along a Chebfun curve.
         from chebfunjax.chebfun1d.chebfun import Chebfun
@@ -2942,7 +3010,7 @@ class Diskfun(eqx.Module):
             return Chebfun(funs=[], domain=Domain(dom))
 
         nterms = len(self.cols)
-        inv_p = [1.0 / self.pivots[j] for j in range(nterms)]
+        inv_p = _disk_cdr_weights(self.pivots)
 
         if dim == 1:
             # Integrate over r with the disk measure -> function of theta.

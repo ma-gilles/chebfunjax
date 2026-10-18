@@ -197,6 +197,21 @@
       "scope": "Source addPoles cancellation repair; strict original disk32 now passes without modifying external callbacks, operands or EPS",
       "sha256": "afd630874c3abe5950f7a8ae5f4650168932ae4a90c502e92e716d26084520dc"
     },
+    "disk_cdr_gradual_cpu_20261018": {
+      "path": "docs/disk_cdr_gradual_cpu_20261018.json",
+      "scope": "Local CPU real binary64 Diskfun CDR reciprocal, preserving native d=1./piv; d(abs(d)==Inf)=0. Repairs the two inherited finite FTZ gaps retained by phase1. Zero-pole storage/flags remain next phase; no full API/IEEE/all-backend parity claim.",
+      "sha256": "e239f3aec9a8af9412fc5ea18e2bf6266a0dbb6ba1e604c23a69970bd47fb5fa"
+    },
+    "disk_cdr_parent_cpu_20261018": {
+      "path": "docs/disk_cdr_parent_cpu_20261018.json",
+      "scope": "Parent integration of native CDR reciprocal policy, zero-pivot consumers and local CPU binary64 gradual reciprocal; no full Diskfun/API/IEEE/performance qualification",
+      "sha256": "f579a74ecee1369f04b74f5313ea9330225f3c1a973676d097ea29df084e48bc"
+    },
+    "disk_cdr_phase1_cpu_20261018": {
+      "path": "docs/disk_cdr_phase1_cpu_20261018.json",
+      "scope": "Source CDR infinite-reciprocal policy and verified Diskfun consumers, real CPU binary64; phase1 safety before zero-storage metadata changes. No full CDR/Diskfun/API/IEEE/JAX closure claim.",
+      "sha256": "dcc3a9afb9efc161a415c8047854576a83d68f3f7a920686618ce1a03744af97"
+    },
     "disk_factor_maps_cpu_20261017": {
       "path": "docs/disk_factor_maps_cpu_20261017.json",
       "scope": "Diskfun stored-factor inverse maps only; original disk32 remains failing",
@@ -75367,7 +75382,9 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/diskfun/diskfun.py"
+      ],
       "evidence": [
         {
           "artifact": "disk_feval35_parent_cpu_20261018",
@@ -75384,6 +75401,18 @@
           "artifact": "disk_unbounded_parent_cpu_20261018",
           "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
           "scope": "Native factor-coordinate maps; strict32 and residualproviderword gap remain."
+        },
+        {
+          "artifact": "disk_cdr_parent_cpu_20261018",
+          "limits": [
+            "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+            "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+            "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+            "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+            "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+            "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+          ],
+          "scope": "Zero-pivot polar/eager Cartesian caller safety; prior original35FEVAL coverage unchanged; no whole API/JIT/IEEE claim."
         }
       ],
       "functions": [
@@ -75404,6 +75433,18 @@
               "artifact": "disk_unbounded_parent_cpu_20261018",
               "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
               "scope": "Native factor-coordinate maps; strict32 and residualproviderword gap remain."
+            },
+            {
+              "artifact": "disk_cdr_parent_cpu_20261018",
+              "limits": [
+                "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+                "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+                "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+                "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+                "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+                "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+              ],
+              "scope": "Zero-pivot polar/eager Cartesian caller safety; prior original35FEVAL coverage unchanged; no whole API/JIT/IEEE claim."
             }
           ],
           "implementation_status": "unverified",
@@ -80264,11 +80305,39 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
-      "evidence": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/diskfun/diskfun.py"
+      ],
+      "evidence": [
+        {
+          "artifact": "disk_cdr_parent_cpu_20261018",
+          "limits": [
+            "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+            "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+            "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+            "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+            "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+            "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+          ],
+          "scope": "Diskfun reciprocal/source CDR consumers and scoped real CPU native/exact-rational tests; not all separableApprox subclasses or complete API."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_cdr_parent_cpu_20261018",
+              "limits": [
+                "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+                "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+                "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+                "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+                "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+                "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+              ],
+              "scope": "Diskfun reciprocal/source CDR consumers and scoped real CPU native/exact-rational tests; not all separableApprox subclasses or complete API."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -105894,6 +105963,18 @@
             "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
           ],
           "scope": "Unchangeddefaultdisk31/32strictEPS predicates nowpass; notwholeoriginalfileclosure."
+        },
+        {
+          "artifact": "disk_cdr_parent_cpu_20261018",
+          "limits": [
+            "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+            "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+            "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+            "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+            "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+            "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+          ],
+          "scope": "Original31/32 still pass unchanged EPS after reciprocal integration; not whole original file closure."
         }
       ],
       "functions": [
@@ -105910,6 +105991,18 @@
                 "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
               ],
               "scope": "Unchangeddefaultdisk31/32strictEPS predicates nowpass; notwholeoriginalfileclosure."
+            },
+            {
+              "artifact": "disk_cdr_parent_cpu_20261018",
+              "limits": [
+                "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+                "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+                "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+                "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+                "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+                "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+              ],
+              "scope": "Original31/32 still pass unchanged EPS after reciprocal integration; not whole original file closure."
             }
           ],
           "implementation_status": "unverified",

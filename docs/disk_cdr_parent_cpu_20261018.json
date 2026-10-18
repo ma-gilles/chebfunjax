@@ -1,0 +1,59 @@
+{
+  "actual_parent": {
+    "processes": [
+      "69PASS18.23s:36CDR+10gradual reciprocal+23CI protocol",
+      "35PASS105.33s:13pole+original31/32+17existing disk+3structural"
+    ],
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3947848,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 136.3048938140273
+    },
+    "unique_nodes": 104
+  },
+  "base": "01d33a18c17ddf3b963e5a33f4a91aea7930228d",
+  "child_evidence": {
+    "gradual": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cdr_gradual_package_20261018.tar.gz",
+      "baseline": "Same final10 controls on phase1:6FAIL4PASS;90word mismatches per exact-rational comparison mode.",
+      "qualified": "All16native words plus22,130signed exact-rational input controls in eager/JIT/vmap/JITvmap and833subnormal intermediates;98distinct child selectors pass (overlap parent).",
+      "report": "docs/disk_cdr_gradual_cpu_20261018.json",
+      "root_verified_payloads": 547,
+      "sha256": "53aa583be116a011c089f67339119c8bb2262438dd6f6d658689235ff818a021"
+    },
+    "phase1": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cdr_phase1_package_20261018.tar.gz",
+      "baseline": "Same final36 controls:8FAIL28PASS; eight actual public behavior failures, no missing-helper failures.",
+      "report": "docs/disk_cdr_phase1_cpu_20261018.json",
+      "root_verified_payloads": 659,
+      "sha256": "9e1e68f8855aadd2f8061a9095f4ec1f52e11b389dada3ed217cfc8244cc16c8"
+    }
+  },
+  "limits": [
+    "Zero-only public plus/scalar-zero storage, pivot and nonZeroPoles flag transitions still differ from native and remain separate phase2 work.",
+    "Original host iszero implementation intentionally unchanged after rejected JAX rewrite caused maxfinite false-zero. Its existing warnings/host debt remain.",
+    "Other dtype/backend and complex fallback exactness checked only for scoped controls; complex storage, all IEEE inputs and singular-point AD are not qualified.",
+    "Subnormal reciprocal word qualification does not establish all downstream subnormal multiplication/integration behavior.",
+    "Source norm/shape/word controls are scoped; no complete original test file or API status promoted.",
+    "C1 generalized eigensolver candidate remains isolated pending boundary/scale review. All322final-source pages/1305scientific figures, matched CPU slow paths and latest-main greenCI/coverage>=79% remain required."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "1096prior owner positions and13lanes retained; newgradual testfile10selectors inCore6 and CDR testfile36selectors inCore7.1098owners; dedicatedHermiteCore12 and aggregate79%threshold unchanged.",
+  "parent_archive": {
+    "guarded_inputs": 3082,
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cdr_parent_cpu_20261018.tar.gz",
+    "sha256": "8b2d70cc4963137cdb69eb9a3c0b618f57e8310bb0baba8df1f44b1b1c6c108e",
+    "verified_payloads": 3094
+  },
+  "performance_limits": "Descriptive direct-CDR warm rank1/rank8 about0.122/0.142ms vs phase1 0.338/0.363ms. Uncompiled candidate50.56/56.48ms rejected. Initial-call shared-warmup numbers are worse and remain in child report. No matched native or full-method speed qualification. Cached eqx FEVAL monkeypatch timings explicitly excluded.",
+  "scope": "Parent integration of native CDR reciprocal policy, zero-pivot consumers and local CPU binary64 gradual reciprocal; no full Diskfun/API/IEEE/performance qualification",
+  "source_changes": [
+    "Use source d=1/pivots; infinite reciprocals become zero, NaNs retained; share weights among verified CDR/FEVAL/coefficients/integration consumers.",
+    "Local real CPU binary64 input decomposition and existing gradual division/packing preserve subnormal denominators/results. Shared numerical providers unchanged.",
+    "One CPU-binary64-only compiled boundary avoids eager dispatch regression; float32/complex fallback retains phase1 operations. Finite ordinary first/second derivative controls pass."
+  ]
+}
