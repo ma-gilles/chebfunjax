@@ -724,7 +724,8 @@
       "tests/test_disk_cdr_gradual_source.py",
       "tests/test_operators/test_generalized_eig_native.py",
       "tests/test_diskfun/test_helmholtz_jax_provider.py",
-      "tests/test_discretization/test_ultras_multmat_source_tail.py"
+      "tests/test_discretization/test_ultras_multmat_source_tail.py",
+      "tests/test_diskfun/test_coeffs_numeric_storage_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1142,6 +1143,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "04a5cae8a74afbbb5a4692571ff15d3a1da2caae",
+  "last_update_parent": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

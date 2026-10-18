@@ -1,3 +1,36 @@
+# Disk constructor storage and inverse finishing — 2026-10-18
+
+Coefficient-to-Diskfun conversion now follows native numeric construction:
+retain factor lengths, project directly, and handle origin-only inputs before
+zero/tolerance logic. Pivot locations use the literal source getPoints grids.
+Nine native cases qualify ranks/lengths/pivots/locations/flags; remaining factor
+provider differences are recorded explicitly. Existing defaultFalse behavior
+is retained within nine captured controls. The original conversion prefix and
+all unrelated method ASTs stay exact. New factor allowance64*n*eps*scale is
+an authored bound; original tests/fixtures/tolerances remain unchanged.
+Child106distinct checks pass, including13original Helmholtz/rank checks. The
+first caller batch timed out after26completed passes; only32unfinished cases
+were resumed. Both receipts are retained, not called a completed initial gate.
+Public515cold4.274→3.296s includes first factor-value materialization; warm
+ranges overlap. Storage13/1→515/256 deliberately changes reconstructed words,
+max2.24e-17; no exact old-output/native-performance claim.
+
+Inverse sampled-root final Clenshaw arithmetic now shares capacity-shaped
+compilation before unchanged original-nFFT. Existing17strict provider controls
+and full selected inverse/roots/minmax cohort81PASS; all20actual inverse output
+artifacts remain word-identical. One sameCPU40–43pair observes cold17.018→16.017s,
+warmmedians1.654→1.620s. No candidatebackendcompile-time or native/statistical
+speed claim. Separate instrumented baseline attributes179compiles26.70s,
+including11finish calls8.37s; diagnostic observer overhead is explicit.
+
+Actual combined parent85PASS, observed Python-import hashes preguarded/stable,
+no censor/survivors. Parent count and child106/81qualifications overlap and are
+not summed as disjoint tests. All1112oldCIowner lane prefixes retained plus
+35node file→1113owners/13lanes/HermiteCore12/79%unchanged. Native numeric rank-cap
+and reciprocal semantics, inherited host GE, broader API/JAX/provider words,
+322pages/1305scientific figures, CPU performance and latest-mainCI remain open.
+Evidence: docs/constructor_inverse_parent_cpu_20261018.json.
+
 # Numeric nonzero system PDE trajectories — 2026-10-18
 
 Four actual unmodified native pde15s/installedode15s runs cover stationary and

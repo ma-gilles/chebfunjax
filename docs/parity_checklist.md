@@ -19,9 +19,9 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** four nonzero numeric system PDE trajectories; parent79PASS,108native samples within6.22e-15and independent analytic bound1e-7. TAN/TANH nine-record repair remains published;14original records remain.
+- **Latest verified integration:** native disk constructor storage and inverse finishing;85actualparentPASS, separate106disk/81inverse qualifications. Four numeric PDE trajectories remain qualified;14original unary records remain.
 - **Unary work:** fourteen original records remain (seven TAN phase/sign and seven minimum-subnormal loss). Supplementary pure-imaginary NaN and TANH sign gaps remain. Pure-imaginary Inf agrees; no shape/context dependence established.
-- **Disk work:** numeric/coefficient constructor storage, branch order and pivot-location grids under qualification;35native/source controls pass, affected original callers still required, no published repair credited.
+- **Disk work:** storage/branch/grid repair qualified below. Next: native numeric rank-cap and reciprocal arithmetic, then JAX replacement of inherited host GE; source attribution underway.
 - **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
 
 ### Active work, not yet credited as complete
@@ -33,6 +33,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Native coefficient/numeric Diskfun storage, origin-only branch order and pivot-grid metadata.35newcontrols21FAIL14PASS→35PASS;106distinctchildchecks include13originalHelmholtz/rank tests. Public515cold4.27→3.30s includes first values; warm ranges overlap. [Evidence](constructor_inverse_parent_cpu_20261018.json).
+- [x] Share inverse final Clenshaw compilation while retaining original-nFFT:81selectedcasesPASS,20actualoutputartifacts exact. One pairedcold17.02→16.02s/warmmedian1.65→1.62s, descriptive only. Actual combined parent **85 PASS**. [Evidence](constructor_inverse_parent_cpu_20261018.json).
+- [ ] Numeric disk rank-cap/reciprocal semantics, host NumPy GE, factor/provider words, full constructor/inverse API/JAX/performance,322pages/1305figures and latestCI remain open. New factor bound is authored; original bounds unchanged.
 
 - [x] Nonzero numeric scalar system PDE trajectories: four native installedode15s runs, two domains, stationary/decaying polynomials,108samples within6.22e-15. Independent analytic bound1e-7retained; full affected cohort **79 PASS**. Original test AST prefix/bounds unchanged. [Evidence](pde_numeric_evolution_cpu_20261018.json).
 - [ ] Native fixedN time-vector grammar (source returns0despite3solutioncolumns), wider target/options/complex/Fourier/variable-mass/plotting/API/JAX/performance and latestCI remain open. No matched speed claim.

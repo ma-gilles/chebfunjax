@@ -1,0 +1,124 @@
+{
+  "base": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+  "runtime_paths": [
+    "src/chebfunjax/diskfun/diskfun.py"
+  ],
+  "new_test_paths": [
+    "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
+    "tests/fixtures/disk_coeffs_numeric_storage_native_20261018.json"
+  ],
+  "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "pytest_passed_distinct": 106,
+  "pytest_passed_partition": {
+    "new_native_source_controls": 35,
+    "original_affected_callers": 58,
+    "original_Helmholtz_rank": 13
+  },
+  "baseline_new_controls": {
+    "passed": 14,
+    "failed": 21
+  },
+  "source_bounds": "All original tests/fixtures/bounds unchanged. New factor comparisons64*n*eps*sum-factor-scale are newly authored, not original/native-word equality. Exact pivot/location/flags/shapes and selected zero/origin-only component checks remain strict. Independent polynomial checks reuse original coefficient conversion10eps functional bound.",
+  "caller_gate_censoring": "Original58node batch reached300s cap after26completed PASS nodes (8converter+18constructor). Preserved receipt/source; only remaining32 nodes rerun and passed. No completed controls restarted.",
+  "runs": {
+    "baseline_run": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 19.208099827636033,
+      "sampled_peak_summed_rss_kib": 1147776,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 15.565812397748232,
+      "sampled_peak_summed_rss_kib": 1090232,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "caller_run": {
+      "command_exit_code": -15,
+      "censored_limit": "wall_timeout",
+      "wall_seconds": 301.55620737280697,
+      "sampled_peak_summed_rss_kib": 6421188,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "caller_remaining_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 100.07432631077245,
+      "sampled_peak_summed_rss_kib": 3802304,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "wordproof_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.976994139142334,
+      "sampled_peak_summed_rss_kib": 908876,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "original_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 237.43016046611592,
+      "sampled_peak_summed_rss_kib": 6581256,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "replay_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.309485320933163,
+      "sampled_peak_summed_rss_kib": 970428,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "baseline_public515_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 9.262864443007857,
+      "sampled_peak_summed_rss_kib": 862728,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_public515_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.203684563282877,
+      "sampled_peak_summed_rss_kib": 838904,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "baseline_constructor33_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.312764330767095,
+      "sampled_peak_summed_rss_kib": 776040,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_constructor33_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.395392539910972,
+      "sampled_peak_summed_rss_kib": 742452,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "compare_run": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 1.5521729569882154,
+      "sampled_peak_summed_rss_kib": 0,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "lint": "ruff check runtime/newtest passed; no fixes applied",
+  "patch_sha256": "450b67b009a02f3dab2ce34c663c7c3643609306c8141cef7ca7001dc799c54f",
+  "original_tracked_tests_fixtures_unchanged": true
+}

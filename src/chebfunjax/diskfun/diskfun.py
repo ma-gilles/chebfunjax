@@ -1903,7 +1903,7 @@ class Diskfun(eqx.Module):
         values = _trig_coeffs2vals_impl(Chebtech2.coeffs2vals(X).T).T
         # Native conversion projects the source grid to real values and
         # keeps its nonnegative-radius half before numeric construction.
-        return cls.from_values(jnp.real(values[m // 2:, :]))
+        return cls.from_values(jnp.real(values[m // 2:, :]), preserve_lengths=True)
 
     def integral(self, curve=None) -> jax.Array:
         """Definite / line integral of the Diskfun.
@@ -2046,6 +2046,19 @@ class Diskfun(eqx.Module):
             return cls.empty()
         if values.ndim < 2:
             values = values.reshape(-1, 1)
+        if (preserve_lengths and values.ndim == 2 and values.shape[0] == 1
+                and values.shape[1] % 2 == 0):
+            # Native PhaseOne handles origin-only data before tolerance/zero
+            # decisions: keep its first datum, a unit row, pivot1 and pole flag.
+            # The empty gradient and all remaining angular data are unused.
+            return cls(
+                cols=[Chebtech2.from_values(values[:, 0])],
+                rows=[Trigtech.from_values(jnp.ones(values.shape[1], dtype=jnp.float64))],
+                pivots=jnp.ones(1, dtype=jnp.float64),
+                idx_plus=(0,), idx_minus=(),
+                pivot_locations=((-float(jnp.pi), 0.0),),
+                nonzero_poles=True,
+            ).projectOntoBMCII()
         # Source PhaseOne numeric exact-zero branch retains m radial and n
         # angular entries. Inspect binary64 bits so FTZ cannot erase a
         # nonzero subnormal. Signed zeros both count as zero.
@@ -2087,21 +2100,32 @@ class Diskfun(eqx.Module):
                      for j in range(rows.shape[1])]
         if np.all(pivots == 0):
             pivots = np.full_like(pivots, np.inf)
-        th = -np.pi + 2 * np.pi * np.arange(m) / m
-        rr = np.cos(np.pi * np.arange(2 * n - 2, -1, -1) / (2 * n - 2))[n - 1:]
         locs = []
         if remove_pole:
-            locs.append((float(th[0]), 0.0))
-        for j, k in piv_idx:
-            locs.append((float(th[k]), float(rr[j])))
+            locs.append((-float(jnp.pi), 0.0))
+        if len(piv_idx):
+            if preserve_lengths:
+                # constructFromDouble calls getPoints(n,m), whose literal
+                # grids have2*m angular and2*n+1 doubled radial points.
+                # Retain that source metadata even though it differs from
+                # the numeric input grid. Existing JAX source node providers
+                # preserve its normalization; no fitted coordinate values.
+                from chebfunjax.utils.quadrature import trigpts
+                th = np.asarray(trigpts(2*m, (-jnp.pi, jnp.pi))[0])
+                rr = np.asarray(chebpts(2*n+1))[n:]
+            else:
+                th = -np.pi + 2 * np.pi * np.arange(m) / m
+                rr = np.cos(np.pi * np.arange(2 * n - 2, -1, -1) / (2 * n - 2))[n - 1:]
+            for j, k in piv_idx:
+                locs.append((float(th[k]), float(rr[j])))
         g = cls(cols=col_techs, rows=row_techs,
                 pivots=jnp.asarray(pivots, dtype=jnp.float64),
                 idx_plus=tuple(int(i) for i in idx_plus),
                 idx_minus=tuple(int(i) for i in idx_minus),
                 pivot_locations=tuple(locs[:len(pivots)]),
                 nonzero_poles=bool(remove_pole))
-        # MATLAB constructor.m ends with simplify(g, pseudoLevel) for
-        # every input kind, matrices included.
+        # Keep the legacy default simplification adapter. Native numeric
+        # construction opts into direct projection and full slice storage.
         if preserve_lengths:
             # Source constructFromDouble projects directly without simplify.
             return g.projectOntoBMCII()

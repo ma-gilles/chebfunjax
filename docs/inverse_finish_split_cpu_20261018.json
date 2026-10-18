@@ -1,0 +1,445 @@
+{
+  "scope": "Capacity-shaped final sampled-root Clenshaw arithmetic separated from unchanged original-nFFT. CPU only; existing source/provider word controls and full selected inverse/roots/minandmax modules. No whole API/performance/native-word closure.",
+  "base_head": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "qualified_distinct_tests": 81,
+  "standalone_source_word_repeat": 17,
+  "originals_included": {
+    "inverse_python_cases": 24,
+    "roots_python_cases": 24,
+    "minandmax_python_cases": 16,
+    "source_provider_word_cases": 17
+  },
+  "runtime_observed_python_import_guards": {
+    "tests": {
+      "count": 1484,
+      "missing_or_changed": []
+    },
+    "originals": {
+      "count": 1545,
+      "missing_or_changed": []
+    },
+    "baseline_actual": {
+      "count": 1368,
+      "missing_or_changed": []
+    },
+    "candidate_actual": {
+      "count": 1368,
+      "missing_or_changed": []
+    }
+  },
+  "receipts": {
+    "inverse_finish_split_tests_run001": {
+      "wall_seconds": 15.90072765480727,
+      "sampled_peak_summed_rss_kib": 798700,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "inverse_finish_split_pair_run001": {
+      "wall_seconds": 55.865808732807636,
+      "sampled_peak_summed_rss_kib": 1132808,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "inverse_finish_split_originals_run001": {
+      "wall_seconds": 196.1876493920572,
+      "sampled_peak_summed_rss_kib": 3048084,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "source_snapshots": 3499,
+  "static_review": {
+    "all_other_module_AST_exact": true,
+    "math_review": "Final Clenshaw binary operation sequence retained. Move parity-dependent final update into JAXcond on dynamic originaln, applying identical elementwise arithmetic on capacity arrays; perform same original-nFFT after slicing only active prefix. No host numerics/stencil/providerreplacement or fitted constants.",
+    "existing_source_word_tests": 17,
+    "original_fixture_bounds_unchanged": true,
+    "actual_inverse_output_artifacts_word_exact": [
+      {
+        "name": "cold_coeffs.bin",
+        "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      {
+        "name": "cold_domain.bin",
+        "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      {
+        "name": "cold_pointValues.bin",
+        "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      },
+      {
+        "name": "forward_composition257.bin",
+        "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15"
+      },
+      {
+        "name": "grids257.bin",
+        "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+      },
+      {
+        "name": "gridx257.bin",
+        "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+      },
+      {
+        "name": "inverse_composition257.bin",
+        "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31"
+      },
+      {
+        "name": "inverse_grid257.bin",
+        "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+      },
+      {
+        "name": "inverse_samples129.bin",
+        "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c"
+      },
+      {
+        "name": "native_sites129.bin",
+        "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+      },
+      {
+        "name": "roundtrip129.bin",
+        "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82"
+      },
+      {
+        "name": "warm1_coeffs.bin",
+        "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      {
+        "name": "warm1_domain.bin",
+        "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      {
+        "name": "warm1_pointValues.bin",
+        "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      },
+      {
+        "name": "warm2_coeffs.bin",
+        "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      {
+        "name": "warm2_domain.bin",
+        "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      {
+        "name": "warm2_pointValues.bin",
+        "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      },
+      {
+        "name": "warm3_coeffs.bin",
+        "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      {
+        "name": "warm3_domain.bin",
+        "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      {
+        "name": "warm3_pointValues.bin",
+        "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      }
+    ],
+    "pair_timing": {
+      "baseline_cold": 17.01842769095674,
+      "candidate_cold": 16.01658873911947,
+      "baseline_warm": [
+        1.66176677076146,
+        1.6475527207367122,
+        1.653796167112887
+      ],
+      "candidate_warm": [
+        1.6383633869700134,
+        1.619576821103692,
+        1.6095175030641258
+      ],
+      "baseline_warm_median": 1.653796167112887,
+      "candidate_warm_median": 1.619576821103692
+    },
+    "timing_limit": "Single sequential sameCPU40\u201343sharedhostpair; descriptive, not matchednative/statistical/universal speed closure. No direct candidatecompilerprofile; do not claim measured backendcompiletime reduction."
+  },
+  "patch_sha256": "669ecfbf7ca84a23a5b1d8924afa88d9172e6709c0a8345cf4b6b0583e2995a4",
+  "compile_attribution": {
+    "scope": "One instrumented cold retained ComplexArcLength inverse onCPU40, sourcea9d5461a; attribute backend compilation modules and call stacks. Diagnostic overhead/cProfile included, no matched speed claim.",
+    "inverse_compile_count": 179,
+    "inverse_backend_compile_seconds": 26.70286704506725,
+    "by_module": {
+      "\"jit_finish_subdivision\"": {
+        "calls": 11,
+        "seconds": 8.370618844870478
+      },
+      "\"jit__brent\"": {
+        "calls": 4,
+        "seconds": 3.630381696857512
+      },
+      "\"jit_grid_and_states\"": {
+        "calls": 3,
+        "seconds": 3.1814060430042446
+      },
+      "\"jit__standard_chop_kernel\"": {
+        "calls": 3,
+        "seconds": 2.703035174869001
+      },
+      "\"jit__roots_eigvals_jax\"": {
+        "calls": 25,
+        "seconds": 1.6674782084301114
+      },
+      "\"jit__vals2coeffs_jax\"": {
+        "calls": 3,
+        "seconds": 1.2778744143433869
+      },
+      "\"jit__roots_build_transforms\"": {
+        "calls": 1,
+        "seconds": 0.8983103302307427
+      },
+      "\"jit__coeffs2vals_jax\"": {
+        "calls": 5,
+        "seconds": 0.7301713125780225
+      },
+      "\"jit_points\"": {
+        "calls": 1,
+        "seconds": 0.5720970160327852
+      },
+      "\"jit__adaptive_sample_metadata\"": {
+        "calls": 3,
+        "seconds": 0.4707227027975023
+      },
+      "\"jit__evaluate_piece_interval\"": {
+        "calls": 1,
+        "seconds": 0.3208955782465637
+      },
+      "\"jit__diff_coeffs_once\"": {
+        "calls": 1,
+        "seconds": 0.2572426828555763
+      },
+      "\"jit__clenshaw\"": {
+        "calls": 1,
+        "seconds": 0.24961024709045887
+      },
+      "\"jit__roots_normalize_source_cpu\"": {
+        "calls": 1,
+        "seconds": 0.22805682010948658
+      },
+      "\"jit__roots_apply_transforms_cpu_lanes\"": {
+        "calls": 1,
+        "seconds": 0.18477075221017003
+      },
+      "\"jit__interleave_chebtech2_nested_values\"": {
+        "calls": 2,
+        "seconds": 0.17933540372177958
+      },
+      "\"jit__matrix\"": {
+        "calls": 1,
+        "seconds": 0.16503723710775375
+      },
+      "\"jit_add\"": {
+        "calls": 11,
+        "seconds": 0.16337660420686007
+      },
+      "\"jit_dynamic_slice\"": {
+        "calls": 8,
+        "seconds": 0.14203867316246033
+      },
+      "\"jit_abs\"": {
+        "calls": 6,
+        "seconds": 0.1404556385241449
+      },
+      "\"jit__reduce_max\"": {
+        "calls": 7,
+        "seconds": 0.0954610500484705
+      },
+      "\"jit__metadata\"": {
+        "calls": 1,
+        "seconds": 0.08534929994493723
+      },
+      "\"jit_true_divide\"": {
+        "calls": 3,
+        "seconds": 0.08410612214356661
+      },
+      "\"jit_multiply\"": {
+        "calls": 5,
+        "seconds": 0.07824358157813549
+      },
+      "\"jit__pad\"": {
+        "calls": 3,
+        "seconds": 0.06405794667080045
+      },
+      "\"jit__restore_refinement_sentinels\"": {
+        "calls": 2,
+        "seconds": 0.058511719573289156
+      },
+      "\"jit_subtract\"": {
+        "calls": 3,
+        "seconds": 0.058325888589024544
+      },
+      "\"jit_isnan\"": {
+        "calls": 2,
+        "seconds": 0.056154529098421335
+      },
+      "\"jit__reduce_all\"": {
+        "calls": 1,
+        "seconds": 0.050756572280079126
+      },
+      "\"jit__unique_sorted_mask\"": {
+        "calls": 2,
+        "seconds": 0.04762787139043212
+      },
+      "\"jit_convert_element_type\"": {
+        "calls": 7,
+        "seconds": 0.04396317107602954
+      },
+      "\"jit_broadcast_in_dim\"": {
+        "calls": 7,
+        "seconds": 0.043684789445251226
+      },
+      "\"jit_less\"": {
+        "calls": 3,
+        "seconds": 0.04239138821139932
+      },
+      "\"jit_slice\"": {
+        "calls": 2,
+        "seconds": 0.040498227812349796
+      },
+      "\"jit_stack\"": {
+        "calls": 1,
+        "seconds": 0.03434777678921819
+      },
+      "\"jit_ravel\"": {
+        "calls": 6,
+        "seconds": 0.02376247802749276
+      },
+      "\"jit_select_n\"": {
+        "calls": 2,
+        "seconds": 0.023648475296795368
+      },
+      "\"jit__argmin\"": {
+        "calls": 1,
+        "seconds": 0.02171719493344426
+      },
+      "\"jit_atleast_1d\"": {
+        "calls": 5,
+        "seconds": 0.021278290078043938
+      },
+      "\"jit__reduce_sum\"": {
+        "calls": 1,
+        "seconds": 0.01919252797961235
+      },
+      "\"jit__preserve_nonfinite_piece_values\"": {
+        "calls": 1,
+        "seconds": 0.018702367320656776
+      },
+      "\"jit__argmax\"": {
+        "calls": 1,
+        "seconds": 0.018574855756014585
+      },
+      "\"jit_invert\"": {
+        "calls": 1,
+        "seconds": 0.017919704783707857
+      },
+      "\"jit_stage\"": {
+        "calls": 4,
+        "seconds": 0.01746743405237794
+      },
+      "\"jit_maximum\"": {
+        "calls": 1,
+        "seconds": 0.016870833933353424
+      },
+      "\"jit_gather\"": {
+        "calls": 1,
+        "seconds": 0.016820177901536226
+      },
+      "\"jit_diff\"": {
+        "calls": 1,
+        "seconds": 0.014554159250110388
+      },
+      "\"jit_squeeze\"": {
+        "calls": 3,
+        "seconds": 0.01347529236227274
+      },
+      "\"jit__reduce_any\"": {
+        "calls": 2,
+        "seconds": 0.009108372032642365
+      },
+      "\"jit__broadcast_arrays\"": {
+        "calls": 2,
+        "seconds": 0.00899470690637827
+      },
+      "\"jit__moveaxis\"": {
+        "calls": 2,
+        "seconds": 0.008305873721837997
+      },
+      "\"jit_concatenate\"": {
+        "calls": 2,
+        "seconds": 0.008253274951130152
+      },
+      "\"jit_empty\"": {
+        "calls": 1,
+        "seconds": 0.003929636906832457
+      },
+      "\"jit_real\"": {
+        "calls": 1,
+        "seconds": 0.0038960729725658894
+      }
+    },
+    "full_output_coefficients": 8630,
+    "output_hashes_exact_previous_matched_benchmark": {
+      "coeffs": {
+        "shape": [
+          8630
+        ],
+        "dtype": "float64",
+        "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+      },
+      "domain": {
+        "shape": [
+          2
+        ],
+        "dtype": "float64",
+        "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+      },
+      "pointValues": {
+        "shape": [
+          2
+        ],
+        "dtype": "float64",
+        "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+      }
+    },
+    "numerical_comparison": {
+      "native_length": 8630,
+      "candidate_length": 8630,
+      "common_prefix_max_abs": 5.551115123125783e-17,
+      "common_prefix_word_mismatches": 8626,
+      "domain_word_equal": true,
+      "pointValues_word_equal": true,
+      "native_sites129_max_abs": 3.885780586188048e-16,
+      "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+      "inverse_composition257_max_abs": 1.3322676295501878e-15,
+      "forward_composition257_max_abs": 7.105427357601002e-15
+    },
+    "runtime_observed_python_import_guard": {
+      "count": 1372,
+      "missing_or_changed": []
+    },
+    "next_action": "Prototype capacity-shaped final Clenshaw arithmetic separated from original-nFFT, to avoid repeating common final arithmetic in11shape-specialized finish_subdivision compilations. Preserve exact outputs and qualify timing before integration.",
+    "limits": [
+      "199totalcompileevents include20post-inverse diagnostic evaluation calls; inverse-only179selected by live _inverse Python stack. Do not attribute post-evaluationcompiles toinv.",
+      "No native or page rerun; original bounds unchanged.",
+      "No production source change; cold sampled finish8.37s/grid3.18s/Brent3.63s/chop2.70s are module attribution, not proved optimization gains."
+    ],
+    "archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_compile_attribution_cpu_20261018.tar.gz",
+      "sha256": "c972d687108e27eff7992c7fdeb0715d3ebc199dd7ba229202d8d0d7ff2d1c94",
+      "root_stream_verified_payloads": 418
+    }
+  },
+  "timing_scope": "One cold and3warm calls per arm, sequential sameCPU40\u201343/sharedhost, compilation cache disabled.17.018\u219216.017s cold and medians1.654\u21921.620s are descriptive; no direct candidatebackendcompile-time measurement or native/statistical speed claim.",
+  "native_words_limit": "Same20baseline/candidate output artifacts exact; source-native inverse coefficient differences8626/8630remain (max5.55e-17), retained129samples max3.89e-16. Native exact equality and performance remain open.",
+  "original_tests_and_fixtures": "All existing tests/assertions/bounds/fixtures byte-identical tobase; no new testfile/CIownership change in this isolated package.",
+  "remaining": [
+    "Full inverse API/JAX/AD/IEEE and native output words/performance; stronger repeated matched timing and all known slow paths.",
+    "Whole library/original-assertion audit,322final-source pages,1305scientific figures.",
+    "Parent combined-source integration, latest-mainCI/coverage>=79%."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_finish_split_cpu_20261018.tar.gz",
+    "sha256": "154fe878668bfc2a825866e44de241999099d431fe0b688a3f6dd48628e20705",
+    "root_stream_verified_payloads": 3603
+  }
+}

@@ -192,6 +192,22 @@
       "scope": "Same-input QR/SVD provider diagnosis; native-R diagnostic reduces vector discrepancy. No mathematical accuracy bug or production fix established.",
       "sha256": "f7859c192e724a1001710d0b6b28f4d2c8052d05f58092ba73d07ecba9f414fe"
     },
+    "constructor_inverse_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/constructor_inverse_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3593,
+        "sha256": "8a2102c3c09adaac5dea686d464f16a4f94c63f776cfc00848d5df8b3c028ef1"
+      },
+      "limits": [
+        "Numeric Diskfun rank-cap/source reciprocal semantics and host NumPy GE; full constructor/API/IEEE/JAX/provider-word/performance parity.",
+        "14originalunaryrecords plus supplementaryNaN/subnormal cases; scopedNaNfollowupunderqualification.",
+        "InversefullAPI/JAX/AD/providerwords/performance; allknownslowpaths.",
+        "Fullfunction/assertion audit,322final-sourcepages,1305scientificfigures and latest-mainCI/coverage>=79%."
+      ],
+      "report": "docs/constructor_inverse_parent_cpu_20261018.json",
+      "report_sha256": "ef8f2caa4def518d58c8163a60a28eb49f2de43541fc6f15d9545f3e6f8a5d40",
+      "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure."
+    },
     "cosine_watson_paired_controls_cpu_20261017": {
       "path": "docs/cosine_watson_paired_controls_cpu_20261017.json",
       "scope": "Paired source-compatible/external-JAX cosine diagnosis; unchanged strict warning regression remains unresolved",
@@ -52831,11 +52847,20 @@
         {
           "artifact": "inverse_sampled_four_stage_cpu_20261017",
           "scope": "Same-input20artifact identity and descriptive warm runtime; matched native/full API remains open"
+        },
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "constructor_inverse_parent_cpu_20261018",
+              "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -71459,6 +71484,10 @@
             "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
           ],
           "scope": "Native9 real CPU coefficient-normalization/root-word controls and existing C1/C2 gates; not complete root API/words/backend/AD/speed."
+        },
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
         }
       ],
       "functions": [
@@ -71475,6 +71504,10 @@
                 "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
               ],
               "scope": "Native9 real CPU coefficient-normalization/root-word controls and existing C1/C2 gates; not complete root API/words/backend/AD/speed."
+            },
+            {
+              "artifact": "constructor_inverse_parent_cpu_20261018",
+              "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
             }
           ],
           "implementation_status": "unverified",
@@ -71492,7 +71525,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "constructor_inverse_parent_cpu_20261018",
+              "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "198",
@@ -75300,10 +75338,20 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "constructor_inverse_parent_cpu_20261018",
+              "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -75432,10 +75480,20 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "constructor_inverse_parent_cpu_20261018",
+              "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -104580,6 +104638,10 @@
         {
           "artifact": "clenshaw_four_stage_cpu_20261017",
           "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
+        },
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
         }
       ],
       "functions": [
@@ -118688,7 +118750,12 @@
         "tests/test_matlab_port/singfun/test_minandmax_matlab.py",
         "tests/test_matlab_port/trigtech/test_minandmax_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -119159,6 +119226,10 @@
             "Latest-main scientificCI and coverage>=79% still required; metadata check does not replace complete CI."
           ],
           "scope": "Unchanged ported original assertions pass with normalization; no fresh complete native original-suite invocation claimed."
+        },
+        {
+          "artifact": "constructor_inverse_parent_cpu_20261018",
+          "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
         }
       ],
       "functions": [

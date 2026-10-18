@@ -1,0 +1,4126 @@
+{
+  "base_head": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
+  "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "actual_parent_passed": 85,
+  "actual_parent_xfailed": 0,
+  "observed_python_import_guard": {
+    "count": 1570,
+    "missing_or_changed": []
+  },
+  "receipt": {
+    "wall_seconds": 101.86867411667481,
+    "sampled_peak_summed_rss_kib": 3680040,
+    "remaining_owned_pids": [],
+    "censored_limit": null
+  },
+  "source_snapshots": 3501,
+  "static_review": {
+    "base_head": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
+    "qualified_source_bridges": {
+      "src/chebfunjax/diskfun/diskfun.py": "ceb2cd08b64d31ecda32d3c33372726cdfebc5e1b64e0989b5622787c6991f53",
+      "tests/test_diskfun/test_coeffs_numeric_storage_source.py": "ee9217ebdfab24c7e16ffde5b2bfc3400c53af08cf43f564cbdcbaba474dfdfd",
+      "tests/fixtures/disk_coeffs_numeric_storage_native_20261018.json": "7878f5115b4b24ad1a71c6aa3c38daf7b184bf172c36bd497fec322b3d1eadff",
+      "src/chebfunjax/tech/_roots_sampled_cpu.py": "f1186eee3d41cf810d47c7aa5b0007a5d89176c620a47c43bd381fc5991b6a7d"
+    },
+    "ownership": "1112prior lane prefixes preserved plus new35node file,1113owners/13lanes/HermiteCore12/79%unchanged.",
+    "disk_review": {
+      "base": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+      "runtime_paths": [
+        "src/chebfunjax/diskfun/diskfun.py"
+      ],
+      "new_test_paths": [
+        "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
+        "tests/fixtures/disk_coeffs_numeric_storage_native_20261018.json"
+      ],
+      "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+      "pytest_passed_distinct": 106,
+      "pytest_passed_partition": {
+        "new_native_source_controls": 35,
+        "original_affected_callers": 58,
+        "original_Helmholtz_rank": 13
+      },
+      "baseline_new_controls": {
+        "passed": 14,
+        "failed": 21
+      },
+      "source_bounds": "All original tests/fixtures/bounds unchanged. New factor comparisons64*n*eps*sum-factor-scale are newly authored, not original/native-word equality. Exact pivot/location/flags/shapes and selected zero/origin-only component checks remain strict. Independent polynomial checks reuse original coefficient conversion10eps functional bound.",
+      "caller_gate_censoring": "Original58node batch reached300s cap after26completed PASS nodes (8converter+18constructor). Preserved receipt/source; only remaining32 nodes rerun and passed. No completed controls restarted.",
+      "runs": {
+        "baseline_run": {
+          "command_exit_code": 1,
+          "censored_limit": null,
+          "wall_seconds": 19.208099827636033,
+          "sampled_peak_summed_rss_kib": 1147776,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "candidate_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 15.565812397748232,
+          "sampled_peak_summed_rss_kib": 1090232,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "caller_run": {
+          "command_exit_code": -15,
+          "censored_limit": "wall_timeout",
+          "wall_seconds": 301.55620737280697,
+          "sampled_peak_summed_rss_kib": 6421188,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "caller_remaining_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 100.07432631077245,
+          "sampled_peak_summed_rss_kib": 3802304,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "wordproof_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 10.976994139142334,
+          "sampled_peak_summed_rss_kib": 908876,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "original_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 237.43016046611592,
+          "sampled_peak_summed_rss_kib": 6581256,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "replay_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 11.309485320933163,
+          "sampled_peak_summed_rss_kib": 970428,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "baseline_public515_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 9.262864443007857,
+          "sampled_peak_summed_rss_kib": 862728,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "candidate_public515_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 8.203684563282877,
+          "sampled_peak_summed_rss_kib": 838904,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "baseline_constructor33_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 8.312764330767095,
+          "sampled_peak_summed_rss_kib": 776040,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "candidate_constructor33_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 7.395392539910972,
+          "sampled_peak_summed_rss_kib": 742452,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        },
+        "compare_run": {
+          "command_exit_code": 0,
+          "censored_limit": null,
+          "wall_seconds": 1.5521729569882154,
+          "sampled_peak_summed_rss_kib": 0,
+          "remaining_owned_pids": [],
+          "inputs_stable": true
+        }
+      },
+      "lint": "ruff check runtime/newtest passed; no fixes applied",
+      "patch_sha256": "450b67b009a02f3dab2ce34c663c7c3643609306c8141cef7ca7001dc799c54f",
+      "original_tracked_tests_fixtures_unchanged": true
+    },
+    "inverse_review": {
+      "all_other_module_AST_exact": true,
+      "math_review": "Final Clenshaw binary operation sequence retained. Move parity-dependent final update into JAXcond on dynamic originaln, applying identical elementwise arithmetic on capacity arrays; perform same original-nFFT after slicing only active prefix. No host numerics/stencil/providerreplacement or fitted constants.",
+      "existing_source_word_tests": 17,
+      "original_fixture_bounds_unchanged": true,
+      "actual_inverse_output_artifacts_word_exact": [
+        {
+          "name": "cold_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "cold_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "cold_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "forward_composition257.bin",
+          "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15"
+        },
+        {
+          "name": "grids257.bin",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        {
+          "name": "gridx257.bin",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        {
+          "name": "inverse_composition257.bin",
+          "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31"
+        },
+        {
+          "name": "inverse_grid257.bin",
+          "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+        },
+        {
+          "name": "inverse_samples129.bin",
+          "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c"
+        },
+        {
+          "name": "native_sites129.bin",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        {
+          "name": "roundtrip129.bin",
+          "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82"
+        },
+        {
+          "name": "warm1_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm1_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm1_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "warm2_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm2_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm2_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "warm3_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm3_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm3_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        }
+      ],
+      "pair_timing": {
+        "baseline_cold": 17.01842769095674,
+        "candidate_cold": 16.01658873911947,
+        "baseline_warm": [
+          1.66176677076146,
+          1.6475527207367122,
+          1.653796167112887
+        ],
+        "candidate_warm": [
+          1.6383633869700134,
+          1.619576821103692,
+          1.6095175030641258
+        ],
+        "baseline_warm_median": 1.653796167112887,
+        "candidate_warm_median": 1.619576821103692
+      },
+      "timing_limit": "Single sequential sameCPU40\u201343sharedhostpair; descriptive, not matchednative/statistical/universal speed closure. No direct candidatecompilerprofile; do not claim measured backendcompiletime reduction."
+    },
+    "limits": "Disk coefficient route intentionally changes source-required storage, not exact old public outputs; provider gaps quantified. Inverse20actualoutputartifacts exact,81selectedtestcasequalification separate from rootactualgate. Scoped source dependencies, not universalAPI/IEEE/JAX/page/performance closure."
+  },
+  "critical_prior_disk_source_bridge": {
+    "src/chebfunjax/diskfun/_helmholtz.py": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+    "src/chebfunjax/discretization/ultras.py": "a371b7d6579d748a06ae423c32d75e5f7dcb6d3641d631d57f78bd30e560a694",
+    "src/chebfunjax/tech/chebtech.py": "3a95d4dec68efd8dd3b3ec1200b987015bcce5df8de7ae52c3f352006b3a8d0a",
+    "src/chebfunjax/tech/trigtech.py": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227"
+  },
+  "disk_child_qualification": {
+    "base": "0ce850fb518125e39365c01ab5a0409f1a42ac9e",
+    "runtime_paths": [
+      "src/chebfunjax/diskfun/diskfun.py"
+    ],
+    "new_test_paths": [
+      "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
+      "tests/fixtures/disk_coeffs_numeric_storage_native_20261018.json"
+    ],
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "pytest_passed_distinct": 106,
+    "pytest_passed_partition": {
+      "new_native_source_controls": 35,
+      "original_affected_callers": 58,
+      "original_Helmholtz_rank": 13
+    },
+    "baseline_new_controls": {
+      "passed": 14,
+      "failed": 21
+    },
+    "source_bounds": "All original tests/fixtures/bounds unchanged. New factor comparisons64*n*eps*sum-factor-scale are newly authored, not original/native-word equality. Exact pivot/location/flags/shapes and selected zero/origin-only component checks remain strict. Independent polynomial checks reuse original coefficient conversion10eps functional bound.",
+    "caller_gate_censoring": "Original58node batch reached300s cap after26completed PASS nodes (8converter+18constructor). Preserved receipt/source; only remaining32 nodes rerun and passed. No completed controls restarted.",
+    "runs": {
+      "baseline_run": {
+        "command_exit_code": 1,
+        "censored_limit": null,
+        "wall_seconds": 19.208099827636033,
+        "sampled_peak_summed_rss_kib": 1147776,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "candidate_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 15.565812397748232,
+        "sampled_peak_summed_rss_kib": 1090232,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "caller_run": {
+        "command_exit_code": -15,
+        "censored_limit": "wall_timeout",
+        "wall_seconds": 301.55620737280697,
+        "sampled_peak_summed_rss_kib": 6421188,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "caller_remaining_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 100.07432631077245,
+        "sampled_peak_summed_rss_kib": 3802304,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "wordproof_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 10.976994139142334,
+        "sampled_peak_summed_rss_kib": 908876,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "original_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 237.43016046611592,
+        "sampled_peak_summed_rss_kib": 6581256,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "replay_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 11.309485320933163,
+        "sampled_peak_summed_rss_kib": 970428,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "baseline_public515_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 9.262864443007857,
+        "sampled_peak_summed_rss_kib": 862728,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "candidate_public515_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 8.203684563282877,
+        "sampled_peak_summed_rss_kib": 838904,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "baseline_constructor33_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 8.312764330767095,
+        "sampled_peak_summed_rss_kib": 776040,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "candidate_constructor33_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 7.395392539910972,
+        "sampled_peak_summed_rss_kib": 742452,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      },
+      "compare_run": {
+        "command_exit_code": 0,
+        "censored_limit": null,
+        "wall_seconds": 1.5521729569882154,
+        "sampled_peak_summed_rss_kib": 0,
+        "remaining_owned_pids": [],
+        "inputs_stable": true
+      }
+    },
+    "lint": "ruff check runtime/newtest passed; no fixes applied",
+    "patch_sha256": "450b67b009a02f3dab2ce34c663c7c3643609306c8141cef7ca7001dc799c54f",
+    "original_tracked_tests_fixtures_unchanged": true
+  },
+  "disk_child_comparison": [
+    {
+      "scope": "public515",
+      "requested_input_words_identical": true,
+      "outputs": {
+        "coefficients": {
+          "shape": [
+            515,
+            256
+          ],
+          "component_word_differences": 32381,
+          "max_absolute_difference": 2.234294318249873e-17,
+          "baseline_l1": 0.27208233153024813,
+          "candidate_l1": 0.27208233153024913
+        },
+        "probes": {
+          "shape": [
+            4
+          ],
+          "component_word_differences": 4,
+          "max_absolute_difference": 1.1102230246251565e-16,
+          "baseline_l1": 0.6292369805913374,
+          "candidate_l1": 0.6292369805913374
+        }
+      },
+      "timing": {
+        "baseline": {
+          "mode": "baseline",
+          "scope": "public515",
+          "m": 515,
+          "n": 256,
+          "cold": {
+            "construction_and_coeff_sync_s": 4.2734976089559495,
+            "first_values_sync_s": 0.0002010781317949295,
+            "total_s": 4.2736986870877445
+          },
+          "warm": [
+            {
+              "construction_and_coeff_sync_s": 0.11292967479676008,
+              "first_values_sync_s": 0.0001455429010093212,
+              "total_s": 0.1130752176977694
+            },
+            {
+              "construction_and_coeff_sync_s": 0.10594032565131783,
+              "first_values_sync_s": 0.00013784924522042274,
+              "total_s": 0.10607817489653826
+            },
+            {
+              "construction_and_coeff_sync_s": 0.10380572360008955,
+              "first_values_sync_s": 0.000136577058583498,
+              "total_s": 0.10394230065867305
+            },
+            {
+              "construction_and_coeff_sync_s": 0.12489744136109948,
+              "first_values_sync_s": 0.0001347237266600132,
+              "total_s": 0.1250321650877595
+            },
+            {
+              "construction_and_coeff_sync_s": 0.09243362583220005,
+              "first_values_sync_s": 0.00013862131163477898,
+              "total_s": 0.09257224714383483
+            }
+          ],
+          "warm_median_s": 0.10607817489653826,
+          "rank": 1,
+          "col_lengths": [
+            13
+          ],
+          "row_lengths": [
+            1
+          ],
+          "pivot_locations": [
+            [
+              -3.141592653589793,
+              0.0
+            ]
+          ],
+          "nonzero_poles": true,
+          "storage_change_expected": true,
+          "timing_boundary": "make plus factor coefficients ready then first factor values ready; total matches previous public factor-values boundary; input/import excluded, no persistence cache"
+        },
+        "candidate": {
+          "mode": "candidate",
+          "scope": "public515",
+          "m": 515,
+          "n": 256,
+          "cold": {
+            "construction_and_coeff_sync_s": 3.1271338500082493,
+            "first_values_sync_s": 0.1690828208811581,
+            "total_s": 3.2962166708894074
+          },
+          "warm": [
+            {
+              "construction_and_coeff_sync_s": 0.10672336770221591,
+              "first_values_sync_s": 0.00014709727838635445,
+              "total_s": 0.10687046498060226
+            },
+            {
+              "construction_and_coeff_sync_s": 0.10000133188441396,
+              "first_values_sync_s": 0.00017534010112285614,
+              "total_s": 0.10017667198553681
+            },
+            {
+              "construction_and_coeff_sync_s": 0.09125067200511694,
+              "first_values_sync_s": 0.000150253064930439,
+              "total_s": 0.09140092507004738
+            },
+            {
+              "construction_and_coeff_sync_s": 0.09754876140505075,
+              "first_values_sync_s": 0.00014791777357459068,
+              "total_s": 0.09769667917862535
+            },
+            {
+              "construction_and_coeff_sync_s": 0.09298342000693083,
+              "first_values_sync_s": 0.00014407001435756683,
+              "total_s": 0.0931274900212884
+            }
+          ],
+          "warm_median_s": 0.09769667917862535,
+          "rank": 1,
+          "col_lengths": [
+            515
+          ],
+          "row_lengths": [
+            256
+          ],
+          "pivot_locations": [
+            [
+              -3.141592653589793,
+              0.0
+            ]
+          ],
+          "nonzero_poles": true,
+          "storage_change_expected": true,
+          "timing_boundary": "make plus factor coefficients ready then first factor values ready; total matches previous public factor-values boundary; input/import excluded, no persistence cache"
+        }
+      }
+    },
+    {
+      "scope": "constructor33",
+      "requested_input_words_identical": true,
+      "outputs": {
+        "coefficients": {
+          "shape": [
+            33,
+            16
+          ],
+          "component_word_differences": 51,
+          "max_absolute_difference": 8.673617379884035e-18,
+          "baseline_l1": 0.25,
+          "candidate_l1": 0.25
+        },
+        "probes": {
+          "shape": [
+            4
+          ],
+          "component_word_differences": 2,
+          "max_absolute_difference": 2.7755575615628914e-17,
+          "baseline_l1": 0.58,
+          "candidate_l1": 0.58
+        }
+      },
+      "independent_polynomial_max_errors": {
+        "baseline": 0.0,
+        "candidate": 2.7755575615628914e-17
+      },
+      "independent_polynomial_bound": "unchanged original coefficient-converter10eps functional bound",
+      "timing": {
+        "baseline": {
+          "mode": "baseline",
+          "scope": "constructor33",
+          "m": 33,
+          "n": 16,
+          "cold": {
+            "construction_and_coeff_sync_s": 3.8300381060689688,
+            "first_values_sync_s": 0.00018487777560949326,
+            "total_s": 3.8302229838445783
+          },
+          "warm": [
+            {
+              "construction_and_coeff_sync_s": 0.005015027243643999,
+              "first_values_sync_s": 0.00013227760791778564,
+              "total_s": 0.005147304851561785
+            },
+            {
+              "construction_and_coeff_sync_s": 0.003431280143558979,
+              "first_values_sync_s": 0.0001285918988287449,
+              "total_s": 0.003559872042387724
+            },
+            {
+              "construction_and_coeff_sync_s": 0.0033017462119460106,
+              "first_values_sync_s": 0.00012636790052056313,
+              "total_s": 0.0034281141124665737
+            },
+            {
+              "construction_and_coeff_sync_s": 0.0032725208438932896,
+              "first_values_sync_s": 0.0001283818855881691,
+              "total_s": 0.0034009027294814587
+            },
+            {
+              "construction_and_coeff_sync_s": 0.0032250219956040382,
+              "first_values_sync_s": 0.0001289118081331253,
+              "total_s": 0.0033539338037371635
+            }
+          ],
+          "warm_median_s": 0.0034281141124665737,
+          "rank": 1,
+          "col_lengths": [
+            3
+          ],
+          "row_lengths": [
+            1
+          ],
+          "pivot_locations": [
+            [
+              -3.141592653589793,
+              0.0
+            ]
+          ],
+          "nonzero_poles": true,
+          "storage_change_expected": true,
+          "timing_boundary": "make plus factor coefficients ready then first factor values ready; total matches previous public factor-values boundary; input/import excluded, no persistence cache"
+        },
+        "candidate": {
+          "mode": "candidate",
+          "scope": "constructor33",
+          "m": 33,
+          "n": 16,
+          "cold": {
+            "construction_and_coeff_sync_s": 2.847123488318175,
+            "first_values_sync_s": 0.15122404973953962,
+            "total_s": 2.9983475380577147
+          },
+          "warm": [
+            {
+              "construction_and_coeff_sync_s": 0.0031895460560917854,
+              "first_values_sync_s": 0.00014340924099087715,
+              "total_s": 0.0033329552970826626
+            },
+            {
+              "construction_and_coeff_sync_s": 0.002321974840015173,
+              "first_values_sync_s": 0.0001379190944135189,
+              "total_s": 0.002459893934428692
+            },
+            {
+              "construction_and_coeff_sync_s": 0.002271199133247137,
+              "first_values_sync_s": 0.00013408204540610313,
+              "total_s": 0.00240528117865324
+            },
+            {
+              "construction_and_coeff_sync_s": 0.0022749467752873898,
+              "first_values_sync_s": 0.00014597410336136818,
+              "total_s": 0.002420920878648758
+            },
+            {
+              "construction_and_coeff_sync_s": 0.0022465032525360584,
+              "first_values_sync_s": 0.00013234885409474373,
+              "total_s": 0.002378852106630802
+            }
+          ],
+          "warm_median_s": 0.002420920878648758,
+          "rank": 1,
+          "col_lengths": [
+            33
+          ],
+          "row_lengths": [
+            16
+          ],
+          "pivot_locations": [
+            [
+              -3.141592653589793,
+              0.0
+            ]
+          ],
+          "nonzero_poles": true,
+          "storage_change_expected": true,
+          "timing_boundary": "make plus factor coefficients ready then first factor values ready; total matches previous public factor-values boundary; input/import excluded, no persistence cache"
+        }
+      }
+    }
+  ],
+  "disk_child_replay": [
+    {
+      "name": "complex_profile33x16",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 8,
+          "imag_word_differences": 6,
+          "max_absolute_difference_finite_pairs": 3.1031676915590914e-17
+        },
+        "angular_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 128,
+          "imag_word_differences": 96,
+          "max_absolute_difference_finite_pairs": 3.1031676915590914e-17
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 128,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        },
+        "numeric_input": {
+          "shape_actual": [
+            17,
+            16
+          ],
+          "shape_native": [
+            17,
+            16
+          ],
+          "real_word_differences": 64,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 5,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 9.823633615952348e-18
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 5,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 9.823633615952348e-18
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "real_profile33x16",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 8,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        },
+        "angular_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 128,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            33,
+            16
+          ],
+          "shape_native": [
+            33,
+            16
+          ],
+          "real_word_differences": 128,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        },
+        "numeric_input": {
+          "shape_actual": [
+            17,
+            16
+          ],
+          "shape_native": [
+            17,
+            16
+          ],
+          "real_word_differences": 64,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 5,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 9.823633615952348e-18
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 5,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 9.823633615952348e-18
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          33
+        ],
+        "rows_lengths": [
+          16
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              33
+            ],
+            "shape_native": [
+              33
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              16
+            ],
+            "shape_native": [
+              16
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "odd_even_cubic4x7",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            5,
+            8
+          ],
+          "shape_native": [
+            5,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            5,
+            8
+          ],
+          "shape_native": [
+            5,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            5,
+            8
+          ],
+          "shape_native": [
+            5,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            5,
+            8
+          ],
+          "shape_native": [
+            5,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            3,
+            8
+          ],
+          "shape_native": [
+            3,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          5,
+          5
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          5,
+          5
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          5,
+          5
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              5
+            ],
+            "shape_native": [
+              5
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 2.7755575615628914e-17
+          }
+        ]
+      }
+    },
+    {
+      "name": "imaginary_nyquist1x2",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero5x4",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            5,
+            4
+          ],
+          "shape_native": [
+            5,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            5,
+            4
+          ],
+          "shape_native": [
+            5,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            5,
+            4
+          ],
+          "shape_native": [
+            5,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            5,
+            4
+          ],
+          "shape_native": [
+            5,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            3,
+            4
+          ],
+          "shape_native": [
+            3,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "zero_scalar1x1",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "complex_scalar1x1",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          1
+        ],
+        "rows_lengths": [
+          2
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [],
+        "native_idx_minus": [],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              1
+            ],
+            "shape_native": [
+              1
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              2
+            ],
+            "shape_native": [
+              2
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed_parity9x8",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            9,
+            8
+          ],
+          "shape_native": [
+            9,
+            8
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            9,
+            8
+          ],
+          "shape_native": [
+            9,
+            8
+          ],
+          "real_word_differences": 4,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 6.938893903907228e-18
+        },
+        "angular_values": {
+          "shape_actual": [
+            9,
+            8
+          ],
+          "shape_native": [
+            9,
+            8
+          ],
+          "real_word_differences": 2,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 5.551115123125783e-17
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            9,
+            8
+          ],
+          "shape_native": [
+            9,
+            8
+          ],
+          "real_word_differences": 2,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 5.551115123125783e-17
+        },
+        "numeric_input": {
+          "shape_actual": [
+            5,
+            8
+          ],
+          "shape_native": [
+            5,
+            8
+          ],
+          "real_word_differences": 1,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 5.551115123125783e-17
+        }
+      },
+      "candidate": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          9,
+          9
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 1.3877787807814457e-17
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 6.938893903907228e-18
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          9,
+          9
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 1.3877787807814457e-17
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 6.938893903907228e-18
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 2,
+        "native_rank": 2,
+        "cols_lengths": [
+          9,
+          9
+        ],
+        "rows_lengths": [
+          8,
+          8
+        ],
+        "idx_plus": [
+          0
+        ],
+        "native_idx_plus": [
+          0
+        ],
+        "idx_minus": [
+          1
+        ],
+        "native_idx_minus": [
+          1
+        ],
+        "nonzero_poles": true,
+        "native_nonzero_poles": true,
+        "row_real_columns": [
+          [
+            true
+          ],
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true,
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            2,
+            1
+          ],
+          "shape_native": [
+            2,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            2,
+            2
+          ],
+          "shape_native": [
+            2,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              9
+            ],
+            "shape_native": [
+              9
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          },
+          {
+            "shape_actual": [
+              8
+            ],
+            "shape_native": [
+              8
+            ],
+            "real_word_differences": 2,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 6.938893903907228e-18
+          }
+        ]
+      }
+    },
+    {
+      "name": "r_sin2x3",
+      "stages": {
+        "padded": {
+          "shape_actual": [
+            3,
+            4
+          ],
+          "shape_native": [
+            3,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "radial_values": {
+          "shape_actual": [
+            3,
+            4
+          ],
+          "shape_native": [
+            3,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "angular_values": {
+          "shape_actual": [
+            3,
+            4
+          ],
+          "shape_native": [
+            3,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "real_projected_values": {
+          "shape_actual": [
+            3,
+            4
+          ],
+          "shape_native": [
+            3,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "numeric_input": {
+          "shape_actual": [
+            2,
+            4
+          ],
+          "shape_native": [
+            2,
+            4
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        }
+      },
+      "candidate": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [],
+        "native_idx_plus": [],
+        "idx_minus": [
+          0
+        ],
+        "native_idx_minus": [
+          0
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "preserved_own_prefix": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [],
+        "native_idx_plus": [],
+        "idx_minus": [
+          0
+        ],
+        "native_idx_minus": [
+          0
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      },
+      "captured_native_numeric_adapter": {
+        "rank": 1,
+        "native_rank": 1,
+        "cols_lengths": [
+          3
+        ],
+        "rows_lengths": [
+          4
+        ],
+        "idx_plus": [],
+        "native_idx_plus": [],
+        "idx_minus": [
+          0
+        ],
+        "native_idx_minus": [
+          0
+        ],
+        "nonzero_poles": false,
+        "native_nonzero_poles": false,
+        "row_real_columns": [
+          [
+            true
+          ]
+        ],
+        "native_row_is_real": [
+          true
+        ],
+        "pivots": {
+          "shape_actual": [
+            1,
+            1
+          ],
+          "shape_native": [
+            1,
+            1
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "locations": {
+          "shape_actual": [
+            1,
+            2
+          ],
+          "shape_native": [
+            1,
+            2
+          ],
+          "real_word_differences": 0,
+          "imag_word_differences": 0,
+          "max_absolute_difference_finite_pairs": 0.0
+        },
+        "cols": [
+          {
+            "shape_actual": [
+              3
+            ],
+            "shape_native": [
+              3
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ],
+        "rows": [
+          {
+            "shape_actual": [
+              4
+            ],
+            "shape_native": [
+              4
+            ],
+            "real_word_differences": 0,
+            "imag_word_differences": 0,
+            "max_absolute_difference_finite_pairs": 0.0
+          }
+        ]
+      }
+    }
+  ],
+  "disk_child_archive_reviews": {
+    "disk_constructor_candidate_20261018": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_constructor_candidate_20261018.tar.gz",
+      "sha256": "1d46457a9daa20a7ffe5b72babffb1259c8a6545a84022a310ceae072c84660e",
+      "root_stream_verified_payloads": 131
+    },
+    "disk_constructor_diagnosis_20261018": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_constructor_diagnosis_20261018.tar.gz",
+      "sha256": "e5eaff579dd000087c16aa373cd533ab5773523a5a6fd6d293ef2f051c586a33",
+      "root_stream_verified_payloads": 69
+    }
+  },
+  "inverse_qualification": {
+    "scope": "Capacity-shaped final sampled-root Clenshaw arithmetic separated from unchanged original-nFFT. CPU only; existing source/provider word controls and full selected inverse/roots/minandmax modules. No whole API/performance/native-word closure.",
+    "base_head": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "qualified_distinct_tests": 81,
+    "standalone_source_word_repeat": 17,
+    "originals_included": {
+      "inverse_python_cases": 24,
+      "roots_python_cases": 24,
+      "minandmax_python_cases": 16,
+      "source_provider_word_cases": 17
+    },
+    "runtime_observed_python_import_guards": {
+      "tests": {
+        "count": 1484,
+        "missing_or_changed": []
+      },
+      "originals": {
+        "count": 1545,
+        "missing_or_changed": []
+      },
+      "baseline_actual": {
+        "count": 1368,
+        "missing_or_changed": []
+      },
+      "candidate_actual": {
+        "count": 1368,
+        "missing_or_changed": []
+      }
+    },
+    "receipts": {
+      "inverse_finish_split_tests_run001": {
+        "wall_seconds": 15.90072765480727,
+        "sampled_peak_summed_rss_kib": 798700,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "inverse_finish_split_pair_run001": {
+        "wall_seconds": 55.865808732807636,
+        "sampled_peak_summed_rss_kib": 1132808,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      },
+      "inverse_finish_split_originals_run001": {
+        "wall_seconds": 196.1876493920572,
+        "sampled_peak_summed_rss_kib": 3048084,
+        "remaining_owned_pids": [],
+        "censored_limit": null
+      }
+    },
+    "source_snapshots": 3499,
+    "static_review": {
+      "all_other_module_AST_exact": true,
+      "math_review": "Final Clenshaw binary operation sequence retained. Move parity-dependent final update into JAXcond on dynamic originaln, applying identical elementwise arithmetic on capacity arrays; perform same original-nFFT after slicing only active prefix. No host numerics/stencil/providerreplacement or fitted constants.",
+      "existing_source_word_tests": 17,
+      "original_fixture_bounds_unchanged": true,
+      "actual_inverse_output_artifacts_word_exact": [
+        {
+          "name": "cold_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "cold_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "cold_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "forward_composition257.bin",
+          "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15"
+        },
+        {
+          "name": "grids257.bin",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        {
+          "name": "gridx257.bin",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        {
+          "name": "inverse_composition257.bin",
+          "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31"
+        },
+        {
+          "name": "inverse_grid257.bin",
+          "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+        },
+        {
+          "name": "inverse_samples129.bin",
+          "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c"
+        },
+        {
+          "name": "native_sites129.bin",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        {
+          "name": "roundtrip129.bin",
+          "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82"
+        },
+        {
+          "name": "warm1_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm1_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm1_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "warm2_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm2_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm2_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        },
+        {
+          "name": "warm3_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        {
+          "name": "warm3_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        {
+          "name": "warm3_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        }
+      ],
+      "pair_timing": {
+        "baseline_cold": 17.01842769095674,
+        "candidate_cold": 16.01658873911947,
+        "baseline_warm": [
+          1.66176677076146,
+          1.6475527207367122,
+          1.653796167112887
+        ],
+        "candidate_warm": [
+          1.6383633869700134,
+          1.619576821103692,
+          1.6095175030641258
+        ],
+        "baseline_warm_median": 1.653796167112887,
+        "candidate_warm_median": 1.619576821103692
+      },
+      "timing_limit": "Single sequential sameCPU40\u201343sharedhostpair; descriptive, not matchednative/statistical/universal speed closure. No direct candidatecompilerprofile; do not claim measured backendcompiletime reduction."
+    },
+    "patch_sha256": "669ecfbf7ca84a23a5b1d8924afa88d9172e6709c0a8345cf4b6b0583e2995a4",
+    "compile_attribution": {
+      "scope": "One instrumented cold retained ComplexArcLength inverse onCPU40, sourcea9d5461a; attribute backend compilation modules and call stacks. Diagnostic overhead/cProfile included, no matched speed claim.",
+      "inverse_compile_count": 179,
+      "inverse_backend_compile_seconds": 26.70286704506725,
+      "by_module": {
+        "\"jit_finish_subdivision\"": {
+          "calls": 11,
+          "seconds": 8.370618844870478
+        },
+        "\"jit__brent\"": {
+          "calls": 4,
+          "seconds": 3.630381696857512
+        },
+        "\"jit_grid_and_states\"": {
+          "calls": 3,
+          "seconds": 3.1814060430042446
+        },
+        "\"jit__standard_chop_kernel\"": {
+          "calls": 3,
+          "seconds": 2.703035174869001
+        },
+        "\"jit__roots_eigvals_jax\"": {
+          "calls": 25,
+          "seconds": 1.6674782084301114
+        },
+        "\"jit__vals2coeffs_jax\"": {
+          "calls": 3,
+          "seconds": 1.2778744143433869
+        },
+        "\"jit__roots_build_transforms\"": {
+          "calls": 1,
+          "seconds": 0.8983103302307427
+        },
+        "\"jit__coeffs2vals_jax\"": {
+          "calls": 5,
+          "seconds": 0.7301713125780225
+        },
+        "\"jit_points\"": {
+          "calls": 1,
+          "seconds": 0.5720970160327852
+        },
+        "\"jit__adaptive_sample_metadata\"": {
+          "calls": 3,
+          "seconds": 0.4707227027975023
+        },
+        "\"jit__evaluate_piece_interval\"": {
+          "calls": 1,
+          "seconds": 0.3208955782465637
+        },
+        "\"jit__diff_coeffs_once\"": {
+          "calls": 1,
+          "seconds": 0.2572426828555763
+        },
+        "\"jit__clenshaw\"": {
+          "calls": 1,
+          "seconds": 0.24961024709045887
+        },
+        "\"jit__roots_normalize_source_cpu\"": {
+          "calls": 1,
+          "seconds": 0.22805682010948658
+        },
+        "\"jit__roots_apply_transforms_cpu_lanes\"": {
+          "calls": 1,
+          "seconds": 0.18477075221017003
+        },
+        "\"jit__interleave_chebtech2_nested_values\"": {
+          "calls": 2,
+          "seconds": 0.17933540372177958
+        },
+        "\"jit__matrix\"": {
+          "calls": 1,
+          "seconds": 0.16503723710775375
+        },
+        "\"jit_add\"": {
+          "calls": 11,
+          "seconds": 0.16337660420686007
+        },
+        "\"jit_dynamic_slice\"": {
+          "calls": 8,
+          "seconds": 0.14203867316246033
+        },
+        "\"jit_abs\"": {
+          "calls": 6,
+          "seconds": 0.1404556385241449
+        },
+        "\"jit__reduce_max\"": {
+          "calls": 7,
+          "seconds": 0.0954610500484705
+        },
+        "\"jit__metadata\"": {
+          "calls": 1,
+          "seconds": 0.08534929994493723
+        },
+        "\"jit_true_divide\"": {
+          "calls": 3,
+          "seconds": 0.08410612214356661
+        },
+        "\"jit_multiply\"": {
+          "calls": 5,
+          "seconds": 0.07824358157813549
+        },
+        "\"jit__pad\"": {
+          "calls": 3,
+          "seconds": 0.06405794667080045
+        },
+        "\"jit__restore_refinement_sentinels\"": {
+          "calls": 2,
+          "seconds": 0.058511719573289156
+        },
+        "\"jit_subtract\"": {
+          "calls": 3,
+          "seconds": 0.058325888589024544
+        },
+        "\"jit_isnan\"": {
+          "calls": 2,
+          "seconds": 0.056154529098421335
+        },
+        "\"jit__reduce_all\"": {
+          "calls": 1,
+          "seconds": 0.050756572280079126
+        },
+        "\"jit__unique_sorted_mask\"": {
+          "calls": 2,
+          "seconds": 0.04762787139043212
+        },
+        "\"jit_convert_element_type\"": {
+          "calls": 7,
+          "seconds": 0.04396317107602954
+        },
+        "\"jit_broadcast_in_dim\"": {
+          "calls": 7,
+          "seconds": 0.043684789445251226
+        },
+        "\"jit_less\"": {
+          "calls": 3,
+          "seconds": 0.04239138821139932
+        },
+        "\"jit_slice\"": {
+          "calls": 2,
+          "seconds": 0.040498227812349796
+        },
+        "\"jit_stack\"": {
+          "calls": 1,
+          "seconds": 0.03434777678921819
+        },
+        "\"jit_ravel\"": {
+          "calls": 6,
+          "seconds": 0.02376247802749276
+        },
+        "\"jit_select_n\"": {
+          "calls": 2,
+          "seconds": 0.023648475296795368
+        },
+        "\"jit__argmin\"": {
+          "calls": 1,
+          "seconds": 0.02171719493344426
+        },
+        "\"jit_atleast_1d\"": {
+          "calls": 5,
+          "seconds": 0.021278290078043938
+        },
+        "\"jit__reduce_sum\"": {
+          "calls": 1,
+          "seconds": 0.01919252797961235
+        },
+        "\"jit__preserve_nonfinite_piece_values\"": {
+          "calls": 1,
+          "seconds": 0.018702367320656776
+        },
+        "\"jit__argmax\"": {
+          "calls": 1,
+          "seconds": 0.018574855756014585
+        },
+        "\"jit_invert\"": {
+          "calls": 1,
+          "seconds": 0.017919704783707857
+        },
+        "\"jit_stage\"": {
+          "calls": 4,
+          "seconds": 0.01746743405237794
+        },
+        "\"jit_maximum\"": {
+          "calls": 1,
+          "seconds": 0.016870833933353424
+        },
+        "\"jit_gather\"": {
+          "calls": 1,
+          "seconds": 0.016820177901536226
+        },
+        "\"jit_diff\"": {
+          "calls": 1,
+          "seconds": 0.014554159250110388
+        },
+        "\"jit_squeeze\"": {
+          "calls": 3,
+          "seconds": 0.01347529236227274
+        },
+        "\"jit__reduce_any\"": {
+          "calls": 2,
+          "seconds": 0.009108372032642365
+        },
+        "\"jit__broadcast_arrays\"": {
+          "calls": 2,
+          "seconds": 0.00899470690637827
+        },
+        "\"jit__moveaxis\"": {
+          "calls": 2,
+          "seconds": 0.008305873721837997
+        },
+        "\"jit_concatenate\"": {
+          "calls": 2,
+          "seconds": 0.008253274951130152
+        },
+        "\"jit_empty\"": {
+          "calls": 1,
+          "seconds": 0.003929636906832457
+        },
+        "\"jit_real\"": {
+          "calls": 1,
+          "seconds": 0.0038960729725658894
+        }
+      },
+      "full_output_coefficients": 8630,
+      "output_hashes_exact_previous_matched_benchmark": {
+        "coeffs": {
+          "shape": [
+            8630
+          ],
+          "dtype": "float64",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+        },
+        "domain": {
+          "shape": [
+            2
+          ],
+          "dtype": "float64",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+        },
+        "pointValues": {
+          "shape": [
+            2
+          ],
+          "dtype": "float64",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+        }
+      },
+      "numerical_comparison": {
+        "native_length": 8630,
+        "candidate_length": 8630,
+        "common_prefix_max_abs": 5.551115123125783e-17,
+        "common_prefix_word_mismatches": 8626,
+        "domain_word_equal": true,
+        "pointValues_word_equal": true,
+        "native_sites129_max_abs": 3.885780586188048e-16,
+        "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+        "inverse_composition257_max_abs": 1.3322676295501878e-15,
+        "forward_composition257_max_abs": 7.105427357601002e-15
+      },
+      "runtime_observed_python_import_guard": {
+        "count": 1372,
+        "missing_or_changed": []
+      },
+      "next_action": "Prototype capacity-shaped final Clenshaw arithmetic separated from original-nFFT, to avoid repeating common final arithmetic in11shape-specialized finish_subdivision compilations. Preserve exact outputs and qualify timing before integration.",
+      "limits": [
+        "199totalcompileevents include20post-inverse diagnostic evaluation calls; inverse-only179selected by live _inverse Python stack. Do not attribute post-evaluationcompiles toinv.",
+        "No native or page rerun; original bounds unchanged.",
+        "No production source change; cold sampled finish8.37s/grid3.18s/Brent3.63s/chop2.70s are module attribution, not proved optimization gains."
+      ],
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_compile_attribution_cpu_20261018.tar.gz",
+        "sha256": "c972d687108e27eff7992c7fdeb0715d3ebc199dd7ba229202d8d0d7ff2d1c94",
+        "root_stream_verified_payloads": 418
+      }
+    },
+    "timing_scope": "One cold and3warm calls per arm, sequential sameCPU40\u201343/sharedhost, compilation cache disabled.17.018\u219216.017s cold and medians1.654\u21921.620s are descriptive; no direct candidatebackendcompile-time measurement or native/statistical speed claim.",
+    "native_words_limit": "Same20baseline/candidate output artifacts exact; source-native inverse coefficient differences8626/8630remain (max5.55e-17), retained129samples max3.89e-16. Native exact equality and performance remain open.",
+    "original_tests_and_fixtures": "All existing tests/assertions/bounds/fixtures byte-identical tobase; no new testfile/CIownership change in this isolated package.",
+    "remaining": [
+      "Full inverse API/JAX/AD/IEEE and native output words/performance; stronger repeated matched timing and all known slow paths.",
+      "Whole library/original-assertion audit,322final-source pages,1305scientific figures.",
+      "Parent combined-source integration, latest-mainCI/coverage>=79%."
+    ],
+    "archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_finish_split_cpu_20261018.tar.gz",
+      "sha256": "154fe878668bfc2a825866e44de241999099d431fe0b688a3f6dd48628e20705",
+      "root_stream_verified_payloads": 3603
+    }
+  },
+  "count_scope": "85actualparenttests. Disk106distinctchild and inverse81distinctisolated tests are separate qualifications and not added as disjoint totals; parent repeats overlap. Original13heavy child tests not rerun without a new scientific risk; disk runtime/source/test/fixture bridge and focused public constructor regression retained.",
+  "source_scope": "Disk coefficient route uses native direct numeric projection/full lengths; origin-only branch precedes zero/tolerance; pivot metadata follows literal getPoints. Legacy defaultFalse retained within captured9record scope. New grids use JAX source providers; NumPy only transports metadata; inherited host GE remains outstanding.",
+  "numeric_limits": "New disk factor64*n*eps*sum-scale allowance is authored, not a native/original tolerance. Originalbounds unchanged; native factor/provider words and changed old public output words quantified. Inverse20baseline/candidateoutputartifacts exact but8626native coefficientworddifferencesremain.",
+  "timing_limits": "Disk/public515cold4.274\u21923.296s including first factorvalues; warm ranges overlap. Inversepaircold17.018\u219216.017s, warm1.654\u21921.620s. Separate samehost serial pairs, no fresh native/statistical/universal speed claim or candidatecompile-time measurement.",
+  "ownership": "1112prior owner lane prefixes retained plus35node file;1113owners/13lanes/HermiteCore12/79%unchanged.",
+  "remaining": [
+    "Numeric Diskfun rank-cap/source reciprocal semantics and host NumPy GE; full constructor/API/IEEE/JAX/provider-word/performance parity.",
+    "14originalunaryrecords plus supplementaryNaN/subnormal cases; scopedNaNfollowupunderqualification.",
+    "InversefullAPI/JAX/AD/providerwords/performance; allknownslowpaths.",
+    "Fullfunction/assertion audit,322final-sourcepages,1305scientificfigures and latest-mainCI/coverage>=79%."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/constructor_inverse_parent_cpu_20261018.tar.gz",
+    "sha256": "8a2102c3c09adaac5dea686d464f16a4f94c63f776cfc00848d5df8b3c028ef1",
+    "root_stream_verified_payloads": 3593
+  }
+}

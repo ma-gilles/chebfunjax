@@ -77,17 +77,23 @@ def recurrence_states(coeffs, points, n):
     b1, b2 = registers[0], registers[1]
     return b1, b2, jnp.all(jnp.isfinite(coeffs))
 
-@partial(jax.jit, static_argnames=('n',))
-def finish_subdivision(coeffs, points, b1, b2, n):
-    points = points[:2 * n]
-    (b1, b2) = (b1[:2 * n], b2[:2 * n])
-    if (n - 1) % 2:
+@jax.jit
+def _finish_values(coeffs, points, b1, b2, n):
+    """Reuse capacity-shaped final Clenshaw arithmetic before original-n FFT."""
+    def odd_step(states):
+        b1, b2 = states
         x2 = binary(jnp.asarray(2.0, points.dtype), points, 0)
-        b1, b2 = binary(binary(coeffs[1], binary(x2, b1, 0), 1), b2, 2), b1
+        return binary(binary(coeffs[1], binary(x2, b1, 0), 1), b2, 2), b1
+
+    b1, b2 = jax.lax.cond((n - 1) % 2 != 0, odd_step, lambda states: states, (b1, b2))
     x2 = binary(jnp.asarray(2.0, points.dtype), points, 0)
     half_x = binary(jnp.asarray(0.5, points.dtype), x2, 0)
-    values = binary(binary(coeffs[0], binary(half_x, b1, 0), 1), b2, 2)
-    return (_vals2coeffs_jax(values[:n]), _vals2coeffs_jax(values[n:]))
+    return binary(binary(coeffs[0], binary(half_x, b1, 0), 1), b2, 2)
+
+
+def finish_subdivision(coeffs, points, b1, b2, n):
+    values = _finish_values(coeffs, points, b1, b2, jnp.asarray(n, dtype=jnp.int64))
+    return (_vals2coeffs_jax(values[:n]), _vals2coeffs_jax(values[n:2 * n]))
 
 @jax.jit
 def grid_and_states(coeffs, n, k, d):
