@@ -1,0 +1,73 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bary_rounding_joint_cpu_20261017.tar.gz",
+    "sha256": "8d56611aeebf8b20763e6ed6709033c5b9692e8a9285b483066e05099afa6abd",
+    "verified_payloads": 7748
+  },
+  "base_commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+  "causal_evidence": {
+    "actual_CI_workflow": 39082657156,
+    "baseline_constructor_length": 74,
+    "compiled_division": "First candidate optimized LLVM uses broadcast reciprocal+multiply; final denominator boundary removes inspected broadcast reciprocal files.",
+    "diagnostic_observer": "Original compiled scan differs at numerator updates while observed products/denominators match. HLO observation is not an LLVM proof.",
+    "final_constructor_length": 72,
+    "first_loop_only_candidate": "Improves value words but still length74; retained as rejected incomplete repair.",
+    "independent_numpy_replay": "Tool-only node-loop arithmetic exactly matches all native values for65/129/257; not a library provider.",
+    "job": 117544907140,
+    "native_constructor_length": 72,
+    "native_value_words_exact": 902,
+    "nodes_weights_points_word_equal": true,
+    "query_counts": [
+      65,
+      129,
+      257
+    ]
+  },
+  "change": "Source bsxfun multiplication and numerator addition occupy separate loop iterations. Broadcast denominator is materialized at an optimization barrier so final division remains ordinary elementwise division instead of reciprocal multiplication.",
+  "guard_scope": "Source/tests/selected fixtures/config/launchers frozen per gate. Native3435Mfiles plus driver/raw input frozen; no full binary/runtime freeze claim. Existing CPU plugin warning retained.",
+  "limits": [
+    "Other query branch still differs in26/66native words at33points; no full bary/FUNQUI bit/API/backend qualification.",
+    "Transforms still differ in native coefficient low words even with exact sampled values; no full FFT qualification.",
+    "Native local FUNQUI body extracted and renamed only; separate actual public constructor also captured. Not a claim of observing the original local function internals.",
+    "Unbounded ABS historical CI failure passes unchanged locally on current source before this repair; no current-CI pass or cause claim.",
+    "No full example/page/figure or matched performance closure. Latest-main CI and coverage>=79percent required."
+  ],
+  "preserved_failures": [
+    "Actual baseline EQUI length74 assertion.",
+    "Initial MAT7 reader comparison failed because compact native double weights loaded as uint8; mat_dtype=True fixes tooling only.",
+    "Source loop separation alone remains length74.",
+    "Original sampled-root combined minmax cohort RSS-censored; unchanged14predicates pass split cohorts, raw failure retained."
+  ],
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "root_runtime_package": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_package_20261017.tar.gz",
+    "capacity_compile_seconds_baseline": 1.1101630525663495,
+    "capacity_compile_seconds_candidate": 1.1804147246293724,
+    "direct_controls": 48,
+    "inverse_binary_artifacts_equal": 20,
+    "limit": "Descriptive same-host CPU36-39 timings;3capacity compile total worsens about6percent. Dominant cold compile problem and matched native performance remain open.",
+    "scientific_pytest_checks": 141,
+    "sha256": "48de3f0e779d304952a607816d0cf0166ef72ba319c3811b6f2329b5547bbae9",
+    "verified_payloads": 1611,
+    "warm_median_baseline_seconds": 1.752641,
+    "warm_median_candidate_seconds": 1.6111
+  },
+  "scope": "Native barycentric node-loop materialization and elementwise division; combined root-recurrence integration",
+  "verification": {
+    "all_final_runs_uncensored_stable_no_survivors": true,
+    "bary_and_native_checks": 39,
+    "core_ownership": {
+      "new_selectors": [
+        "tests/test_utils/test_bary_native_node_loop.py"
+      ],
+      "prior_owners_preserved": 1083,
+      "total": 1084
+    },
+    "counts_overlap": true,
+    "funqui_and_public_equi_checks": 12,
+    "joint_checks": 41,
+    "joint_protocol_checks": 21,
+    "joint_scientific_checks": 20,
+    "original_interp1_checks": 35
+  }
+}

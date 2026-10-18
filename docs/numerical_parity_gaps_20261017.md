@@ -101,3 +101,17 @@ warm medians native0.642599s/JAX1.710633s (2.662x); first-after-setup
 0.972099s/31.864010s. Both produce8630coefficients. Cold profile has179backend
 compiles taking25.62s; profile categories overlap. Measurements are descriptive
 on a shared host. Performance parity and complete inverse qualification remain open.
+
+
+## Current EQUI correction and sampled-root runtime
+
+[Barycentric rounding repair](bary_rounding_joint_cpu_20261017.json) fixes
+the actual74vs72periodic EQUI coefficient-count failure. Larger-query sampled
+values now match902native words; small-query and FFT coefficient-word gaps
+remain. No tolerance or length cutoff changed. The old unbounded ABS failure
+passes locally before this repair; current CI is still required.
+
+[Sampled-root four-stage recurrence](inverse_sampled_four_stage_cpu_20261017.json)
+preserves20inverse outputs and lowers descriptive warm median1.752641→1.611100s.
+Three capacity compile times worsen6%; no cold compilation or matched-native
+performance closure follows. Existing full inverse/native/API gaps remain.

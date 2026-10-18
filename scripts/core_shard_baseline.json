@@ -755,7 +755,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_cdr_matlab]",
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spinop.test_spinop_matlab]",
       "tests/test_coupled_highorder_native_ivp_source.py",
-      "tests/test_utils/test_c2r_radix2_source.py"
+      "tests/test_utils/test_c2r_radix2_source.py",
+      "tests/test_utils/test_bary_native_node_loop.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",
@@ -1111,6 +1112,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
+  "last_update_parent": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

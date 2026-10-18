@@ -1,0 +1,647 @@
+{
+  "schema": 1,
+  "title": "Four-stage dynamic-degree CPU sampled-root recurrence; runtime improvement, cold compilation remains open",
+  "base_commit": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "src/chebfunjax/tech/_roots_sampled_cpu.py",
+    "docs/inverse_sampled_four_stage_cpu_20261017.json"
+  ],
+  "selector_changes": {
+    "new_files": [],
+    "new_selectors": 0,
+    "new_owners": 0,
+    "existing_test_bytes_changed": false
+  },
+  "source": {
+    "changed_function": "recurrence_states",
+    "changed_module_sha256": "cfc48664998c5d1c156845f3184e423c0f6130aeaad08776bb40813a89b3a2a8",
+    "baseline_module_sha256": "8b853bde694878eb05e40f359a7b78b0705e489ea8587254e82459afb3316d44",
+    "unchanged_source_clenshaw_sha256": "de769b43fb5b9ed8a08ccb22d3e26762c43cc4ae6a816990d87c00c5da3a3414",
+    "unchanged_other_tracked_library_files": 363,
+    "native_lines": "@chebtech/clenshaw.m scalar paired loop: bk2=c(k)+x.*bk1-bk2; bk1=c(k-1)+x.*bk2-bk1. @chebtech/roots.m sampled subdivision retains original-n transform.",
+    "mechanism": "Replace six tuple instructions per coefficient pair with packed three-row registers/four instructions: multiply; add then subtract; multiply; add then subtract. Each product remains separated from its consumer by a scan iteration, preserving the written arithmetic ordering. The temporary survives pairs but is overwritten by the first product before any read.",
+    "unchanged": "Dynamic original degree/loop bound, capacity, coefficient indexes, ordered point doubling, mapped grid and normalization metadata, coefficient finiteness decision/fallback, original-n finish/FFT, trim policy, recursion/split point, eig matrix dimensions/leaf selection. No shared helper/cache/provider change; all new numerical work JAX."
+  },
+  "motivation": {
+    "existing_cold_profile": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_single_cpu_cold_profile_v2_20261017",
+    "scope": "Prior CPU40 profile has179backend compilations/25.62s, inverse_domain19.56s and roots17.98s. Cumulative times overlap. It traces grid_and_states3times and finish_subdivision11times, but does not attribute backend compilation to each sampled kernel. The106subdivisions include the small lane path; their15.35s is not attributed wholly to this recurrence. No constant-dominance shortcut is valid: actual derivative c0=4.557125909385594, tailL1=12.516208481726526."
+  },
+  "qualification": {
+    "backend": "Pinned CPU/x64 JAX/JAXlib0.11.0,ml_dtypes0.5.4,CPU36-39,no persistent compilation cache",
+    "pytest_passed": 141,
+    "pytest_cohorts": {
+      "clenshaw": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/clenshaw.xml",
+        "sha256": "f56ad4bee903bc12f8ac7bfa586efa360d5fd94833115264f649d7f499037769",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.707"
+      },
+      "interp": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/interp.xml",
+        "sha256": "435a4cdd57581f7f7fefccf495934a0f33be71996e8753016f4f1c32f4128869",
+        "tests": "35",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "18.855"
+      },
+      "inv": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/inv.xml",
+        "sha256": "fba2c9143031a62952fd33e56a51e2da74505ef4c713c0442e3a3a94f22a87a5",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "76.580"
+      },
+      "minmax_a": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_a.xml",
+        "sha256": "a687b60d5250d071ecd024b3b3ab77a46990fc51981bb5e4c761bccd63e29025",
+        "tests": "11",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "42.397"
+      },
+      "minmax_b": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_b.xml",
+        "sha256": "6a579e99feb562207fca6e10ca15adb56cacbc2b7f65070240aed79fd766acfb",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "67.220"
+      },
+      "minmax_c": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_c.xml",
+        "sha256": "c3a3d434b51693c476721ee27774014325316e4bc0253d5683f71a342197aa88",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "54.719"
+      },
+      "replay": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/replay.xml",
+        "sha256": "d74794792ab53d4c83cfd0d48da93d5da2104e81230a312ba9a49b2ee214ac98",
+        "tests": "27",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "12.203"
+      },
+      "roots1": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots1.xml",
+        "sha256": "4f7fd0d550925ee4cd3ba1d3f7e2a5c84422cf6bc5356decad621bc660edfb28",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "16.633"
+      },
+      "roots2": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots2.xml",
+        "sha256": "44253c240af199fb48ff5e30d857bf6cd1297b5f0dcc472d0b13d5e3a8d30905",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "9.909"
+      },
+      "roots3": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots3.xml",
+        "sha256": "f0af49c815d0fcaa8e368c7224d53a3f4ca737acb0c2a575b9a6b7662a539d0a",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "9.529"
+      },
+      "roots4": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots4.xml",
+        "sha256": "7b9f21f811fdeb7778b3a3c92aecee37bb40a82317403a7ddd31c4039646669d",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "37.382"
+      },
+      "roots5": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots5.xml",
+        "sha256": "76160c1ae36bf9e5819ea00dd6075a6abaa96c5cbbef8d96ad655fa00c12af3e",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "30.350"
+      },
+      "roots6": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots6.xml",
+        "sha256": "de30f08a2e97067b1e84653c0ccc9430b852f4a41eb4cf93215e02c1147d39f2",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "32.982"
+      },
+      "subdivision": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/subdivision.xml",
+        "sha256": "22c5d635176e8d9fde04432eec94c03dd50ca573dc3dd7243c99984aef2357bf",
+        "tests": "17",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "12.450"
+      }
+    },
+    "direct_controls": {
+      "count": 48,
+      "scope": "Same-backend old six-stage vs candidate register states AND unchanged finish outputs raw-word equal:6odd/even degrees, ordinary/cancellation/signedzero/subnormal/NaN/Inf plus finite-overflow/repeated signedzero points. No universal native IEEE/NaN payload claim. External diagnostic controls archived, not new owned CI selectors."
+    },
+    "provider_replay": "Existing sampled tests replay3retained actual n528/539/2091 inputs and6shared-capacity odd/even cases against unchanged currently qualified _clenshaw provider. Existing10IEEE source evaluator checks also pass. No redundant26native capture rerun: unchanged provider bytes bound to prior published qualification and retained native source.",
+    "llvm": {
+      "optimized_grid_llvm_files": 164,
+      "fma_intrinsic_files": [],
+      "scope": "Three actual capacities1024/2048/4096, current pinned CPU compiler. No universal backend proof."
+    },
+    "stage_rows": [
+      {
+        "n": 528,
+        "capacity": 1024,
+        "baseline_lower_seconds": 0.1298318412154913,
+        "candidate_lower_seconds": 0.13501221779733896,
+        "baseline_compile_seconds": 0.38722929963842034,
+        "candidate_compile_seconds": 0.409607847686857,
+        "baseline_median_runtime": 0.003960905130952597,
+        "candidate_median_runtime": 0.0010567568242549896,
+        "word_equal_outputs": true
+      },
+      {
+        "n": 539,
+        "capacity": 1024,
+        "baseline_lower_seconds": 0.0001534777693450451,
+        "candidate_lower_seconds": 0.00015269685536623,
+        "baseline_compile_seconds": 2.532685175538063e-05,
+        "candidate_compile_seconds": 2.5457702577114105e-05,
+        "baseline_median_runtime": 0.004032530356198549,
+        "candidate_median_runtime": 0.0010559158399701118,
+        "word_equal_outputs": true
+      },
+      {
+        "n": 2091,
+        "capacity": 4096,
+        "baseline_lower_seconds": 0.1210769428871572,
+        "candidate_lower_seconds": 0.12407868495211005,
+        "baseline_compile_seconds": 0.3632541010156274,
+        "candidate_compile_seconds": 0.3765324931591749,
+        "baseline_median_runtime": 0.055375305004417896,
+        "candidate_median_runtime": 0.014430586248636246,
+        "word_equal_outputs": true
+      },
+      {
+        "n": 1051,
+        "capacity": 2048,
+        "baseline_lower_seconds": 0.11259875493124127,
+        "candidate_lower_seconds": 0.19126406172290444,
+        "baseline_compile_seconds": 0.3596796519123018,
+        "candidate_compile_seconds": 0.39427438378334045,
+        "baseline_median_runtime": 0.013906320556998253,
+        "candidate_median_runtime": 0.0037838229909539223,
+        "word_equal_outputs": true
+      }
+    ],
+    "stage_scope": "Sequential fresh baseline/candidate processes; three retained inputs and independent JAX sine-coefficient n1051 operand, four final child pairs byte-equal. Lower and compile measured separately;7ordinarywarm grid+state calls per case. n539 reuses n528 capacity and its ~25us compile call is cache reuse, not another backend compilation. No whole-inverse module-count reduction claim.",
+    "actual_inverse": {
+      "results": {
+        "baseline_actual": {
+          "cold_seconds": 16.702682671137154,
+          "warm_seconds": [
+            1.752641242928803,
+            1.758262860123068,
+            1.7248540502041578
+          ],
+          "warm_median": 1.752641242928803,
+          "comparison": {
+            "native_length": 8630,
+            "candidate_length": 8630,
+            "common_prefix_max_abs": 5.551115123125783e-17,
+            "common_prefix_word_mismatches": 8626,
+            "domain_word_equal": true,
+            "pointValues_word_equal": true,
+            "native_sites129_max_abs": 3.885780586188048e-16,
+            "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+            "inverse_composition257_max_abs": 1.3322676295501878e-15,
+            "forward_composition257_max_abs": 7.105427357601002e-15
+          },
+          "runtime_files": 1364,
+          "missing_guard": [],
+          "changed_runtime": []
+        },
+        "candidate_actual": {
+          "cold_seconds": 16.623276829719543,
+          "warm_seconds": [
+            1.61109969438985,
+            1.6151998401619494,
+            1.6017635040916502
+          ],
+          "warm_median": 1.61109969438985,
+          "comparison": {
+            "native_length": 8630,
+            "candidate_length": 8630,
+            "common_prefix_max_abs": 5.551115123125783e-17,
+            "common_prefix_word_mismatches": 8626,
+            "domain_word_equal": true,
+            "pointValues_word_equal": true,
+            "native_sites129_max_abs": 3.885780586188048e-16,
+            "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+            "inverse_composition257_max_abs": 1.3322676295501878e-15,
+            "forward_composition257_max_abs": 7.105427357601002e-15
+          },
+          "runtime_files": 1364,
+          "missing_guard": [],
+          "changed_runtime": []
+        }
+      },
+      "byte_equal_artifacts": [
+        {
+          "name": "cold_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+          "equal": true
+        },
+        {
+          "name": "cold_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+          "equal": true
+        },
+        {
+          "name": "cold_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+          "equal": true
+        },
+        {
+          "name": "forward_composition257.bin",
+          "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15",
+          "equal": true
+        },
+        {
+          "name": "grids257.bin",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476",
+          "equal": true
+        },
+        {
+          "name": "gridx257.bin",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+          "equal": true
+        },
+        {
+          "name": "inverse_composition257.bin",
+          "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31",
+          "equal": true
+        },
+        {
+          "name": "inverse_grid257.bin",
+          "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c",
+          "equal": true
+        },
+        {
+          "name": "inverse_samples129.bin",
+          "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c",
+          "equal": true
+        },
+        {
+          "name": "native_sites129.bin",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2",
+          "equal": true
+        },
+        {
+          "name": "roundtrip129.bin",
+          "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82",
+          "equal": true
+        },
+        {
+          "name": "warm1_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+          "equal": true
+        },
+        {
+          "name": "warm1_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+          "equal": true
+        },
+        {
+          "name": "warm1_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+          "equal": true
+        },
+        {
+          "name": "warm2_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+          "equal": true
+        },
+        {
+          "name": "warm2_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+          "equal": true
+        },
+        {
+          "name": "warm2_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+          "equal": true
+        },
+        {
+          "name": "warm3_coeffs.bin",
+          "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+          "equal": true
+        },
+        {
+          "name": "warm3_domain.bin",
+          "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+          "equal": true
+        },
+        {
+          "name": "warm3_pointValues.bin",
+          "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+          "equal": true
+        }
+      ],
+      "scope": "SameCPU36-39 sequential unprofiled cold+3warm descriptive comparison; no matched native timing or cold compilation speedup claim."
+    },
+    "whole_path_scope": "Unprofiled fresh-process baseline/candidate on exact retained ComplexArcLength forward coefficients/domain/pointValues; one cold+3warm calls each. All20coefficient/domain/pointValue/sample/composition artifacts identical. Runtime1364files per arm all preguarded/hash-stable; pyproject and actual fixtures guarded. Root native timing lane was released before pair. SameCPU36-39 sequential/sharedhost descriptive timings only, not CPU40 matched native benchmark."
+  },
+  "cold_result": "No demonstrated cold compilation improvement: three actual capacity compile calls summed1.1101630525663495s baseline vs1.1804147246293724s candidate (~6%slower), while recurrence runtime was~73%lower. Single whole cold observation16.702682671137154\u219216.623276829719543s cannot establish compiler improvement. Dominant179-compilation cost remains open; no new whole-path profile or universal compile attribution.",
+  "receipts": {
+    "baseline_actual_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/baseline_actual_run/receipt.json",
+      "sha256": "4c59218e93223786e6e49a1b43368b3e1a74edce369ca5b3dcfd6c4e222f05d2",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.985345377586782,
+      "sampled_peak_summed_rss_kib": 1138688,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "baseline_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/baseline_run/receipt.json",
+      "sha256": "eedc3f866b64bec6eb242344e450df0a93d4ceac1c113cea47efbaff668c065b",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.251785206142813,
+      "sampled_peak_summed_rss_kib": 608508,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_actual_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/candidate_actual_run/receipt.json",
+      "sha256": "dbe9b89cb6e6ce95e2ef0860c1ec0e12f921156b90227242e872c5f751b82b37",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.641364237759262,
+      "sampled_peak_summed_rss_kib": 1123348,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "candidate_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/candidate_run/receipt.json",
+      "sha256": "17668e35545094559f0b4bb4cd12a3dd8c6f7bd0f438cf2af03cfdc3b0cc1aff",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 6.719198699109256,
+      "sampled_peak_summed_rss_kib": 621272,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "clenshaw_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/clenshaw_run/receipt.json",
+      "sha256": "0f1dad64bdbf1224d055cd4e5d490eaafd66b8f9f52460a87ef44e4809fc4845",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.461159302853048,
+      "sampled_peak_summed_rss_kib": 512956,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "controls_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/controls_run/receipt.json",
+      "sha256": "a8479fe3a17b09cab04da9594ef22489814cbd268ce00f572accf2cfa070119b",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 13.027933411765844,
+      "sampled_peak_summed_rss_kib": 792472,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "extra_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/extra_run/receipt.json",
+      "sha256": "966440b2c5a8f55e318c2edb77de278f6ae11597187e212975741ce0ee24bff9",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 11.810873076319695,
+      "sampled_peak_summed_rss_kib": 792784,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "interp_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/interp_run/receipt.json",
+      "sha256": "8d914a8faa568eb2a67d5ef04893d08fb5261f4c716b33300ed48db73348f88c",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 23.00596309499815,
+      "sampled_peak_summed_rss_kib": 1311120,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "inv_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/inv_run/receipt.json",
+      "sha256": "aad8edb0b5f7532240d6ae11e9e70362de19219f5d037ca76af73880d582572a",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 84.05100694578141,
+      "sampled_peak_summed_rss_kib": 2923084,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "llvm_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/llvm_run/receipt.json",
+      "sha256": "20bc906008ef1e2d43e8f30ed878b8e5eae6b8775557470cdb3e8bc311479414",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 7.3922697911038995,
+      "sampled_peak_summed_rss_kib": 613976,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "minmax_a_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_a_run/receipt.json",
+      "sha256": "1d07f09976e4cc7248e4dd6b92cb0ca5b85a2d53a3d197c92cce2f691c662d34",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 49.08738451497629,
+      "sampled_peak_summed_rss_kib": 2403232,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "minmax_b_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_b_run/receipt.json",
+      "sha256": "e2a0b7f7802b1cf2d9a939eee3386cd1f83dec9e89062cdf15df34b99887a914",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 74.72508179303259,
+      "sampled_peak_summed_rss_kib": 2926272,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "minmax_c_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_c_run/receipt.json",
+      "sha256": "e200cd7895fdc4bb9788c14946759acb1e69ce564f49f056a9b779e5a87683af",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 62.387607442215085,
+      "sampled_peak_summed_rss_kib": 3229172,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "minmax_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/minmax_run/receipt.json",
+      "sha256": "62dd615faab02a97a3b3fa0a6f2cc6447a5dff54c6f1d57a2bf9341210808493",
+      "command_exit_code": -15,
+      "supervisor_exit_code": 137,
+      "censored_limit": "sampled_summed_RSS_cap",
+      "wall_seconds": 106.27663269732147,
+      "sampled_peak_summed_rss_kib": 4206344,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "replay_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/replay_run/receipt.json",
+      "sha256": "549e77213d95059dbd134b0b51a743df2a865cec84f7219170266211d9654470",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.735306954942644,
+      "sampled_peak_summed_rss_kib": 827248,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots1_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots1_run/receipt.json",
+      "sha256": "834a4b087a029f651bc87f54c6f45dd0e6e24bb9f4e4d8d1c60ed08cdef72faf",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 21.359642662107944,
+      "sampled_peak_summed_rss_kib": 1141712,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots2_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots2_run/receipt.json",
+      "sha256": "e53049398ecf9b1e1cc1546e74c54b6cd96ee881db342df250b0b4302269aa1c",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 14.577737194020301,
+      "sampled_peak_summed_rss_kib": 1121792,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots3_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots3_run/receipt.json",
+      "sha256": "c68234b45b281de8b217cadde18cc43c83070e0b7e152b6f758cd35ba61561bc",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 13.7446651449427,
+      "sampled_peak_summed_rss_kib": 917928,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots4_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots4_run/receipt.json",
+      "sha256": "5a4e7705fc5897f739dfa66f6e22dd513a86f202ba607fb4ec435a102d451cd6",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 43.87125767208636,
+      "sampled_peak_summed_rss_kib": 2365360,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots5_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots5_run/receipt.json",
+      "sha256": "7bd2bfb5e65825bcc81daf82d63036e0f42a461b797ae6f69e755de276d49108",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 36.06524054100737,
+      "sampled_peak_summed_rss_kib": 2068524,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "roots6_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/roots6_run/receipt.json",
+      "sha256": "badecfacdaab43f6b96b2919f5c5798f653a74a9ad40844eb600b7820c56ab2f",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 38.99804359301925,
+      "sampled_peak_summed_rss_kib": 2192996,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "subdivision_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017/subdivision_run/receipt.json",
+      "sha256": "620f3353a9435fd2561029a50b6fdd6f5bdb32b5581db02643819efee2123c85",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.754012178163975,
+      "sampled_peak_summed_rss_kib": 1025240,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "resource_failure": "Original combined14minmax attempt hit4GiB sampled RSS cap at approximately105s after11stdout dots; not counted as completed predicates. Raw137receipt retained, inputs stable/no survivors. Same14final bytes passed11/1/2fresh-process splits at unchanged180s/4GiB limits. All other completed scientific runs uncensored.",
+  "parent_bridge": {
+    "base": "e7a0eb811d136c7e7fe5afa019f0eda27e991d5d",
+    "parent_head": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+    "committed_library_deltas": [
+      "src/chebfunjax/chebfun1d/ode.py",
+      "src/chebfunjax/operators/chebop.py"
+    ],
+    "scope": "Parent Maxwell chebop/ode changes are outside sampled recurrence/evaluation/inverse code; qualification remains child frozen e7a source. No combined-source scientific rerun performed by child."
+  },
+  "limits": [
+    "No complete inverse/root/transform API or page parity claim; unchanged native coefficient low-word differences8626/8630remain and matched-native performance remains open.",
+    "Direct changed-kernel controls include3retained actual subdivision inputs; all106intermediate child arrays were not independently recaptured in this experiment. Actual full inverse20artifact identity is separate evidence.",
+    "Prior26ordinary real native-word/5complex-bound evaluator qualification reused through unchanged source hash and final-output replay; no new MATLAB execution.",
+    "Gate source/tests/fixture/config were guarded; broad pytest external runtime imports are post-observed, not universally preguarded. The two actual inverse arms do have complete observed1364Python runtime-file preguards.",
+    "No source/operand/tolerance/trim/eigenmatrix changes, degree cutoff, native lookup, host numerical provider, norm shortcut, cache warmup workaround, or full-page run."
+  ],
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_sampled_four_stage_package_20261017.tar.gz",
+  "stage_compile_calls_including_capacity_reuse": {
+    "baseline": 1.1101883794181049,
+    "candidate": 1.1804401823319495
+  },
+  "stage_compile_totals_unique_capacities": {
+    "baseline": 1.1101630525663495,
+    "candidate": 1.1804147246293724
+  }
+}

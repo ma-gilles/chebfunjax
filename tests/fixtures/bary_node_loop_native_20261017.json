@@ -1,0 +1,12 @@
+{
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "fixture_sha256": "c8b17f224c613c5904ecb79759385732dcddd73b43a50c996c9a6d7a7848cf83",
+  "raw_capture": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/equi_stage_native_20261017/capture.mat",
+  "raw_sha256": "afc4c5519f867f17ddc67c397af5e8dc960ca15f2762498765418a3b78c0bf29",
+  "driver": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/equi_stage_native_20261017/equi_stage_native.m",
+  "driver_sha256": "745bc6c78a374d2d152bbda7f81aefac272f4629c4790d35d98b6ad2ce2cb895",
+  "native_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/equi_stage_native_run001/receipt.json",
+  "scope": "Copied local FUNQUI body renamed only from smoothfun.m, handle bary queries at native Chebpts. Actual public constructor length72 independently observed. Matrix inputs are retained existing native1d case04 words. mat_dtype=True restores MATLAB doubles from compact MAT7 numeric storage.",
+  "limits": "902sample words across3query grids; not all input/provider/backend or FFT coefficient bit parity."
+}

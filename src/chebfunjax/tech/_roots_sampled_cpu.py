@@ -48,31 +48,33 @@ def recurrence_states(coeffs, points, n):
     # retained subdivision coefficient bits even on the same CPU/backend.
     x2 = binary(jnp.asarray(2.0, points.dtype), points, 0)
     degree = n - 1
-    zero = jnp.zeros_like(points)
+    registers = jnp.zeros((3,) + points.shape, dtype=coeffs.dtype)
+    destinations = jnp.asarray([2, 1, 2, 0], dtype=jnp.int32)
 
-    def body(i, state):
-        b1, b2 = state
+    def body(i, registers):
         k = degree - 2 * i
 
         def instruction(registers, opcode):
-            first, second, temporary = registers
+            # Each multiply occupies its own scan iteration. The next
+            # instruction retains the source add-then-subtract ordering.
             operations = (
-                lambda: (first, second, x2 * first),
-                lambda: (first, second, coeffs[k] + temporary),
-                lambda: (first, temporary - second, temporary),
-                lambda: (first, second, x2 * second),
-                lambda: (first, second, coeffs[k - 1] + temporary),
-                lambda: (temporary - first, second, temporary),
+                lambda r: x2 * r[0],
+                lambda r: (coeffs[k] + r[2]) - r[1],
+                lambda r: x2 * r[1],
+                lambda r: (coeffs[k - 1] + r[2]) - r[0],
             )
-            return jax.lax.switch(opcode, operations), None
+            row = jax.lax.switch(opcode, operations, registers)
+            registers = jax.lax.dynamic_update_slice_in_dim(
+                registers, row[None, ...], destinations[opcode], axis=0)
+            return registers, None
 
-        (b1, b2, _), _ = jax.lax.scan(
-            instruction, (b1, b2, zero), jnp.arange(6, dtype=jnp.int32),
-            unroll=False,
-        )
-        return b1, b2
+        registers, _ = jax.lax.scan(
+            instruction, registers, jnp.arange(4, dtype=jnp.int32),
+            unroll=False)
+        return registers
 
-    b1, b2 = jax.lax.fori_loop(0, degree // 2, body, (zero, zero))
+    registers = jax.lax.fori_loop(0, degree // 2, body, registers)
+    b1, b2 = registers[0], registers[1]
     return b1, b2, jnp.all(jnp.isfinite(coeffs))
 
 @partial(jax.jit, static_argnames=('n',))

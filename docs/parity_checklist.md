@@ -27,6 +27,15 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Reconcile the twelve interrupted scripts:12committed replacements and12clean historical complete-run receipts found; original dirty payloads preserved and superseded. [Per-script table](handoff_twelve_disposition_review_cpu_20261017.md).
+- [ ] All twelve still need final-source numerical/stdout/scientific-figure qualification. Historical source/renderer/adapter bridges and exact next steps are listed per script; no new full-page pass is claimed.
+
+
+- [x] Native barycentric operation boundaries repair actual EQUI74vs72CI failure:902native sample words exact,39bary/native+12FUNQUI/EQUI+35original interp1checks pass. Combined41node gate passes,1083prior core owners preserved. [Evidence](bary_rounding_joint_cpu_20261017.json).
+- [x] Four-stage sampled-root recurrence:141pytest+48direct controls,20inverse artifacts identical; local warm median1.752641→1.611100s. [Evidence](inverse_sampled_four_stage_cpu_20261017.json).
+- [ ] Small-query/native coefficient low words/full APIs and matched performance remain open; sampled capacity compilation worsens about6%, dominant cold compilation remains unresolved. Latest-main scientificCI/coverage required.
+
+
 - [x] Projected C2 system eigenproblem repair: both actual CI regressions, four original native predicates,38child scientific selectors and24parent integration nodes pass (counts overlap). Complex eigenfunctions and genuine repeated modes preserved. [Evidence](maxwell_system_eigs_parent_cpu_20261017.json).
 - [ ] Full eigs/BC grammar, C1/no-x clauses, generalized-eig JAX conversion, matched performance and latest CI remain open.
 - [x] Matched-input single-CPU inverse benchmark: MATLAB warm0.642599s, JAX1.710633s; matching8630coefficient counts and nearroundoff sample agreement. [Evidence](inverse_single_cpu_20261017.json).

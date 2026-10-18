@@ -300,19 +300,32 @@ def bary(x: jnp.ndarray,
         fx = jax.lax.map(evaluate_point, x)
     else:
         dtype = jnp.result_type(x, xk, vk, fvals)
-        initial = (jnp.zeros((x.size,) + fvals.shape[1:], dtype=dtype),
-                   jnp.zeros(x.size, dtype=dtype))
+        zeros = jnp.zeros((x.size,) + fvals.shape[1:], dtype=dtype)
+        initial = (zeros, jnp.zeros(x.size, dtype=dtype), zeros)
 
-        def accumulate_node(k, carry):
-            numer, denom = carry
-            quot = vk[k] / (x - xk[k])
-            product = quot.reshape((-1,) + (1,) * (fvals.ndim - 1)) * fvals[k]
-            # Source bsxfun(@times,...) rounds before the separate addition.
-            numer = numer + jax.lax.optimization_barrier(product)
-            return numer, denom + quot
+        def instruction(i, carry):
+            # bary.m materializes bsxfun(@times,...) before adding to num.
+            # A loop-carried product separates these operations even when
+            # backend optimization contracts across optimization_barrier.
+            def multiply(state):
+                numer, denom, _ = state
+                k = i // 2
+                quot = vk[k] / (x - xk[k])
+                product = quot.reshape((-1,) + (1,) * (fvals.ndim - 1)) * fvals[k]
+                return numer, denom + quot, product
 
-        numer, denom = jax.lax.fori_loop(0, n, accumulate_node, initial)
-        fx = numer / denom.reshape((-1,) + (1,) * (fvals.ndim - 1))
+            def add(state):
+                numer, denom, product = state
+                return numer + product, denom, product
+
+            return jax.lax.cond(i % 2 == 0, multiply, add, carry)
+
+        numer, denom, _ = jax.lax.fori_loop(0, 2 * n, instruction, initial)
+        # Keep source elementwise division: otherwise broadcast simplification
+        # replaces each quotient with a rounded reciprocal multiplication.
+        divisor = jax.lax.optimization_barrier(jnp.broadcast_to(
+            denom.reshape((-1,) + (1,) * (fvals.ndim - 1)), numer.shape))
+        fx = numer / divisor
 
     # Fix NaNs where x == xk (0/0 case).
     # For each evaluation point, check if it coincides with any node.

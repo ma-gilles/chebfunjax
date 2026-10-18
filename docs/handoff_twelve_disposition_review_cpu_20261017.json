@@ -1,0 +1,749 @@
+{
+  "scope": "Read-only reconciliation of original12interrupted scripts on fixed publication9c4b; no scientific examples, numerical gates or native launches. Script presence/global structural audit yields no execution or figure credit.",
+  "publication_head": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+  "source_method": "All current scripts/pages/image hashes read from committed9c4b Git objects, independent of root pending edits. Raw historical receipts read and hashed; reported qualification limitations retained. Protected home not accessed or modified.",
+  "counts": {
+    "scripts": 12,
+    "committed_replacements": 12,
+    "original_dirty_payloads_equal_current": 0,
+    "original_head_payloads_equal_current": 0,
+    "current_scripts_matching_retained_oct17_bindings": 12,
+    "historical_complete_execution_evidence_found": 12,
+    "final9c4b_full_page_source_qualifications": 0,
+    "scientific_launches": 0,
+    "native_launches": 0
+  },
+  "key_updates": [
+    "Original dirty edits are all preserved/unverified and superseded, not accepted verbatim or reverted. Committed replacement disposition is separate.",
+    "DDE has complete23slot/24figure run at9888b5d5 with exact current script hash.",
+    "LaplaceBall later complete computation+renderer run at5ab31fb4 supersedes older partial-execution statement; full native/representation/image parity still open.",
+    "FermiOct16 complete full run/native comparison supersedes Oct8-only execution index, but exposes n20iteration5vs6 and representation gaps.",
+    "Atmospheric current frame delta and Resampling current two-toggle adapter have separate tests; no full combined current-script replay is inferred."
+  ],
+  "rows": [
+    {
+      "script": "examples/approx/best_approx.py",
+      "page": "docs/examples/approx/BestApprox.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "d430af58d53acb817f38cd9c5433f1f24d276955cc68a5f2866161b0b5790196",
+      "original_head_sha256": "885b1a55b7ea9c83091d01bb1a857cb766d35e1c9cf93fddbd02f5c3de8e2a2e",
+      "current_script_sha256": "08af4919fea63ff04f159fe183de3f22b03cba7cc4c441cb74d8fc0336281d13",
+      "current_page_sha256": "fcf3e299e5cb1dec8fdc51c872d357ea13914435fe21926de457f2998aba5724",
+      "current_image_sha256": {
+        "docs/images/approx/BestApprox_01.png": "89abc22de52fab0b2f17dd5fece328f40b5b3f2d3ae521656a8a0087996a9330",
+        "docs/images/approx/BestApprox_02.png": "49c8b1cf9ab2614e0654ed96b089bbb119dffc223d9057a107aeb9d332956b63",
+        "docs/images/approx/BestApprox_03.png": "2dc2b93384b6268ef70998a616694a4d96fc1589bbe8b9306c044a94895e6a66",
+        "docs/images/approx/BestApprox_04.png": "2a9ac27f416e25f5e6d7bc5eaba546e0f978f76374834ced5790bb1f9aa1cd99",
+        "docs/images/approx/BestApprox_05.png": "d8392d8eddb385cd70cbd8157408d69f288f11a69572d63fbd49504b89f4c7aa"
+      },
+      "replacement_commit": "fd0832588ab5cd187ce585f72ff152b5c5676fe3",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full numerical page plus separate reviewed rendering; accepted source payload exact, numerical AST bridge.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bestapprox_source_20261008/page_v6/receipt.json",
+        "sha256": "f83b13af0fa625ada972d254665bde35444a169200785e5a63e7b52f4be7d70d",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 83.32824874203652,
+        "sampled_peak_summed_rss_kib": 3736580
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/bestapprox_page_root_acceptance_20261008.json",
+          "sha256": "5413405383f058aad2de0a975a8a27a1a0884e1546dc6b1cf8c3f5568ac068bf"
+        }
+      ],
+      "stdout_figure_gaps": "Actual CF(16,16,M1600) rank loss/fallback/AAA diagnostics differ; deprecated-wrapper warning is deliberately not fabricated. Five figures reviewed, exact historical pixels/last digits open.",
+      "next_step": "Isolate native/source CF rank-loss and minimax reference/trial divergence at originalM1600 before a final-source page replay; retain actual warnings.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx_BestApprox.html": {
+          "exists": true,
+          "sha256": "3eec46cf464a70fcc72a65922a52ae86b80f50facc5cd5a444d52a66daf1bdc6"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx/BestApprox.m": {
+          "exists": true,
+          "sha256": "a6e03723f974df5052e80c589df4fb3caad68572b6d777c44d03df3a48c909f3"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_best_approx_20261015.diff",
+        "sha256": "3b3ad773d328cff34efd80951009086b0ce7ed8818bf8070198a2690daf19a0f"
+      }
+    },
+    {
+      "script": "examples/approx/fermi_dirac.py",
+      "page": "docs/examples/approx/FermiDirac.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "32bc9dbedde3881cb7d229465c524ef28faad7fed46be2e84d7fba79db8f4698",
+      "original_head_sha256": "fc287fc17f9855628c9dd044057a8a2d60012535712674ef35fcb08be8a7ff8a",
+      "current_script_sha256": "7ad4985a10e584f2c72708983b39ed04742c18c20775e7effbc0e7c249058012",
+      "current_page_sha256": "23ae351c33158f967db550615236ece6db5656b2a49c36d91d2d52e09f0e644e",
+      "current_image_sha256": {
+        "docs/images/approx/FermiDirac_01.png": "554211c59aedf386bb818f531677c328923dfb0d6ace2f40576c186657dc8474",
+        "docs/images/approx/FermiDirac_02.png": "d452dc7af5532faac5bb47b0f7286698e9b347dd9536393d36fd73b4d48a18c9",
+        "docs/images/approx/FermiDirac_03.png": "76d86b312ac85d78bada4f9562de981f77c005e057d0117868ef6244afe96753",
+        "docs/images/approx/FermiDirac_04.png": "49bc7dbee082b3a39febfe680084a8937b6d70cccc4d338aad289856c72fcb30",
+        "docs/images/approx/FermiDirac_05.png": "48df1a58d95903bdae74d9c675036bbf7fdb174f61da009496019e4d14944f9f",
+        "docs/images/approx/FermiDirac_06.png": "27018ffc336b3a55213e79b3814f7c96449b370705509da9794ac317eb198911"
+      },
+      "replacement_commit": "eabdbfa0f28329ba73915dac42031c9ba3cea7fd",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Later full script at18a09e00; stdout except elapsed equals accepted; later native fit comparison remains discrepant.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/fermi_dirac_requalification_20261016/supervisor_run/receipt.json",
+        "sha256": "8283a8a6598599aec773ef97d380d619858470cc1c3920127255eff911b57678",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 173.61126337992027,
+        "sampled_peak_summed_rss_kib": 4542368
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fermi_dirac_root_acceptance_20261008.json",
+          "sha256": "785480e58257fed64ab607ac54a6781a3e3a697335002775dd012a95656c3dab"
+        },
+        {
+          "path": "docs/fermi_dirac_current_dependency_cpu_20261016.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "d863397ee7112242e80ada37df393a6e390d37e978847bcdbdb6819e313f0aaa"
+        },
+        {
+          "path": "docs/fermi_dirac_native_fit_comparison_cpu_20261016.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "096c84570061c8f9a8e0cae4558eaff4765e173ec3ba77f9156162551a6fd566"
+        }
+      ],
+      "stdout_figure_gaps": "n20 iteration5 vs native6; pole/zero/reference representations differ; uniform2000 fplot samples vs native adaptive;6figures not pixel-equal. JAX-only minimax and speed open.",
+      "next_step": "Compare first divergent L1000,n20 minimax trial/reference state at unchanged stopping bounds, then qualify adaptive plotting and6computed figures.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx_FermiDirac.html": {
+          "exists": true,
+          "sha256": "660a88ae0506e7cb7d613d6047a5a737c8b40a31736bcfaa47b1f1ed9544bef0"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx/FermiDirac.m": {
+          "exists": true,
+          "sha256": "99441521be371d011f1549598608b2132d30f6eaac9decfb127126d38f3984aa"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_fermi_dirac_20261015.diff",
+        "sha256": "9bfcab7d53b9bf6e81d8c1d4896b8f2f7a5ff21d4f7d12666dda9e2a3b458ea8"
+      }
+    },
+    {
+      "script": "examples/approx2/localization.py",
+      "page": "docs/examples/approx2/Localization.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "6294d3923c9615a4dedfd86c7718e2fc4b19fc7b5aff72bf1e580533d792d111",
+      "original_head_sha256": "1d1f057193601bd979beca0a9faa8bd1b7615d45a13b4e3d2b529157b0b5101d",
+      "current_script_sha256": "91ad3afce704fe721ae5dad931e0d0a96aaf31fdc18271e8fd471124e460343c",
+      "current_page_sha256": "9265c1a76bb9d690715a31ba26bbd0a6af06d184f14bb25373f9183111583556",
+      "current_image_sha256": {
+        "docs/images/approx2/Localization_01.png": "e1ef5f2d3e91cf69a27ef206d324f09b3ecc086b6e3ac3184fddc3d87b0d6c81",
+        "docs/images/approx2/Localization_02.png": "0e554daa96b1dc49a17343e783801262ec84b59f53f8c5c6efcbec3d510b9310"
+      },
+      "replacement_commit": "b287e2b8a0052324c94aab8554c5fca63d550113",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full page v8;6stdout blocks equal cache; two figure checkpoints have source data/artist audits.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/localization_p123_historical_page_v8_cpu_20261007/supervision/receipt.json",
+        "sha256": "0fe13e6e0c700211aed9b9c14e8541b03fbcb9215750519f2c7e2549e2c16f4d",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 60.582053556106985,
+        "sampled_peak_summed_rss_kib": 1095976
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/localization_p123_historical_page_v8_cpu_20261007/postrun_audit.json",
+          "sha256": "ee4f598c532c623f2d0109bff5dfe12b17fb2ce7ef6a247dd130caaeb83771d1"
+        }
+      ],
+      "stdout_figure_gaps": "Historical stdout/cache equality and source pivot checks do not establish current-library reconstruction or full curve/raster equivalence; two figures are not pixel-identical.",
+      "next_step": "Replay original6cases on frozen current library; compare ranks, retained pivot/curve data and actual stdout before reviewing2raster/geometry gaps.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/approx2_Localization.html": {
+          "exists": true,
+          "sha256": "3b433cdbd780149d54dc08fb4d1b2abe74ca0001237ccacf8b272fdb60f403b4"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/approx2/Localization.m": {
+          "exists": true,
+          "sha256": "cac1ba0a81dbdd9167b9d799c9d76fdcc0db701bef2b63664572202571ab3b24"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_localization_20261015.diff",
+        "sha256": "63e677b6e6720b056020cf3f6aeebb5a53d6636b351b1ba5bf0e28ce7693c2a6"
+      }
+    },
+    {
+      "script": "examples/fourier/fourier_based_chebfuns.py",
+      "page": "docs/examples/fourier/FourierBasedChebfuns.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "cefa993efdb42912049309134e23a272b3613b85e61aa1ed4f1e665d643d8781",
+      "original_head_sha256": "8a01fc45f47847c0395e8eeb6614f17b15eef30b685abb8a50544504cec3ca2e",
+      "current_script_sha256": "b0f6bb037974306a349332387d9c38890418f1fc51e76072c0465ac1b95c4bfc",
+      "current_page_sha256": "572018fbeda85faa8822640fa72d27b1408c34fa74d490d641c4a134553e8bbb",
+      "current_image_sha256": {
+        "docs/images/fourier/FourierBasedChebfuns_01.png": "6858351ca12877ada9cefa68dab7794097379a39b3e9eaad2fff5b6bf99e831e",
+        "docs/images/fourier/FourierBasedChebfuns_02.png": "5e7996bed1fe4ec735c6d564fc274c096e2811ad0a72a63594e8fd1890a319dd",
+        "docs/images/fourier/FourierBasedChebfuns_03.png": "a42511027e38b43131f85f1b3a2bc9bacb9b09c850551d5a03b4323f725f1a18",
+        "docs/images/fourier/FourierBasedChebfuns_04.png": "fa6e38295a2cca34ecfda081c4ff9c00afe783d2380bcee4c76c241b217d82a0",
+        "docs/images/fourier/FourierBasedChebfuns_05.png": "044db7a5b86c6e199674e33be7545a7cf8c0d5852770c9a1a39dfd14146e0f6c",
+        "docs/images/fourier/FourierBasedChebfuns_06.png": "97ad699114abc3e078cb952149ab68a1a4f89cf44007672c9fe0367087696fa9",
+        "docs/images/fourier/FourierBasedChebfuns_07.png": "4efd0b6bc8b0ff14358c1ee229f799a1545fcfccf557e82dedc86f4965e51c2b",
+        "docs/images/fourier/FourierBasedChebfuns_08.png": "c207c6fe59d75b7531d5f231ca5788470fa501d14eb0994830a892ac7470322e"
+      },
+      "replacement_commit": "73690e8955b6ddcd0940af7d3bc6502a37ad67da",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full public computation, plus independent renderer.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fourier_current_core_replay_20261008/run_v1/receipt.json",
+        "sha256": "aa23fc6cee1783a29a5530cce04de3eb6ecfe2bbd243766718675ab85d0e7815",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 51.07013299129903,
+        "sampled_peak_summed_rss_kib": 2925456
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/fourier_page_root_acceptance_20261008.json",
+          "sha256": "70216b52c71e4aad7c050d52ca8e167234ad5dbf5eb3fa7a689062f0364297a0"
+        }
+      ],
+      "stdout_figure_gaps": "Native seed0 Gaussian201-word stream unavailable; tied extrema/actual area residual differ. Eight figures retain font/linewidth/coefficient/raster gaps.",
+      "next_step": "Qualify native public seed0 Gaussian stream and tied-extrema semantics before replaying unchanged printed computations and8frames.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/fourier_FourierBasedChebfuns.html": {
+          "exists": true,
+          "sha256": "879549ae4a7d922ccfe70fc4d226ade52bd721a7405142450c221886534603c9"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/fourier/FourierBasedChebfuns.m": {
+          "exists": true,
+          "sha256": "972b50dc091335f14f102737a0cbfa16c2e4f1f9c7801f43e12ab7f6c259f175"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_fourier_based_chebfuns_20261015.diff",
+        "sha256": "35b0aca0ecd88319ff4b6562c2a624919ebff3b8b17aa86e6bf37d81093c1f45"
+      }
+    },
+    {
+      "script": "examples/linalg/vandermonde_arnoldi.py",
+      "page": "docs/examples/linalg/VandermondeArnoldi.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "05e9f5ab6182317927b8f9ed3cb0d7ee23d05ae800b10e618b92d9ed9ead3be5",
+      "original_head_sha256": "6e9abea3881c05d4e634c849149d165946df0ad108e2ebeec324ed38f477b4b1",
+      "current_script_sha256": "e0ca9709a7549a5011529fde0e5d372fa1fff6010cbbf822d0d8240569cc338d",
+      "current_page_sha256": "81054d271990e5228593755114029148950f352663113e2343d68e246c486371",
+      "current_image_sha256": {
+        "docs/images/linalg/VandermondeArnoldi_01.png": "9600899eabd47e8afdb81f9242fef439263ceb4395d48aec04d6c8974b66c0ea"
+      },
+      "replacement_commit": "32bc63d9fe8f7a64eaccc53f0335a20c6dfd261c",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full original degree80 computation/Arnoldi loops; reviewed current source.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vandermonde_full80_source_20261009/full80_v2/supervision/receipt.json",
+        "sha256": "cce1ca1e6879749e023812c5ce57f143cc7d6ff26b7f2cda907773f13fd93b07",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 429.5673097772524,
+        "sampled_peak_summed_rss_kib": 5168372
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/vandermonde_full80_root_source_review_20261009.json",
+          "sha256": "0dd10c9a5c536b6450ccdf38aa749cfd07b5737e6053b91cfa182e594d20d83d"
+        }
+      ],
+      "stdout_figure_gaps": "Ill-conditioned monomial values/warning differ from cached native; actual oscillations/axes/ticks/framing differ. Full degree80 execution is not numerical/figure parity.",
+      "next_step": "Capture matched native degree80 monomial/Arnoldi intermediate states and warning cause; diagnose arithmetic/conditioning without changing degree or tolerances.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/linalg_VandermondeArnoldi.html": {
+          "exists": true,
+          "sha256": "cad0a25188694cb6cc778285ffc2afbe2d9f617f7b815d07179d8f51889c57e4"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/linalg/VandermondeArnoldi.m": {
+          "exists": true,
+          "sha256": "625f29c9f58c26699b664e9f88b7734d4ba74d29cfe9f7faefb314e5bc49d003"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_vandermonde_arnoldi_20261015.diff",
+        "sha256": "ef8cd11bfd95cb7a8526abdfb770771f328e5576c3eca97eadfb112142f4767f"
+      }
+    },
+    {
+      "script": "examples/ode-nonlin/delay_differential_equations.py",
+      "page": "docs/examples/ode-nonlin/DelayDifferentialEquations.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "4896988bb3b310b9396760ff5b23e761629567d7d748940a44428b2497ad57d2",
+      "original_head_sha256": "0eb3f925ff915f3f2c531b308774fb7e35b909a86d391713ce67bbc079e228ce",
+      "current_script_sha256": "f989bc18ad506aa7e629a59db0b1fe3a68d1774433ccdeea420f93f0d75748c0",
+      "current_page_sha256": "38c454f0093cb843f707c24a63ae6f5929e897cf3c7acb04e8abd551bb620b84",
+      "current_image_sha256": {
+        "docs/images/ode-nonlin/DelayDifferentialEquations_01.png": "0b2eaaab757abcb1e7850d6bd64e5bc523c80c38f0d33fdc3854416a5b15d3bf",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_02.png": "9e951ce076d6c558b1c014537ad6c8bb03578fda6d2c4b2298fc58eefa9875c7",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_03.png": "9229473363c5318f80387cdcedbc892962cd499a4d13dfe038926a7ee61df627",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_04.png": "2370b466afb7622bb79dc0697c46d905324cdd719d85f7e46b74585135d2ddce",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_05.png": "1011de8887698d145f60f2eab1ba02a4e18f1ad1ed66ec7ef8f3a4ba3ba05132",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_06.png": "518a826f8c40742a3709c890ff809ae285bfd63633e639ba702c8c846f5594e2",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_07.png": "81d244fdbb7f69365c8a3ba34571d86f8f9058a67abda34de4f9f6e0802aac3e",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_08.png": "f618b0d453bdced9af80a15dc3fb20efa8a7f26cc32a1686af810ff35799077c",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_09.png": "64f42c838081f7ce235d020495777ef1a7cc08c405d161f678beef4dd33a41d4",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_10.png": "67726ce206be9964e511878490fb4c2838905d7d435a3813c2221c11bdca8ecd",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_11.png": "87504d9f3c098ed723516aef65f96be35fddd2b7938d3e7a8051ca2494d76e0f",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_12.png": "4f8bf8ae7a93b8ee9c0f77309101d38e8405957bd9428543b82593300170cafd",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_13.png": "8c087b5e2cc9f5ada348102f42865114b5656c64e72110636c83255c38739381",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_14.png": "476a34b415538163cb9908d4e546b5e9fb36e1c0c89a7880886915e6b44678d9",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_15.png": "cc6fb8c733a44c8abb9c9b6fe2bcbe9bffcf9ba5bad5df73eef24f919cafd16a",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_16.png": "2395184f125b8d60aad3ded1edae99ee785d50bd88b55f4a52e632b158505ba1",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_17.png": "163be3e42d8019bc6831ff6aed39f02d9cd9ccd985bdc344090bd2d0c501a539",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_18.png": "59a84e2bf3f38b24283a04cb304e00f41429656502cab22310890b6f770c221a",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_19.png": "b8184ee5169a0e5a5780303ae5cf6abb368cf78fe8ba4c87c4c7fb374dc8c178",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_20.png": "8343ed5d052f1852e23c51e8f64dcc3ce15d54558dcb492bcea48c952c8d00a4",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_21.png": "1d115eeb1fb09a87717051720d243d187988d6ae328b73e6079da0a0737c9a02",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_22.png": "fc3db0554aaaa0cf7094b070f8a972efb4a65c4ab15a40e469b893913ec592f8",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_23.png": "d69667d38160a977f4ad1fa1ba3681baf80112c5261a38c09e464c14112f5d0c",
+        "docs/images/ode-nonlin/DelayDifferentialEquations_24.png": "2c2e5e3ec4cdf0b7f68fab1c9fdd4b20173f8cfa47cc2bee53b8482f33b2dac5"
+      },
+      "replacement_commit": "b9a7ba3488773d64bc8adbbaf09fc5736d2237cf",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Complete unchanged script at9888b5d5:23slots,24figures; source script hash exact.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dde_current_run_20261017/supervision/receipt.json",
+        "sha256": "76b4a4707e44b54e5aa4bd7816527459bb98220057d1fddfd53e6358b7e66c3e",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 401.8505099811591,
+        "sampled_peak_summed_rss_kib": 6263924
+      },
+      "evidence": [
+        {
+          "path": "docs/dde_full_current_cpu_20261017.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "471de861e01227f6c69f28d0ae29f629d2f8b4cff16e82e58b2c8057f4824084"
+        }
+      ],
+      "stdout_figure_gaps": "Full native printed output/pixels incomplete; figure17 boundary markers clipped when computed centers lie outside axes. Selected native replays are diagnostic, not new bounds.",
+      "next_step": "Diagnose figure17 marker clipping with exact stored computed centers and original axes; separately compare all23actual output slots and24computed figures on final source.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/ode-nonlin_DelayDifferentialEquations.html": {
+          "exists": true,
+          "sha256": "a2f78be954ddc28de476dc3a03ef8bbc44ab6cfbca81ec7495063908075f4c87"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-nonlin/DelayDifferentialEquations.m": {
+          "exists": true,
+          "sha256": "aa8dcf374ac46d55ee68460d01c6428b2f6b92c09d889276d00a32e3e001995d"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_delay_differential_equations_20261015.diff",
+        "sha256": "4eeb36e8995fc7c69ec13ef9f39ef31520a8d979a692b1fa2bcc61e1244f4492"
+      }
+    },
+    {
+      "script": "examples/ode-random/randomswitching.py",
+      "page": "docs/examples/ode-random/RandomSwitching.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "46e62e9a2a72048a31b983545b2622fab17f0bda060e3c6d7135ba542268f5b9",
+      "original_head_sha256": "cfc86e578a1649656ed75228e9875979a8cb38690c3fade52503525d540f4f03",
+      "current_script_sha256": "8dde1c9a53837e73c1da1ab1265c38af6159af9a5f0a119f83cd75eaf9158e39",
+      "current_page_sha256": "d86168b8937944dc6823dfe5f527220ddcb6e32f98ad63ebd5a4f4aa94c6f043",
+      "current_image_sha256": {
+        "docs/images/ode-random/RandomSwitching_01.png": "bf39e55747c955e1d10aec1a3b96d72a5aadce47eedb1186eb19b246fc394b96",
+        "docs/images/ode-random/RandomSwitching_02.png": "6993da195daeb03934685a9c1fd5e2e0864e263c20570fea7dbc9cbaf92d0010",
+        "docs/images/ode-random/RandomSwitching_03.png": "15bf199095265cc5a7231a5249bbb31de8874d3b10c9cc834e8aa021c22c7d07",
+        "docs/images/ode-random/RandomSwitching_04.png": "95d0dda5e40cd0cb0231f016050841780eef5bd51b573eb5be95a08befd4f9b9"
+      },
+      "replacement_commit": "2c70a67b6eb8d48d0274106a263ebe2ba8880156",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full source-order public script:4figures, actual stdout captured; published source bytes exact.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/randomswitching_page_review_20261010/full_page_v3/supervision/receipt.json",
+        "sha256": "7bb51bdb7ed2daba253ebac49e03d3cd4637bf2ea800fb787d05c0beede3b292",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 457.7883163620718,
+        "sampled_peak_summed_rss_kib": 5128288
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/randomswitching_page_cpu_20261010.json",
+          "sha256": "fe1446ace6ff3d1313f78381ab063417281bb7a2452ae38e877d2b3b6f932533"
+        },
+        {
+          "path": "docs/randomswitching_page_cpu_20261010.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "fe1446ace6ff3d1313f78381ab063417281bb7a2452ae38e877d2b3b6f932533"
+        }
+      ],
+      "stdout_figure_gaps": "Pinned source rng(1) differs from older cached website rng(0); Python stream differs from MATLAB; figure2 does not decay as native prose states. Numerical trajectories/style open.",
+      "next_step": "Keep pinned-source rng(1) vs cached rng(0) discrepancy explicit; qualify matching native RNG/source trajectories and figure2 decay mechanism before final replay.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/ode-random_RandomSwitching.html": {
+          "exists": true,
+          "sha256": "319a46f853987f72d4d99a3ce23fcb037014a696639cdfb277b4d04009f272b0"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/ode-random/RandomSwitching.m": {
+          "exists": true,
+          "sha256": "d2e1d1235e0db7c50b06beabb41de827f00d1197de561e617915fb58956e76ee"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_randomswitching_20261015.diff",
+        "sha256": "34a3f474a8a3a9f13615e362e7132ce20adf1c3e8116d4ded92ae31b4ee4e229"
+      }
+    },
+    {
+      "script": "examples/pde/trapezoideigs.py",
+      "page": "docs/examples/pde/TrapezoidEigs.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "76cde32e4da76324fce8b2e936305fa1b779ebba2b44504111a2256c66ef29de",
+      "original_head_sha256": "132c197c1f4de0dcc9864da969bcca6810eb84a1f0c62fb3b187af05d42846b3",
+      "current_script_sha256": "ab8ea8978cd03cf3fbf60a2e14c6e118a78d47a0cfbbfd67a84a40bb6dff7c03",
+      "current_page_sha256": "9a9a7bc8af12ef0ddad35860115c18065996ba23750b2a05002497218adab756",
+      "current_image_sha256": {
+        "docs/images/pde/TrapezoidEigs_01.png": "c2a7dd28c4a42269ae46efdb13b6c0521c53649b46345dfcfeb790eb7c50fe60",
+        "docs/images/pde/TrapezoidEigs_02.png": "142148e29d1894d4db35ae0001f4098dd65c0efb2f58536c6804bbc5d3a1c4eb",
+        "docs/images/pde/TrapezoidEigs_03.png": "428dbb4013d92fa2efa3d7dabe1c42d85387b575f292d749f83fcd15035cf5ae",
+        "docs/images/pde/TrapezoidEigs_04.png": "d21a6e6640f3076e52ade5c52b43ce68885e56bcf8c80c7e78cb9fd362a57128",
+        "docs/images/pde/TrapezoidEigs_05.png": "0675add4fd0e41f1ce8a62b8f7df71d90100c12bd821790849ca5b76b5f551b2"
+      },
+      "replacement_commit": "5d1673d60f8c4016823e6dc3621eb213b78afdc6",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical complete standalone source computation n4..7;12numeric labels and5figures; import-only AST bridge.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trapezoid_page_source_20261008/standalone_v1/supervision/receipt.json",
+        "sha256": "5a3234d4aaf0023a5229d70022e3676f27aaccc85612fbd951d53f3e78c6cfe3",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 455.0993424770422,
+        "sampled_peak_summed_rss_kib": 5343280
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/trapezoid_root_integration_20261009.json",
+          "sha256": "d61794b59df4ac6d732c73c56e8b08d5bb94a2e652daae6ebb6d00265c7cd42c"
+        }
+      ],
+      "stdout_figure_gaps": "Visual parity explicitly open for5figures;12computed labels and successful source algorithm do not establish native values/curve/raster identity.",
+      "next_step": "Replay unchanged n4..7 source on final library, compare12actual labels/singular-value data against native, then review all5figure geometries.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/pde_TrapezoidEigs.html": {
+          "exists": true,
+          "sha256": "cc643c94267d938373fd2efc7004fd3cde188a6a506b816968310513654ddff1"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/pde/TrapezoidEigs.m": {
+          "exists": true,
+          "sha256": "ad4301b2636f6f06f17f0d05e7c90ba0caeabc6184f14f9d54075640fb4a7338"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_trapezoideigs_20261015.diff",
+        "sha256": "931eaec71bff73f520b945d9ee873f1f0ba62d70c832e0250b00801c09f6ebff"
+      }
+    },
+    {
+      "script": "examples/roots/marching_squares.py",
+      "page": "docs/examples/roots/MarchingSquares.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "2922b8a9b871f977003b26f5736bc9a13c6ff12dee3f76ed610b5dd487851d3b",
+      "original_head_sha256": "dfa098799aae38e3f8d45e27f9898e4c5eba79a5b99efc94ffb3d0b4d55c83a0",
+      "current_script_sha256": "80534b3ddf1482092e08e44dc7bfc0de6a5f900af5b5100d26a3139dad53ae7a",
+      "current_page_sha256": "379e8095a9399bc146532de924ca58a9a4bb4ff5378d5f67d442e3031414dc6c",
+      "current_image_sha256": {
+        "docs/images/roots/MarchingSquares_01.png": "76565b7845dd1b5e25708a45bf7269f38f72cb5afa58460147113f76a648c60b",
+        "docs/images/roots/MarchingSquares_02.png": "f72a229e0b615fed41aa87c411df037c4876787cfefc8a4ae553633d5b1b3834",
+        "docs/images/roots/MarchingSquares_03.png": "31ff6ca671df2472ac1f83a604c7ec95b54d5d692bd4d6764a490aa04244f15c",
+        "docs/images/roots/MarchingSquares_04.png": "73addda1b0f12dd1c99d2fa55f5871303cdbb61f2bdea459971d2edf314ea499"
+      },
+      "replacement_commit": "2f05c1cfaa5e09ac76b9aa833e0c19922255be5e",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical complete page run:actual empty stdout,4frames; source case order and curve samples audited.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marchingsquares_corrected_export_v9_cpu_20261008/supervision/receipt.json",
+        "sha256": "a9bfa761bc50264071e0059ebf0a596d7cc8712ea092a61a24203ebd06ab27c3",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 223.92890287190676,
+        "sampled_peak_summed_rss_kib": 4590800
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/marchingsquares_v9_terminal_page_publication_review_20261008/review.json",
+          "sha256": "ad2eab07972a23c1a3ead3eb706c874fb01fb76a279f564d9195908771e40712"
+        }
+      ],
+      "stdout_figure_gaps": "Trott side-lobe endpoint gaps~0.004039 differ visibly from historical reference; no artificial mask/closure.4figures not visually/pixel-qualified.",
+      "next_step": "Capture matched native Trott tracing endpoints/branch sampling; diagnose missing gap geometry without inserted masks or artificial closure.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/roots_MarchingSquares.html": {
+          "exists": true,
+          "sha256": "d909ab86f4b63a48a7ece2e01f90d61159666139eccd878b4c7c65363a17b99e"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/roots/MarchingSquares.m": {
+          "exists": true,
+          "sha256": "3d57147c58e53e93edd6555fcf9c54d7509e91811b72ea1e3e8e7cd52f7775ab"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_marching_squares_20261015.diff",
+        "sha256": "3f3cb234d31f7e2e208d6ed5a89c8666e5998a8c33ad0dccccbd4ee8dc9a591a"
+      }
+    },
+    {
+      "script": "examples/sphere/atmospherictemperature.py",
+      "page": "docs/examples/sphere/AtmosphericTemperature.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "40dc417b0c495e36a81a21070572f71ad5127510a085a0789fcc92a956536736",
+      "original_head_sha256": "21134d4ba298f4f454537f96256e3dd827fae72b47a31af11f91be236d50f8dc",
+      "current_script_sha256": "610a2b4101a44a94f9fc47a71cc3313fdf2012aa7df82508e78402cc7c3fd2db",
+      "current_page_sha256": "47298bf3e4eb6dce34355ea3a9334817c313cb652166ca742cec197eb8cf9c11",
+      "current_image_sha256": {
+        "docs/images/sphere/AtmosphericTemperature_01.png": "64429f7320ecbfe6d899ec802c093029bfec6c6592b36bce9ae1d0129bc09493",
+        "docs/images/sphere/AtmosphericTemperature_02.png": "b5f9d9a7c264b6f669daecf25a266cb1b0e8667990dff87a9814e6000b4364ba",
+        "docs/images/sphere/AtmosphericTemperature_03.png": "ca01ea447d79cd7ff696bc251ec984b816c8cb807234a694cf638137ab69ea3a",
+        "docs/images/sphere/AtmosphericTemperature_04.png": "d114ee7f9aeccbbaf1e0bc0d015187065569fe2fe7d50aff0ccccda2296ff78a",
+        "docs/images/sphere/AtmosphericTemperature_05.png": "3534d38e07d87c721f9b3b4cf215701b8ce61d2bd62475e84d32d65899202d72",
+        "docs/images/sphere/AtmosphericTemperature_06.png": "132869ca078ab089876e98a98420c348571164c054929a66fc8cdcafe4c5a12e",
+        "docs/images/sphere/AtmosphericTemperature_07.png": "284c98a226362a926f1d11702c91f1c3d661be433c4d8c379bb1fb74673ddf06",
+        "docs/images/sphere/AtmosphericTemperature_08.png": "876a652f8e70e2ac496649bf63aca22e0d5b536990880fd06a1950e1134561a2",
+        "docs/images/sphere/AtmosphericTemperature_09.png": "7e996af316e7349cee57b8a126f1fc39c0d689b7154efb2b5607cbabc14e18af",
+        "docs/images/sphere/AtmosphericTemperature_10.png": "cfe32985f6d0db402a20416f3a72ac9952bf4b53e4db0958c83a41a5ac9dda09"
+      },
+      "replacement_commit": "e8e7128982b590187d830c8f2ae67361597b0ab5",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full numerical page with10frames; current frame-only helper change separately tested, no full combined replay.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_source_20261010/full_page_v1/supervision/receipt.json",
+        "sha256": "31ad4b382748a52b47844c9302596d0cb82c507517663a40959a80d8bf43a42f",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 193.03022084198892,
+        "sampled_peak_summed_rss_kib": 3090004
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/atmospheric_presentation_fullpage_root_runtime_review_20261010.json",
+          "sha256": "bf22458532fe9efaff29d5d7da71839ac6a5e7a44664ff5d1e58d701aec5a695"
+        },
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/publication_checkout/docs/atmospheric_frame_style_cpu_20261010.json",
+          "sha256": "67e9ddb5061dd0daf2591cd45432b5ee01817bbd01c5e8737c0273f4aaa9ef04"
+        },
+        {
+          "path": "docs/atmospheric_presentation_cpu_20261010.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "edc405c0d46ef6f1498920a604d7c5a4b935b8c7c939f207b292da511223c46e"
+        },
+        {
+          "path": "docs/atmospheric_frame_style_cpu_20261010.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "67e9ddb5061dd0daf2591cd45432b5ee01817bbd01c5e8737c0273f4aaa9ef04"
+        }
+      ],
+      "stdout_figure_gaps": "Historical Poisson field differs from cached website; corrected pinned solver retained. Frame-only helper qualification does not rerun full source; palette/geometry/raster gaps remain.",
+      "next_step": "Compare retained dataset/Poisson field and native solver semantics; then perform one final combined computation+frame-helper replay and review10figures.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/sphere_AtmosphericTemperature.html": {
+          "exists": true,
+          "sha256": "bfbfee57bed3a5f3a981a500b3b37d837c18c646ddfe89d0b61eea54649681af"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/sphere/AtmosphericTemperature.m": {
+          "exists": true,
+          "sha256": "2b34b0722d071f1b537e6a7b57af5a8c8202d738fd7ba8d0bbc045537e46a39a"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_atmospherictemperature_20261015.diff",
+        "sha256": "2ddc0f0a1699b8136ed775d8c66f4df13cd72be4f682c3b91aed529abb7e2c85"
+      }
+    },
+    {
+      "script": "examples/sphere/laplaceball.py",
+      "page": "docs/examples/sphere/LaplaceBall.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "293c83b9452ffeee447644aea48c1d720fd7dc4d2eddc898b58f9d41130d600d",
+      "original_head_sha256": "5984a3caad1cfdc72239525b9de681f2ce27ae37c6542f64ab1e7741ee9d8f1b",
+      "current_script_sha256": "a2080cc692898ae0a618980631610a3652ea6aa3c600b97af91ae667b72d7557",
+      "current_page_sha256": "f358e3bb190df7af7613b21af092181c616ae07ca07e320d531c7357bba9df94",
+      "current_image_sha256": {
+        "docs/images/sphere/LaplaceBall_01.png": "b961ebec7c3cc16fd3d19d9694ff0f8c06afe5d51f407680c8038adec75496f8",
+        "docs/images/sphere/LaplaceBall_02.png": "d275d99f370ae0b95f4812aef65163cfb7033173085549cf643ae082ee08b19f",
+        "docs/images/sphere/LaplaceBall_03.png": "424042ef82b47d45a82976f76b78540ea62b634ab4dd8a178d75a049073387f8"
+      },
+      "replacement_commit": "da399f1da474411070f5dfc06b289056499a3da7",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Later complete current-script computation AND renderer at5ab31fb4:11observations,3frames; script hash exact.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/laplaceball_current_full_run001/receipt.json",
+        "sha256": "3cfffc71c6686b7ef5ed88cc9e7eee8265d7678173cf4eec8be12ad131ebbac4",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 34.993769840803,
+        "sampled_peak_summed_rss_kib": 2002300
+      },
+      "evidence": [
+        {
+          "path": "docs/laplaceball_current_cpu_20261017.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "31ccd91772338c640e88552d3018a436670f564a45946ab3d5333d31bb6cf2b5"
+        },
+        {
+          "path": "docs/laplaceball_full_cpu_20261010.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "b4069054f02bf7711ce3f3c587880304d4c6ec0d3ada910a675156d8e6f408f8"
+        },
+        {
+          "path": "docs/laplaceball_palette_cpu_20261011.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "4257d67f136a487dd46337f26abc13bee2e4ff6f474e44b07f55f24d43164e17"
+        }
+      ],
+      "stdout_figure_gaps": "Boundary65x65 vs native65x63; captured input does not implement general MATLAB RNG; Cartesian Spherefun overload absent (angular adapter). Max printed delta7.80e-14;3figures not pixel-equal.",
+      "next_step": "Compare matched native boundary samples/transform/chop stages to explain65x65vs65x63 without forcing degree; qualify Cartesian overload and remaining3figure geometry.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/sphere_LaplaceBall.html": {
+          "exists": true,
+          "sha256": "bd153eab45ee2514b8386083b22dc5e14df7e255fb4a5e8f557488a3d6c83a9e"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/sphere/LaplaceBall.m": {
+          "exists": true,
+          "sha256": "0dcf68bc259760506f14c9a3e96bdf437b176ff6f6eb9fb45f99d20ad1968318"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_laplaceball_20261015.diff",
+        "sha256": "dfa2264b981d6fffeb326bb433727ac1dfb97fe6fcdc36508978e3eae99a5320"
+      }
+    },
+    {
+      "script": "examples/stats/resampling_random_variables.py",
+      "page": "docs/examples/stats/ResamplingRandomVariables.md",
+      "original_edit_disposition": "Preserved/unverified original dirty payload; superseded by committed source replacement. Neither original dirty bytes nor original HEAD were adopted verbatim; no original-home revert claimed.",
+      "original_dirty_sha256": "c0a897f557646134a79358dd8802b6a7f37f249a4610fed0ecd4430cfbbb8cce",
+      "original_head_sha256": "47efec38c3c13e53731914788c8f2f9a96d761122991935b4b560b312a862a8d",
+      "current_script_sha256": "02e8c9397139bf970c6be341b6dbc13d0121ac994dec315b7e06cc95f11a2d0b",
+      "current_page_sha256": "ab43c6a8a85885be10a9eb834dd48fc90d79121bdd7b89605c7f0b83f4ac2e30",
+      "current_image_sha256": {
+        "docs/images/stats/ResamplingRandomVariables_01.png": "a6325d578cff858899f203a131209de58e4885d404341db7b96f96858b05e332",
+        "docs/images/stats/ResamplingRandomVariables_02.png": "089035e38c70e1262f666bbd3ec756638de09325d06fab37d01d00cb3a518178",
+        "docs/images/stats/ResamplingRandomVariables_03.png": "ec90221efb205b8822be6c774f3a90206a986587b7cd5ee37fae459c40beba95",
+        "docs/images/stats/ResamplingRandomVariables_04.png": "8aaa4c011e6f5eac8923f983747a2e18ea9c8716628494cd641d45aa876956a6",
+        "docs/images/stats/ResamplingRandomVariables_05.png": "47a58b4664d2d67228f43115bacd6dd134c9d590ec96f7d7db26e1abfa1b19a1",
+        "docs/images/stats/ResamplingRandomVariables_06.png": "8af87a21d912ccd9bd8757f57b4fd6ee4e6422f7fb9878c9f3846ef927963a45"
+      },
+      "replacement_commit": "f3e8123e4698e0624cf2aecfeacb1ad791f397d3",
+      "same_oct17_retained_script_bytes": true,
+      "current_source_qualification": false,
+      "complete_execution_found": true,
+      "execution_scope": "Historical full numerical page v2/19captures; current two splitting-toggle/warning calls separately qualified, no full combined replay.",
+      "raw_receipt": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/resampling_hist_source_20261009/page_v2/supervision/receipt.json",
+        "sha256": "71fab8d801f537e06f5263d8d8eb1e674bd011d5a897022419adf710cd442f23",
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "censored_limit": null,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "wall_seconds": 141.9481641142629,
+        "sampled_peak_summed_rss_kib": 2930680
+      },
+      "evidence": [
+        {
+          "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/resampling_page_v2_root_integration_20261009.json",
+          "sha256": "5d199c4f8786246d8b1ce1f1c788706e7b91fff133e67c30cc8f84bdf19290b9"
+        },
+        {
+          "path": "docs/resampling_source_toggles_cpu_20261011.json",
+          "commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+          "sha256": "b3789875c0ba5e86b74270766776adfa1a915a0424169b54c1fd9ae572044497"
+        }
+      ],
+      "stdout_figure_gaps": "MATLAB/Python random-stream parity unestablished;6figure typography/axes/geometry gaps. Toggle tests do not execute full numerical example; actual warning transport qualified separately.",
+      "next_step": "Run current complete script with both real splitting toggles/warnings, preserving original19numeric captures and RNG inputs; then compare inverse-sampling numerics/6frames.",
+      "reference_sources": {
+        "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_handoff_20261002/pages_html/stats_ResamplingRandomVariables.html": {
+          "exists": true,
+          "sha256": "599f84e0346926d46f9d842f5e7033433d65f6791d91e0ff98f767c5c674f9d3"
+        },
+        "/scratch/gpfs/GILLES/mg6942/chebfun_examples/stats/ResamplingRandomVariables.m": {
+          "exists": true,
+          "sha256": "f77692f009b258b39f67b530e46c06eba5844949dc1014a99a762121b0da065b"
+        }
+      },
+      "archived_original_diff": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/interrupted_example_resampling_random_variables_20261015.diff",
+        "sha256": "9b69b5e0989c679cd1b3019338782894f91ec159f27f00bdb3009844c3bb81f6"
+      }
+    }
+  ],
+  "limits": [
+    "Current library differs from every recorded run; this reconciliation supplies no fresh affected-library/source bridge or final-source run credit. Pending interpolation/sampled-root publication does not qualify any page.",
+    "Source/page/image hashes identify payloads, not numerical/visual equivalence. Canvas dimensions and global322page structural results are not used as acceptance.",
+    "Original-home hashes come from immutable retained Oct15/17 reconciliation evidence; protected home was not newly inspected.",
+    "Historical raw receipts are preserved with their original resource/provenance scope; post-observed runtime coverage is not promoted to exhaustive preguards.",
+    "No complete12page stdout/figure/native-equivalence claim; exact remaining blockers and next actions are per-row.",
+    "Per-row gap descriptions retain historical observed discrepancies and unqualified contracts; they are not newly observed9c4b runtime failures."
+  ],
+  "publication_paths": [
+    "docs/handoff_twelve_disposition_review_cpu_20261017.json",
+    "docs/handoff_twelve_disposition_review_cpu_20261017.md"
+  ]
+}

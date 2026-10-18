@@ -1,3 +1,31 @@
+# Twelve interrupted script edits reconciled — 2026-10-17
+
+The per-script disposition table is now in
+docs/handoff_twelve_disposition_review_cpu_20261017.md. All twelve current
+replacements are committed, and clean historical full-run receipts exist for
+all twelve. Original dirty payloads are preserved and superseded, with no
+claim of accepting them verbatim. Later LaplaceBall, FermiDirac and DDE runs
+supersede older partial-execution notes. Every row lists remaining numerical,
+stdout and figure gaps plus its next step. No new final-source page pass.
+
+# Native barycentric rounding and sampled-root runtime — 2026-10-17
+
+The periodic EQUI CI failure is repaired: the constructor returns the native
+72coefficients rather than74. Barycentric node-loop multiplication/addition
+are separated, and final elementwise division retains its source rounding.
+All902captured native values at65/129/257queries are word-identical. Final
+39bary/native,12FUNQUI/EQUI and35original interp1checks pass unchanged bounds.
+The combined gate has41passing nodes, including21CIprotocol checks; all1083
+existing core owners remain and one native regression selector is appended.
+
+The sampled-root recurrence now uses four ordered instructions per pair;
+141child pytest checks and48direct controls pass, all20inverse output files
+are unchanged. Local warm median1.752641s→1.611100s is descriptive; its three
+capacity compile times worsen about6%, so cold compilation remains unresolved.
+Native low words/full APIs/pages/figures/matched speed/latestCI remain open.
+Evidence: docs/bary_rounding_joint_cpu_20261017.json and
+docs/inverse_sampled_four_stage_cpu_20261017.json.
+
 # Maxwell system eigenmodes and matched inverse CPU measurements — 2026-10-17
 
 Coupled C2 eigenproblems now use existing exact JAX AD extraction and native

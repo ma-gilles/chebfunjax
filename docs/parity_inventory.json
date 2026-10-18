@@ -20,6 +20,11 @@
       "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
       "sha256": "a5c0ab276af7d2b43f435a71a93a9eb06bca78a5118e7a29dd1b9a842e1e4d0c"
     },
+    "bary_rounding_joint_cpu_20261017": {
+      "path": "docs/bary_rounding_joint_cpu_20261017.json",
+      "scope": "Native barycentric node-loop materialization and elementwise division; combined root-recurrence integration",
+      "sha256": "97e6a6cf06ed271f54f2f513a04d6049f66d0c34030cc706cb147c907da0a638"
+    },
     "c1_nodots_cpu_20261017": {
       "path": "docs/c1_nodots_cpu_20261017.json",
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
@@ -155,6 +160,17 @@
       "unique_full_byte_preimages": 8012,
       "verified_payloads": 19285
     },
+    "handoff_twelve_disposition_review_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/handoff_twelve_disposition_review_package_20261017.tar.gz",
+        "sha256": "75621da07c67021696f622b160fe22a8ff3450ec4f668cfe386d355f97a73977",
+        "verified_payloads": 82
+      },
+      "parent_review": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/handoff_twelve_parent_review_20261017.json",
+      "path": "docs/handoff_twelve_disposition_review_cpu_20261017.json",
+      "scope": "Read-only reconciliation of original12interrupted scripts on fixed publication9c4b; no scientific examples, numerical gates or native launches. Script presence/global structural audit yields no execution or figure credit.",
+      "sha256": "c55780c5657fc597729ce68b87fa6ecb3532b2523052fb776f32a449688aa1e9"
+    },
     "hermite_derivative_order_cpu_20261017": {
       "path": "docs/hermite_derivative_order_cpu_20261017.json",
       "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion",
@@ -179,6 +195,11 @@
       "scope": "Scoped CPU optimization and color correction only. No full library/test/page/figure/performance/CI completion claim.",
       "sha256": "a19309513dc8b31448e78f569e662a2c62a792cff528653b96149c07d88a9fa2",
       "source_base": "22bbe4bed08db3c3a0ecc65f1fca9611ef371731"
+    },
+    "inverse_sampled_four_stage_cpu_20261017": {
+      "path": "docs/inverse_sampled_four_stage_cpu_20261017.json",
+      "scope": "Four-stage sampled recurrence, listed child141pytest/48direct checks and bit-identical inverse artifacts",
+      "sha256": "fd4193fd063fd0ba612f3d5ffc6caa6b81c5424ec4100e60fd9d2ecbe2965723"
     },
     "inverse_single_cpu_20261017": {
       "path": "docs/inverse_single_cpu_20261017.json",
@@ -2417,6 +2438,10 @@
             "url": "https://www.chebfun.org/examples/approx2/Localization.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -6450,6 +6475,10 @@
           "remaining_owned_processes": 0,
           "status_note": "Primal AST bridge to final source reviewed; final AD separately qualified. All reference sizes match600x269, all reference pixels differ. Rational native curve discrepancies remain. No page dimension promoted to full verified status.",
           "wall_seconds": 151.9264365909621
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -7942,6 +7971,10 @@
             "url": "https://www.chebfun.org/examples/approx/FermiDirac.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -17405,6 +17438,10 @@
             "url": "https://www.chebfun.org/examples/fourier/FourierBasedChebfuns.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -22783,6 +22820,10 @@
             "url": "https://www.chebfun.org/examples/linalg/VandermondeArnoldi.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -29170,6 +29211,10 @@
             "url": "https://www.chebfun.org/examples/ode-nonlin/DelayDifferentialEquations.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -32420,6 +32465,10 @@
             "url": "https://www.chebfun.org/examples/ode-random/RandomSwitching.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -35502,6 +35551,10 @@
             "url": "https://www.chebfun.org/examples/pde/TrapezoidEigs.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -37139,6 +37192,10 @@
             "url": "https://www.chebfun.org/examples/roots/MarchingSquares.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -38668,6 +38725,10 @@
             "url": "https://www.chebfun.org/examples/sphere/AtmosphericTemperature.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -39176,6 +39237,10 @@
           ],
           "kind": "current_full_cpu_execution",
           "scope": "Full current CPU LaplaceBall execution with captured-input limitation, actual stdout and three reference-sized unchanged PNGs; no full page status promotion"
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -42329,6 +42394,10 @@
             "url": "https://www.chebfun.org/examples/stats/ResamplingRandomVariables.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "handoff_twelve_disposition_review_cpu_20261017",
+          "scope": "Committed replacement disposition and historical full-run evidence reconciled; current full computation/stdout/figure statuses unchanged"
         }
       ],
       "figure_content_status": "unverified",
@@ -52124,6 +52193,10 @@
         {
           "artifact": "inverse_single_cpu_20261017",
           "scope": "Identical-input same-single-CPU inverse timing and sample checks; performance parity open"
+        },
+        {
+          "artifact": "inverse_sampled_four_stage_cpu_20261017",
+          "scope": "Same-input20artifact identity and descriptive warm runtime; matched native/full API remains open"
         }
       ],
       "functions": [
@@ -70616,7 +70689,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_sampled_four_stage_cpu_20261017",
+          "scope": "Sampled recurrence runtime scheduling only; original degree/trim/split/eig dimensions unchanged; full roots/JAX qualification open"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -83264,7 +83342,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "bary_rounding_joint_cpu_20261017",
+          "scope": "Actual captured EQUI constructor72 and12listed FUNQUI/EQUI checks; full item status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -92840,6 +92923,10 @@
         {
           "artifact": "interpolation_minimax_ci_cpu_20261017",
           "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        },
+        {
+          "artifact": "bary_rounding_joint_cpu_20261017",
+          "scope": "Node-loop source boundaries and902native sample words; full API/small-query qualification remains open"
         }
       ],
       "functions": [
@@ -102936,6 +103023,10 @@
         {
           "artifact": "interpolation_minimax_ci_cpu_20261017",
           "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        },
+        {
+          "artifact": "bary_rounding_joint_cpu_20261017",
+          "scope": "All35default original predicates pass after shared bary repair; full preference/API audit remains open"
         }
       ],
       "functions": [
