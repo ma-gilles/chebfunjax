@@ -1,0 +1,33 @@
+{
+  "scope": "Transport serialization correction only; archived executed source files and scientific outputs unchanged",
+  "finding": "Agent new-file diff generation removed slash after a/b path prefixes. An apply-check alone could accept new files at wrong stripped paths. Frozen original archives and malformed patch files are preserved.",
+  "publication_method": "Parent copied each intended final file by explicit relative path; explicit staged set was checked. AbsoluteValue published25160101 contains intended eight paths, no misplaced report files. Scalar final intended paths copied likewise.",
+  "corrected_patches": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/absolute_value_parent_validated_20261017.patch",
+      "sha256": "74281c0c8c1d88164f851a9e9c9afa0d45ba88d2b3dd15d288efc48c831d9091",
+      "intended_paths_verified": [
+        "docs/absolute_value_full_cpu_20261017.json",
+        "docs/absolute_value_full_cpu_20261017.md",
+        "docs/images/approx/AbsoluteValue_01.png",
+        "docs/images/approx/AbsoluteValue_02.png",
+        "docs/images/approx/AbsoluteValue_03.png",
+        "docs/images/approx/AbsoluteValue_04.png",
+        "docs/images/approx/AbsoluteValue_05.png",
+        "examples/approx/absolute_value.py"
+      ]
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/scalar_simplify_session_parent_validated_20261017.patch",
+      "sha256": "ee277bcc7f5a0e3e2f3b1424e54013db0bd184733b43e52777dd6b332e24885c",
+      "intended_paths_verified": [
+        "src/chebfunjax/chebfun1d/chebfun.py",
+        "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
+        "docs/scalar_simplify_session_cpu_20261017.json"
+      ]
+    }
+  ],
+  "validation": "Standard git patches reconstructed from exact final files; numstat path sets equal intended publication path sets. AbsoluteValue reverse cached apply-check against published commit passes. Scalar forward cached apply-check against25160101 passes.",
+  "science_reruns": 0,
+  "new_science_claims": false
+}

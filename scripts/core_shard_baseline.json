@@ -245,7 +245,8 @@
       "tests/test_utils/test_matlab_imaginary_literals.py",
       "tests/test_utils/test_fft602_ordered.py",
       "tests/test_scalar_newton_coefficient_breaks_source.py",
-      "tests/test_tech/test_abs_existing_grid_source.py"
+      "tests/test_tech/test_abs_existing_grid_source.py",
+      "tests/test_chebfun1d/test_simplify_session_tolerance_source.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1117,6 +1118,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c",
+  "last_update_parent": "25160101f6da2c8169d3c19dc98072458e77d254",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

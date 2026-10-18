@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Scalar simplify now honors the current session tolerance:4baseline failures repaired;6new+64existing scientific checks and21parent protocol checks pass,91unique nodes. All1089prior core owners retained+1new. [Evidence](scalar_simplify_parent_cpu_20261017.json).
+- [ ] Complete simplify API/empty/pref-object/globaltol/JAX/performance and final Checkmark page qualification remain required.
+
+
 - [x] AbsoluteValue complete application: source public plotData/error Chebfun, unclipped error arrays, five600x270figures, empty stdout, zero scientific warnings; fresh native five-cell comparison and parent3956payload archive review. [Evidence](absolute_value_parent_cpu_20261017.json).
 - [ ] AbsoluteValue representation lengths, visible error patterns and all five raster comparisons differ; complete page/figure parity remains open.
 - [x] Paired cos4 source/provider controls: source-compatible constructor15/15native words and MAXITER/20NaNs; external JAX callback finite L1 fit passes original1e-8moment bound. [Evidence](cosine_watson_paired_controls_cpu_20261017.json).

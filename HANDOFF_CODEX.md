@@ -1,3 +1,18 @@
+# Scalar simplify honors session tolerance — 2026-10-17
+
+Omitted scalar Chebfun.simplify tolerance now uses existing global ChebfunPref,
+as native simplify.m36 requires. Four failing C1/C2 normal/transposed cases
+are repaired;6new+64existing scientific checks and21parentCIprotocol checks
+pass (91unique nodes;6overlap parent/child). All1089prior core owners retained
+plus1new file/6selectors. Explicit tolerance/chopping/scaling/metadata unchanged.
+Full simplify API/JAX/performance, Checkmark page and latestCI remain open.
+Evidence: docs/scalar_simplify_parent_cpu_20261017.json.
+
+Parent also corrected agent patch transport path prefixes without altering
+executed source or output. Frozen original archives are preserved; intended
+publication path sets and standard-git replacement patches are verified.
+See docs/patch_transport_review_cpu_20261017.json.
+
 # AbsoluteValue source computations and tracked gaps — 2026-10-17
 
 The complete AbsoluteValue example now uses public Chebfun plotData and the

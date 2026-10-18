@@ -1,0 +1,113 @@
+{
+  "scope": "Omitted scalar Chebfun.simplify tolerance resolves current existing ChebfunPref default; explicit tolerance and existing array behavior preserved. No full API or Checkmark page closure.",
+  "base": "be0b79587998d204eb271ef0f44199ce8819db21",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_source": "@chebfun/simplify.m36: omitted/emptytol reads chebfunpref().techPrefs.chebfuneps",
+  "diagnosis": "Python Chebfun.simplify hardcoded machineeps for scalar functions; only array branch resolved global preference. Native abs calls simplify(g,pref), making omitted scalar preference propagation relevant to source Checkmark grammar.",
+  "change": "Resolve omittedtol once from ChebfunPref before scalar/array dispatch. Remove redundant array-only resolution. Existing numeric tolerance, scaling, chopping, point values, FUN replacement and orientation algorithms unchanged.",
+  "publication_paths": [
+    "src/chebfunjax/chebfun1d/chebfun.py",
+    "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
+    "docs/scalar_simplify_session_cpu_20261017.json"
+  ],
+  "new_core_test_owner": "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
+  "new_selector_count": 6,
+  "test_bytes_sha256": "a1d11922e8c2810d9a0398814bf3e92ff169093634dc9875ab4883d9c98dc02e",
+  "baseline": {
+    "result": "4failed,2passed on exact final6testbytes",
+    "pytest_seconds": 15.36,
+    "receipt": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/scalar_simplify_pref_evidence_20261017/baseline_final/receipt.json",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 19.28166766697541,
+      "sampled_peak_summed_rss_kib": 1201336,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "failure": "All C1/C2 normal/transposed scalar existing rational functions retained[39,51]coefficients on omittedtol vs[18,23]explicit1e-6. Explicit1e-12override controls passed with session1e-3.",
+    "prior_preformat_attempt": "baseline/:same4fail2pass,17.97s; preserved, not counted as separate predicates."
+  },
+  "candidate": {
+    "result": "6passed",
+    "pytest_seconds": 19.19,
+    "receipt": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/scalar_simplify_pref_evidence_20261017/candidate/receipt.json",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 23.03989392099902,
+      "sampled_peak_summed_rss_kib": 1336596,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "checks": [
+      "Construct actual nontrivial rational f at factory precision BEFORE session mutation.",
+      "C1/C2 scalar normal/transposed omittedtol matches explicit1e-6 coefficient words/lengths; tail actually shortened.",
+      "Source coefficient arrays unmodified; FUNtechnology,interval,happiness,domain,orientation and isolated stored point values retained.",
+      "Sampled values away from isolated PVs remain within authored10*1e-6*vscale bound.",
+      "Explicit1e-12tol remains byte-identical after changing session to1e-3.",
+      "Fixture restores pre-test session defaults on all exits."
+    ]
+  },
+  "regression": {
+    "result": "64passed",
+    "pytest_seconds": 87.66,
+    "receipt": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/scalar_simplify_pref_evidence_20261017/regression/receipt.json",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 92.68623533984646,
+      "sampled_peak_summed_rss_kib": 2448760,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "selectors": [
+      "tests/test_matlab_port/chebfun/test_simplify_matlab.py",
+      "tests/test_matlab_port/chebtech/test_simplify_matlab.py",
+      "tests/test_matlab_port/chebtech/test_abs_matlab.py",
+      "tests/test_array_abs_norm_source.py",
+      "tests/test_chebfun1d/test_bounded_abs_nozerofun_source_controls.py"
+    ],
+    "original_test_bytes_and_bounds_unchanged": true,
+    "qualification_limit": "Existing chebfun/test_simplify port documents scalar analogues of native array clauses; its2passes are retained regression evidence, not new full literal source-file parity."
+  },
+  "runtime": {
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "backend": "cpu",
+    "x64": true,
+    "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/scalar_simplify_pref_20261017/src/chebfunjax/__init__.py",
+    "affinity": [
+      36,
+      37,
+      38,
+      39
+    ]
+  },
+  "guards": "Full library Python sources,newtest,config,rootconftest,drivers guarded in final baseline/candidate; regression additionally guards5existing testfiles and matlab-portconftest. Imported external files not exhaustively snapshotted/guarded. No broad runtime immutability claim.",
+  "static": {
+    "ruff_check": true,
+    "new_test_ruff_format_check": true,
+    "git_diff_check": true,
+    "all_other_chebfun_module_AST_identical": true
+  },
+  "checkmark_proposal": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_preferences_audit_20261017",
+    "included_copy": "checkmark_proposal/",
+    "not_applied_or_executed": true,
+    "details": "Source x constructor before mutation; public abs(x-a); no deprecated breakpoint keyword; actual polynomial Chebfun then norm(p-f,inf); global defaults during7outer constructions. Normal success restores authored factoryeps/splittingoff; exception restores saved full caller preferences.",
+    "parent_native7point_result": "Parent reports default vs authoredglobal settings differ only roundoff atalpha0/.001/.01; not demonstrated cause of missing minimum.",
+    "numeric_chebfuneps_argument": "Pinned command function concatenates eval text; no numeric-form assumptions/new eval implementation."
+  },
+  "limitations": [
+    "No globaltol/pref-object/emptytol API expansion.",
+    "No constructor or primitive-routing change.",
+    "No Checkmark full rerun/native run or page/numerical cure claim. Parent full norm-corrected page run remains separate.",
+    "Existing NumPy/SciPy debt outside this change remains; no new host numerical provider/import/waiver.",
+    "One existing import-time incompatible CUDA plugin warning retained; CPU backend asserted."
+  ]
+}

@@ -5991,16 +5991,15 @@ class Chebfun(eqx.Module):
         Original authors: Copyright 2017 by The University of Oxford
             and The Chebfun Developers.
         """
-        base = 2.220446049250313e-16 if tol is None else float(tol)
+        from chebfunjax.chebpref import ChebfunPref
+
+        base = float(ChebfunPref().techPrefs.chebfuneps) if tol is None else float(tol)
         # Native default simplify scales each array column independently
         # across pieces; a common scale requires the separate globaltol flag.
         from chebfunjax.tech.chebtech import Chebtech1
         if self.n_columns > 1 and all(
                 isinstance(piece.tech, (Chebtech1, Chebtech2))
                 for piece in self.funs):
-            if tol is None:
-                from chebfunjax.chebpref import ChebfunPref
-                base = float(ChebfunPref().techPrefs.chebfuneps)
             local = jnp.stack([piece.tech.vscale_columns for piece in self.funs])
             global_scale = jnp.max(local, axis=0)
             new_funs = [piece.with_tech(piece.tech.simplify(base * global_scale / scale))

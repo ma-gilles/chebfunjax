@@ -493,6 +493,11 @@
       "scope": "Native breakpoint-root grammar, JAX getRootsForBreaks, NaN-padded quasimatrix roots, numeric MATLAB imaginary suffixes, all19default original roots predicates.",
       "sha256": "23f68f5ff7078bec05115554fecc27dc9832b4163b3c8631a8926caf994d1fe2"
     },
+    "scalar_simplify_parent_cpu_20261017": {
+      "path": "docs/scalar_simplify_parent_cpu_20261017.json",
+      "scope": "Omitted scalar simplify session tolerance;4baseline failures repaired,91unique scoped scientific/protocol nodes; full API/test-file statuses unchanged",
+      "sha256": "1d4a54294770206cf61a42e9fe8b0ff402b73c639980dfe56d57e7e3fbd23800"
+    },
     "scoped_originals_inventory_reconciliation_20261017": {
       "path": "docs/scoped_originals_inventory_reconciliation_20261017.json",
       "scope": "Reconcile five already published scoped reports into precise original-test/function rows and stale power33warning note; no new scientific execution/full-item status promotion.",
@@ -55218,7 +55223,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "scalar_simplify_parent_cpu_20261017",
+          "scope": "Native omitted scalar tolerance defaults to globalchebfuneps. Explicit tolerance and metadata controls included; full API remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
