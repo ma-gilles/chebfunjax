@@ -1,3 +1,15 @@
+# Core7 deadline and explicit exchange roots — 2026-10-17
+
+Completed olderCI39071892475 hit90minutes inCore7 after10finished processes.
+The first four processes took2633.31pytest seconds. Split originalCore7 after
+those four complete batches into lanes7/11; all1080selectors, every process
+boundary, other lanes, timeouts and coverage>=79% remain unchanged.
+ActualCI also exposed stale default-root assumptions: polynomial exchange now
+requests nobreaks explicitly, as pinnednative trigremez.m377. Default stored
+breakpoint roots remain intact. Current baseline1fail/5pass; candidate29checks
+pass24.15s. Latest-main actual runtime/scientific green/coverage remain required.
+Evidence: docs/ci_core7_cpu_20261017.json.
+
 # Public ChebPadé JAX padding — 2026-10-17
 
 Both public padding branches now use the existing shared JAX normal provider

@@ -18,9 +18,8 @@ from chebfunjax.utils.trigutils import trigBary, trigBaryWeights
 def _exchange(f, p, xk, h, method, count):
     derivative = (f - p).diff()
     # Native roots(e_num, "nobreaks") retains true jump roots.
-    # Python scalar roots() inserts piece and jump roots, without inserting
-    # roots solely from stored breakpoint values, so it adapts that flag.
-    roots = derivative.roots()
+    # Keep this explicit: public default roots also includes stored zeros.
+    roots = derivative.roots(nobreaks=True)
     rr = jnp.concatenate((jnp.asarray([f.domain.a]), roots))
     errors = f(rr) - p(rr)
     if method == 1:

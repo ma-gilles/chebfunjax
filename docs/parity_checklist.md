@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Fix explicit native nobreaks exchange call and split actualCore7deadline11to12lanes, preserving all1080selectors/process batches.29checks pass. [Evidence](ci_core7_cpu_20261017.json).
+- [ ] Latest-main actual scientific CI, new-lane runtime and aggregate coverage remain required.
+
+
 - [x] Public ChebPadé padding uses existing JAX normal provider:4baseline failures repaired,51regression and6additional matched-native-draw checks pass. [Evidence](public_chebpade_padding_cpu_20261017.json).
 - [ ] Exact MATLAB RNG bitstream, full CF/ChebPadé APIs, rank warnings and matched performance remain open.
 

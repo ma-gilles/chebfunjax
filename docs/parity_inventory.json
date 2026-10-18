@@ -64,6 +64,11 @@
       "sha256": "697d1933c3661f9aca4f349dee4238d56c06f117c4f0d91da0aa6cb7c2718800",
       "source_bridge": "chebtech_ndct_cpu_20261017"
     },
+    "ci_core7_cpu_20261017": {
+      "path": "docs/ci_core7_cpu_20261017.json",
+      "scope": "Repair explicit native nobreaks exchange call and stale adapter test; split actual Core7 deadline at unchanged process boundary",
+      "sha256": "88e78dee716d4a2a68bbb38c0f99855c3104c89917a9eb12459a18c7f1de891c"
+    },
     "ci_core_deadline_cpu_20261017": {
       "path": "docs/ci_core_deadline_cpu_20261017.json",
       "scope": "Core process scheduling/coverage integrity only; no scientific status promotion",
@@ -55576,6 +55581,10 @@
         {
           "artifact": "inverse_packed_color_cpu_20261017",
           "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        },
+        {
+          "artifact": "ci_core7_cpu_20261017",
+          "scope": "Explicit nobreaks exchange adapter, retained native fixtures and29focused/protocol checks; no full-item qualification"
         }
       ],
       "functions": [

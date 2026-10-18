@@ -1,0 +1,53 @@
+{
+  "scope": "Repair explicit native nobreaks exchange call and stale adapter test; split actual Core7 deadline at unchanged process boundary",
+  "base_commit": "ad14f103e3ca67789d960eae810fa216dd36be2d",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "observed_CI": {
+    "run": 39071892475,
+    "job": 117512252814,
+    "result": "cancelled after90minute deadline; not passing",
+    "first_four_pytest_seconds": 2633.31,
+    "finished_processes": 10,
+    "last_process_incomplete": 11,
+    "failed_tests": [
+      "breakpoint_global_extrema point_values2",
+      "Chebfun2 constant first location",
+      "trigremez isolated stored breakpoint zero"
+    ],
+    "current_baseline": "1failed/5passed10.17s: two extrema regressions already repaired; stale nobreaks adapter remains failing"
+  },
+  "candidate": {
+    "passed": 29,
+    "pytest_seconds": 24.15,
+    "scope": "Three exchange/nativefixture controls, five prior extrema controls,21CIprocess/coverage protocol controls",
+    "stable_declared_inputs": true,
+    "no_survivors": true
+  },
+  "source_change": "Only numeric-source AST change: derivative.roots() becomes derivative.roots(nobreaks=True), as native trigremez.m377. Public default roots remains unchanged and explicitly asserted against native fixture.",
+  "partition": {
+    "before_lanes": 11,
+    "after_lanes": 12,
+    "selectors": 1080,
+    "old_core7_prefix": 48,
+    "new_lane11_tail": 86,
+    "every_old_process_batch_preserved": true,
+    "all_other_lanes_identical": true,
+    "test_timeouts_and_coverage_bound_unchanged": true
+  },
+  "source_bridge": {
+    "library_files": 362,
+    "other_library_files_identical": 361,
+    "changed_source_AST_verified_single_keyword": true
+  },
+  "preparation_correction": "Initial builder assertion caught shallow alias of before groups; independent persisted before snapshot used to reconstruct/verify exact ownership. No scientific process launched before guard existed; failed preparation preserved.",
+  "limits": [
+    "Actual new lane runtimes and latest-main scientific CI/coverage>=79% remain unverified",
+    "No fresh native invocation; pinned-source flag and retained native fixture support this adapter correction",
+    "No full trigremez/API/renderer/performance parity claim; no manual workflow cancellation/restart"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_core7_cpu_20261017.tar.gz",
+    "sha256": "8b4726f70b83d8854a37e3d517de32a27d769cac00cb7e153cce91e93b65211c",
+    "verified_payloads": 42
+  }
+}

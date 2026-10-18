@@ -33,19 +33,17 @@ def _piecewise_constants(coefficients, point_values):
 def test_native_nobreaks_preserves_true_jump_root():
     native = json.loads((FIXTURES / "root_controls.json").read_text())
     jump = _piecewise_constants([-1.0, 1.0], [-1.0, 1.0, 1.0])
-    # Current scalar roots() omits isolated stored breakpoint-value roots,
-    # adapting nobreaks. nojump has a different source meaning.
-    np.testing.assert_array_equal(jump.roots(), native["jump_nobreaks"])
+    # nobreaks omits isolated stored zeros while retaining true jump roots.
+    np.testing.assert_array_equal(jump.roots(nobreaks=True), native["jump_nobreaks"])
     np.testing.assert_array_equal(jump.roots(nojump=True), native["jump_nojump"])
 
 
 def test_native_nobreaks_omits_isolated_stored_breakpoint_zero():
     native = json.loads((FIXTURES / "root_controls.json").read_text())
     pure_break = _piecewise_constants([1.0, 1.0], [1.0, 0.0, 1.0])
-    np.testing.assert_array_equal(pure_break.roots(), native["pure_break_nobreaks"])
-    # Native default roots includes this stored zero. That existing public
-    # default gap is documented separately; this test qualifies nobreaks.
-    assert native["pure_break_default"] == [0.0]
+    np.testing.assert_array_equal(pure_break.roots(nobreaks=True), native["pure_break_nobreaks"])
+    # Preserve the separate native default: it includes the stored zero.
+    np.testing.assert_array_equal(pure_break.roots(), native["pure_break_default"])
 
 
 def test_public_polynomial_exchange_includes_true_jump_root(monkeypatch):
@@ -53,6 +51,7 @@ def test_public_polynomial_exchange_includes_true_jump_root(monkeypatch):
     original = Chebfun.roots
 
     def capture_roots(self, *args, **kwargs):
+        assert kwargs.get("nobreaks") is True
         result = original(self, *args, **kwargs)
         observed.append(np.asarray(result))
         return result

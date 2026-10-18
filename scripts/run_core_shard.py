@@ -13,9 +13,9 @@ import sys
 from pathlib import Path
 
 BASE_PARTS = 8
-PARTS = 11
+PARTS = 12
 BATCH_SIZE = 12
-SPLIT_PARTS = (6, 1, 2)
+SPLIT_PARTS = (6, 1, 2, 7)
 SPLIT_AFTER_BATCHES = 4
 MIRROR_FILE = 'tests/test_coverage/test_port_mirrors.py'
 BASELINE_FILE = Path(__file__).resolve().with_name('core_shard_baseline.json')

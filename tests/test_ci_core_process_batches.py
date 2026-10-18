@@ -157,7 +157,7 @@ def test_recorded_ownership_preserves_lanes_and_complete_processes():
     selections = sorted(name for group in baseline['groups'] for name in group)
     groups = core.partition(selections)
     assert groups == baseline['groups']
-    assert len(groups) == core.PARTS == core.BASE_PARTS+3
+    assert len(groups) == core.PARTS == core.BASE_PARTS+4
     for group in groups:
         batches = core.batches(group)
         assert [name for batch in batches for name in batch] == group
@@ -232,3 +232,20 @@ def test_core_baseline_covers_current_inventory():
     assert sorted(anchors) == core.inventory(), (
         'Core inventory changed: run scripts/run_core_shard.py --update-baseline '
         'and review/stage core_shard_baseline.json with the tests.')
+
+
+def test_aggregate_requires_new_core7_tail_manifest(tmp_path, monkeypatch):
+    monkeypatch.setenv('GITHUB_SHA', 'a'*40)
+    for part in range(core.PARTS-1):
+        (tmp_path/f'core-manifest-{part}.json').write_text('{}')
+    checked = []
+    monkeypatch.setattr(core, 'validate_manifest', lambda manifest, part, *args: checked.append(part))
+    monkeypatch.setattr(sys, 'argv', ['run_core_shard.py', '--verify-and-combine', str(tmp_path)])
+
+    def forbidden(*args, **kwargs):
+        pytest.fail('Coverage combined before the new Core7 tail was present')
+
+    monkeypatch.setattr(core.subprocess, 'run', forbidden)
+    with pytest.raises(FileNotFoundError, match='core-manifest-11.json'):
+        core.main()
+    assert checked == list(range(core.PARTS-1))
