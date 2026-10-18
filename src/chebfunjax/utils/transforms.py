@@ -27,6 +27,7 @@ from chebfunjax.utils._fft602 import (
     real_forward602_values,
     real_inverse602_values,
 )
+from chebfunjax.utils._fft724 import real_even_inverse724
 from chebfunjax.utils._ifft_normalization import source_ifft
 from chebfunjax.utils.fasttransforms import dst as _source_dst
 from chebfunjax.utils.fasttransforms import idst as _source_idst
@@ -135,6 +136,19 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
             )
         coeffs = jax.lax.platform_dependent(
             tmp, cpu=two_columns,
+            default=lambda a: jnp.real(source_ifft(a)),
+        )
+    elif n == 363 and values.dtype == jnp.float64 and values.ndim in (1, 2):
+        # Actual native length724 C2R/Rader181 plan motivates this algebraic
+        # decomposition. The length180 convolutions remain JAX FFTs.
+        def real_even_rader(a):
+            return jax.lax.cond(
+                jnp.all(jnp.isfinite(a)), real_even_inverse724,
+                lambda z: jnp.real(source_ifft(z)), a,
+            )
+
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=real_even_rader,
             default=lambda a: jnp.real(source_ifft(a)),
         )
     elif (values.dtype == jnp.float64 and values.ndim in (1, 2)

@@ -519,6 +519,11 @@
       "scope": "39 Python nodes; native factory ten branches/seven errors and original cell2quasi predicate; three original Chebfun2 integral2 predicates; inherited representation/API gaps open",
       "sha256": "2a53ee2a03bb275968bb42cb86b259179daf4bc935e66395426de4456c17639d"
     },
+    "rader724_parent_cpu_20261018": {
+      "path": "docs/rader724_parent_cpu_20261018.json",
+      "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim.",
+      "sha256": "922aa8788c1530c906ed50fddd5cf00c28f6e19eece81764c47f7064e5012741"
+    },
     "ratinterp_complex_stages_cpu_20261017": {
       "path": "docs/ratinterp_complex_stages_cpu_20261017.json",
       "scope": "Same-input first-fit diagnosis only; no algorithm fix/whole-page or residue parity",
@@ -63491,11 +63496,44 @@
         {
           "artifact": "transform_c2r_diagnostics_cpu_20261017",
           "scope": "C2R diagnostic excludes naive backend replacement; full-item statuses unchanged"
+        },
+        {
+          "artifact": "rader724_parent_cpu_20261018",
+          "limits": [
+            "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+            "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+            "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+            "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+            "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+            "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+            "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+            "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+            "No matched performance qualification from these shared-host pytest runtimes.",
+            "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+          ],
+          "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "rader724_parent_cpu_20261018",
+              "limits": [
+                "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+                "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+                "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+                "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+                "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+                "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+                "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+                "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+                "No matched performance qualification from these shared-host pytest runtimes.",
+                "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+              ],
+              "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -72037,11 +72075,44 @@
           ],
           "report": "docs/fft64_unbounded_parent_cpu_20261017.json",
           "scope": "CPU two-column n33 transform/compose repair and literal original unbounded differentiation14 source coverage; scoped integration only"
+        },
+        {
+          "artifact": "rader724_parent_cpu_20261018",
+          "limits": [
+            "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+            "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+            "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+            "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+            "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+            "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+            "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+            "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+            "No matched performance qualification from these shared-host pytest runtimes.",
+            "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+          ],
+          "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "rader724_parent_cpu_20261018",
+              "limits": [
+                "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+                "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+                "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+                "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+                "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+                "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+                "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+                "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+                "No matched performance qualification from these shared-host pytest runtimes.",
+                "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+              ],
+              "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -112142,6 +112213,22 @@
           "artifact": "chebfun3t_current_transform_cpu_20261017",
           "recorded_python_commit": "47a16371b607698a9d6afbfc152590e091d0cb89",
           "scope": "Current source original constructor7 error2.864e-14 exceeds unchanged100eps; unresolved"
+        },
+        {
+          "artifact": "rader724_parent_cpu_20261018",
+          "limits": [
+            "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+            "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+            "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+            "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+            "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+            "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+            "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+            "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+            "No matched performance qualification from these shared-host pytest runtimes.",
+            "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+          ],
+          "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
         }
       ],
       "functions": [
@@ -112151,6 +112238,22 @@
               "artifact": "chebfun3t_current_transform_cpu_20261017",
               "predicate": 7,
               "scope": "Bounded current-source constructor7 failure; native not rerun"
+            },
+            {
+              "artifact": "rader724_parent_cpu_20261018",
+              "limits": [
+                "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+                "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+                "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+                "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+                "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+                "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+                "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+                "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+                "No matched performance qualification from these shared-host pytest runtimes.",
+                "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+              ],
+              "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim."
             }
           ],
           "implementation_status": "unverified",

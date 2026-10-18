@@ -1,0 +1,84 @@
+{
+  "actual_parent": {
+    "distinct_checks": 51,
+    "fresh_processes": [
+      "50PASS18.92s:27newnative/spectrum/layout/AD/IEEE/fallback+23CIprotocol",
+      "1PASS45.77s:originalconstructor7,normalmarkerlesspytest,unchangedcallback/query/bound"
+    ],
+    "receipts": [
+      {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 1180900,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 23.597150513902307
+      },
+      {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 6390476,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 50.65642766607925
+      }
+    ]
+  },
+  "base": "ab206dacaa934a03a9988ebbf2fdd1dc465b70d7",
+  "child_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dense3t_rader724_package_20261018.tar.gz",
+    "payloads": 699,
+    "scope": "Root archive integrity review; production integration and root gates pending.",
+    "sha256": "5726d89123d84c93cf30d4c731029fa06d9af25a52c1915c687297fc7f94c3df",
+    "stream_verified": true
+  },
+  "child_report": "docs/chebfun3t_rader724_cpu_20261018.json",
+  "child_scope": "146distinct selectors pass on sealed child library bytes:27new+44originaltransforms+45existingFFT/norm+24originalinv+6dense. Parent adds public helper Provenance docstring only (exact executable AST bridge) and rechecks51actualparent nodes. Other parent library changes since childbase3396 are not an all146latest-main requalification claim.",
+  "dispatch": "n363 input values, dtypefloat64, rank1/2, CPU, finite whole matrix; existing n33/n302 branches precede. All other shapes/dtypes/complex/nonfinite/nonCPU paths unchanged.",
+  "doc_bridge": {
+    "after_sha256": "09a1516fec70cef3466a3549333dad0b4382d96b0bdc78c53bdc9fd8daa459f9",
+    "before_sha256": "233b01ccf18f67145526dda688e222f0ca2a619766bdfa33c911c08726f88959",
+    "change": "Public helper Provenance docstring section only; every executable AST node identical to sealed child. Before/after source preserved.",
+    "executable_ast_equal": true
+  },
+  "limits": [
+    "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+    "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+    "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+    "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+    "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately.",
+    "Parent helper docstring adds provenance only; executable AST exact and before/after archived. Original7 marker removal leaves all original assertion/callback/query function bodies identical.",
+    "Native crop261/265/263 differs candidate261/261/263; generic180 convolution and algebraicHC2C4 packing leave provider/word/representation differences. No complete denseChebfun3T/nativeFFT parity claim.",
+    "Native full131769-column plan not observed; captured9small plan controls do not establish all batchplans.",
+    "No matched performance qualification from these shared-host pytest runtimes.",
+    "Latest-main scientificCI/coverage>=79% and all322pages/1305figures remain required."
+  ],
+  "mechanism": "Real C2R even/odd packing into a complex362 inverse, radix2 split into two inverse181 transforms. Rader uses primitive generator2 modulo181, cyclic convolution180, kernel division180 before FFT, and source final division724. Generic180 FFT is reused. Constants are mathematical length-only phases via existing phase_pair; no operand fixture, crop, tolerance, callback identity or value cutoff.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "original_bound": "Literal original physical100cubed assertion remains100eps=2.220446049250313e-14; sealed child baseline2.864375403532904e-14FAIL -> candidate1.0103029524088925e-14PASS. Root normalmarkerless original7PASS; no root output/crop word observer used.",
+  "ownership": "1102prior owner positions retained+one27node file appendedCore1;1103owners/13lanes;dedicatedHermiteCore12 and79%gate unchanged.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/rader724_parent_cpu_20261018.tar.gz",
+    "payloads": 3414,
+    "sha256": "ca884e9e0fc9d50140847e3799df581606083a565d260568ec776082d2e179a9",
+    "stream_verified": true
+  },
+  "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim.",
+  "source_evidence": {
+    "chebfun": "@chebtech2/vals2coeffs.m real circular-even inverse FFT, source normalization and unchanged symmetry; @chebfun3t/vals2coeffs.m axis1\u21922\u21923 transform order; tests/chebfun3t/test_constructor.m literal predicate7 and100eps.",
+    "first_divergence": "Retained native/JAX nodes and full sampledF identical in earlier source-bound evidence; exact native first-axis selected input words replay freshly to current JAX with coefficient gaps before reductions/chopping. Native C replay into JAX happiness retains native261/265/263 cuts. No callback identity or sampling patch.",
+    "native_plan": "Actual R2025b FFTW C2R724: HC2C4 plus Rader181 convolutions180.9matrix loggingoff/on outputs word-identical and inputs unchanged; defaultestimate planner unchanged. Native batch1/2/3/4 retained prefixes word-identical to batch9. Full131769-column native plan remains unobserved.",
+    "retained_native_files": {
+      "native_transform.mat": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/native_transform.mat",
+        "sha256": "cd536fd231b48f2a9c9f4b37bf381a90fafbba029d70c54dfd00dcd88e8bed0d"
+      },
+      "native_values.mat": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/native_values.mat",
+        "sha256": "18a2d8bf89edc538a2ad6c238b3e93b963697621aba7c4f903e9789c64230d30"
+      }
+    }
+  }
+}

@@ -1,3 +1,15 @@
+# Dense Chebfun3T constructor bound repaired — 2026-10-18
+
+Real finite CPU length724 transforms use a source-motivated C2R/Rader181
+family with existing JAX180 convolutions. The unchanged original constructor7
+now passes normal pytest without its obsolete expected-failure marker; sealed
+candidate error1.0103e-14 is below original100eps2.2204e-14 (baseline2.8644e-14).
+Actual parent51checks pass in2fresh processes, including27newcontrols and
+23CIprotocol.1102prior owners retained+1Core1;79%gate unchanged. Child146scoped
+checks are separately recorded. Native/candidate crops and words still differ;
+full API/JAX/performance/pages and latestCI remain open.
+Evidence: docs/rader724_parent_cpu_20261018.json.
+
 # Polynomial minimax zero-scale IEEE status — 2026-10-18
 
 Polynomial minimax retains the native zero norm and IEEE divisions, replacing

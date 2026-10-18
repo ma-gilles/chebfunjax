@@ -58,21 +58,10 @@ class TestChebfun3tConstructor:
         exact = float(np.cos(px) * py * pz + px * pz * np.sin(py))
         assert abs(float(fg(px, py, pz)) - exact) < TOL
 
-    @pytest.mark.xfail(
-        strict=True,
-        raises=AssertionError,
-        reason=(
-            "Native predicate 7 remains unresolved: FFT-sensitive source "
-            "truncation gives 2.81e-14 > unchanged 100*eps=2.22e-14; "
-            "see docs/dense_chebfun3t_cpu_20261013.json."
-        ),
-    )
     def test_native_predicate_7_rational_tensor(self):
-        # Keep the actual original assertion executing. A passing result is
-        # a strict XPASS requiring review/removal of this known-failure marker.
-        # The native full tensor passes; JAX's full tensor also passes, but
-        # FFT roundoff changes standardChop's selected truncation. No fitted
-        # cutoff or wider tolerance is used in the implementation or test.
+        # The real length724 C2R/Rader family retains this original bound.
+        # Its coefficient words and crop can differ from native; no fitted
+        # cutoff, padding or wider tolerance is used.
         # A rational function on a wider domain [-2,2]^3:
         #   f = @(x,y,z) 1./(1+x.^2.*y.^2.*z.^2);
         def rat(x, y, z):

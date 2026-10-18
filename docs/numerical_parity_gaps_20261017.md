@@ -7,7 +7,7 @@ function or example parity. Native reference is Chebfun 7574c77.
 |---|---|---|
 | Fixed48 PDE | Published scalar33 real CPU transform repair makes the unchanged authored fixed48 test pass;21parent controls qualify that scope. [Evidence](fft64_pde_cpu_20261017.json). | Broader FFT/PDE plans and latest-main CI remain required. |
 | Complex rational fit | Published FFT602/C2R integration qualifies129final-source controls and exactD/V/Z assembly. Pole gap is2.076e-11; denominator gap5.739e-12. [Evidence](fft602_rational_integration_cpu_20261017.json). | Fresh unchanged ThreeBody415coefficients equal retained input; full run104.57s,1380imports preguarded. Same-input JAX default/QR SVD both retain5.739e-12vector discrepancy. Full native ODE/second-fit/figure/performance parity remains open. |
-| Dense Chebfun3T constructor7 | Fresh47a current-source original assertion fails2.864e-14 > unchanged100eps2.220e-14, shape249/259/263;34.48s, stable/no survivors. [Evidence](chebfun3t_current_transform_cpu_20261017.json). | Shared inverse-normalization change did not fix FFT/envelope/chop sensitivity. Strict xfail retained; matched-source diagnosis needed, no fitted cutoff or wider bound. |
+| Dense Chebfun3T constructor7 / representation | Original7 now passes normal markerless parent pytest at unchanged100eps; sealed candidate1.0103e-14 <2.2204e-14. Actual parent51checks pass. [Evidence](rader724_parent_cpu_20261018.json). | Native/candidate crops261/265/263 vs261/261/263 and coefficientwords still differ; HC2C4/three180convolutiongraphs require further source qualification. Full API/JAX/speed/CI remain open. |
 | Small Hermite ASY | Public full30-node/all18valid small orders meet original bounds/storage; actual parent47checks include cold cache-disabledn2 and child coverage merge. [Evidence](hermite_public_parent_cpu_20261018.json). | Small whole-call JIT/AD, nonfinite storage, full API and matched CPU speed/memory remain open. Earlier180s component censors are historical, not current integration blockers. |
 
 | C1 scalar eigs CI | CI3.8022e-9>authored1e-9; fresh local6.9063e-10 passes. [Diagnostic](disk_unbounded_parent_cpu_20261018.json). | Source/backend reproducibility diagnosis required; local pass does not repair CI. |
@@ -78,7 +78,9 @@ actual native32768plan evidence and a general power-of-two predicate, preserving
 (native8630, previous9030), native129value error3.886e-16, both independent
 257compositions nearroundoff. Raw coefficient words still differ; no universal
 bit-equality claim. Warm2.327s vsbase2.336s leaves native speed open. Dense724
-Chebfun3T strictxfail and full API/page/figure/latestCI qualification remain open.
+constructor7 remained strictxfail at that historical checkpoint; the later
+Rader724 integration repairs its original bound as recorded in the current
+table above. Full API/page/figure/latestCI qualification remains open.
 
 
 ## Ordered Clenshaw CPU overhead

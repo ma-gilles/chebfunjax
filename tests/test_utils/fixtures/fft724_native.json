@@ -1,0 +1,175 @@
+{
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "matlab_version": "25.2.0.3055257 (R2025b) Update 2",
+  "fixture_sha256": "470fad59017a872852031bedd8d1286e9b2d924b0d5bd773bb84f9dfc4c8bc1c",
+  "cases": [
+    {
+      "case": "retained1",
+      "input_shape": [
+        363,
+        1
+      ],
+      "ifft_shape": [
+        724,
+        1
+      ],
+      "output_shape": [
+        363,
+        1
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "retained2",
+      "input_shape": [
+        363,
+        2
+      ],
+      "ifft_shape": [
+        724,
+        2
+      ],
+      "output_shape": [
+        363,
+        2
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "retained3",
+      "input_shape": [
+        363,
+        3
+      ],
+      "ifft_shape": [
+        724,
+        3
+      ],
+      "output_shape": [
+        363,
+        3
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "retained4",
+      "input_shape": [
+        363,
+        4
+      ],
+      "ifft_shape": [
+        724,
+        4
+      ],
+      "output_shape": [
+        363,
+        4
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "retained9",
+      "input_shape": [
+        363,
+        9
+      ],
+      "ifft_shape": [
+        724,
+        9
+      ],
+      "output_shape": [
+        363,
+        9
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "polynomial1",
+      "input_shape": [
+        363,
+        1
+      ],
+      "ifft_shape": [
+        724,
+        1
+      ],
+      "output_shape": [
+        363,
+        1
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "polynomial4",
+      "input_shape": [
+        363,
+        4
+      ],
+      "ifft_shape": [
+        724,
+        4
+      ],
+      "output_shape": [
+        363,
+        4
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "dyadic1",
+      "input_shape": [
+        363,
+        1
+      ],
+      "ifft_shape": [
+        724,
+        1
+      ],
+      "output_shape": [
+        363,
+        1
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    },
+    {
+      "case": "dyadic4",
+      "input_shape": [
+        363,
+        4
+      ],
+      "ifft_shape": [
+        724,
+        4
+      ],
+      "output_shape": [
+        363,
+        4
+      ],
+      "isreal": true,
+      "logging_off_on_word_identity": true,
+      "input_words_unchanged": true
+    }
+  ],
+  "source": "@chebtech2/vals2coeffs.m",
+  "source_bound": "tests/chebtech2/test_vals2coeffs.m: tol=100*eps; native coefficient comparisons use unchanged absolute infinity bound",
+  "plan_sha256": "46c2caeb447f711411cdec2fb402cc0b2a0900b6840452664ff1daddfcdc7766",
+  "native_report_sha256": "c3083083d022766f6b950deffdaab6e4ca5dcf8a9dc1290c8f89fa055e5e72f0",
+  "capture_run": "dense3t_724_native_run001",
+  "scope": "Same actual first-axis selected columns plus independent polynomial/dyadic controls; not full363cubed plan or native codelet word equality"
+}

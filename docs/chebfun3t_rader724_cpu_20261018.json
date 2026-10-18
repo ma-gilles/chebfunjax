@@ -1,0 +1,391 @@
+{
+  "scope": "Source-motivated finite-real float64 CPU length724 C2R/Rader181 transform. Fixes unchanged original Chebfun3T constructor predicate7 at original100eps physical100cubed grid. No whole API/file/JAX/native-word/representation/performance completion claim.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "base": "3396e84cc339d463b5803fd253ec78d88604476c",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dense3t_724_20261018",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/dense3t_724_evidence_20261018",
+  "source_evidence": {
+    "chebfun": "@chebtech2/vals2coeffs.m real circular-even inverse FFT, source normalization and unchanged symmetry; @chebfun3t/vals2coeffs.m axis1\u21922\u21923 transform order; tests/chebfun3t/test_constructor.m literal predicate7 and100eps.",
+    "native_plan": "Actual R2025b FFTW C2R724: HC2C4 plus Rader181 convolutions180.9matrix loggingoff/on outputs word-identical and inputs unchanged; defaultestimate planner unchanged. Native batch1/2/3/4 retained prefixes word-identical to batch9. Full131769-column native plan remains unobserved.",
+    "first_divergence": "Retained native/JAX nodes and full sampledF identical in earlier source-bound evidence; exact native first-axis selected input words replay freshly to current JAX with coefficient gaps before reductions/chopping. Native C replay into JAX happiness retains native261/265/263 cuts. No callback identity or sampling patch.",
+    "retained_native_files": {
+      "native_values.mat": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/native_values.mat",
+        "sha256": "18a2d8bf89edc538a2ad6c238b3e93b963697621aba7c4f903e9789c64230d30"
+      },
+      "native_transform.mat": {
+        "path": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/dense_chebfun3t_review_20261013/native_transform.mat",
+        "sha256": "cd536fd231b48f2a9c9f4b37bf381a90fafbba029d70c54dfd00dcd88e8bed0d"
+      }
+    }
+  },
+  "algorithm": "Real C2R even/odd packing into a complex362 inverse, radix2 split into two inverse181 transforms. Rader uses primitive generator2 modulo181, cyclic convolution180, kernel division180 before FFT, and source final division724. Generic180 FFT is reused. Constants are mathematical length-only phases via existing phase_pair; no operand fixture, crop, tolerance, callback identity or value cutoff.",
+  "dispatch": "n363 input values, dtypefloat64, rank1/2, CPU, finite whole matrix; existing n33/n302 branches precede. All other shapes/dtypes/complex/nonfinite/nonCPU paths unchanged.",
+  "workspace": "Fixed256-column chunks plus actual remainder; no axis-length padding/truncation and no change to eigen/chop dimensions.",
+  "actual_original7": {
+    "baseline_error": 2.864375403532904e-14,
+    "candidate_error": 1.0103029524088925e-14,
+    "unchanged_bound": 2.220446049250313e-14,
+    "baseline_crop": [
+      249,
+      259,
+      263
+    ],
+    "candidate_crop": [
+      261,
+      261,
+      263
+    ],
+    "native_crop": [
+      261,
+      265,
+      263
+    ],
+    "retained_native_error": 8.326672684688674e-15,
+    "baseline_run": "dense3t_724_literal_baseline_run001",
+    "candidate_run": "dense3t_724_candidate_literal_run001",
+    "baseline_coefficients": {
+      "shape": [
+        249,
+        259,
+        263
+      ],
+      "domain": [
+        -2.0,
+        2.0,
+        -2.0,
+        2.0,
+        -2.0,
+        2.0
+      ],
+      "vscale": 1.0,
+      "coefficient_sha256": "7b863b8c4b45cc43084a7d7b81e601c84f7e47d1071447a338c24ffa7af8d6f7",
+      "source": "Original constructor called once with unmodified original callback/operands; observer returns same result object before unchanged assertion. No output data substituted."
+    },
+    "candidate_coefficients": {
+      "shape": [
+        261,
+        261,
+        263
+      ],
+      "domain": [
+        -2.0,
+        2.0,
+        -2.0,
+        2.0,
+        -2.0,
+        2.0
+      ],
+      "vscale": 1.0,
+      "coefficient_sha256": "4ad02dd743b2c3de6c6f401d5f4e357451beb7b0fab3be45b029a23abeca36a0",
+      "source": "Original constructor called once with unmodified original callback/operands; observer returns same result object before unchanged assertion. No output data substituted."
+    },
+    "observer": "Constructor called once with exact original callback/operands, actual object saved/returned unchanged; _maxdiff evaluated once and returned unchanged. No substituted output. Final source candidate coefficientbytes identical to earlier driver-only experiment.",
+    "marker_bridge": "Remove obsolete strictxfail after actual --runxfail pass. Every original module function body/assertion/query/callback AST equal; only decorator/comment metadata changes. Parent normal markerless invocation pending. See TEST_AST_BRIDGE.json."
+  },
+  "validation": {
+    "final_library_unique_selectors": 146,
+    "new_final_controls": {
+      "count": 27,
+      "run": "dense3t_724_final_controls_run001",
+      "contents": "9native standalone matrices at source100eps infinity bound;6independent basis spectra;4column/chunk layouts;independent JAX O(n squared)181DFT;2first/second linear AD controls;3nonfinite legacy-route controls;float32/complex fallback;zero magnitudes/emptycolumns."
+    },
+    "unchanged_original_transforms": 44,
+    "existing_fft64_two_column_602_normalization": 45,
+    "unchanged_original_inverse": 24,
+    "dense_constructor_feval_battery_selectors": 6,
+    "constructor_source_mapping": {
+      "1,2,3,6": "test_constructor_matlab.py::test_native_predicates_1_2_3_6",
+      "4,5": "test_constructor_string_matlab.py",
+      "7": "test_constructor_matlab.py::test_native_predicate_7_rational_tensor",
+      "8,9,10": "test_constructor_lengths_matlab.py"
+    },
+    "scope_note": "146distinct selectors on final library arithmetic; original7 marker-only AST bridge as above. Final27 oracle uses independent JAX directDFT. Initial27 test-only longdouble oracle version and pass preserved separately, not double-counted. Tests are authored native/source controls, not fresh whole native original inv/transform test calls."
+  },
+  "preserved_diagnostics": {
+    "current_firstaxis": "FIRST_AXIS_CURRENT.json",
+    "rader_stage": "RADER_STAGE.json; all9maxerrors lower but not exact native words. Retained9 1657/3267\u21921686/3267, max1.239779e-16\u21925.551115e-17. Wordcount is evidence, not acceptance.",
+    "raw_dft_oracle_limit": "Stage raw181 direct complex128 exponential matrix discrepancy2.429e-12 includes phase/reduction reference error; no bound/pass claim from it. Initial test-only longdouble normalized reference passes, final independent JAX modular-phase normalized reference also passes.",
+    "prior_rejected_C2R": "Published docs/transform_c2r_diagnostics_cpu_20261017.json: generic irfft724 on retained nativeF worsened word agreement and still failed crop bound; not repeated or applied."
+  },
+  "limits": [
+    "Generic JAX180 FFT remains; native HC2C4/180 codelet graph and coefficient words are not reproduced. Candidate261/261/263 differs native261/265/263. No fitted chop/crop/tolerance/padding or data fixture in production.",
+    "Qualification is CPU float64 real finite input in this transform family. NonCPU/complex/float32/nonfinite input dispatch unchanged and targeted fallbacks checked. Universal subnormal/overflow/NaN payload/signedzero-storage word semantics remain unqualified; zero-magnitude control does not prove signedzero word identity.",
+    "No new NumPy/SciPy numerical provider/import/waiver; source numeric arrays are JAX. Existing generic180 FFT provider and broader library host debts remain.",
+    "Full dense native batch-plan equivalence, full Chebfun3T/API/page/figure parity, matching representation and matched native speed remain open. Run timings/RSS are descriptive different algorithms, not a qualified speed comparison.",
+    "Official FFTW3.3.10 source explains Rader algorithm, not asserted identical to MATLABcustom3.5.8. Native plan evidence and exact inputs are preserved separately."
+  ],
+  "receipts": {
+    "dense3t_724_candidate_controls_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 20.74251375719905,
+      "sampled_peak_summed_rss_kib": 1114484,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 27,
+      "pytest_seconds": 18.51
+    },
+    "dense3t_724_candidate_literal_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 41.67844782304019,
+      "sampled_peak_summed_rss_kib": 6134056,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 1,
+      "pytest_seconds": 37.62
+    },
+    "dense3t_724_constructor_remaining_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.953086108900607,
+      "sampled_peak_summed_rss_kib": 1501588,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 2,
+      "pytest_seconds": 24.63
+    },
+    "dense3t_724_existing_transform_callers_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 111.92686181794852,
+      "sampled_peak_summed_rss_kib": 2169440,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 45,
+      "pytest_seconds": 106.29
+    },
+    "dense3t_724_extract_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.5813294029794633,
+      "sampled_peak_summed_rss_kib": 1099588,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "dense3t_724_final_controls_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 21.026609115302563,
+      "sampled_peak_summed_rss_kib": 1149952,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 27,
+      "pytest_seconds": 18.28
+    },
+    "dense3t_724_first_axis_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.8334706630557775,
+      "sampled_peak_summed_rss_kib": 560548,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "dense3t_724_inverse_bisection_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 30.620824411977082,
+      "sampled_peak_summed_rss_kib": 1562268,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 27.29
+    },
+    "dense3t_724_inverse_brent_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 32.29226879123598,
+      "sampled_peak_summed_rss_kib": 1606956,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 28.89
+    },
+    "dense3t_724_inverse_illinois_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 31.402807464823127,
+      "sampled_peak_summed_rss_kib": 1568504,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 27.9
+    },
+    "dense3t_724_inverse_misc_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.8345538508147,
+      "sampled_peak_summed_rss_kib": 1586060,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 6,
+      "pytest_seconds": 24.35
+    },
+    "dense3t_724_inverse_newton_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 30.078897478990257,
+      "sampled_peak_summed_rss_kib": 1646304,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 26.74
+    },
+    "dense3t_724_inverse_regulafalsi_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 31.85146427480504,
+      "sampled_peak_summed_rss_kib": 1624660,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 28.5
+    },
+    "dense3t_724_inverse_roots_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 27.039209770038724,
+      "sampled_peak_summed_rss_kib": 1552848,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 23.74
+    },
+    "dense3t_724_literal_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 37.27172336075455,
+      "sampled_peak_summed_rss_kib": 8640068,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "dense3t_724_native_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 81.8648162772879,
+      "sampled_peak_summed_rss_kib": 1270044,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "dense3t_724_original_transforms_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.291048029903322,
+      "sampled_peak_summed_rss_kib": 677516,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 44,
+      "pytest_seconds": 6.08
+    },
+    "dense3t_724_rader_literal_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 39.78019282594323,
+      "sampled_peak_summed_rss_kib": 4521472,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 1,
+      "pytest_seconds": 35.44
+    },
+    "dense3t_724_rader_stage_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 12.462170859333128,
+      "sampled_peak_summed_rss_kib": 902180,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "dense3t_724_three_t_original_other_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 84.68011518288404,
+      "sampled_peak_summed_rss_kib": 3297068,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": [],
+      "pytest_passed": 3,
+      "pytest_seconds": 78.81
+    }
+  },
+  "publication_paths": [
+    "src/chebfunjax/utils/transforms.py",
+    "src/chebfunjax/utils/_fft724.py",
+    "tests/test_utils/test_fft724_rader_source.py",
+    "tests/test_utils/fixtures/fft724_native.npz",
+    "tests/test_utils/fixtures/fft724_native.json",
+    "tests/test_matlab_port/chebfun3t/test_constructor_matlab.py",
+    "docs/chebfun3t_rader724_cpu_20261018.json"
+  ],
+  "ownership": "One new core test module,27selectors; parent owns inventory/core baseline/protocol gates. Existing constructor7 assertion remains unchanged; obsolete strictxfail removal only.",
+  "hashes": {
+    "final_transforms": "034a2415d135406d87dc8a8063c51403d90c15ab3f60be8144bd3ca7bb53140f",
+    "final_helper": "233b01ccf18f67145526dda688e222f0ca2a619766bdfa33c911c08726f88959",
+    "new_test": "6be1d3dbe7cfe8624e320778e88e3c624b5681f26b45f1415a378f5cc3c4cbd8",
+    "fixture_npz": "470fad59017a872852031bedd8d1286e9b2d924b0d5bd773bb84f9dfc4c8bc1c",
+    "fixture_json": "f66b203e9632f6a77c3f44c674e66f0c902513989d3b2cae83557d48355ba98f",
+    "pyproject": "21f880aeb8d8dbb9fb21b39d335eef3bc0fae11dbcac3e21a399920f761a3b5f",
+    "native_plans": "46c2caeb447f711411cdec2fb402cc0b2a0900b6840452664ff1daddfcdc7766",
+    "fftw_explanatory_tarball": "56c932549852cddcfafdab3820b0200c7742675be92179e59e6215b340e26467"
+  },
+  "artifact_scope": "Full final src/pyproject plus selected executed tests/fixtures/native source/observer, all drivers/guards/rawreceipts and actual baseline/candidate arrays. Large original native fullF/C remain immutable external references bound by SHA, not duplicated. Earlier driver-only candidate array equals final coefficient array and is represented by exact hash alias in archive."
+}

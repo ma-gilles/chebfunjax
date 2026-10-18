@@ -13,7 +13,7 @@ Checked items certify only their stated scope.
 | Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
 | Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
-| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T constructor, external cosine provider rounding, C1 CI reproducibility and broader original-test/API gaps |
+| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T representation/provider words, external cosine provider rounding, C1 CI reproducibility and broader original-test/API gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
 | Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
@@ -26,6 +26,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Dense Chebfun3T original constructor7: normal markerless parentpytest passes unchanged100eps bound after source-motivated realCPU724C2R/Rader181 family. Actual parent51checks and separately sealed child146scoped checks pass. [Evidence](rader724_parent_cpu_20261018.json).
+- [ ] Full native FFT words/crop/batchplans, denseAPI/JAX/matchedspeed and finalpages/figures/CI remain open; candidatecrop261/261/263 differsnative261/265/263.
+
 
 - [x] Polynomial minimax zero-scale IEEE status: actual native degree1zero returns NaN correction/1e-19 error/no warning;2baseline failures repaired.40candidate science+25actualparent checks,2overlap=63distinct; complete source/test/fixture byte bridge. [Evidence](minimax_zero_parent_cpu_20261018.json).
 - [ ] Full minimax API/JAX/zero-storage/alternateoptions/speed and Checkmark page/figures remain open; latest-main scientificCI/coverage required.

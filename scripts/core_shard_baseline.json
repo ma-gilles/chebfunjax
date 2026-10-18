@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Thirteen lanes: all1101 prior owners retained; zero-minimax controls appendCore1. Dedicated HermiteCore12 and aggregate79%gate unchanged.",
+  "scope": "Thirteen lanes: all1102 prior owners retained; FFT724controls appendCore1. DedicatedHermiteCore12 and aggregate79%gate unchanged.",
   "groups": [
     [
       "tests/test_active_set_box_qp_source.py",
@@ -195,7 +195,8 @@
       "tests/test_cheb_bernoulli_source.py",
       "tests/test_roots_normalization_native_source.py",
       "tests/test_minimax_norm_source.py",
-      "tests/test_minimax_zero_source.py"
+      "tests/test_minimax_zero_source.py",
+      "tests/test_utils/test_fft724_rader_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
