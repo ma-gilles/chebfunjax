@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover explicit Chebfun2 preferences and adaptive disk source grids/tolerance/rank stopping. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Chebfun2 coefficient/paired fixed preferences, adaptive disk source grids/tolerance/rank stopping and stale SINH CI expectation repair. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -26,12 +26,12 @@ open work.
 
 - **CI repair:** obsolete SINH expectations reconciled;158modulePASS, production/native assertions/bounds unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json). GitHub reproduction still required.
 
-- **Latest verified integration:** explicit Chebfun2 preferences and adaptive disk grids/tolerance/rank-width decisions;194actual parentPASS in two disjoint processes. [Evidence](chebfun2_disk_preferences_spacing_cpu_20261018.json).
+- **Latest verified integration:** Chebfun2 coefficient/paired fixed preferences;141actualPASS/1strictfactorXFAIL. [Evidence](chebfun2_coefficient_preferences_cpu_20261018.json). Previous explicit single preferences/adaptive disk grids package194PASS remains recorded separately.
 - **Unary worker:** remaining2original+5fresh TAN/TANH failures. Source quotient work still has a near-axis normal-input/subnormal-output discrepancy and a retained memory censor; not credited as repaired.
 - **Disk worker:** joint matrix PhaseTwo/factor simplification diagnosis. A named original rank102 case passes alone, but native factor storage differs; its CPU compilation cost remains under study. Final FFT factor/provider words and broader adaptive JAX/AD remain open.
-- **Root next:** review the disk rank102 diagnosis and source joint-factor staging candidate; complete original assertion/API audit and select next substantive missing behavior. Explicit single Chebfun2 preferences are scoped-qualified; paired/coefficient/equispaced grammar remains open.
+- **Root next:** review disk joint-factor staging candidate; paired adaptive/equispaced Chebfun2 preferences and wider original assertion/API audit remain. Coefficient and paired fixed/numeric preferences are now scoped-qualified, with one Fourier-provider factorXFAIL retained.
 - **CPU speed:** published inverse root-filter compilation optimization; rejected Brent padding experiment retained. Native inverse warm gap~2.51x remains in an earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and other paths require qualification.
-- **CI:** new publication requires latest-main scientificCI/coverage≥79%. Prepublication9caeSCI39147084903 was in progress,16completed/no failures and30running at last observation; this is not a greenCI claim.
+- **CI:** latest-main scientificCI/coverage≥79% remains required. Prior9caeSCI39147084903 has a confirmed chebfun-g failure from stale SINH tests; repaired158modulePASS publishedc91. c91SCI39151049484pending at last observation; no greenCI claim.
 - **Original tests/numerics:** complete audit across2333library files/1102original test files; complex poles, Hermite, Chebfun3T representation/provider and broader API/JAX/AD gaps.
 - **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1305figures remain required.
 - **Evidence correction:** old34case constructor timeout has18progressdots but no named active node; earlier clause10/9pass attribution is retracted, with immutable raw hashes in the latest report.
@@ -45,6 +45,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Chebfun2 coefficient transforms and paired fixed/numeric preferences:141actual parentPASS/1strictfactorXFAIL,45new native constructors, original bounds retained. [Evidence](chebfun2_coefficient_preferences_cpu_20261018.json).
+- [ ] Fourier-provider factor discrepancy, paired adaptive/equispaced preferences and wider API/JAX/AD/performance/full original assertion coverage remain open.
 
 - [x] Reconcile stale authored SINH strictXFAIL/preservation expectations:158modulePASS; exact native repaired words, production unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json).
 

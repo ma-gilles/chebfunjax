@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Thirteen lanes: all1123 prior owner prefixes retained; explicit Chebfun2 preference and adaptive disk spacing controls append Core0. Dedicated Hermite Core12 and aggregate79% gate unchanged.",
+  "scope": "Thirteen lanes: all1125 prior owner prefixes retained; Chebfun2 coefficient/paired preference controls append Core0. Dedicated Hermite Core12 and aggregate79% gate unchanged.",
   "groups": [
     [
       "tests/test_active_set_box_qp_source.py",
@@ -141,7 +141,8 @@
       "tests/test_diskfun/test_adaptive_no_pivot_source.py",
       "tests/test_utils/test_extrapolate_division_source.py",
       "tests/test_chebfun2/test_explicit_preferences_source.py",
-      "tests/test_diskfun/test_adaptive_spacing_source.py"
+      "tests/test_diskfun/test_adaptive_spacing_source.py",
+      "tests/test_chebfun2/test_coefficient_preferences_source.py"
     ],
     [
       "tests/test_active_set_box_sqp_source.py",

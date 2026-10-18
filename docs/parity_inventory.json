@@ -101,6 +101,21 @@
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
       "sha256": "0fa2b85937e671fa8da2b74887d3c7f94e396c18e2e842d6c409301185442aef"
     },
+    "chebfun2_coefficient_preferences_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_coefficient_parent_20261018.tar.gz",
+        "sha256": "660aa807a28c37273f23a8f1e699108e5cb7ff700ec61b832a394de34a27e24d",
+        "verified_payloads": 16
+      },
+      "limits": [
+        "One new strict factorXFAIL remains: inherited Fourier transform lowwords change a tied secondpivot; public values meet unchanged authored100eps bound.",
+        "Paired adaptive preferences, equispaced preferences, broader grammar/options/API/JAX/AD/provider/performance and all original assertion coverage remain open.",
+        "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
+      ],
+      "path": "docs/chebfun2_coefficient_preferences_cpu_20261018.json",
+      "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences",
+      "sha256": "f51d3c881d6cab86706c31aaf61fd51c0477fa379fc5b4717fbed2c2dc73a3d0"
+    },
     "chebfun2_disk_preferences_spacing_cpu_20261018": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebfun2_disk_parent_cpu_20261018.tar.gz",
@@ -57309,6 +57324,15 @@
             "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+        },
+        {
+          "artifact": "chebfun2_coefficient_preferences_cpu_20261018",
+          "limits": [
+            "One new strict factorXFAIL remains: inherited Fourier transform lowwords change a tied secondpivot; public values meet unchanged authored100eps bound.",
+            "Paired adaptive preferences, equispaced preferences, broader grammar/options/API/JAX/AD/provider/performance and all original assertion coverage remain open.",
+            "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
+          ],
+          "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
         }
       ],
       "functions": [
@@ -57330,6 +57354,15 @@
                 "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
               ],
               "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            },
+            {
+              "artifact": "chebfun2_coefficient_preferences_cpu_20261018",
+              "limits": [
+                "One new strict factorXFAIL remains: inherited Fourier transform lowwords change a tied secondpivot; public values meet unchanged authored100eps bound.",
+                "Paired adaptive preferences, equispaced preferences, broader grammar/options/API/JAX/AD/provider/performance and all original assertion coverage remain open.",
+                "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
             }
           ],
           "implementation_status": "unverified",
@@ -57432,6 +57465,15 @@
                 "Full original function/assertion audit,322final-sourcepages/1305scientific/rasterfigures, matched CPU slow paths and green latest-main CI/coverage>=79% remain required."
               ],
               "scope": "Chebfun2 explicit preference/fixed/numeric/rank routes and disk source grid/tolerance/rank-width decisions"
+            },
+            {
+              "artifact": "chebfun2_coefficient_preferences_cpu_20261018",
+              "limits": [
+                "One new strict factorXFAIL remains: inherited Fourier transform lowwords change a tied secondpivot; public values meet unchanged authored100eps bound.",
+                "Paired adaptive preferences, equispaced preferences, broader grammar/options/API/JAX/AD/provider/performance and all original assertion coverage remain open.",
+                "322final-sourcepages/1305scientific/rasterfigures, matched CPU slowpaths and latest-mainCI/coverage>=79% remain required."
+              ],
+              "scope": "Chebfun2 coefficient transforms with explicit technology preferences and paired fixed/numeric technology preferences"
             }
           ],
           "implementation_status": "unverified",

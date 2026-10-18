@@ -1,3 +1,25 @@
+# Chebfun2 coefficient transforms and paired fixed preferences — 2026-10-18
+
+Actual integration **141 PASS /1strictXFAIL**,142nodes:46new controls,
+73previous preference cases and23CI protocol checks. All observed imports
+preguarded, inputs stable/no censor/survivors.1125prior owner prefixes retained;
+1126owners/13lanes/Hermite12/79%unchanged.
+
+Explicit C1/C2/trigonometric preferences now accept coefficient input and
+fixed callable coefficient interpretation; paired x/y preferences support
+numeric and fixed callable construction. Source transforms y first, then x
+with a plain transpose, using existing JAX technology transforms.
+45new native constructors succeed; original/native assertions and bounds
+are retained. Paired adaptive and equispaced preferences remain open.
+
+One authored strict factorXFAIL remains: exact sampling words feed Fourier
+transforms whose lowwords differ, selecting another tied second ACA pivot.
+Native transformed-input crossfeed restores every pivot word. Public values
+pass the unchanged100eps diagnostic bound (maxdifference1.04e-14); no fitted
+provider correction or relaxed factor assertion. Full function/API/JAX/AD,
+matched performance,322pages/1305figures and latest-mainCI remain required.
+Evidence: docs/chebfun2_coefficient_preferences_cpu_20261018.json.
+
 # Chebfun2 preferences and adaptive disk source grids — 2026-10-18
 
 Actual integration **194 PASS**, two disjoint processes:73Chebfun2 native

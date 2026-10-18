@@ -3114,8 +3114,8 @@ def chebfun2(
     MATLAB source : @chebfun2/chebfun2.m (str2op string constructor)
     Chebfun commit: 7574c77
     """
-    if pref is not None and (coeffs or coeffsx or coeffsy or equi or equix or equiy):
-        raise NotImplementedError("Explicit preferences with coefficient/equispaced data are not implemented")
+    if pref is not None and (equi or equix or equiy):
+        raise NotImplementedError("Explicit preferences with equispaced data are not implemented")
     import numpy as _np
     if periodic:
         trig = True
@@ -3174,7 +3174,7 @@ def chebfun2(
             return jnp.asarray(_np.asarray(out)).reshape(xb.shape)
     if pref is not None and (not callable(f) or n is not None or rank is not None):
         return _chebfun2_preference_input(
-            f, dv, tol, n, rank, pref, trigx, trigy)
+            f, dv, tol, n, rank, pref, trigx, trigy, coeffsx, coeffsy)
     if not callable(f) and _mixed:
         arr = _np.asarray(f)
         if arr.ndim == 1:
@@ -3219,7 +3219,8 @@ def chebfun2(
     return _chebfun2_impl(f, domain=domain, tol=tol, n=n, pref=pref)
 
 
-def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy):
+def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy,
+                             coeffsx=False, coeffsy=False):
     """Native fixed-length sampling followed by preference-aware numeric CDR.
 
     Provenance
@@ -3232,17 +3233,20 @@ def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy)
     from chebfunjax.chebfun2d._numeric_constructor import numeric_points
     from chebfunjax.chebpref import ChebfunPref
 
-    if not isinstance(pref, ChebfunPref):
-        raise TypeError("pref must be a ChebfunPref; paired preferences are not supported")
-    name = (pref.tech.__name__ if isinstance(pref.tech, type)
-            else str(pref.tech)).lower().lstrip("@")
+    preferences = tuple(pref) if isinstance(pref, (tuple, list)) else (pref, pref)
+    if len(preferences) != 2 or any(not isinstance(p, ChebfunPref) for p in preferences):
+        raise TypeError("pref must be a ChebfunPref or a pair of ChebfunPref objects")
     names = {"chebtech1": "cheb1", "chebtech2": "cheb",
              "chebtech": "cheb", "trigtech": "trig"}
-    if name not in names:
-        raise ValueError(f"Unsupported Chebfun2 technology {pref.tech!r}")
-    base = names[name]
-    techs = ("trig" if trigx else base, "trig" if trigy else base)
-    tolerance = float(pref.cheb2Prefs.chebfun2eps)
+    techs = []
+    for axis_pref, periodic in zip(preferences, (trigx, trigy)):
+        name = (axis_pref.tech.__name__ if isinstance(axis_pref.tech, type)
+                else str(axis_pref.tech)).lower().lstrip("@")
+        if name not in names:
+            raise ValueError(f"Unsupported Chebfun2 technology {axis_pref.tech!r}")
+        techs.append("trig" if periodic else names[name])
+    techs = tuple(techs)
+    tolerance = min(float(p.cheb2Prefs.chebfun2eps) for p in preferences)
     if tol is not None:
         tolerance = max(tolerance, float(tol))
     if callable(op) and sizes is None:
@@ -3264,6 +3268,19 @@ def _chebfun2_preference_input(op, domain, tol, sizes, rank, pref, trigx, trigy)
             values = jnp.asarray(op)
             if values.ndim == 1:
                 values = values.reshape(-1, 1)
+        # Native parseInputs transforms y first, then x through a plain
+        # transpose (never a complex conjugate transpose).
+        if coeffsx or coeffsy:
+            from chebfunjax.tech.chebtech import Chebtech1
+            from chebfunjax.tech.trigtech import Trigtech
+
+            transforms = {"cheb": Chebtech2.coeffs2vals,
+                          "cheb1": Chebtech1.coeffs2vals,
+                          "trig": Trigtech.coeffs2vals}
+            if coeffsy:
+                values = transforms[techs[1]](values)
+            if coeffsx:
+                values = transforms[techs[0]](values.T).T
         result = Chebfun2(approx=SeparableApprox.from_values(
             values, domain=domain, tol=tolerance, techs=techs))
     if rank is None or not rank or result.isempty():
