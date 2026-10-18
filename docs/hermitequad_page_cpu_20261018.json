@@ -1,0 +1,58 @@
+{
+  "base_head": "a1a8f28f96903853fdac64275076e2a110967d51",
+  "matlab_source_pin": "7574c77",
+  "page": "quad/HermiteQuad",
+  "status": "scoped source plotting repair and full current run;page parity remains incomplete",
+  "change": "Public matlab_plot(g.restrict(-8,8)) follows source Chebfun plotData in place of manual1200-point sampling; no numerical library/tolerance/sourceorder/outputcell edits",
+  "run_seconds": 37.611661397852004,
+  "sampled_peak_summed_rss_kib": 2282304,
+  "cpu_affinity": [
+    36,
+    37,
+    38,
+    39
+  ],
+  "runtime_imports_preguarded": 1380,
+  "source_input_blocks": 9,
+  "stdout_output_blocks": 7,
+  "all_prose_math_input_figure_order_unchanged": true,
+  "all_outputblocks_actual_run_bound": true,
+  "exact_cached_html_output_slots": [
+    1,
+    2,
+    3,
+    7
+  ],
+  "figure_dimensions": [
+    600,
+    270
+  ],
+  "curve_finite_point_error": 8.326672684688674e-16,
+  "figure_review": "Actualcachedreferenceandcandidate viewed;12nodes,sourceplotData curve/limits/ticks/position retained;visible font/glyph/raster differences remain",
+  "remaining": [
+    "Last displayed digits differ in Hermite and trapezoid tables; cacheHTML and pinned historical native diary also differ from one another. No tolerance or output substitution applied.",
+    "Descriptive JAXcold timings differ from cachedHTML/native diary; no matched performance qualification.",
+    "Native plotData coordinates/curve lowwords and complete font/glyph/raster parity remain unqualified."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_page_evidence_20261018",
+  "supervisor_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_page_run001_20261018",
+  "instrumentation_limits": "ResourceWarning caused by observer Image.open() without context manager in capture_save. It is not a scientific application warning. Raw warning retained. Import-time plugin warning reports installed CUDA plugin0.11.2 incompatible with pinnedCPUjaxlib0.11.0; effective backendCPU asserted. Observer also saves arrays inside hermpts calls;printedelapsedtimes are descriptive,not matched performance.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_page_package_20261018.tar.gz",
+    "sha256": "0e49da84e6b0d8338ec97438b70645b3c664c87fd493249cac8dd1ddd03d6da1",
+    "bytes": 6448338
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_page_stream_hashes_20261018.json",
+    "sha256": "364c019dcc8b091d0fd7babcc436ccd31858d356ff3fc997502fa0589c24bafc",
+    "payload_count": 2893
+  },
+  "root_review": {
+    "archive_payloads_verified": 2893,
+    "archive_sha256_verified": true,
+    "all_library_python_bytes_equal_tested_checkout": true,
+    "four_publication_paths_equal_tested_candidate": true,
+    "image_viewed": true,
+    "notes": "No separate parent application rerun; exact source bridge from clean a1 base. Initial archive verifier path mapping corrected; all manifest payloads then passed."
+  }
+}

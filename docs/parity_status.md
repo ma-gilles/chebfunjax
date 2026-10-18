@@ -1,3 +1,14 @@
+# HermiteQuad source plotting and checklist reconciliation — 2026-10-18
+
+HermiteQuad uses public plotData for the restricted Chebfun rather than manual
+1200-point sampling. Complete37.61s CPU run retains all original orders and
+actual stdout,9input blocks,7output blocks and one600x270figure. Root verified
+all2893archive payloads, identical library source bytes and viewed the figure.
+Final table digits/native curve coordinates/font/raster/matched timing remain
+open. Twelve historical checklist claims now link their superseding scoped
+published evidence. Latest-main CI remains required; no full-page/API closure.
+Evidence: docs/hermitequad_page_cpu_20261018.json.
+
 # JAX generalized eig and C1 source constraints — 2026-10-18
 
 Shared blocklinop._geig now uses JAX real/complex QZ and Hermitian/SPD paths;

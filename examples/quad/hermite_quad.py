@@ -25,7 +25,7 @@ from matplotlib.ticker import StrMethodFormatter
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import chebfunjax as cj
-from chebfunjax.plotting import chebfun_style
+from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
 from chebfunjax.utils.quadrature import hermpts
 
@@ -53,9 +53,8 @@ def run():
         s, w = (np.asarray(v) for v in hermpts(n))
         print(f"{n:3d} {float(w @ ff(s)) - exact:19.15f}")
 
-    xs = np.linspace(-8, 8, 1200)
     fig, ax = plt.subplots(figsize=(6.8, 4.0))
-    ax.plot(xs, np.asarray(g(jnp.asarray(xs))), lw=2)
+    matlab_plot(g.restrict(-8.0, 8.0), ax=ax, linewidth=2)
     ax.plot(s, np.asarray(g(jnp.asarray(s))), linestyle="none", color="red",
             marker=MarkerStyle(".").scaled(2/3), ms=16, markeredgewidth=0)
     fig.set_facecolor("white")

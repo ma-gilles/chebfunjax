@@ -322,6 +322,11 @@
       "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
       "sha256": "7c43eaa8196c87e804c3d6d19ba99dc6c8bdcb6b630b3cb9d250bcbfc23b7912"
     },
+    "hermitequad_page_cpu_20261018": {
+      "path": "docs/hermitequad_page_cpu_20261018.json",
+      "scope": "Source plotting repair and full current execution only; printed digits/native coordinates/raster/performance remain incomplete",
+      "sha256": "90f0bf886f35f6f1530bb13499208c27a15c785a5d55432930c2ee6fde128696"
+    },
     "hermpts_original15_cpu_20261018": {
       "path": "docs/hermpts_original15_cpu_20261018.json",
       "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure",
@@ -35965,6 +35970,10 @@
             "url": "https://www.chebfun.org/examples/quad/HermiteQuad.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "hermitequad_page_cpu_20261018",
+          "scope": "Full CPU execution and source plotting correction; page dimensions independently qualified, whole page status unchanged."
         }
       ],
       "figure_content_status": "unverified",

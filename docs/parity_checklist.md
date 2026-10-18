@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] HermiteQuad uses public source plotData rather than manual curve sampling. Full current CPU example completes in37.61s with all original orders,9input blocks,7actual output blocks and one600×270figure. Root verifies2893archive payloads and source-byte bridge. [Evidence](hermitequad_page_cpu_20261018.json).
+- [ ] HermiteQuad final printed digits, native curve coordinates, font/raster parity and matched CPU timing remain open.
+- [x] Reconcile12historical checklist statements against newer scoped published evidence; full APIs/pages/CI remain open.
+
 - [x] Shared dense generalized eig now uses JAX real/complex QZ and Hermitian/SPD dispatch with source C1 constraint grids.60parent checks across two explicitly bridged stages pass;20native child controls are separate. Tiny-result exact rounding, nonfinite classes and scalar real storage verified. [Evidence](generalized_qz_parent_cpu_20261018.json).
 - [ ] Full eigs grammar/providers/API, whole-call JIT/AD/vmap, matched CPU speed and latest-main CI remain open. Separate legacy adapters retain inherited providers.
 - [x] Earlier97e scientific CI passed46jobs with reported82%aggregatecoverage; latest-main CI remains required.
@@ -64,11 +68,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Source CDR reciprocal policy and zero-pivot consumers: actual parent104checks pass, including unchanged original31/32. All16native reciprocal words and22,130signed independent exact-rational controls pass; compiled local JAX arithmetic avoids eager dispatch regression. All1096prior CI owners retained+2. [Evidence](disk_cdr_parent_cpu_20261018.json).
-- [ ] Native zero-result storage/pivots/flags, inherited host iszero debt, downstream subnormal arithmetic, complete Diskfun/API/IEEE/JAX and matched speed remain unqualified. Latest-main scientificCI/coverage remains required.
+- [ ] Inherited host iszero debt, downstream subnormal arithmetic, complete Diskfun/API/IEEE/JAX and matched speed remain unqualified. The earlier zero-result storage/pivot/flag gap is superseded for the qualified real finite happy-factor cases by [disk zero-storage evidence](disk_zero_storage_parent_cpu_20261018.json); complex/nonfinite/unhappy metadata and universal pivot words remain open. Latest-main scientificCI/coverage remains required.
 
 
 - [x] Source disk addPoles fixes unchanged original31/32EPS:directcoefficients/continuousL2/extractedrestscale;13new+17existing+3structural controls pass. Callable Bernoulli returnclass restored;5new+unchangedoriginalsmoke pass and fresh nativeN0/1/4/8 captured. Combined64actualparent checks. [Evidence](disk_poles_bernoulli_parent_cpu_20261018.json).
-- [ ] Canceled-only diskzero storage/pivot/flags, residualproviderwords, full APIs/JAX/performance andlatestCI remain open; Bernoulli returntype list→Chebfun is intentional source-API correction.
+- [ ] Residual provider words, full APIs/JAX/performance and latest CI remain open. The earlier canceled-zero storage/pivot/flag gap is superseded within the [qualified real finite disk scope](disk_zero_storage_parent_cpu_20261018.json); broader metadata remains unqualified. Bernoulli returntype list→Chebfun is intentional source-API correction.
 
 
 - [x] All15default final original Hermite test predicates mapped to4existingpassed Python methods and fresh unmodified native testfunction15/15true in0.210109s. Source16assignments/overwritten11slot and Python rankone/output-arity adapters explicit; no redundant Pythonrerun. [Per-clause mapping](hermpts_original15_cpu_20261018.json).
@@ -87,7 +91,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Disk Cartesian callback/radius semantics:5new+17existing checks and original31 pass. Fresh native FEVAL35/35true and all35Python default counterparts pass within53checks; combined97parent checks. [Predicate mapping and evidence](disk_feval35_parent_cpu_20261018.json).
-- [ ] Canceled-zero representation, residual provider rounding, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
+- [ ] Residual provider rounding, full FEVAL/disk API/alternate preferences/JAX/performance and latest CI remain open; callback/reference adaptations are explicit. The canceled-zero representation gap is superseded within the [qualified real finite disk scope](disk_zero_storage_parent_cpu_20261018.json), without universal metadata or pivot-word closure.
 
 
 - [x] Group unchanged breakpoint word equality under JAX execution:33existing IEEE/evaluation/routing tests pass on current main,14diagnostic outputs word-identical; selected warm evaluation median19.1%lower. [Evidence](breakpoint_equality_cpu_20261018.json).
@@ -139,7 +143,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Projected C2 system eigenproblem repair: both actual CI regressions, four original native predicates,38child scientific selectors and24parent integration nodes pass (counts overlap). Complex eigenfunctions and genuine repeated modes preserved. [Evidence](maxwell_system_eigs_parent_cpu_20261017.json).
-- [ ] Full eigs/BC grammar, generalized-eig JAX conversion, matched performance and latest CI remain open. Explicit C1 preferences were subsequently repaired in `96143681`; all six default original cell/autonomous predicates are verified by [be0b evidence](original_system2_polyfit8_cpu_20261017.json).
+- [ ] Full eigs/BC grammar, whole-call JIT/AD/vmap, matched performance and latest CI remain open. The shared generalized-eig boundary now uses [JAX QZ/Hermitian-SPD dispatch](generalized_qz_parent_cpu_20261018.json); separate legacy paths retain inherited providers. Explicit C1 preferences were subsequently repaired in `96143681`; all six default original cell/autonomous predicates are verified by [be0b evidence](original_system2_polyfit8_cpu_20261017.json).
 - [x] Matched-input single-CPU inverse benchmark: MATLAB warm0.642599s, JAX1.710633s; matching8630coefficient counts and nearroundoff sample agreement. [Evidence](inverse_single_cpu_20261017.json).
 - [ ] Inverse speed parity remains open:2.662xwarm and32.8xfirst-after-setup in this descriptive shared-host measurement; full API/pages/figures and other known slow paths remain required.
 
@@ -149,7 +153,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Native-motivated real CPU radix-two C2R DCT-I family:254scientific checks plus21parent CIprotocol checks; actual inverse8630/native8630 coefficients and nearroundoff value/composition controls. [Evidence](inverse_c2r_parent_cpu_20261017.json).
-- [ ] Inverse full API/low-word/page/figure and matched CPU performance remain open; dense724 strictxfail unchanged.
+- [ ] Inverse full API/low-word/page/figure and matched CPU performance remain open. The historical dense724 strict xfail is superseded by the [markerless constructor7 pass](rader724_parent_cpu_20261018.json).
 
 
 - [x] Native complex baryWeights capacity/phase and analytic rotation JVP:12focused checks and4fresh native controls pass; real arithmetic/other function ASTs/old test bodies unchanged. [Evidence](bary_complex_cpu_20261017.json).
@@ -161,7 +165,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Compare real-even C2R transforms on retained3inverse stages and same native363cubed tensor. Neither qualifies a production fix; reject coefficient-count matching as acceptance. [Evidence](transform_c2r_diagnostics_cpu_20261017.json).
-- [ ] Native actual724/32768plans, dense3Tstrictxfail and inverse representation/performance remain open.
+- [ ] Native actual724/32768 plan equivalence, dense native coefficient/crop fidelity and inverse coefficient words/performance remain open. The historical dense3T strict xfail is superseded by the [constructor7 repair](rader724_parent_cpu_20261018.json); the inverse coefficient count now matches in the [retained-input comparison](inverse_c2r_parent_cpu_20261017.json).
 
 
 - [x] Coupled complex derivative towers use existing JAX native IVP engine:final44controls,56earlier bridged controls and full221.80s ThreePlanets with0SciPy integration calls. Parent21CIprotocol checks pass;1080priorowners retained plus1selector. [Evidence](coupled_ivp_parent_cpu_20261017.json).
@@ -193,7 +197,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 - [x] Review exact ten-page mapping of seven blank output slots and three count differences:72archive payloads/68snapshot files verified; no missing numerical print among these specific slots. Ten page ledger rows linked. [Evidence](output_slot_reconciliation_cpu_20261017.json).
 - [ ] Resolve those warning/environment/version differences with actual execution evidence; do not synthesize cached warning output.
-- [ ] Dense Chebfun3T original constructor7 still fails unchanged100eps after current shared transform changes; fresh error2.864e-14. [Current failure](chebfun3t_current_transform_cpu_20261017.json). Strict xfail retained.
+- [x] The [historical dense constructor7 failure](chebfun3t_current_transform_cpu_20261017.json) is superseded by the [Rader724 parent qualification](rader724_parent_cpu_20261018.json): normal markerless pytest passes the unchanged100eps bound, with candidate error1.0103e-14. Native coefficient/crop words, full API/page/figure parity and matched performance remain open.
 
 
 - [x] Fix coefficient-break scalar C2 Newton dispatch and merged-domain RHS sampling; preserve scalar callable broadcast. Child7joint controls and final4focused pass; actual Bloodhound233s/7iterations succeeds with zero actual warnings. Explicit source branch bridge retained. Parent20CI protocol checks preserve1079owners and append one selector. [Evidence](bloodhound_parent_cpu_20261017.json). Native convergence/warning, full API and page/figure parity remain open.
@@ -234,7 +238,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 - [x] Preserve measured core CI lane ownership as tests are added; all1072current selections retain their lanes, simulated new roots file moves0existing selections versus1004previously.20protocol checks pass. [Evidence](ci_stable_core_cpu_20261017.json). Latest-main execution and coverage remain open.
 
-- [x] Hermite ASY derivative forms native scale before multiplying dval;17existing mapped, independent and normalization controls pass. [Evidence](hermite_derivative_order_cpu_20261017.json). Small-order complex ASY remains open.
+- [x] Hermite ASY derivative forms native scale before multiplying dval;17existing mapped, independent and normalization controls pass. [Evidence](hermite_derivative_order_cpu_20261017.json). The earlier small-order complex ASY numerical gap is superseded for all18valid finite orders by [public Hermite integration](hermite_public_parent_cpu_20261018.json); whole-call JIT/AD, nonfinite storage and matched performance remain open.
 
 - [x] Restore all14default original minandmax predicates with exact source operands/bounds, retaining authored tests separately. Fix string gamma native real-pole convention and denominator jump-root discovery. Parent37 checks pass on current FFT source. [Evidence](minmax_original14_cpu_20261017.json).
 - [ ] Remaining host root algorithms and full minandmax/gamma/division APIs/alternate preferences; native breakpoint grammar and JAX filtering are qualified above.
@@ -272,7 +276,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [ ] Actual latest-main CI runtime, scientific assertions and coverage; collection alone does not qualify those.
 
 - [x] Repair spin3 named-preset mock signature for explicit timing flag; eight unchanged parser scenarios pass, now asserting defaultFalse timing as well. [Evidence](spin3_parser_mock_cpu_20261017.json).
-- [ ] Latest-main CI/coverage and separate fixed48 PDE FFT/coefficient fidelity; parser checks do not qualify solver trajectories.
+- [ ] Latest-main CI/coverage and broader PDE FFT/coefficient fidelity remain open; parser checks do not qualify solver trajectories. The separate unchanged authored fixed48 regression is qualified by the [published FFT64 gate](fft64_pde_cpu_20261017.json).
 
 - [x] Public Chebfun tensor-query adapter fixes six CI indexing failures while preserving raw Chebtech dimensional errors; combined30 controls pass. Original subspace distinct-breakpoint and row predicates1–6 now pass with native terminal evidence. [Evidence](ndarray_subspace_cpu_20261017.json).
 - [ ] Remaining subspace edge cases and near-rank quantitative fidelity; broader ND evaluation and latest-main CI/coverage.
@@ -291,7 +295,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Packed Clenshaw: 95 component controls, 59 retained native raw Brent states and four inverse output byte comparisons qualify unchanged arithmetic/outputs. Warm median 6.9312s to 2.2687s (3.055x); native 0.6536s remains faster. [Evidence](inverse_packed_color_cpu_20261017.json).
 - [x] Unchanged whole ComplexArcLength completes in 66.112s; input bytes match retained fixture; generated page uses actual stdout and four refreshed 600x270 figures.
 - [x] Correct trigremez named-Color double advancement; all 24 combined plotting controls pass.
-- [ ] ComplexArcLength representation/stdout precision, inverse 9030 vs native8630 coefficients, visible axes/markers/layout/raster, broader performance and latest-main CI/coverage.
+- [ ] ComplexArcLength representation/stdout precision, visible axes/markers/layout/raster, broader performance and latest-main CI/coverage remain open. The historical inverse9030 versus native8630 count gap is superseded by [matching8630 coefficients](inverse_c2r_parent_cpu_20261017.json); coefficient words and final page qualification remain open.
 
 - [x] Restore strict C1/C2 large-input NDCT dispatch; fix first-import JIT tracer leak; 23 authored forward/AD/shape controls pass, eight same-input native captures agree within 2.45e-15. Real-node polynomial derivatives preserve strict 2e-12 controls. [Evidence](chebtech_ndct_cpu_20261017.json).
 - [x] Pair all 18 original Chebtech feval predicates with exact MATLAB-seeded points; native fixture-word check passes; old linspace tests retained. Forward source bridge carries the passing scope to final candidate. [Evidence](chebtech_feval_seeded_cpu_20261017.json).
@@ -355,7 +359,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Archive/final review/publish Bndfun + cross-kind package9a22b851; combined81pass, fullstatic/cleanremote/bundleverified.
 - [x] Diagnose exact-input inverse rawBrent: all59 raw states match native; source-incorrect global endpoint override identified.
 - [x] Qualify/publish endpoint correction f45269ec:52testnodes plus7rootintegration repeats.
-- [ ] Resolve remaining9030vs8630 transform-coefficient gap; identicalsamples/chop crossreplay now identify first divergence.
+- [x] The historical9030vs8630 inverse coefficient-count gap is superseded by the [published C2R comparison](inverse_c2r_parent_cpu_20261017.json): both return8630coefficients on retained inputs. Native coefficient words, full inverse/page/figure parity and matched performance remain open.
 - [x] Qualify/publish real-valued2D output dtype fix f45269ec:20distinct controls including all3CI failures; root12repeat.
 - [x] PublishPoisson900sfix4b5f8f98:26controls plusall9originalassertions193.16s underunchanged900s; originaltestbyteunchanged,8082archivepayloads verified. LatestCI stillrequired.
 - [x] Publish corrected JAX-only Subsref candidate af5f3828: all32 original predicates covered across component gates/exact bridge; parent archives verified; latest-source12integration13.58s/fullstatic pass. Broader record API gaps remain open.
@@ -382,7 +386,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [ ] ChemicalPDE lateaccuracy/constructor/LU differences.
 - [ ] Broader nonlinear parameter/default setup APIs and original predicates beyond the qualified C1/US/C2 cases; interpolation invalid/API semantics and broader Subsref record behavior.
 - [ ] Composition/division strict shape/length candidates; reassess after source sampling fixes.
-- [ ] Chebfun3T original predicate7; smallHermiteASY/complexAiry strictxfails and broader specialfunctions.
+- [ ] Broader Chebfun3T/native FFT representation and complex Airy/special-function qualification remain open. The earlier constructor7 and small Hermite ASY gaps are superseded within the [Rader724](rader724_parent_cpu_20261018.json) and [public finite small-order Hermite](hermite_public_parent_cpu_20261018.json) scopes; neither establishes whole-API or JAX-transformation closure.
 - [ ] Broader QR/LU/QZ/AD/rational/conformal/ODE/periodic/sphere/TreeVar/API omissions/skips/xfails.
 - [ ] Exact normalRNG constants/generation/production integration and example draw ordering.
 - [ ] Repository-wide JAX-only numerical implementation; remaining host NumPy/SciPy paths.
