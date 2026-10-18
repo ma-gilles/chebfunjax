@@ -1,3 +1,14 @@
+# C2R transform diagnostics remain unqualified — 2026-10-17
+
+Same-input363cubed Chebfun3T diagnostic C2R transform matches fewer native words
+than current; both selected crops exceed100eps on retained normalized query
+coordinates. This is not a fresh literal physical-map constructor gate.
+Inverse C2R gives8630coefficients like native, but raw coefficient agreement
+is not better; current gives9030. Count matching is not a production criterion.
+No library/tolerance/crop change. Actual native724/32768plans and fresh packed
+inverse profile are next; no matched native speed or full parity claim.
+Evidence: docs/transform_c2r_diagnostics_cpu_20261017.json.
+
 # Coupled complex derivative towers use JAX native IVP — 2026-10-17
 
 Supported unit-diagonal coupled higher derivatives and complex endpoint states

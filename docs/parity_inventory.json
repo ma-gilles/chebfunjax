@@ -376,6 +376,11 @@
       "scope": "Parent-reviewed actual ThreePlanets warning visibility, with preserved resource-receipt race label; no warning/native/trajectory/raster/JAXprovider parity claim",
       "sha256": "e71beb67b0489dd3a48873a8b8573f3ecdc58125bdc24deae9d89088fc8c1ed5"
     },
+    "transform_c2r_diagnostics_cpu_20261017": {
+      "path": "docs/transform_c2r_diagnostics_cpu_20261017.json",
+      "scope": "Two source-bound real-even C2R diagnostics, neither accepted as production parity fix",
+      "sha256": "d1221cfbc9fca96f3438e06ebadc298b8a0b7a9933b316306d72bfc3c353e5fa"
+    },
     "transient_growth_constructor_cpu_20261017": {
       "path": "docs/transient_growth_constructor_cpu_20261017.json",
       "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
@@ -52068,6 +52073,10 @@
         {
           "artifact": "inverse_packed_color_cpu_20261017",
           "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        },
+        {
+          "artifact": "transform_c2r_diagnostics_cpu_20261017",
+          "scope": "C2R diagnostic excludes naive backend replacement; full-item statuses unchanged"
         }
       ],
       "functions": [
@@ -63050,7 +63059,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "transform_c2r_diagnostics_cpu_20261017",
+          "scope": "C2R diagnostic excludes naive backend replacement; full-item statuses unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

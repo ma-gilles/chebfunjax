@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Compare real-even C2R transforms on retained3inverse stages and same native363cubed tensor. Neither qualifies a production fix; reject coefficient-count matching as acceptance. [Evidence](transform_c2r_diagnostics_cpu_20261017.json).
+- [ ] Native actual724/32768plans, dense3Tstrictxfail and inverse representation/performance remain open.
+
+
 - [x] Coupled complex derivative towers use existing JAX native IVP engine:final44controls,56earlier bridged controls and full221.80s ThreePlanets with0SciPy integration calls. Parent21CIprotocol checks pass;1080priorowners retained plus1selector. [Evidence](coupled_ivp_parent_cpu_20261017.json).
 - [ ] Native chaotic trajectory, full higherorder/complex grammar, cached warning, page/figure parity and matched performance remain open.
 

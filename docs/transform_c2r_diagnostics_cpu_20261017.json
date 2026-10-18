@@ -1,0 +1,169 @@
+{
+  "scope": "Two source-bound real-even C2R diagnostics, neither accepted as production parity fix",
+  "source_commit": "802a95a7908a5bf7e03626dc78f4fbdda573f204",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "chebfun3t": {
+    "same_native_input_shape": [
+      363,
+      363,
+      363
+    ],
+    "polynomial_controls": [
+      {
+        "n": 9,
+        "error": 4.163336342344337e-17
+      },
+      {
+        "n": 17,
+        "error": 5.204170427930421e-17
+      },
+      {
+        "n": 33,
+        "error": 3.890959593091446e-17
+      }
+    ],
+    "current": {
+      "transform_seconds": 7.36041530687362,
+      "coefficient_max_error": 8.689942367476273e-17,
+      "equal_coefficient_words": 41803644,
+      "coefficient_count": 47832147,
+      "cuts": [
+        249,
+        259,
+        263
+      ],
+      "original_grid_cropped_error": 2.8199664825478976e-14,
+      "unchanged_bound": 2.220446049250313e-14,
+      "passes": false
+    },
+    "candidate": {
+      "transform_seconds": 4.167678183875978,
+      "coefficient_max_error": 1.1102230246251565e-16,
+      "equal_coefficient_words": 30875520,
+      "coefficient_count": 47832147,
+      "cuts": [
+        249,
+        257,
+        263
+      ],
+      "original_grid_cropped_error": 2.7644553313166398e-14,
+      "unchanged_bound": 2.220446049250313e-14,
+      "passes": false
+    },
+    "receipt": {
+      "wall_seconds": 35.91516520315781,
+      "sampled_peak_summed_rss_kib": 7089328,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "finding": "C2R has fewer exact native coefficient words and both crops fail100eps; no production change justified",
+    "query_scope_correction": "Raw driver field original_grid_cropped_error uses retained100cubed normalized x/2 comparator. It does NOT use source physical affine-map arithmetic or rerun the literal original constructor assertion. Raw output preserved; transform/cut/word comparisons are the qualified scope. Previously published literal current-source failure remains authoritative.",
+    "normalization": "Candidate unnormalized irfft(norm=forward) then division by724, avoiding a reciprocal-normalization change"
+  },
+  "inverse": {
+    "retained_stage_samples": [
+      4097,
+      8193,
+      16385
+    ],
+    "findings": [
+      "Existing exact-stage evidence rules out sample values, final tolerance and chop policy as cause of400coefficient difference.",
+      "Current transform reproduces all previousPython stagecoefficients exactly.",
+      "DiagnosticC2R gives finalchop8630 matchingnative but rawcoefficientword mismatch is not improved; lengthmatch alone is not parity.",
+      "Submillisecond transformobservations cannot explain wholeinverse2.2687s vsnative0.6536s; old7.061s profile is prepacked and not current attribution."
+    ],
+    "stages": [
+      {
+        "stage": 1,
+        "n": 4097,
+        "fft_length": 8192,
+        "native_recorded_effective_tol_hex": "3cb0000000000001",
+        "native_coefficients_chop_current": 4097,
+        "current": {
+          "native_bit_mismatches": 4091,
+          "native_max_abs": 5.551115123125783e-17,
+          "previous_python_bit_mismatches": 0,
+          "chop": 4097,
+          "warm_median_seconds": 9.267404675483704e-05
+        },
+        "diagnostic_c2r": {
+          "native_bit_mismatches": 4092,
+          "native_max_abs": 5.551115123125783e-17,
+          "previous_python_bit_mismatches": 3619,
+          "chop": 4097,
+          "warm_median_seconds": 0.00017401715740561485
+        }
+      },
+      {
+        "stage": 2,
+        "n": 8193,
+        "fft_length": 16384,
+        "native_recorded_effective_tol_hex": "3cb0000000000000",
+        "native_coefficients_chop_current": 8193,
+        "current": {
+          "native_bit_mismatches": 8189,
+          "native_max_abs": 3.224211207195532e-17,
+          "previous_python_bit_mismatches": 0,
+          "chop": 8193,
+          "warm_median_seconds": 0.0003259526565670967
+        },
+        "diagnostic_c2r": {
+          "native_bit_mismatches": 8186,
+          "native_max_abs": 5.551115123125783e-17,
+          "previous_python_bit_mismatches": 8188,
+          "chop": 8193,
+          "warm_median_seconds": 0.00018022768199443817
+        }
+      },
+      {
+        "stage": 3,
+        "n": 16385,
+        "fft_length": 32768,
+        "native_recorded_effective_tol_hex": "3cb0000000000000",
+        "native_coefficients_chop_current": 8630,
+        "current": {
+          "native_bit_mismatches": 16378,
+          "native_max_abs": 5.551115123125783e-17,
+          "previous_python_bit_mismatches": 0,
+          "chop": 9030,
+          "warm_median_seconds": 0.0007432769052684307
+        },
+        "diagnostic_c2r": {
+          "native_bit_mismatches": 16379,
+          "native_max_abs": 6.700788708272329e-17,
+          "previous_python_bit_mismatches": 16382,
+          "chop": 8630,
+          "warm_median_seconds": 0.0004935069009661674
+        }
+      }
+    ],
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.240573517978191,
+      "sampled_peak_summed_rss_kib": 609596,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "source_snapshot_bridge": "Current stage coefficients equal previous Python words; sample vectors and source chop-on-native controls already qualified by retained bridge",
+    "child_archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_representation_review_package_20261017.tar.gz",
+      "sha256": "6e6d2fc74faa18d7250da42e322eb1c36fa1bd2ba67ab3f41a82b4a2337410a1",
+      "independently_verified_payloads": 40
+    }
+  },
+  "decision": "No library/productiondispatch/standardChop/tolerance/crop edits. Native actual724/32768plans remain unqualified; investigate source plan and fresh packed inverse profile.",
+  "limits": [
+    "Neither native coefficient-count match nor submillisecond transform timing establishes full inverse parity/speed",
+    "No fresh native call, literal original3Tassertion rerun, full inverse or example execution in these diagnostics",
+    "Known3Tstrictxfail, inverse9030vs8630representation, scientific figures and matched performance remain open",
+    "No full-item inventory statuses promoted; latest-main scientificCI/coverage remains required"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/transform_c2r_parent_cpu_20261017.tar.gz",
+    "sha256": "471e8de488ce149451cfd1762e8fcc261a2983471b01aab2ee77cd5286f6ff44",
+    "verified_payloads": 18
+  }
+}

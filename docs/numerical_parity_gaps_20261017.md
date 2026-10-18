@@ -56,3 +56,12 @@ reference pixel comparisons differ. Five printed output blocks use actual
 captured stdout. The two changed PNGs and current numerical outputs are
 published. This does not close full native ODE, second-fit residue, renderer
 or matched native performance parity.
+
+## Real-even C2R diagnostics — still open
+
+[Source-bound comparison](transform_c2r_diagnostics_cpu_20261017.json) rejects
+a production patch from these observations. Dense363cubed C2R matches fewer
+native coefficient words; both crops fail100eps on the normalized diagnostic
+grid. This does not replace the literal original constructor failure receipt.
+Inverse C2R matches native8630coefficient count while raw coefficient agreement
+is not improved. Native724/32768plans and fresh packed profiling are next.
