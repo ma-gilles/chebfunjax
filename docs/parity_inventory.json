@@ -607,6 +607,22 @@
       "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification.",
       "sha256": "2bbb7f5cbf5971135525ea41baa4b4e385a08a97781e6fd7531b63ba1d82d230"
     },
+    "minimax_panel_compilation_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_panel_parent_20261018.tar.gz",
+        "sha256": "8c60b6c91b6cfac0e2182b2b0c7eaf4ff831069f057ade63f0562e8ab4ffb518",
+        "verified_payloads": 185
+      },
+      "limits": [
+        "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+        "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+        "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+        "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+      ],
+      "report": "docs/minimax_panel_compilation_cpu_20261018.json",
+      "report_sha256": "0b5c3e17770a37d33b34a910acd26b9f14ea82c0e8e7cef200ae7b0c5f4f4f5a",
+      "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
+    },
     "minimax_zero_parent_cpu_20261018": {
       "path": "docs/minimax_zero_parent_cpu_20261018.json",
       "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure.",
@@ -7910,6 +7926,10 @@
             "url": "https://www.chebfun.org/examples/approx/Checkmark.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "artifact": "minimax_panel_compilation_cpu_20261018",
+          "scope": "Degree3 only:517actual callback input/output words and19snapshot arrays preserved; descriptive Python383.88\u2192296.44s. Not full seven-curve/page/stdout/figure or matched MATLAB performance qualification."
         }
       ],
       "figure_content_status": "unverified",
@@ -98049,6 +98069,16 @@
         {
           "artifact": "dot_bary_scalar_provider_diagnosis_20261018",
           "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair."
+        },
+        {
+          "artifact": "minimax_panel_compilation_cpu_20261018",
+          "limits": [
+            "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+            "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+            "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+            "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+          ],
+          "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
         }
       ],
       "functions": [
@@ -98076,6 +98106,16 @@
                 "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
               ],
               "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
+            },
+            {
+              "artifact": "minimax_panel_compilation_cpu_20261018",
+              "limits": [
+                "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+                "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+                "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+                "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+              ],
+              "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
             }
           ],
           "implementation_status": "unverified",
@@ -98229,7 +98269,18 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minimax_panel_compilation_cpu_20261018",
+              "limits": [
+                "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+                "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+                "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+                "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+              ],
+              "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "1898",
@@ -125513,6 +125564,16 @@
             "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
           ],
           "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
+        },
+        {
+          "artifact": "minimax_panel_compilation_cpu_20261018",
+          "limits": [
+            "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+            "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+            "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+            "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+          ],
+          "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
         }
       ],
       "functions": [
@@ -125540,6 +125601,16 @@
                 "All322final-sourcepages/1305figures, known numerical gaps, matched CPU speed and latest-main scientificCI/coverage>=79% remain open."
               ],
               "scope": "Source zero-scale polynomial minimax IEEE stopping/status division, actual native degree1 zero target and callable adapter. Not full minimax/zero/API/JAX/performance closure."
+            },
+            {
+              "artifact": "minimax_panel_compilation_cpu_20261018",
+              "limits": [
+                "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+                "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+                "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+                "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+              ],
+              "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems."
             }
           ],
           "implementation_status": "unverified",

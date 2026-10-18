@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover the native JAX default numeric disk route, complete PhaseTwo matrices/shared simplification, and Chebfun2 coefficient/paired fixed preferences. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover shared JAX minimax panel kernels, restored original edge predicates, the native JAX default numeric disk route and Chebfun2 preference fixes. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -16,7 +16,7 @@ open work.
 | Workstream | Verified so far | Still required |
 |---|---|---|
 | Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
-| Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
+| Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages; historical interrupted-script dispositions are recorded separately |
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
 | Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite whole-call JIT/AD and speed, complex poles, dense Chebfun3T representation/provider words, external cosine provider rounding, C1 CI reproducibility and broader original-test/API gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
@@ -25,9 +25,9 @@ open work.
 ### Current queue — 2026-10-18
 
 - **Latest verified integration:** edge failure handling44PASS, all7default originalpredicates restored at exactnativeinputs/unchangedbounds. Actual Checkmarkdegree3 representation45/12/12/45 recovered; exactknot/provider words and full7curvepage remain open. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
-- **Root next:** measure actual minimax/norm callback compilation cost before the full source Checkmark replay; the corrected degree3curve still takes~384s. This is not matched CPU timing qualification.
-- **Unary worker:** compiletime initialization and identical global JIT tail migration pass27controls/coldimports. Full2168existing selection underway, then110new controls. Inf-real TANH native-context zero-sign contradiction remains open; not published yet.
-- **Disk worker:** paired adaptive/equispaced preferences and source grid→Halton→finalize staging now supported in candidate; tuple axisbudget and all20EQUI publicvalue controls pass. Remaining factor cutoff/basis discrepancies under attribution before acceptance.
+- **Root:** shared minimax panel kernels pass44actual parent/66isolated checks. Full degree3curve preserves all517callback words and19snapshot arrays; recorded runtime383.88→296.44s. Next: audit the full seven-curve Checkmark source computation and finish its page/figure qualification. [Evidence](minimax_panel_compilation_cpu_20261018.json). Matched MATLAB speed remains open.
+- **Unary worker:** compiletime initialization/global JIT tail migration pass27controls. Exact disjoint continuation of2168existing cases:1806completed PASS+1strictXF,361remaining at the latest live observation; bounded8GiB remainder running, then110new controls. Prior RSS censors retained; Inf-real TANH native-context zero-sign contradiction remains open. Not published yet.
+- **Disk worker:** paired adaptive/equispaced source staging candidate final162PASS/7strictXF; prior protected231PASS/1strictXF and three original tests pass (including full1001×1001constructor2). Sealed candidate awaits actual parent integration. Seven factor/cutoff/location contracts and callback orientation remain open.
 - **Other numerical/API gaps:** full original assertion audit; complex poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
 - **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Prior descriptive inverse/disk timings are not complete qualification.
 - **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish finalpage parity.
@@ -43,6 +43,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Shared JAX minimax panel/colleague kernels:44actual parent PASS/66isolated PASS; all ten original polynomial clauses retain their assertions and bounds. Actual degree3curve preserves517callback words and19snapshot arrays, recorded383.88→296.44s. [Evidence](minimax_panel_compilation_cpu_20261018.json).
+- [ ] Full seven-curve Checkmark source/page/stdout/figures, native knots/provider words, whole minimax JAX/JIT/AD and matched MATLAB performance remain open.
 
 - [x] Resolved narrow edge brackets and full7default originaldetectEdge predicates:44parentPASS, no widened bounds. Fresh publicdegree3 Checkmark nativepiece lengths/coefficient bounds recovered. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
 - [ ] Exact knot/provider words, full7curveCheckmarkpage/figures, matchedspeed and fullgoal remain open.

@@ -1,3 +1,26 @@
+# Minimax panel compilation on CPU — 2026-10-18
+
+Shared JAX kernels now transform each fixed-size extrema panel and solve its
+Chebyshev-U colleague without compiling every primitive separately. Native
+sampling lengths, thresholds, resampling order and eigenproblem sizes remain.
+Actual publication-checkout gate: **44 PASS**, including all ten original
+polynomial minimax clauses at unchanged bounds; isolated regression: **66 PASS**.
+All 1,579/1,585 observed imports respectively were guarded; stable inputs,
+no censored run or surviving process in either passing gate.
+
+Actual degree-three Checkmark replay preserves all **517 callback input/output
+words**, all 19 snapshot arrays, domains and piece lengths exactly. Recorded
+Python runtime falls from 383.88 to 296.44 seconds; the representative new-kink
+callback compiles 106 kernels instead of 234. These are descriptive Python
+measurements, not matched MATLAB performance qualification. Whole minimax
+JIT/AD and inherited host numerics, exact native knots/provider words, the
+complete seven-curve page/stdout/figures and final CI remain open.
+
+The initial authored quartic no-refinement assumption and rejected parent
+launcher origin are preserved with their raw failures. Final controls retain
+the analytic roots and 4e-15 bound; original assertions and bounds are unchanged.
+Evidence: docs/minimax_panel_compilation_cpu_20261018.json. Goal incomplete.
+
 # Resolved edge brackets and original detectEdge tests — 2026-10-18
 
 Actual parent **44 PASS**, including all7original default predicates at exact

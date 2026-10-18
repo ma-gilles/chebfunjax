@@ -1,0 +1,365 @@
+{
+  "scope": "Share fixed-shape JAX rootsdiff panel transform and Chebyshev-U colleague kernels while retaining native sampling, thresholds and degree-specific eigenproblems.",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_base": "e8360120492aefb6494f9367b8d95131bf6a5149",
+  "sources": {
+    "before/src/chebfunjax/utils/_minimax_rootsdiff_source.py": "e809fe1e777ca7e8d2a0eb5fbc5016694a98e7d3abe84a1c00cec768560d8849",
+    "after/src/chebfunjax/utils/_minimax_rootsdiff_source.py": "1e58f5999d8ca946df5865e1dcfc9130a5ef373e848e77cac7f4686f554b152f",
+    "before/tests/test_minimax_rootsdiff_native_source.py": "a65d76645f800bf94fc05af35a43cb20c2effe2594286f49a7c271bb7ee7d67c",
+    "after/tests/test_minimax_rootsdiff_native_source.py": "e777bfdc52d6528acb93e95ce1a0ad9964ec1ba94fe17603b543b0ac8f39886e"
+  },
+  "actual_parent": {
+    "passed": 44,
+    "runtime_imports": 1579,
+    "xml_sha256": "28e92b3002591c0324746c1892bfbd8cf6e5a09caff54babf7237d9b08dc39c9"
+  },
+  "child_regression": {
+    "passed": 66,
+    "runtime_imports": 1585,
+    "xml_sha256": "f7b3154dc490cec242e2aca2d5262405bb8095b7d491880d3165c01669b3cf03"
+  },
+  "original_polynomial_clauses": [
+    1,
+    2,
+    5,
+    6,
+    10,
+    12,
+    14,
+    15,
+    16,
+    20
+  ],
+  "original_assertion_bodies_and_bounds": "unchanged",
+  "actual_panel_comparison": {
+    "panels": 122,
+    "stages": 126,
+    "all_derivative_ratio_length_root_and_request_words_exact": true
+  },
+  "callback_comparison": {
+    "all_output_arrays_word_exact": true,
+    "all_panel_inputs_requests_roots_word_exact": true,
+    "callback_words_exact": true,
+    "panels": 122,
+    "arrays": 252
+  },
+  "degree3_curve_comparison": {
+    "snapshot_arrays_word_exact": true,
+    "domains_piece_lengths_flags_exact": true,
+    "all_callback_input_output_words_exact": true,
+    "callbacks": 517,
+    "snapshot_arrays": 19
+  },
+  "degree3_curve_seconds": 296.43669252377003,
+  "previous_degree3_curve_seconds": 383.88242737716064,
+  "profile_baseline": {
+    "scope": "Actual source degree3 minimax/norm callback repeated same/distinctalphas; compilation profile only, no matchedperformanceclaim",
+    "records": [
+      {
+        "index": 0,
+        "alpha": 0.25,
+        "sup_norm": 0.10886205954645076,
+        "exchange_error": 0.10886205954645067,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 9.35347779886797,
+        "stage_seconds": {
+          "target": 1.5952594918198884,
+          "minimax": 5.160507417283952,
+          "from_coeffs": 0.008704753126949072,
+          "norm": 2.588941445108503
+        },
+        "compiles": 329,
+        "compiler_seconds": 6.388640010263771
+      },
+      {
+        "index": 1,
+        "alpha": 0.25,
+        "sup_norm": 0.10886205954645076,
+        "exchange_error": 0.10886205954645067,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 0.3319404893554747,
+        "stage_seconds": {
+          "target": 0.013612259179353714,
+          "minimax": 0.2806757399812341,
+          "from_coeffs": 0.0002157348208129406,
+          "norm": 0.03740391181781888
+        },
+        "compiles": 0,
+        "compiler_seconds": 0
+      },
+      {
+        "index": 2,
+        "alpha": 0.4,
+        "sup_norm": 0.08816921141619449,
+        "exchange_error": 0.08816921141619405,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 2.1929298639297485,
+        "stage_seconds": {
+          "target": 0.011097530834376812,
+          "minimax": 1.893280116841197,
+          "from_coeffs": 0.00032585207372903824,
+          "norm": 0.2881864788942039
+        },
+        "compiles": 67,
+        "compiler_seconds": 1.3728780187666416
+      },
+      {
+        "index": 3,
+        "alpha": 0.4,
+        "sup_norm": 0.08816921141619449,
+        "exchange_error": 0.08816921141619405,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 0.37413493590429425,
+        "stage_seconds": {
+          "target": 0.01170425210148096,
+          "minimax": 0.3254034803248942,
+          "from_coeffs": 0.00020733987912535667,
+          "norm": 0.036789588164538145
+        },
+        "compiles": 0,
+        "compiler_seconds": 0
+      },
+      {
+        "index": 4,
+        "alpha": 0.48047545042314066,
+        "sup_norm": 0.07634344974590859,
+        "exchange_error": 0.07634344974590856,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 7.589452527929097,
+        "stage_seconds": {
+          "target": 0.010878909844905138,
+          "minimax": 7.537782748695463,
+          "from_coeffs": 0.00025602104142308235,
+          "norm": 0.0404989211820066
+        },
+        "compiles": 234,
+        "compiler_seconds": 5.362062071915716
+      }
+    ],
+    "total_seconds": 21.636583933141083
+  },
+  "profile_candidate": {
+    "scope": "Actual source degree3 minimax/norm callback repeated same/distinctalphas; compilation profile only, no matchedperformanceclaim",
+    "records": [
+      {
+        "index": 0,
+        "alpha": 0.25,
+        "sup_norm": 0.10886205954645076,
+        "exchange_error": 0.10886205954645067,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 8.455376539379358,
+        "stage_seconds": {
+          "target": 1.6537319789640605,
+          "minimax": 3.940843739081174,
+          "from_coeffs": 0.008471054024994373,
+          "norm": 2.852244487963617
+        },
+        "compiles": 261,
+        "compiler_seconds": 5.716387132182717
+      },
+      {
+        "index": 1,
+        "alpha": 0.25,
+        "sup_norm": 0.10886205954645076,
+        "exchange_error": 0.10886205954645067,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 0.2587631680071354,
+        "stage_seconds": {
+          "target": 0.014023450668901205,
+          "minimax": 0.20726915867999196,
+          "from_coeffs": 0.00020904280245304108,
+          "norm": 0.03722991514950991
+        },
+        "compiles": 0,
+        "compiler_seconds": 0
+      },
+      {
+        "index": 2,
+        "alpha": 0.4,
+        "sup_norm": 0.08816921141619449,
+        "exchange_error": 0.08816921141619405,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 1.2821075920946896,
+        "stage_seconds": {
+          "target": 0.010899960063397884,
+          "minimax": 0.9842021130025387,
+          "from_coeffs": 0.0003104540519416332,
+          "norm": 0.2866584858857095
+        },
+        "compiles": 35,
+        "compiler_seconds": 0.7440277682617307
+      },
+      {
+        "index": 3,
+        "alpha": 0.4,
+        "sup_norm": 0.08816921141619449,
+        "exchange_error": 0.08816921141619405,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 0.27967319497838616,
+        "stage_seconds": {
+          "target": 0.011618149932473898,
+          "minimax": 0.23063281923532486,
+          "from_coeffs": 0.0002040630206465721,
+          "norm": 0.037187094800174236
+        },
+        "compiles": 0,
+        "compiler_seconds": 0
+      },
+      {
+        "index": 4,
+        "alpha": 0.48047545042314066,
+        "sup_norm": 0.07634344974590859,
+        "exchange_error": 0.07634344974590856,
+        "target_lengths": [
+          2,
+          2
+        ],
+        "seconds": 4.403198452200741,
+        "stage_seconds": {
+          "target": 0.01086181914433837,
+          "minimax": 4.351765226572752,
+          "from_coeffs": 0.0002939119003713131,
+          "norm": 0.04024131689220667
+        },
+        "compiles": 106,
+        "compiler_seconds": 2.9589416994713247
+      }
+    ],
+    "total_seconds": 16.574778106994927
+  },
+  "profile_limits": "Same five inputs and CPU affinity, pinned runtime and persistent cache disabled; sequential Python profiles with other worker activity, not matched native performance qualification.",
+  "receipts": {
+    "minimax_panel_baseline_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 28.823762538377196,
+      "sampled_peak_summed_rss_kib": 1631236,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_compare_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 17.68264377489686,
+      "sampled_peak_summed_rss_kib": 1086636,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_candidate_profile_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 24.348969931248575,
+      "sampled_peak_summed_rss_kib": 1366620,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_compare_two_kernels_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.481098174117506,
+      "sampled_peak_summed_rss_kib": 996832,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_two_kernels_profile_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 23.23928923206404,
+      "sampled_peak_summed_rss_kib": 1293372,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_gate_final_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 92.85515710897744,
+      "sampled_peak_summed_rss_kib": 3696232,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_curve_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 303.84798920713365,
+      "sampled_peak_summed_rss_kib": 2516344,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_parent_retry_run001_20261018": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 62.72111210366711,
+      "sampled_peak_summed_rss_kib": 2775532,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_gate_run001_20261018": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 93.402727605775,
+      "sampled_peak_summed_rss_kib": 3741240,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "minimax_panel_parent_run001_20261018": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 6.646071363706142,
+      "sampled_peak_summed_rss_kib": 432196,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "limitations": [
+    "This is a scoped CPU compilation optimization, not full minimax, whole-call JIT/AD, native provider words or matched MATLAB performance qualification. Inherited public minimax host NumPy state remains open.",
+    "Native callback low words and exact fitted knots remain unresolved; this package preserves the previous corrected Python curve.",
+    "Full seven-curve Checkmark example, prose, printed output, figures and all other final pages remain open.",
+    "Strict expected failures elsewhere, full original library/test coverage, matched CPU slow paths and latest-main scientific CI/coverage >=79% remain required."
+  ],
+  "raw_failures_retained": [
+    "Initial authored quartic controls incorrectly assumed no refinement despite near-zero Chebyshev DC coefficient: 8FAIL58PASS, all10originalpolynomial predicates pass. Added constant2 retains same analytic roots and unchanged4e-15 bound; final66PASS.",
+    "Initial parent launcher pointed PYTHONPATH at isolated candidate; origin assertion rejected it before pytest. Fresh parent retry uses actual publication checkout and passes44."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_panel_parent_20261018.tar.gz",
+    "sha256": "8c60b6c91b6cfac0e2182b2b0c7eaf4ff831069f057ade63f0562e8ab4ffb518",
+    "verified_payloads": 185
+  }
+}
