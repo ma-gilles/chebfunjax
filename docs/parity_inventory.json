@@ -844,6 +844,24 @@
       "scope": "Reconcile five already published scoped reports into precise original-test/function rows and stale power33warning note; no new scientific execution/full-item status promotion.",
       "sha256": "19be96fab0c3822175e6618036f6f12d111ff57a47ddeefdf06cb001e2291afa"
     },
+    "sin_disk_jax_parent_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3593,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_jax_parent_cpu_20261018.tar.gz",
+        "sha256": "bd5913aa23d7e6f8026954990d548d7edc1b5f4d6d17344d2938f3ce00cbfed0"
+      },
+      "limits": [
+        "Full library/function/original assertion coverage remains open.",
+        "26 unary expected failures, 13 original unary metadata records, 192 outside-mask imaginary word gaps and other components remain open; overflow diagnosis is separate.",
+        "Three disk strict word expected failures remain; generic reduction/FFT/projection providers, getTol host arithmetic, whole-constructor JIT/AD and defaultFalse host work remain unqualified.",
+        "All 322 final-source page computations/stdout and 1,305 scientific/raster figures remain required.",
+        "Matched native CPU performance and latest-main CI with coverage >=79% remain required.",
+        "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
+      ],
+      "report": "docs/sin_disk_jax_parent_cpu_20261018.json",
+      "report_sha256": "7e9083be5aaf7569483ec3b6584227ca763eebcd9e32d3b75213867631a99d20",
+      "scope": "Combined actual parent CPU qualification: SIN output-underflow product and JAX numeric Diskfun PhaseOne with corrected source pole location; no whole API/page/figure/performance closure."
+    },
     "sin_disk_parent_cpu_20261018": {
       "archive": {
         "manifest_payloads_stream_verified": 3541,
@@ -75619,6 +75637,18 @@
             "Latest-main CI and79%coverage acceptance"
           ],
           "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
+        },
+        {
+          "artifact": "sin_disk_jax_parent_cpu_20261018",
+          "limits": [
+            "Full library/function/original assertion coverage remains open.",
+            "26 unary expected failures, 13 original unary metadata records, 192 outside-mask imaginary word gaps and other components remain open; overflow diagnosis is separate.",
+            "Three disk strict word expected failures remain; generic reduction/FFT/projection providers, getTol host arithmetic, whole-constructor JIT/AD and defaultFalse host work remain unqualified.",
+            "All 322 final-source page computations/stdout and 1,305 scientific/raster figures remain required.",
+            "Matched native CPU performance and latest-main CI with coverage >=79% remain required.",
+            "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
+          ],
+          "scope": "Native numeric PhaseOne arithmetic and source pole location; bounded controls/final k7 only. Whole-file status unchanged."
         }
       ],
       "functions": [
@@ -121427,7 +121457,20 @@
         "tests/test_matlab_port/trigtech/test_constructor_matlab.py",
         "tests/test_matlab_port/unbndfun/test_constructor_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sin_disk_jax_parent_cpu_20261018",
+          "limits": [
+            "Full library/function/original assertion coverage remains open.",
+            "26 unary expected failures, 13 original unary metadata records, 192 outside-mask imaginary word gaps and other components remain open; overflow diagnosis is separate.",
+            "Three disk strict word expected failures remain; generic reduction/FFT/projection providers, getTol host arithmetic, whole-constructor JIT/AD and defaultFalse host work remain unqualified.",
+            "All 322 final-source page computations/stdout and 1,305 scientific/raster figures remain required.",
+            "Matched native CPU performance and latest-main CI with coverage >=79% remain required.",
+            "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
+          ],
+          "scope": "Native numeric PhaseOne arithmetic and source pole location; bounded controls/final k7 only. Whole-file status unchanged."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

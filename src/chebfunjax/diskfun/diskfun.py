@@ -2106,9 +2106,18 @@ class Diskfun(eqx.Module):
         if tol is None:
             tol = _get_tol(F, 2 * np.pi / m, np.pi / max(n - 1, 1), _EPS,
                            source_numeric=preserve_lengths)[0]
-        (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
-         idx_minus) = _phase_one_matrix_disk(
-             F, tol, alpha, source_numeric=preserve_lengths)
+        if preserve_lengths:
+            from ._numeric_phase_one import phase_one_numeric
+            phase = phase_one_numeric(F, tol, alpha)
+            # Numeric source construction converts all PhaseOne indices,
+            # including the selected pole column. The compatibility adapter
+            # below omits that row for older callers supplying a pole origin.
+            piv_idx, piv_arr = phase.indices, phase.pivot_array
+            remove_pole, cols, pivots = phase.remove_pole, phase.cols, phase.pivots
+            rows, idx_plus, idx_minus = phase.rows, phase.plus, phase.minus
+        else:
+            (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
+             idx_minus) = _phase_one_matrix_disk(F, tol, alpha)
         if cols.shape[1] == 0:
             if preserve_lengths:
                 # Native projection indexes the exhausted empty factors.
@@ -2130,10 +2139,15 @@ class Diskfun(eqx.Module):
                      for j in range(cols.shape[1])]
         row_techs = [Trigtech.from_values(jnp.asarray(rows[:, j]))
                      for j in range(rows.shape[1])]
-        if np.all(pivots == 0):
-            pivots = np.full_like(pivots, np.inf)
+        if preserve_lengths:
+            from chebfunjax.operators._qz_ieee import nonzero as source_nonzero
+            all_zero_pivots = not bool(jnp.any(source_nonzero(pivots)))
+        else:
+            all_zero_pivots = np.all(pivots == 0)
+        if all_zero_pivots:
+            pivots = jnp.full_like(pivots, jnp.inf) if preserve_lengths else np.full_like(pivots, np.inf)
         locs = []
-        if remove_pole:
+        if remove_pole and not preserve_lengths:
             locs.append((-float(jnp.pi), 0.0))
         if len(piv_idx):
             if preserve_lengths:
@@ -2151,8 +2165,8 @@ class Diskfun(eqx.Module):
             for index, (j, k) in enumerate(piv_idx):
                 location = (float(th[k]), float(rr[j]))
                 locs.append(location)
-                if (preserve_lengths and piv_arr[index, 0] != 0
-                        and piv_arr[index, 1] != 0):
+                if (preserve_lengths and bool(source_nonzero(piv_arr[index, 0]))
+                        and bool(source_nonzero(piv_arr[index, 1]))):
                     # Native adjustPivotLocations repeats a coupled rank2
                     # location once for each retained plus/minus factor.
                     locs.append(location)
@@ -3903,6 +3917,15 @@ def _phase_one_matrix_disk(F, tol, alpha, *, source_numeric=False):
     columns).  Returns (pivot_indices [(r_row, theta_col) 0-based into
     the r > 0 rows / half grid], pivot_array, remove_pole, cols (2m-1 x
     rank), pivots, rows (n x rank), idx_plus, idx_minus)."""
+    if source_numeric:
+        from ._numeric_phase_one import phase_one_numeric
+        result = phase_one_numeric(F, tol, alpha)
+        # The established caller supplies the pole location separately.
+        # Native PhaseOne itself includes its pole metadata row.
+        first = int(result.remove_pole and F.shape[0] > 1)
+        return (result.indices[first:], result.pivot_array[first:],
+                result.remove_pole, result.cols, result.pivots, result.rows,
+                result.plus, result.minus)
     m, n = F.shape
     half = n // 2
     if m == 1:

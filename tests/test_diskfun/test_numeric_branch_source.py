@@ -117,11 +117,7 @@ def test_nan_tolerance_reduction_keeps_native_valid_nonempty_route():
     assert np.isnan(old) and np.isfinite(source) and source > 0
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Inherited scalar division GE differs from literal reciprocal overflow; no gradual GE migration in branch repair",
-)
-def test_remaining_native_subnormal_reciprocal_rank_gap():
+def test_native_subnormal_reciprocal_rank():
     case = CASES["subnormal2x4"]
     g = Diskfun.from_values(jnp.asarray(_array(case["input"])), preserve_lengths=True)
     _words(np.asarray(g.pivots).reshape(-1, 1), _array(case["public"]["pivots"]))

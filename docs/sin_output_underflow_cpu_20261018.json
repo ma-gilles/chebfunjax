@@ -1,0 +1,383 @@
+{
+  "scope": "Binary64 complex SIN near-underflow imaginary component; bounded native word evidence and preservation. No whole IEEE, API, page or performance closure.",
+  "base": "3166f7b04c2448ee2d480596e7598e5603e67c17",
+  "published_parent_reported": "8c9c0853",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "cpu": [
+    36,
+    37,
+    38,
+    39
+  ],
+  "production": {
+    "identity": "Im(sin(x+iy)) = cos(x)*sinh(y), using separately rounded operands and gradual multiplication.",
+    "mask": "complex128 SIN only; nonzero finite imaginary input, finite real input and sinh operand, finite normal cosine operand, gradual product magnitude <= minimum normal. Integer component classifications protected from XLA simplification with optimization barriers.",
+    "cosine": "Existing source-bounded fdlibm kernel only for |x|<=pi; jnp.cos fallback elsewhere. No case table or coefficient fit.",
+    "sinh": "Nonzero-subnormal input sinh(y) rounds to y by Taylor remainder; otherwise existing jnp.sinh.",
+    "preservation": "Complete prior axis-corrected result is barrier-protected. Real words and imaginary words outside mask retain published prior eager/JIT outputs. Existing exact analytic JVP AST unchanged; ordinary real-coordinate first/second and transverse derivative controls retained. Subnormal derivative accuracy unqualified."
+  },
+  "native_evidence": {
+    "points": 2664,
+    "selected": 904,
+    "selected_by_case": [
+      420,
+      484
+    ],
+    "selected_native_word_differences_per_mode": 0,
+    "all_real_and_outside_imaginary_preservation_differences_per_mode": 0,
+    "normal_native_output_products": {
+      "points": 1552,
+      "rounded_native_cos_times_rounded_native_sinh_word_differences": 0
+    },
+    "bounded_cosine": {
+      "unique_real_inputs_in_contract": 24,
+      "native_operand_word_differences": 0,
+      "outside_contract_inputs": 12,
+      "outside_provider_claim": "Only captured controls; no universal provider parity."
+    },
+    "native_staging_counterexample": "At \u00b1nextafter(pi/2,+Inf), JAX cos is one ulp from native separate cos. Exact-input high-precision SIN can round to zero/maxsubnormal while native separately rounded operands produce minsubnormal/minnormal. Preserve native staging target; do not substitute correctly rounded mathematical SIN as oracle.",
+    "minnormal_results": {
+      "total": 112,
+      "exact_native_operand_product_below": 48,
+      "equal": 16,
+      "above": 48,
+      "published_zero_losses": 28,
+      "losses_below": 24,
+      "losses_above": 4,
+      "above_cause": "Four \u00b1nextpi2 cases have native coefficient above the pre-round boundary; raw JAX coefficient shifts product below it. Bounded native-matching coefficient corrects staging."
+    },
+    "corrected_report_provenance": {
+      "premature_message": "My preliminary summary incorrectly said all28 exact products were below minimum normal and all28 ordinary products zero. Correct counts are24 below/zero and4 above/ordinary normal. This was corrected before source implementation and accepted explicitly by root.",
+      "raw_field": "NORMAL_CARRY_MODEL.json exact_native_minimum_normal_cases[].current_component is union-prototype output, not published baseline. Preserve raw artifact. ALL_MINIMUM_NORMAL_EXACT_REVIEW.json uses PREDICATE_AND_PUBLISHED_REVIEW.json published words and corrects provenance."
+    }
+  },
+  "limits": {
+    "outside_native_imaginary_word_gaps": 192,
+    "outside_by_case": [
+      184,
+      8
+    ],
+    "outside_y710_native_normal_vs_jax_infinity": 72,
+    "all_native_zero_class_differences_after_repair": 0,
+    "tiny_normal_sweep": "704 independent identity controls found no zero loss of normal reconstructed products far above the underflow boundary; no new MATLAB SIN capture for these synthetic controls. No broader tiny-argument branch justified.",
+    "derived_audit_initial_runtime_gap": "Initial all_carry Fraction-only postprocessing used system Python3.9 while copied guard listed pinned3.12;52 observed standard-library files absent preguard. Raw receipt preserved. Pinned3.12 repeat independently qualifies identical exact112-case result; no source/scientific JAX/native guard gap.",
+    "original_open_metadata_records": 13,
+    "metadata_unchanged": true,
+    "other_six_subnormal_methods": "Shared derivative-product proposal rejected by fresh native staging contradictions; unchanged."
+  },
+  "authored_oracle_exception": {
+    "file": "tests/test_matlab_port/treeVar/test_subnormal_sine_source.py",
+    "function": "test_sin_subnormal_only_selected_imaginary_words_change",
+    "modes": [
+      "eager",
+      "jit"
+    ],
+    "changed_expected_words_per_mode": 92,
+    "reason": "Prior authored preservation test intentionally retained now-repaired native-zero losses. Supersede only independently computed approved output-class mask; retain all540 inputs, all real/outside words, original324 native assertions and native fixture bytes.",
+    "inventory": "AUTHORED_ORACLE_92_WORD_EXCEPTIONS.json",
+    "original_native_assertions_fixtures_bounds": "unchanged",
+    "new_baseline_fixture": "New fixture initially omitted prior real words while capturing baseline; final fixture adds exact baseline real words and approved extension mask. No earlier native fixture changed. Baseline test preimages reconstructed byte-exact against original guard hashes, explicitly recorded."
+  },
+  "baseline": {
+    "tests": "32",
+    "failures": "4",
+    "errors": "0",
+    "skipped": "0",
+    "time": "16.140"
+  },
+  "focused": {
+    "tests": "32",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "25.385"
+  },
+  "final": {
+    "tests": "1940",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "26",
+    "time": "425.785"
+  },
+  "source_ast": {
+    "changed_functions": [
+      "_sin_cos_complex_axis",
+      "_sin_cos_numeric"
+    ],
+    "exact_analytic_jvp_ast_preserved": true,
+    "original_native_fixture_sha256": "cadab1b7d5471324941fa2d48ff6074bd82d02e4e9d52ca0e7f6ebb37049fc96"
+  },
+  "runtime": {
+    "initial": {
+      "observed_files": 1342,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "broad": {
+      "observed_files": 1341,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "high_precision": {
+      "observed_files": 188,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "predicate": {
+      "observed_files": 1341,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "operand": {
+      "observed_files": 188,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "union": {
+      "observed_files": 1341,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "normal_range": {
+      "observed_files": 1342,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "carry": {
+      "observed_files": 1341,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py"
+      }
+    },
+    "all_carry_repeat": {
+      "observed_files": 54,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "baseline": {
+      "observed_files": 1482,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/src/chebfunjax/utils/elementary.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/tests/test_matlab_port/treeVar/test_sin_output_underflow_source.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/test_sin_output_underflow_source_baseline.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_20261018/tests/test_matlab_port/treeVar/test_subnormal_sine_source.py": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_evidence_20261018/source_preimages/test_subnormal_sine_source.py"
+      }
+    },
+    "focused": {
+      "observed_files": 1482,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    },
+    "final": {
+      "observed_files": 1543,
+      "all_preguarded": true,
+      "changed_after_terminal_bound_to_preimages": {}
+    }
+  },
+  "native_runtime": {
+    "native": {
+      "before_mapped_files": 885,
+      "after_mapped_files": 889,
+      "late_stable_files": [
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so"
+      ],
+      "all_stable_code_and_data_mappings_in_outer_preguard": true,
+      "only_outer_guard_exclusion": "/var/lib/sss/mc/passwd mutable system identity cache, not scientific code/data",
+      "limitation": "Main-process sampled maps only. No exhaustive installed-runtime, unsampled transient generated mappings, subprocess or future-library coverage claim."
+    },
+    "native_stages": {
+      "before_mapped_files": 881,
+      "after_mapped_files": 889,
+      "late_stable_files": [
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/matlabdata/startupplugin/libmwmda_startupplugin.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/shared_deviceplugindetection/mwdevicepluginstartup.so"
+      ],
+      "all_stable_code_and_data_mappings_in_outer_preguard": true,
+      "only_outer_guard_exclusion": "/var/lib/sss/mc/passwd mutable system identity cache, not scientific code/data",
+      "limitation": "Main-process sampled maps only. No exhaustive installed-runtime, unsampled transient generated mappings, subprocess or future-library coverage claim."
+    },
+    "native_full_stages": {
+      "before_mapped_files": 882,
+      "after_mapped_files": 889,
+      "late_stable_files": [
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/matlabdata/startupplugin/libmwmda_startupplugin.so"
+      ],
+      "all_stable_code_and_data_mappings_in_outer_preguard": true,
+      "only_outer_guard_exclusion": "/var/lib/sss/mc/passwd mutable system identity cache, not scientific code/data",
+      "limitation": "Main-process sampled maps only. No exhaustive installed-runtime, unsampled transient generated mappings, subprocess or future-library coverage claim."
+    }
+  },
+  "supervision": {
+    "sin_output_underflow_all_carry_repeat_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.0136232268996537,
+      "sampled_peak_summed_rss_kib": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_all_carry_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 3.282288324087858,
+      "sampled_peak_summed_rss_kib": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 26.779121376108378,
+      "sampled_peak_summed_rss_kib": 1241244,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_broad_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.945689118932933,
+      "sampled_peak_summed_rss_kib": 761092,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_carry_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 12.553722049109638,
+      "sampled_peak_summed_rss_kib": 825264,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_final_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 432.4160818080418,
+      "sampled_peak_summed_rss_kib": 1753768,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_focused_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 30.92522155214101,
+      "sampled_peak_summed_rss_kib": 1364148,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_high_precision_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.3926622150465846,
+      "sampled_peak_summed_rss_kib": 31276,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_initial_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 8.941548185888678,
+      "sampled_peak_summed_rss_kib": 611592,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_native_full_stages_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 100.33194067608565,
+      "sampled_peak_summed_rss_kib": 1314668,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_native_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 107.85895161796361,
+      "sampled_peak_summed_rss_kib": 1423248,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_native_stages_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 91.07117280969396,
+      "sampled_peak_summed_rss_kib": 1297448,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_normal_range_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 10.728710610885173,
+      "sampled_peak_summed_rss_kib": 802328,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_operand_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 2.3915142361074686,
+      "sampled_peak_summed_rss_kib": 38700,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_predicate_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 14.490277333185077,
+      "sampled_peak_summed_rss_kib": 832580,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "sin_output_underflow_union_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.06538472091779,
+      "sampled_peak_summed_rss_kib": 825968,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_hashes": {
+    "src/chebfunjax/utils/elementary.py": "38c4e0c309158069b522ef31444a6235c453cb141d5be1dfc2ffd4a2f317165e",
+    "src/chebfunjax/utils/_signed_gradual.py": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+    "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+    "tests/test_matlab_port/treeVar/data/sin_subnormal_native_20261018.json": "cadab1b7d5471324941fa2d48ff6074bd82d02e4e9d52ca0e7f6ebb37049fc96",
+    "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "4de750c403e03bb8a08b1ebb272d18aa6cc480c0e05b90771d142a0bc310e631"
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_package_20261018.tar.gz",
+    "sha256": "f2689090349296289daf1ba9cc5fbdfbc841a2de63a399cd66c670d715a92e20",
+    "bytes": 55405283,
+    "payloads": 3726
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_output_underflow_stream_hashes_20261018.json",
+    "sha256": "fa96b46f60374e7b251d907d0a24ddf759875fb55a86a09f78bdfc2fa6c4cb17"
+  }
+}

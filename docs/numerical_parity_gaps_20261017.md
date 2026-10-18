@@ -1,3 +1,40 @@
+# SIN output underflow and JAX numeric disk PhaseOne — 2026-10-18
+
+SIN now preserves the separately rounded cos(real)*sinh(imag) product through
+minimum normal, using bounded source cosine for |real|<=pi and primitive
+fallback elsewhere. All904selected native imaginary words match eager/JIT;
+all prior real/outside-mask words remain. Exact analytic JVP AST unchanged.
+Two authored preservation oracles supersede exactly92expected words per mode
+inside the approved extension mask; original324native assertions, original
+fixtures and bounds unchanged. Child1,914PASS26XFAIL is a separate full cohort.
+192outside imaginary word gaps remain, including72finite-native/JAX-infinite
+cases near y=±710; other component/provider gaps are under separate diagnosis.
+
+Numeric disk PhaseOne arithmetic now uses JAX IEEE helpers, literal reciprocal
+GE staging and sum/divide mean. Tiny exact sums use a proved representability
+bound, including signed-zero source controls. Full source pole indices now
+reach public grid conversion, correcting tiny-origin pole location from
+(-pi,0) to native(-2pi/3,0). Legacy15records and factor words in28revision
+replays remain exact except4intended location corrections. Child319PASS3XFAIL
+includes a final unchanged original k7PASS78.42s across separate scoped gates.
+Three strict word gaps remain:2post-GE transform cases and1inactive outer
+signed zero. Generic reductions/NaNpayloads/FFT/projection, getTol host
+arithmetic, complete constructor/API/JIT/AD and matched speed remain open.
+
+Actual combined parent387PASS3strictXFAIL across two disjoint processes:
+69SIN/roots/CIprotocol and318diskPASS3XFAIL. All8477guarded inputs stable;
+1542/1491observed imports preguarded/stable, no censor or survivors. Initial
+69PASS wrapper run failed because cached JAX files were omitted from guard;
+raw receipt/inventory retained, fresh corrected run passes. Import/semicolon
+lint corrections preserve all non-import ASTs. Archive3593payloads streamed
+and verified.1116old CI lane prefixes retained→1117owners/13lanes; dedicated
+Hermite lane12 and aggregate79%gate unchanged. Earlier a9d5461aCI completed
+all46jobs; this does not qualify newer source. Latest-mainCI remains required.
+
+322final-sourcepages/1305scientificfigures, broader original function/assertion
+coverage, correctness/API/JAX and matched CPU speed remain open. Expected
+failures are unfinished work. Evidence: docs/sin_disk_jax_parent_cpu_20261018.json.
+
 # JAX real-root filtering — 2026-10-18
 
 The eigenvalue leaf now applies strict imaginary acceptance, expanded-domain

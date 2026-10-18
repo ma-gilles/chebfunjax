@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [SIN output-underflow and JAX disk PhaseOne qualification](sin_disk_jax_parent_cpu_20261018.json):387parentPASS/3strictXFAIL; child full unary and disk gates are separate scopes. Native disk constructor evidence is attached without promoting complete source/API/test statuses.
+
 The [completed/to-complete checklist](parity_checklist.md) is the running human
 work list. This inventory supplies the denominator and per-item evidence slots.
 Scoped GET evidence for original predicates 31 and 35–38 is attached to the

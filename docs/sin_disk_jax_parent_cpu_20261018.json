@@ -1,0 +1,186 @@
+{
+  "scope": "Combined actual parent CPU qualification: SIN output-underflow product and JAX numeric Diskfun PhaseOne with corrected source pole location; no whole API/page/figure/performance closure.",
+  "base_commit": "ac02e26183e45551cc54ab5b594cae71684c712a",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_cohorts": [
+    {
+      "stage": "unary",
+      "passed": 69,
+      "expected_failures": 0,
+      "total": 69,
+      "pytest_seconds": "27.199",
+      "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_jax_unary_parent_run002/receipt.json",
+      "receipt_sha256": "c796e29cb56e27b28b628b2190172afd5bdd749f77dab35ccf467d1e5bc87eaf",
+      "observed_imports": {
+        "count": 1542,
+        "missing_or_changed": []
+      },
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 33.77828914672136,
+        "sampled_peak_summed_rss_kib": 1409308
+      }
+    },
+    {
+      "stage": "disk",
+      "passed": 318,
+      "expected_failures": 3,
+      "total": 321,
+      "pytest_seconds": "35.448",
+      "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_jax_disk_parent_run001/receipt.json",
+      "receipt_sha256": "34f853d42869d99d1e495592b91d523e77c55441c2328cda293bf6e648eeae76",
+      "observed_imports": {
+        "count": 1491,
+        "missing_or_changed": []
+      },
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 43.18159462697804,
+        "sampled_peak_summed_rss_kib": 2004288
+      }
+    }
+  ],
+  "parent_distinct": {
+    "passed": 387,
+    "strict_expected_failures": 3,
+    "total": 390,
+    "note": "Two disjoint parent selections; child gates overlap and are not added to this count."
+  },
+  "child_qualification": {
+    "sin": {
+      "commit": "46823f267a588ef0e8dd58aebf689c3634df080b",
+      "passed": 1914,
+      "strict_expected_failures": 26,
+      "archive_sha256": "f2689090349296289daf1ba9cc5fbdfbc841a2de63a399cd66c670d715a92e20",
+      "root_stream_verified_payloads": 3726,
+      "report": "docs/sin_output_underflow_cpu_20261018.json"
+    },
+    "disk": {
+      "passed": 319,
+      "strict_expected_failures": 3,
+      "note": "283/3 focused +35 protected +1 final original k7 across separate scoped gates.",
+      "archive_sha256": "245552dd7bc1a478d4066d3b4c660084e6e0fbfe58a692259702b2b7ddd82ae0",
+      "root_stream_verified_payloads": 64,
+      "summary": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_phaseone_jax_revised_candidate_20261018/SUMMARY.txt",
+      "original_k7_seconds": 78.42
+    }
+  },
+  "source_bridge": {
+    "src/chebfunjax/diskfun/diskfun.py": {
+      "parent_sha256": "f938b18dc9661279b399b305e02b5d7c9bddd44f5e93c38970eb5ec13f01517d",
+      "child_sha256": "f938b18dc9661279b399b305e02b5d7c9bddd44f5e93c38970eb5ec13f01517d",
+      "import_formatting_only": false
+    },
+    "src/chebfunjax/diskfun/_numeric_phase_one.py": {
+      "parent_sha256": "b38394c43d2a523c496fc22d728bc4510cd04389c341e711dabf4c9078bc436e",
+      "child_sha256": "3179d18cce8e1ce5a15ba70408bfdeee9587df5fd3753b6becd327893639756a",
+      "import_formatting_only": true
+    },
+    "tests/test_diskfun/test_numeric_branch_source.py": {
+      "parent_sha256": "e6fbc9fc346f13f50acaa56777c35c08b0d455d43cc55b6fab22731907561de7",
+      "child_sha256": "e6fbc9fc346f13f50acaa56777c35c08b0d455d43cc55b6fab22731907561de7",
+      "import_formatting_only": false
+    },
+    "tests/test_diskfun/test_numeric_phase_one_jax.py": {
+      "parent_sha256": "57e41252a39a4509ba37a76680e237115faa5a942c9f70d7a5c332e2b8d468f7",
+      "child_sha256": "0ecab6d49f916c6ad8d6407125531a5ffbbf2dc24152a06ac8a2ca6b20c8ac21",
+      "import_formatting_only": true
+    },
+    "tests/fixtures/disk_phaseone_jax_native_20261018.json": {
+      "parent_sha256": "fde19f85faf26494f0c5e44253410b23bde8bd78881bd1f4978295cab9238e32",
+      "child_sha256": "fde19f85faf26494f0c5e44253410b23bde8bd78881bd1f4978295cab9238e32",
+      "import_formatting_only": false
+    },
+    "docs/sin_output_underflow_cpu_20261018.json": {
+      "parent_sha256": "0bb2bc15a6ea2347adffa4b499943f1c7aa029532a73af2990c0f9d1032c0274",
+      "child_sha256": "0bb2bc15a6ea2347adffa4b499943f1c7aa029532a73af2990c0f9d1032c0274",
+      "import_formatting_only": false
+    },
+    "src/chebfunjax/utils/elementary.py": {
+      "parent_sha256": "38c4e0c309158069b522ef31444a6235c453cb141d5be1dfc2ffd4a2f317165e",
+      "child_sha256": "38c4e0c309158069b522ef31444a6235c453cb141d5be1dfc2ffd4a2f317165e",
+      "import_formatting_only": false
+    },
+    "tests/test_matlab_port/treeVar/data/sin_output_underflow_native_20261018.json": {
+      "parent_sha256": "ec54d8d0fc4f43ea755e26cb25354dee7a261c0376f453e7f32976fc487935bb",
+      "child_sha256": "ec54d8d0fc4f43ea755e26cb25354dee7a261c0376f453e7f32976fc487935bb",
+      "import_formatting_only": false
+    },
+    "tests/test_matlab_port/treeVar/test_sin_output_underflow_source.py": {
+      "parent_sha256": "063745e4189ccc5ded56a84ef0aaaac5e3e1f637958a9a8fbed8227b0aad5c28",
+      "child_sha256": "e5f32f4dd7f6a38ff41eb27c2eac20e99e9525173b0bcbc7348be1ef7fa0645e",
+      "import_formatting_only": true
+    },
+    "tests/test_matlab_port/treeVar/test_subnormal_sine_source.py": {
+      "parent_sha256": "ea1b1d3420782ca63f2ff646cf7ecd531d7454fd5cff3bfa9412f8d0fe604e5c",
+      "child_sha256": "ea1b1d3420782ca63f2ff646cf7ecd531d7454fd5cff3bfa9412f8d0fe604e5c",
+      "import_formatting_only": false
+    }
+  },
+  "sin_review": {
+    "all_other_elementary_module_AST_exact": true,
+    "analytic_JVP_AST_unchanged": true,
+    "selected_native_imaginary_words": 904,
+    "authored_prior_oracle_exception": "Two eager/JIT preservation oracles use native expectations for exactly92 approved extension words per mode, with184entry/preimage record retained; original324native assertions and original fixtures/bounds unchanged."
+  },
+  "failures_retained": {
+    "initial_parent": "69science checks passed; wrapper exit1 because cached JAX/ml_dtypes import paths were omitted from preguard. Initial inventory/guard/receipt retained; corrected fresh run passes allimports.",
+    "initial_static": "Three import-order errors and one semicolon; corrected with exact non-import AST bridge.",
+    "integration_bootstrap": "Python3.9 lacks hashlib.file_digest; archive verification initially stopped before any Q writes, then repeated using hashlib.sha256.",
+    "child_failures": "Both sealed child archives retain raw failures, provenance corrections and timeout observations; see child summary/report."
+  },
+  "ownership": {
+    "owners": 1117,
+    "old_1116_lane_prefixes_retained": true,
+    "lanes": 13,
+    "hermite_12_preserved": true,
+    "coverage_threshold": 79
+  },
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "ac02e26183e45551cc54ab5b594cae71684c712a",
+    "passed": true
+  },
+  "older_ci": {
+    "commit": "a9d5461ae39601ab5c81f6a738f2f2c9207ca7ef",
+    "run": 39125918507,
+    "all_46_jobs_success": true,
+    "qualifies_current_source": false
+  },
+  "limits": [
+    "Full library/function/original assertion coverage remains open.",
+    "26 unary expected failures, 13 original unary metadata records, 192 outside-mask imaginary word gaps and other components remain open; overflow diagnosis is separate.",
+    "Three disk strict word expected failures remain; generic reduction/FFT/projection providers, getTol host arithmetic, whole-constructor JIT/AD and defaultFalse host work remain unqualified.",
+    "All 322 final-source page computations/stdout and 1,305 scientific/raster figures remain required.",
+    "Matched native CPU performance and latest-main CI with coverage >=79% remain required.",
+    "Observed imported module files are guarded; this is not exhaustive native shared-library or subprocess runtime mapping."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_jax_parent_cpu_20261018.tar.gz",
+    "sha256": "bd5913aa23d7e6f8026954990d548d7edc1b5f4d6d17344d2938f3ce00cbfed0",
+    "manifest_payloads_stream_verified": 3593
+  }
+}

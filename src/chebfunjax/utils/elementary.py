@@ -67,19 +67,32 @@ def _sin_cos_complex_axis(value, cosine):
     result = jax.lax.complex(
         result_real, jnp.where(axis, jnp.zeros_like(imag), jnp.imag(result)))
     if not cosine and imag.dtype == jnp.float64:
-        # Im(sin(x+iy)) = cos(x)*sinh(y). For binary64 subnormal y,
-        # sinh(y) rounds to y; preserve the separately rounded product.
-        # R2025b direct-component controls span the whole subnormal class.
-        result = jax.lax.optimization_barrier(result)
-        magnitude = jax.lax.bitcast_convert_type(imag, jnp.uint64) & jnp.uint64(0x7fffffffffffffff)
-        slope = jnp.cos(real)
-        slope_magnitude = jax.lax.bitcast_convert_type(slope, jnp.uint64) & jnp.uint64(0x7fffffffffffffff)
-        supported = ((magnitude > 0) & (magnitude < jnp.uint64(0x0010000000000000))
-                     & jnp.isfinite(real) & (slope_magnitude >= jnp.uint64(0x0010000000000000))
-                     & (slope_magnitude < jnp.uint64(0x7ff0000000000000)))
+        # Im(sin(x+iy)) = cos(x)*sinh(y), with separately rounded operands.
+        # Gradual multiplication preserves subnormal outputs and the rounding
+        # carry into minimum normal. The complete prior result remains intact
+        # outside this IEEE output class. For subnormal y, sinh(y) rounds to y.
+        from chebfunjax.utils._fdlibm_boundary_cosine import _cos_boundary_primal
+
+        barrier = jax.lax.optimization_barrier
+        result = barrier(result)
+        magnitude_mask = jnp.uint64(0x7fffffffffffffff)
+        tiny = jnp.uint64(0x0010000000000000)
+        infinity = jnp.uint64(0x7ff0000000000000)
+        def magnitude(component):
+            return barrier(jax.lax.bitcast_convert_type(component, jnp.uint64) & magnitude_mask)
+
+        imag_magnitude = magnitude(imag)
+        sinh = jnp.where((imag_magnitude > 0) & (imag_magnitude < tiny), imag, jnp.sinh(imag))
+        # This source cosine kernel is restricted to finite |x| <= pi.
+        slope = jnp.where(jnp.abs(real) <= jnp.pi, _cos_boundary_primal(real), jnp.cos(real))
+        product = gradual_signed_multiply(sinh, slope)
+        slope_magnitude = magnitude(slope)
+        supported = ((imag_magnitude > 0) & (imag_magnitude < infinity)
+                     & (magnitude(real) < infinity) & (magnitude(sinh) < infinity)
+                     & (slope_magnitude >= tiny) & (slope_magnitude < infinity)
+                     & (magnitude(product) <= tiny))
         result = jax.lax.complex(
-            jnp.real(result), jnp.where(supported, gradual_signed_multiply(imag, slope),
-                                       jnp.imag(result)))
+            jnp.real(result), jnp.where(supported, product, jnp.imag(result)))
     return result
 
 
@@ -100,10 +113,11 @@ def _sin_cos_numeric(value, *, cosine=False):
     Independent R2025b scalar and mixed-array direct-component captures
     establish positive imaginary zero on the exact real axis, including
     both input zero signs, finite real controls and nonfinite real inputs.
-    Preserve the original real component. For binary64 nonzero-subnormal
-    imaginary inputs and finite real inputs with finite normal cos(x), SIN
-    retains cos(x)*y through gradual multiplication; all other off-axis
-    arithmetic is unchanged. The exact-axis test is word-aware.
+    Preserve the original real component. For binary64 SIN, retain the
+    separately rounded cos(x)*sinh(y) product when its magnitude is at most
+    minimum normal, with finite operands and normal cos(x). Use the bounded
+    source cosine only for |x| <= pi and the primitive provider elsewhere.
+    Other off-axis words are unchanged. The exact-axis test is word-aware.
     The complex helper supplies the ordinary analytic derivative explicitly
     so the boundary representation retains transverse real-linear tangents.
     """

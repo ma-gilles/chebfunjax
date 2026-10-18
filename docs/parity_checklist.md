@@ -24,16 +24,18 @@ open work.
 
 ### Current queue — 2026-10-18
 
+- **Latest verified integration:** SIN output-underflow product and JAX disk PhaseOne/pole location; **387 parent PASS / 3 strict XFAIL**. Child full unary1,914PASS26XFAIL and disk319PASS3XFAIL are separate overlapping scopes. [Evidence](sin_disk_jax_parent_cpu_20261018.json).
+
 - **Latest root filtering:** JAX strict acceptance/stable word-preserving sort/clipping, actualparent37PASS. Expanded run79sciencePASS+21protocolPASS/2ownershipFAIL; ownership corrected and23protocolPASS. Warm public-root cost3–9%higher in one descriptive pair; full performance remains open. [Evidence](roots_filter_jax_cpu_20261018.json).
 
 - **Latest verified integration:** SIN subnormal imaginary component and numeric Diskfun branches; **2,052 parent PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
-- **Unary work:**13original records remain:6other subnormal methods and7TANphase/sign cases.26unaryxfail cases include repeated inputs.92fresh minimum-normal-input SIN losses are additional gaps; broader output-underflow/near-cosine-zero diagnosis continues.
-- **Disk work:** source numeric rank limits, missing-data handling, locations, extrapolation and zero storage qualified.3strict factor/subnormal word xfails, tolerance power/projection order and inherited host GE remain; JAX GE port underway.
+- **Unary work:**13original records remain (6other subnormal methods,7TANphase/sign);26unaryxfail cases include repeated inputs. New904selected SIN native words match, including the prior92extension gaps.192outside imaginary word differences remain, including72near-y710finite/Inf cases; real-component and overflow staging diagnosis continues.
+- **Disk work:** JAX numeric PhaseOne and source pole locations qualified.3strict word xfails now cover2post-GE transform cases and1inactive outer signed zero; prior subnormal GE gap fixed. getTol host arithmetic/tolerance power, FFT/projection/provider words and broader API/JAX/AD remain.
 - **Roots:** source QZ pencil/eigensolver leaf now JAX,43checksPASS; full recursive JAX/API/provider words/AD/performance remain. [Evidence](roots_qz_jax_cpu_20261018.json).
 - **Original tests:**88default native inv/roots/minmax return slots mapped;61Python cases plus3supplementals and17providerchecks. Complete function/assertion coverage remains open.
 - **Pages and figures:** final-source computations/stdout/scientific figures for322pages/1305figures remain; historical dimension/structural checks do not close them.
 - **CPU performance:** known inverse/Hermite/Checkmark/QR/LU/BVP/roots gaps still need matched native measurements and repairs.
-- **CI:**3072dda6passed all46jobs; only that source qualifies. Later a9d5461aCI is active and newer main is queued. Latest-main scientificCI and coverage≥79%remain required; no manual cancellation.
+- **CI:**a9d5461a passed all46jobs; only that source qualifies. Newer main remains queued. Latest-main scientificCI and coverage≥79%remain required; no manual cancellation.
 
 ### Active work, not yet credited as complete
 
@@ -44,6 +46,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] SIN output-underflow904selectednative words and JAX numeric Diskfun PhaseOne/pole-location correction. Actualparent387PASS3strictXFAIL; childfullunary1914PASS26XFAIL anddisk319PASS3XFAIL separately scoped. Final originalk7PASS78.42s; archive3593payloads verified;1117CIowners. [Evidence](sin_disk_jax_parent_cpu_20261018.json).
+- [ ] Remaining13originalunaryrecords/26unaryxfailcases,192outsideimaginaryworddifferences,3diskwordxfails, getTol/projection/provider/API/JAX/AD/matchedspeed,322pages/1305figures and latest-mainCI remain open.
 
 - [x] Eigenvalue-leaf real-root filtering uses JAX integer magnitude/order keys;14newcontrols include2native sort vectors/72words. Actualparent37PASS; all original inv/roots/minmax counterpart checks and actualflower pass. Ownership failure retained/corrected;1116owners/13lanes/Hermite12/79%. [Evidence](roots_filter_jax_cpu_20261018.json).
 - [ ] Host trim/norm/recursive mapping/pruning, complete roots/API/JIT/AD/provider words, observed3–9%warm-call overhead, matched native performance and latestCI remain open.
