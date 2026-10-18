@@ -19,6 +19,8 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
+- **QZ roots:** source pencil and generalized eig leaf now JAX,43focusedchecksPASS; fullAPI/provider/performance and latestCI remain open. [Evidence](roots_qz_jax_cpu_20261018.json).
+
 - **Latest verified integration:** TAN imaginary-NaN real component;1,956parentPASS27XFAIL. Fourteen original unary records remain. Default original inv/roots/minmax audit maps88native slots to61Python cases; separate3supplementals+17providerchecks account for81casegate.
 - **Unary work:** fourteen original records remain (seven TAN phase/sign, seven subnormal losses). Imaginary-NaN real-class fix qualified; imaginary NaN sign/payload remains. SIN whole-subnormal family under qualification; other six methods need staged arithmetic, not a shared derivative product.
 - **Disk work:** storage/branch/grid repair qualified below. Next: native numeric rank-cap and reciprocal arithmetic, then JAX replacement of inherited host GE; source attribution underway.
@@ -33,6 +35,9 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Replace Chebtech QZ NumPy/SciPy pencil/eigensolver with JAX generalized Schur.43checksPASS, including24unchangedoriginalroots and8newsource/analyticcontrols. Host eigensolvers prohibited in four real/complex C1/C2 controls; original native bounds retained. [Evidence](roots_qz_jax_cpu_20261018.json).
+- [ ] Whole roots recursion/trim/filter JAX, complete API/JIT/AD, native spectra words, complex/extreme inputs, matched speed and latestCI remain open.
 
 - [x] TAN exact-zero-real/imaginaryNaN real component now canonical native NaN, with prior outside-mask/imaginary words and analytic JVPs retained. Actual parent **1,956 PASS / 27 XFAIL**;14originalrecords unchanged. Failed trials and new author-oracle correction explicit. [Evidence](tan_imaginary_nan_parent_cpu_20261018.json).
 - [x] Map all88default native return slots for inv/roots/minmax, alltrue;61mappedPythoncases+3supplementals+17providerchecks=81casegate. Four additional rawcomplex-order controls pass original bounds without sorting. [Per-slot audit](original_inv_roots_minmax_cpu_20261018.json).

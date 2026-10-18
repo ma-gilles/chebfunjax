@@ -1,3 +1,21 @@
+# Chebtech QZ roots use JAX — 2026-10-18
+
+The scaled generalized colleague pencil and eig(A,B) leaf now use JAX and the
+existing real/complex generalized Schur implementation. No B-inverse ordinary
+eigenproblem or host eigensolver fallback. The rest of the module AST is exact
+after replacing only the QZ branch and removing its two new helpers.
+
+Actual gate43PASS:24unchanged original roots,8new source-pencil/analytic controls,
+2default-eig source-order and9native-normalization controls. Original six QZ
+controls retain native bounds. Four analytic real/complex C1/C2 controls prohibit
+NumPy/SciPy eig/eigvals; frozen old source reproduces the prohibited SciPy call.
+All source/test hashes stable, CPU only, no censor/survivors. Archive3458payloads
+stream verified. New core file:1113old lane prefixes retained,1114owners/13lanes,
+Hermite12/79%unchanged. No native spectra-word, fullAPI/JIT/AD or speed claim.
+Inherited host recursion/trim/filtering, complex/extreme provider behavior,
+322pages/1305figures, known correctness/performance gaps and latestCI remain open.
+Evidence: docs/roots_qz_jax_cpu_20261018.json.
+
 # TAN imaginary-NaN real component and original predicate maps — 2026-10-18
 
 TAN now returns canonical positive real NaN for exact-zero real input with

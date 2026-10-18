@@ -1730,6 +1730,46 @@ def _roots_colleague_matrix_jax(c: jax.Array) -> jax.Array:
 
 
 @jax.jit
+def _roots_qz_pencil_jax(c: jax.Array):
+    """Native scaled generalized colleague pencil, using JAX arithmetic.
+
+    Provenance
+    ----------
+    MATLAB @chebtech/roots.m roots_main QZ branch, Chebfun7574c77.
+    The initial unscaled first column is overwritten by the normalized one;
+    only its independent source offdiagonals enter this final pencil.
+    """
+    nn = c.shape[0] - 1
+    scale = jnp.max(jnp.abs(c))
+    divisor = jax.lax.optimization_barrier(jnp.broadcast_to(scale, c.shape))
+    normalized = jax.lax.optimization_barrier(c / divisor)
+    off = 0.5 * jnp.ones(nn - 1, dtype=jnp.float64)
+    matrix = (jnp.diag(off, 1) + jnp.diag(off, -1)).astype(c.dtype)
+    matrix = matrix.at[-2, -1].set(1.0)
+    mass = jnp.eye(nn, dtype=c.dtype).at[0, 0].set(normalized[-1])
+    column = jax.lax.optimization_barrier(-0.5 * normalized[:-1])
+    correction = jax.lax.optimization_barrier(0.5 * mass[0, 0])
+    column = column.at[-2].set(jax.lax.optimization_barrier(column[-2] + correction))
+    return matrix.at[:, 0].set(column[::-1]), mass
+
+
+def _roots_qz_eigenvalues(c):
+    """Source QZ leaf through the shared JAX generalized eigensolver.
+
+    Provenance
+    ----------
+    MATLAB @chebtech/roots.m roots_main eig(A,B), Chebfun7574c77.
+    The recursive engine owns variable-length filtering and host storage;
+    pencil construction and the eigensolve use no host numerical provider.
+    """
+    from chebfunjax.operators._generalized_qz import generalized_eig
+
+    matrix, mass = _roots_qz_pencil_jax(jnp.asarray(c))
+    values, _vectors = generalized_eig(matrix, mass)
+    return jax.device_get(values).copy()
+
+
+@jax.jit
 def _roots_eigvals_jax(matrix: jax.Array) -> jax.Array:
     """Native default nonsymmetric ``eig(A)`` branch, without eigenvectors.
 
@@ -1876,33 +1916,7 @@ def _roots_main(c, htol: float, qz: bool = False, all_roots: bool = False,
 
     if (not recurse) or (n <= MAX_EIG_SIZE):
         if qz:
-            # Form the colleague matrix
-            c_adj = -0.5 * c[:-1] / c[-1]
-            c_adj[-2] += 0.5
-
-            nn = n - 1
-            oh = 0.5 * np.ones(nn - 1)
-            A = np.diag(oh, 1) + np.diag(oh, -1)
-            if np.iscomplexobj(c_adj) or (qz and np.iscomplexobj(c)):
-                A = A.astype(np.complex128)
-            A[-2, -1] = 1.0
-            A[:, 0] = c_adj[::-1]
-
-            # Colleague matrix *pencil* (A, B) solved by the QZ / GEP
-            # algorithm for extra numerical stability, mirroring the
-            # scaled generalized eigenproblem of MATLAB
-            # @chebtech/roots.m ('qz' branch).
-            c_old = c.copy()
-            c_old = c_old / np.linalg.norm(c_old, np.inf)
-            B = np.eye(nn)
-            if np.iscomplexobj(c_old):
-                B = B.astype(np.complex128)
-            B[0, 0] = c_old[-1]
-            c_scaled = -0.5 * c_old[:-1]
-            c_scaled[-2] = c_scaled[-2] + 0.5 * B[0, 0]
-            A[:, 0] = c_scaled[::-1]
-            import scipy.linalg as _sla
-            rts = _sla.eig(A, B, right=False)
+            rts = _roots_qz_eigenvalues(c)
         else:
             rts = _roots_default_eigenvalues(c)
 
