@@ -1,0 +1,254 @@
+{
+  "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure.",
+  "base_head": "1ef0e6e70af9720e1b33b4440548d03a491d7e5e",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_passed": 79,
+  "parent_xfailed": 0,
+  "native_cases": 4,
+  "public_sample_count": 108,
+  "comparison": {
+    "cases": [
+      {
+        "domain": [
+          -1,
+          1
+        ],
+        "decay": false,
+        "python_wall_seconds": 12.689347691368312,
+        "errors": {
+          "vs_native": 0.0,
+          "vs_analytic": 4.440892098500626e-16,
+          "native_vs_analytic": 4.440892098500626e-16
+        },
+        "native_wall_seconds": 0.358806,
+        "actual_words": [
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681,
+          4608871268660281343,
+          13826050856027422719,
+          13835902480212295681
+        ],
+        "bound": 1e-07
+      },
+      {
+        "domain": [
+          -1,
+          1
+        ],
+        "decay": true,
+        "python_wall_seconds": 2.7394572971388698,
+        "errors": {
+          "vs_native": 1.3322676295501878e-15,
+          "vs_analytic": 3.0362601322053706e-10,
+          "native_vs_analytic": 3.036273454881666e-10
+        },
+        "native_wall_seconds": 0.132059,
+        "actual_words": [
+          4610841593497255936,
+          4602678819172646912,
+          13834776580305453056,
+          4612248968380809216,
+          4609434218613702656,
+          13832806255468478464,
+          4613234130799296512,
+          4612811918334230528,
+          13830835930631503872,
+          4610831766461150485,
+          4602588971985397292,
+          13834786407341558505,
+          4612229363321177258,
+          4609344595483957290,
+          13832845465587742390,
+          4613190129326766834,
+          4612711343539878711,
+          13830923933576563224,
+          4610821988437576562,
+          4602499572912721629,
+          13834796185365132430,
+          4612209953335093152,
+          4609255864119002266,
+          13832884285559910606,
+          4613146782950654374,
+          4612612266108767124,
+          13831010626328788141
+        ],
+        "bound": 1e-07
+      },
+      {
+        "domain": [
+          2,
+          6
+        ],
+        "decay": false,
+        "python_wall_seconds": 0.5970212770625949,
+        "errors": {
+          "vs_native": 8.881784197001252e-16,
+          "vs_analytic": 1.3322676295501878e-15,
+          "native_vs_analytic": 2.220446049250313e-15
+        },
+        "native_wall_seconds": 0.052502,
+        "actual_words": [
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281344,
+          13826050856027422720,
+          13835902480212295680,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677,
+          4608871268660281345,
+          13826050856027422719,
+          13835902480212295677
+        ],
+        "bound": 1e-07
+      },
+      {
+        "domain": [
+          2,
+          6
+        ],
+        "decay": true,
+        "python_wall_seconds": 0.8461497980169952,
+        "errors": {
+          "vs_native": 6.217248937900877e-15,
+          "vs_analytic": 2.7199185126391967e-09,
+          "native_vs_analytic": 2.7199220653528755e-09
+        },
+        "native_wall_seconds": 0.025582,
+        "actual_words": [
+          4614219293217783808,
+          4615063718147915776,
+          13827176755934265344,
+          4617174780473245696,
+          4620130267728707584,
+          4607745368753438720,
+          4619145105310220288,
+          4622663542519103488,
+          4613656343264362496,
+          4614199639145638000,
+          4615018794554439724,
+          13827255372222848534,
+          4617135570354216904,
+          4620040644599499496,
+          4607588528277323576,
+          4619057102365863228,
+          4622562967725553914,
+          4613480337375648400,
+          4614180083098490504,
+          4614974095018102668,
+          13827333596411438518,
+          4617096750382054050,
+          4619951913234556442,
+          4607433248388672158,
+          4618970409613678813,
+          4622463890294487557,
+          4613306951871279572
+        ],
+        "bound": 1e-07
+      }
+    ],
+    "bound_provenance": "Established manufactured accuracy/parity bound1e-7 in tests/test_pde_shorthand_native.py; declared before capture. No native bit-word parity claim."
+  },
+  "runtime_python_import_guards": {
+    "runtime_guard_review.json": {
+      "count": 1358,
+      "missing_or_changed": []
+    },
+    "tests/runtime_guard_review.json": {
+      "count": 1592,
+      "missing_or_changed": []
+    }
+  },
+  "receipts": {
+    "pde_numeric_evolution_native_run001": {
+      "command_exit_code": 1,
+      "wall_seconds": 81.55326718278229,
+      "sampled_peak_summed_rss_kib": 1335768,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "pde_numeric_evolution_native_run002": {
+      "command_exit_code": 0,
+      "wall_seconds": 78.15586406318471,
+      "sampled_peak_summed_rss_kib": 1361192,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "pde_numeric_evolution_python_run001": {
+      "command_exit_code": 0,
+      "wall_seconds": 23.111770786810666,
+      "sampled_peak_summed_rss_kib": 1367376,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "pde_numeric_evolution_tests_run001": {
+      "command_exit_code": 0,
+      "wall_seconds": 47.41996303293854,
+      "sampled_peak_summed_rss_kib": 1989696,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "source_snapshots": 3499,
+  "test_append_review": {
+    "prior_test_AST_prefix_exact": true,
+    "new_cases": 4,
+    "fixture_sha256": "a2dacda68b108df0e08682ee5955e446220d3ef7bb86c85226df0fd4c7cd413c",
+    "established_bound": 1e-07,
+    "source": "tests/test_pde_shorthand_native.py existing manufactured checks",
+    "scope": "Two domains, stationary/decaying three-species polynomials, nonzero numeric endpoint targets2/-3; native actual installedode15s plus independent analytic controls."
+  },
+  "native_runtime_scope": "3439native source/capture/launcher/executable inputs preguarded/stable; installed dynamic native libraries not exhaustively inventoried/hashed. No observer/ODEsolver replacement.",
+  "native_time_output_quirk": "Initial observer-free native case completed its solver in0.390055s but collector wrongly expected returned tOut to equal requested times. Native pdeSolve nonAdaptiveEvent lines133-134 updates uOut but never tOut, unlike adaptiveEvent line181. Keep literal returned tOut=0 and three solution columns; analytic sampling uses predeclared requested times. No numeric assertion/bound changed. Initial failed capture preserved. Python API returns solutions only; broader native output grammar remains open.\n",
+  "source_change": "No production code changes; original test AST prefix exact, four appended controls and exact native capture fixtures.",
+  "timing_limit": "Per-case wall observations include differing compilation/warm-state contexts; diagnostic only, not a matched speed benchmark.",
+  "ownership": "Existing core file extended;1112owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "remaining": [
+    "Native fixedN time-vector output grammar/API difference; broader targets/options/complex/Fourier/variable-mass/plot controls.",
+    "Full PDE/JAX/AD/performance and complete function/original-assertion audit.",
+    "322final-source pages,1305scientificfigures and latest-mainCI/coverage>=79%."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_numeric_evolution_cpu_20261018.tar.gz",
+    "sha256": "c430e293e2ca9286431dda3e9b3eda84c34609b2a26784d8a8f56f437a07bf2f",
+    "root_stream_verified_payloads": 3627
+  }
+}

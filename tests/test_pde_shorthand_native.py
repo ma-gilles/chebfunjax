@@ -174,3 +174,61 @@ def test_shorthand_manufactured_accuracy_at_established_tolerances(kind, domain)
                 [k * (x - a) * (x - b) * jnp.exp(-k * t) for k in (1, 2, 3)]
             )
         assert float(jnp.max(jnp.abs(output(x) - expected))) < 1e-7
+
+
+NUMERIC_EVOLUTION = Path(__file__).parent / "references" / "pde_numeric_evolution_native_20261018.json"
+
+
+def _numeric_evolution_decode(record):
+    return np.array([int(h, 16) for h in record["words"]], dtype=np.uint64).view(
+        np.float64).reshape(record["shape"], order="F")
+
+
+@pytest.mark.parametrize("case_index", range(4))
+def test_numeric_nonzero_system_endpoint_native_trajectories(case_index):
+    """Actual native ode15s trajectories plus independent polynomial solutions."""
+    assert hashlib.sha256(NUMERIC_EVOLUTION.read_bytes()).hexdigest() == "a2dacda68b108df0e08682ee5955e446220d3ef7bb86c85226df0fd4c7cd413c"
+    fixture = json.loads(NUMERIC_EVOLUTION.read_text())
+    assert fixture["pin"] == "7574c77680d7e82b79626300bf255498271a72df"
+    assert len(fixture["cases"]) == 4
+    case = fixture["cases"][case_index]
+    assert case["complete"]
+    # Native fixed-N nonAdaptiveEvent updates uOut but never extends tOut.
+    # Preserve that captured source behavior independently of solution times.
+    assert case["returned_times"] == {"shape": [1, 1], "words": ["0000000000000000"]}
+    a, b = case["domain"]
+    h = (b - a) / 2
+    decay = case["decay"]
+    columns = [[-0.5 + decay * k * h * h / 2, -2.5, -decay * k * h * h / 2]
+               for k in (1, 2, 3)]
+    u0 = Chebfun.from_coeffs(jnp.asarray(columns).T, domain=(a, b))
+    if decay:
+        def fun(t, x, u, v, w):
+            p = (x - a) * (b - x)
+            return (0.1 * u.diff(2) - p * jnp.exp(-t) + 0.2 * jnp.exp(-t),
+                    0.2 * v.diff(2) - 4 * p * jnp.exp(-2 * t) + 0.8 * jnp.exp(-2 * t),
+                    0.3 * w.diff(2) - 9 * p * jnp.exp(-3 * t) + 1.8 * jnp.exp(-3 * t))
+    else:
+        def fun(u, v, w):
+            return (0.1 * u.diff(2), 0.2 * v.diff(2), 0.3 * w.diff(2))
+    outputs = pde15s(fun, case["times"], u0, options={"AdjustBCs": False},
+                     lbc=2.0, rbc=-3.0, n=9, rtol=1e-9, atol=1e-11)
+    x = jnp.asarray(case["sample_x"])
+    assert len(outputs) == 3
+    actual = np.stack([np.asarray(out(x)) for out in outputs], axis=2)
+    native = _numeric_evolution_decode(case["samples"])
+    native_analytic = _numeric_evolution_decode(case["analytic"])
+    independent = np.stack([
+        np.column_stack([2 - 5 * (np.asarray(x) - a) / (b - a)
+                         + decay * k * (np.asarray(x) - a) * (b - np.asarray(x))
+                         * np.exp(-k * t) for k in (1, 2, 3)])
+        for t in case["times"]], axis=2)
+    assert actual.shape == native.shape == independent.shape == (3, 3, 3)
+    # Established manufactured parity/accuracy bound in the tests above;
+    # declared before this capture, with no fitted replacement tolerance.
+    for first, second in [(actual, native), (actual, independent),
+                           (native, independent), (native_analytic, independent)]:
+        assert float(np.max(np.abs(first - second))) < 1e-7
+    for output in outputs:
+        endpoints = np.asarray(output(jnp.asarray([a, b])))
+        assert float(np.max(np.abs(endpoints - np.array([[2.0], [-3.0]])))) < 1e-7

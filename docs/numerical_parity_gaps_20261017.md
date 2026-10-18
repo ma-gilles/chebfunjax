@@ -1,3 +1,26 @@
+# Numeric nonzero system PDE trajectories — 2026-10-18
+
+Four actual unmodified native pde15s/installedode15s runs cover stationary and
+decaying three-species polynomials on[-1,1]and[2,6], numeric endpoint targets
+2/-3,N9,AdjustBCsfalse,times0/.005/.01,rtol1e-9/atol1e-11. All108public samples
+compare within6.22e-15ofnative; both implementations meet the predeclared
+established1e-7analytic bound (largest analytic error2.72e-9). No production
+edit. Exact native capture/collector archived; four regression cases appended
+without changing any prior test AST, assertion or bound. Actual parent79PASS
+includes full existing native/manufactured, boundary-contract, empty-boundary
+andCIprotocol modules. ObservedPythonimport files preguarded/stable; native
+source/capture/executable guards stable, not exhaustive dynamic-library guard.
+
+First collector wrongly asserted fixedNreturnedtimes=requestedtimes after the
+native solve. Source nonAdaptiveEvent updates solution columns but never tOut;
+literal native tOut=0andthreecolumns now recorded. Initial failed collector/
+receipt retained; no numeric bound weakened. Broader output grammar remains
+open. Per-case wall observations have different compilation/warm contexts,
+not a matched native performance benchmark. Existing1112owners/13lanes/
+HermiteCore12/79%gate unchanged. Full PDE/API/JAX/performance,322pages/
+1,305scientific figures and latest-mainCI remain required.
+Evidence: docs/pde_numeric_evolution_cpu_20261018.json.
+
 # TAN/TANH exact-axis zero conventions — 2026-10-18
 
 TAN exact-real-axis imaginary output is positive zero; at both-component-zero

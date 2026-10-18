@@ -613,6 +613,21 @@
       "sha256": "756f3e68bf5d97ad2cc8524729056cd5a6698ec628429ae84ae1a4f6e0dc2567",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
     },
+    "pde_numeric_evolution_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_numeric_evolution_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3627,
+        "sha256": "c430e293e2ca9286431dda3e9b3eda84c34609b2a26784d8a8f56f437a07bf2f"
+      },
+      "limits": [
+        "Native fixedN time-vector output grammar/API difference; broader targets/options/complex/Fourier/variable-mass/plot controls.",
+        "Full PDE/JAX/AD/performance and complete function/original-assertion audit.",
+        "322final-source pages,1305scientificfigures and latest-mainCI/coverage>=79%."
+      ],
+      "report": "docs/pde_numeric_evolution_cpu_20261018.json",
+      "report_sha256": "7fdd5598e8e96da1c622dfe7b0d1d4e1df1c2ec4b3c4c100443e9c6ac35accdb",
+      "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure."
+    },
     "pde_numeric_system_target_cpu_20261018": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_numeric_parent_cpu_20261018.tar.gz",
@@ -54553,11 +54568,20 @@
         {
           "artifact": "pdeset_consumer_20261017",
           "scope": "Fixed-grid Eps/N/AbsTol scalar-vector/RelTol/AdjustBCs/ODESolver wrapper controls only; native output grammar and other options remain open."
+        },
+        {
+          "artifact": "pde_numeric_evolution_cpu_20261018",
+          "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure. Scoped trajectory verification; full function/API/assertion status remains unverified."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "pde_numeric_evolution_cpu_20261018",
+              "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure. Scoped trajectory verification; full function/API/assertion status remains unverified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54598,6 +54622,10 @@
         {
           "artifact": "pde_numeric_system_target_cpu_20261018",
           "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
+        },
+        {
+          "artifact": "pde_numeric_evolution_cpu_20261018",
+          "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure. Scoped trajectory verification; full function/API/assertion status remains unverified."
         }
       ],
       "functions": [
@@ -54606,6 +54634,10 @@
             {
               "artifact": "pde_numeric_system_target_cpu_20261018",
               "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
+            },
+            {
+              "artifact": "pde_numeric_evolution_cpu_20261018",
+              "scope": "Actual installed ode15s via unmodified native pde15s: four stationary/decaying3species numeric nonzero endpoint trajectories on two domains. Public Python samples and independent analytic controls at unchanged established1e-7bound. No full PDE/API/performance closure. Scoped trajectory verification; full function/API/assertion status remains unverified."
             }
           ],
           "implementation_status": "unverified",
