@@ -1,0 +1,289 @@
+{
+  "scope": "Bounded exact-zero-real/imaginary-NaN TAN real component class and four captured real words. No whole-output NaN sign/payload, IEEE/API/page closure.",
+  "base_head": "9aa37701e330aeb947e33bbe09fbdbf60ed6d4e1",
+  "native_evidence": {
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "existing_capture_calls": 34,
+    "all_requested_input_words_storage_shapes_reverified": true,
+    "new_native_run": false,
+    "corrected_first_divergence": "At imaginary NaN, native real is positive quietNaN whereas original complex TAN primitive real is+0. Inf observations already match0/\u00b11; no Inf context-dependent discrepancy demonstrated.",
+    "four_native_word_observations": [
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 4,
+        "input_real": "8000000000000000",
+        "input_imag": "fff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "fff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 5,
+        "input_real": "0000000000000000",
+        "input_imag": "fff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "fff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 6,
+        "input_real": "8000000000000000",
+        "input_imag": "7ff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "7ff8000000000000"
+      },
+      {
+        "row": "nonfinite_imaginary_axis__tan",
+        "shape": [
+          2,
+          4
+        ],
+        "index0_columnmajor": 7,
+        "input_real": "0000000000000000",
+        "input_imag": "7ff8000000000000",
+        "native_real": "7ff8000000000000",
+        "native_imag": "7ff8000000000000",
+        "primitive_real": "0000000000000000",
+        "primitive_imag": "7ff8000000000000"
+      }
+    ],
+    "capture_sha256": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+    "runtime_limit": "Original capture outer3446source/capture/executable hashes stable. Nine late libraries lacked pre-call map hashes and noncode identity cache changed; no exhaustive MATLAB-runtime guard claim."
+  },
+  "source_change": "Protect the complete prior TAN axis result with JAX identity optimization_barrier, then only complex TAN real output where input real word is exact\u00b10 and imaginary input isNaN becomes standard positive quietNaN. Published prior-helper imaginary NaN sign/payload and all outside-mask component words retained; standalone primitive already differs from prior helper on some NaN sign words. TANH, Inf input branch, nonzero/subnormal real inputs, real-input dispatch and every analytic JVP unchanged. This is a captured builtin boundary convention, not an analytic limit at NaN.",
+  "derivative_contract": "Existing original primitive JVP code byte-identical. Independent retained cmath R2Jacobian/Hessian, jacfwd/jacrev, transverse real/imaginary tangents and RHS first/second controls pass; no derivative claim at NaN/Inf.",
+  "qualified_baseline": {
+    "total": 106,
+    "passed": 75,
+    "failed": 31,
+    "xfailed": 0,
+    "seconds": 53.081,
+    "new_controls": 28
+  },
+  "failed_first_float_candidate": {
+    "total": 1908,
+    "passed": 1877,
+    "failed": 4,
+    "xfailed": 27,
+    "seconds": 310.107,
+    "new_controls": 28
+  },
+  "qualified_full_final": {
+    "total": 1908,
+    "passed": 1881,
+    "failed": 0,
+    "xfailed": 27,
+    "seconds": 308.662,
+    "new_controls": 28
+  },
+  "word_selection_trials": {
+    "report": "SELECTION_WORD_DIAGNOSIS003.json",
+    "complete_prior_result_barrier_zero_mismatches_vs_prior_plus_approved_mask": true,
+    "source_cases": 26,
+    "modes": [
+      "eager",
+      "jit"
+    ],
+    "float_select_introduced_two_complex64_word_changes": true,
+    "three_new_complex128_controls_prior_helper_differs_from_standalone_primitive": true
+  },
+  "author_oracle_correction": {
+    "scope": "Only28new NaN controls; native4assertions unchanged, new24word-preservation reference changes standalone primitive to source-identical published prior helper in matching execution mode.",
+    "reason": "Standalone jitted primitive differs from already-published prior helper on six offaxisNaN sign words across three complex128contexts; baseline NaN target failures masked those later checks. Published library words are the correct preservation contract.",
+    "native_assertions_fixtures_bounds_unchanged": true,
+    "prior_capture_sha256": "87232043a6adfe27523d75545b7d27d13c87578faaae2eb058fd5d7c6b5448dc",
+    "failed_raw_oracle_full_run": "unary_tan_imaginary_nan_candidate_run001_20261018",
+    "prior_source_pin": "9aa37701e330aeb947e33bbe09fbdbf60ed6d4e1",
+    "prior_source_sha256": "9b6952b70be9618818005cc09df10250c2a00f8334b1b0316b85980302709399",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "all_original_inputs_remain": true,
+    "counts_bounds_zero_nan_checks_not_relaxed": true
+  },
+  "diagnostic_syntax_attempt": "selection001 terminated before imports with a Python syntax error; original script/receipt retained, corrected before qualified selection002/003.",
+  "new_tests": {
+    "direct_native_real_words_with_independent_primitive_imaginary_preservation": 4,
+    "dtype_neighbor_shape_signed_quiet_NaN_payload_subnormal_and_Inf_negative_controls": 24,
+    "prior_word_fixture": "Immutable source-bound published-prior helper words, matching mode/input; raw failed standalone-primitive author-oracle run and exact corrections retained."
+  },
+  "scope_of_gate": "Full original unary storage plus all inherited controls and new28checks; original univariate and RHS modules. No full page/heavy PDE expansion.",
+  "runtime_guards": {
+    "baseline": {
+      "loaded_files": 1486,
+      "all_preguarded": true,
+      "changed_source_or_test_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/src/chebfunjax/utils/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "candidate": {
+      "loaded_files": 1541,
+      "all_preguarded": true,
+      "changed_source_or_test_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/src/chebfunjax/utils/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "final": {
+      "loaded_files": 1541,
+      "all_preguarded": true,
+      "changed_source_or_test_bound_to_immutable_preimages": []
+    },
+    "selection002": {
+      "loaded_files": 1426,
+      "all_preguarded": true,
+      "changed_source_or_test_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/src/chebfunjax/utils/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_evidence_20261018/diagnose_selection_words.py"
+      ]
+    },
+    "selection003": {
+      "loaded_files": 1426,
+      "all_preguarded": true,
+      "changed_source_or_test_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_20261018/src/chebfunjax/utils/elementary.py"
+      ]
+    }
+  },
+  "supervision": {
+    "unary_tan_imaginary_nan_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 58.8336212169379,
+      "sampled_peak_summed_rss_kib": 1185108,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_tan_imaginary_nan_candidate_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 315.8711347640492,
+      "sampled_peak_summed_rss_kib": 1410176,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_tan_imaginary_nan_final_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 314.23534765606746,
+      "sampled_peak_summed_rss_kib": 1441148,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_tan_imaginary_nan_selection_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 1.807298833038658,
+      "sampled_peak_summed_rss_kib": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_tan_imaginary_nan_selection_run002_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 13.840299421921372,
+      "sampled_peak_summed_rss_kib": 951068,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_tan_imaginary_nan_selection_run003_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 16.04589721094817,
+      "sampled_peak_summed_rss_kib": 1049888,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "static_review": {
+    "base_head": "9aa37701e330aeb947e33bbe09fbdbf60ed6d4e1",
+    "source_AST_change": "Only _tan_tanh_complex_axes primal changes: complete prior complex axis result protected by JAX identity optimization_barrier for TAN, then real positive quietNaN selected only for exact-zero-real/imagNaN. TANH arithmetic, every other elementary AST, all customJVPs and whole TreeVar file unchanged.",
+    "test_AST_exceptions": {
+      "expected_word_helper": "_tan_tanh_expected_axis_words adds only TAN exact-zero-real/imagNaN expected real quietNaN; all input arrays/outside-mask real words/all imaginary words retained.",
+      "xfail_metadata": "Remove only nonfinite_imaginary_axis__tan from supplementary TAN_TANH_OPEN_NAMES; every assertion/bound unchanged.",
+      "all_other_prior_AST_identical": true,
+      "new_tests": 28,
+      "new24oracle_correction": {
+        "scope": "Only28new NaN controls; native4assertions unchanged, new24word-preservation reference changes standalone primitive to source-identical published prior helper in matching execution mode.",
+        "reason": "Standalone jitted primitive differs from already-published prior helper on six offaxisNaN sign words across three complex128contexts; baseline NaN target failures masked those later checks. Published library words are the correct preservation contract.",
+        "native_assertions_fixtures_bounds_unchanged": true,
+        "prior_capture_sha256": "87232043a6adfe27523d75545b7d27d13c87578faaae2eb058fd5d7c6b5448dc",
+        "failed_raw_oracle_full_run": "unary_tan_imaginary_nan_candidate_run001_20261018",
+        "prior_source_pin": "9aa37701e330aeb947e33bbe09fbdbf60ed6d4e1",
+        "prior_source_sha256": "9b6952b70be9618818005cc09df10250c2a00f8334b1b0316b85980302709399",
+        "jax": "0.11.0",
+        "jaxlib": "0.11.0",
+        "all_original_inputs_remain": true,
+        "counts_bounds_zero_nan_checks_not_relaxed": true
+      }
+    },
+    "original_metadata_records_unchanged": 14,
+    "remaining_supplemental_strict_xfail_cases": 13,
+    "native_fixture_assertions_bounds_unchanged": true,
+    "prior_word_fixture_sha256": "87232043a6adfe27523d75545b7d27d13c87578faaae2eb058fd5d7c6b5448dc",
+    "prior_word_fixture_scope": "26source-identical published prior-helper input/eager/JIT output cases; new24tests use matching-input/mode words only outside the approved NaN mask. No library runtime fixture use.",
+    "protected_bytes": {
+      "src/chebfunjax/operators/treevar.py": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "57b1d07651a11c7a58c117af93dc86e1e10e1316f461ae7c35e77a07a433ebc8",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+      "tests/test_matlab_port/treeVar/data/tan_tanh_axis_native_20261018.json": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696"
+    },
+    "published_parent_bridge": {
+      "commit": "1ef0e6e70af9720e1b33b4440548d03a491d7e5e",
+      "critical_preimages_byte_exact": {
+        "src/chebfunjax/utils/elementary.py": "9b6952b70be9618818005cc09df10250c2a00f8334b1b0316b85980302709399",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "1335dbd59c779bcf404f96e62e09a29b6dd87f52033fec1d96a1e7ccc5621750",
+        "src/chebfunjax/operators/treevar.py": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+        "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "57b1d07651a11c7a58c117af93dc86e1e10e1316f461ae7c35e77a07a433ebc8",
+        "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+        "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+        "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+        "tests/test_matlab_port/treeVar/data/tan_tanh_axis_native_20261018.json": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+        "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696"
+      },
+      "independently_published_disk_ultras_PDE_deltas_not_replayed_by_child": true
+    },
+    "no_CI_owner_or_config_changes": true
+  },
+  "validation": "Fullruff src/tests/scripts/examples and git diff --check pass. Original native fixtures/assertions/bounds and14open metadata rows unchanged. Supplementary NaN row strict xfail removed and now passes original full-native class/zero/bounds assertions;13supplementary expected failures remain.",
+  "remaining": [
+    "27gate expected failures =14original metadata records (7finite-phase TAN infinite-imaginary zero-sign conventions+7minimum-subnormal losses) plus13fresh-fixture cases (7same original TAN repetitions+6supplemental gap rows). No original metadata record is closed by this new class repair.",
+    "For negative imaginary NaN, native imaginary output is positive quietNaN while primitive imaginary output retains negative NaN. This sign/payload word difference remains explicit; existing original full-native assertions check NaN class, not NaN payload/sign. New tests preserve primitive imaginary words deliberately.",
+    "Captured native real words cover only four binary64 default signed quietNaN inputs. Other quietNaN payloads and complex64 controls verify internal canonical-real policy and outside-mask word preservation, not universal native NaN-word behavior. Signaling NaNs not newly captured/qualified.",
+    "All12captured zero-real/Inf-imaginary points already match0/\u00b11. Seven nonzero-real finite-phase infinity sign conventions are untouched; no phase table or context dependence inferred.",
+    "Root actual-parent integration/full final selection remains required. No Q edits, push, publication, CI ownership/config changes or native fixture runtime oracle."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_package_20261018.tar.gz",
+    "sha256": "aec0123933302086964f43a5a55a3ea655e0aadf5c7282757d1e5a5694d4032c",
+    "bytes": 41703938,
+    "payloads": 3579
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_imaginary_nan_stream_hashes_20261018.json",
+    "sha256": "ec62f4ee45030b5b5181a278f97e4ce49294e2f2dfddebe7f52e3765bd29ee56"
+  }
+}

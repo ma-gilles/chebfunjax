@@ -591,7 +591,7 @@ def test_sin_real_zero_boundary_word_scope(name, dtype):
 
 
 TAN_TANH_AXIS_CAPTURE = json.loads((DATA/'tan_tanh_axis_native_20261018.json').read_text())
-TAN_TANH_OPEN_NAMES = {'unary_storage_native36.json__tan__complex_1_inf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__complex_mixed': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_grid_6by4': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'nonfinite_imaginary_axis__tan': 'Exact-zero real with imaginary NaN: native real NaN versus primitive positive zero', 'infinite_imaginary_phase_controls__tan': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
+TAN_TANH_OPEN_NAMES = {'unary_storage_native36.json__tan__complex_1_inf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__complex_mixed': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_grid_6by4': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'infinite_imaginary_phase_controls__tan': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
 TAN_TANH_NATIVE_CASES = [pytest.param(r, id=r['name'], marks=(
     pytest.mark.xfail(strict=True, reason=TAN_TANH_OPEN_NAMES[r['name']])
     if r['name'] in TAN_TANH_OPEN_NAMES else [])) for r in TAN_TANH_AXIS_CAPTURE['rows']]
@@ -637,6 +637,8 @@ def _tan_tanh_expected_axis_words(name, value, original):
     if name == 'tan':
         expected.real[zero_real & zero_imag] = value.real[zero_real & zero_imag]
         expected.imag[zero_imag] = 0.
+        imaginary_nan = zero_real & np.isnan(value.imag)
+        expected.real[imaginary_nan] = np.nan
     else:
         selected = zero_real & ~zero_imag & np.isfinite(value.imag)
         expected.real[selected] = 0.
@@ -742,3 +744,88 @@ def test_tan_tanh_axes_real_input_primitive_words(name, dtype):
         expected = np.asarray(original_fn(value))
         got = np.asarray(current_fn(value))
         assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()
+
+
+TAN_IMAGINARY_NAN_ROW = next(r for r in TAN_TANH_AXIS_CAPTURE['rows']
+                            if r['name'] == 'nonfinite_imaginary_axis__tan')
+TAN_IMAGINARY_NAN_INDICES = [i for i, (real, imag) in enumerate(zip(
+    TAN_IMAGINARY_NAN_ROW['input']['real'], TAN_IMAGINARY_NAN_ROW['input']['imag']))
+    if int(real, 16) & 0x7fffffffffffffff == 0 and int(imag, 16) & 0x7fffffffffffffff > 0x7ff0000000000000]
+
+
+@pytest.mark.parametrize('index', TAN_IMAGINARY_NAN_INDICES)
+def test_tan_imaginary_nan_direct_native_real_words_and_primitive_imaginary(index):
+    row = TAN_IMAGINARY_NAN_ROW
+    value = _decode_tan_tanh_axis(row['input'])
+    argument = jnp.asarray(value)
+    assert np.asarray(argument).real.tobytes() == value.real.tobytes()
+    assert np.asarray(argument).imag.tobytes() == value.imag.tobytes()
+    assert row['output']['real'][index] == '7ff8000000000000'
+    for original_fn, current_fn in ((jnp.tan, _UNARY_FNS_RAW['tan']),
+                                    (jax.jit(jnp.tan), jax.jit(_UNARY_FNS_RAW['tan'])),
+                                    (jnp.tan, _UNARY_FNS['tan'])):
+        original = np.asarray(original_fn(argument))
+        got = np.asarray(current_fn(argument))
+        actual = got.real.ravel(order='F')[index:index+1].copy().view(np.uint64)
+        assert actual[0] == np.uint64(int(row['output']['real'][index], 16))
+        assert got.imag.tobytes() == original.imag.tobytes()
+
+
+def _tan_imaginary_nan_word_context(dtype, cohort, shape):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    positive = word_dtype(0x7fc00021 if dtype == np.complex64 else 0x7ff8000000000021)
+    negative = word_dtype(0xffc01234 if dtype == np.complex64 else 0xfff8000000001234)
+    payloads = np.array([positive, negative], dtype=word_dtype).view(real_dtype)
+    value = np.empty(12, dtype=dtype)
+    value.real[:4] = [0., -0., 0., -0.]
+    value.imag[:4] = [np.nan, np.nan, -np.nan, -np.nan] if cohort != 1 else [*payloads, *payloads]
+    if cohort == 0:
+        value.real[4:] = [-tiny, tiny, -1., 1., -np.nan, np.nan, -0., 0.]
+        value.imag[4:] = [np.nan, -np.nan, np.nan, -np.nan, .3, -.3, np.inf, -np.inf]
+    elif cohort == 1:
+        value.real[4:] = [-tiny, tiny, *payloads, *payloads, -0., 0.]
+        value.imag[4:] = [*payloads, 0., -0., .3, -.3, np.inf, -np.inf]
+    else:
+        value.real[4:] = [-2., -1., 1., 2., -.4, .4, -0., 0.]
+        value.imag[4:] = [np.inf, -np.inf, np.inf, -np.inf, 0., -0., np.inf, -np.inf]
+    shapes = [(12,), (1, 12), (3, 4), (12, 1)]
+    return value.reshape(shapes[shape], order='F')
+
+
+TAN_IMAGINARY_NAN_PRIOR_CAPTURE = json.loads((DATA/'tan_imaginary_nan_prior_words_20261018.json').read_text())
+TAN_IMAGINARY_NAN_PRIOR_WORDS = {r['label']:r for r in TAN_IMAGINARY_NAN_PRIOR_CAPTURE['rows']}
+
+
+def _decode_tan_nan_prior_words(row, mode):
+    dtype = np.dtype(row['dtype'])
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    out = np.empty(len(row[mode]['real']), dtype=dtype)
+    out.real = np.array([int(v, 16) for v in row[mode]['real']], dtype=word_dtype).view(real_dtype)
+    out.imag = np.array([int(v, 16) for v in row[mode]['imag']], dtype=word_dtype).view(real_dtype)
+    return out.reshape(row['shape'])
+
+
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+@pytest.mark.parametrize('cohort', [0, 1, 2])
+@pytest.mark.parametrize('shape', [0, 1, 2, 3])
+def test_tan_imaginary_nan_signed_payload_and_offaxis_word_scope(dtype, cohort, shape):
+    value = _tan_imaginary_nan_word_context(dtype, cohort, shape)
+    argument = jnp.asarray(value)
+    assert np.asarray(argument).real.tobytes() == value.real.tobytes()
+    assert np.asarray(argument).imag.tobytes() == value.imag.tobytes()
+    row = TAN_IMAGINARY_NAN_PRIOR_WORDS[f'{np.dtype(dtype).name}_{cohort}_{shape}']
+    assert row['shape'] == list(value.shape)
+    input_value = _decode_tan_nan_prior_words(row, 'input')
+    assert input_value.real.tobytes() == value.real.tobytes()
+    assert input_value.imag.tobytes() == value.imag.tobytes()
+    for mode, current_fn in (('eager', _UNARY_FNS_RAW['tan']),
+                              ('jit', jax.jit(_UNARY_FNS_RAW['tan']))):
+        prior = _decode_tan_nan_prior_words(row, mode)
+        expected = _tan_tanh_expected_axis_words('tan', value, prior)
+        got = np.asarray(current_fn(argument))
+        assert got.dtype == expected.dtype and got.shape == expected.shape
+        assert got.real.tobytes() == expected.real.tobytes()
+        assert got.imag.tobytes() == expected.imag.tobytes()

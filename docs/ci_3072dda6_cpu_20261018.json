@@ -1,0 +1,242 @@
+{
+  "source_commit": "3072dda6fefccc7aa940191418bb3602a8c16ea3",
+  "run_url": "https://github.com/ma-gilles/chebfunjax/actions/runs/39120366345",
+  "conclusion": "success",
+  "all_jobs_success": true,
+  "job_count": 46,
+  "jobs": [
+    {
+      "id": 117657482407,
+      "name": "Validate golden refs",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482533,
+      "name": "Core tests (6)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482556,
+      "name": "Core tests (8)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482574,
+      "name": "Core tests (12)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482600,
+      "name": "Lint (ruff)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482602,
+      "name": "Core tests (3)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482620,
+      "name": "Core tests (9)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482630,
+      "name": "Core tests (10)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482639,
+      "name": "Code quality checks",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482668,
+      "name": "Core tests (2)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482674,
+      "name": "Core tests (11)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482677,
+      "name": "MATLAB port tree (chebfun2d-a)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482682,
+      "name": "Core tests (7)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482689,
+      "name": "MATLAB port tree (chebfun3d-e)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482701,
+      "name": "MATLAB port tree (techs-a)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482715,
+      "name": "Core tests (1)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482720,
+      "name": "MATLAB port tree (chebfun-g)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482743,
+      "name": "Core tests (0)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482755,
+      "name": "MATLAB port tree (chebfun-i)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482759,
+      "name": "MATLAB port tree (chebfun3d-g)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482761,
+      "name": "Core tests (4)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482767,
+      "name": "MATLAB port tree (chebfun3d-a)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482775,
+      "name": "MATLAB port tree (operators-c)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482777,
+      "name": "MATLAB port tree (chebfun-c)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482779,
+      "name": "MATLAB port tree (chebfun3d-d)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482780,
+      "name": "MATLAB port tree (ball)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482801,
+      "name": "MATLAB port tree (chebfun3d-h)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482811,
+      "name": "MATLAB port tree (chebfun-f)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482838,
+      "name": "MATLAB port tree (operators-2)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482851,
+      "name": "MATLAB port tree (chebfun3d-c)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482868,
+      "name": "MATLAB port tree (chebfun-d)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482886,
+      "name": "MATLAB port tree (chebfun-b)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482892,
+      "name": "MATLAB port tree (operators-b)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482897,
+      "name": "MATLAB port tree (chebfun-h)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482900,
+      "name": "MATLAB port tree (chebfun2d-b)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482910,
+      "name": "MATLAB port tree (operators-a)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482915,
+      "name": "MATLAB port tree (chebfun-e)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482918,
+      "name": "MATLAB port tree (sphere-vector)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482929,
+      "name": "MATLAB port tree (sphere-scalar)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482942,
+      "name": "MATLAB port tree (chebfun3d-f)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482953,
+      "name": "MATLAB port tree (techs-b)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482967,
+      "name": "Core tests (5)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482975,
+      "name": "MATLAB port tree (chebfun3d-b)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482981,
+      "name": "MATLAB port tree (chebfun-a)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117657482997,
+      "name": "MATLAB port tree (disk)",
+      "conclusion": "success"
+    },
+    {
+      "id": 117674100920,
+      "name": "Tests + Coverage",
+      "conclusion": "success"
+    }
+  ],
+  "raw_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_3072dda6_success_20261018.json",
+  "raw_receipt_sha256": "dc47354fb70e625ac28ddba40b0e94c7ed566bbc78597f7e999e954716875fd8",
+  "limits": "Onlyolder3072dda6source; coverage not independently extracted here. Latestmainacceptanceremainsrequired."
+}

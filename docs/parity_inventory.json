@@ -591,6 +591,22 @@
       "sha256": "0c2e9838b9662b78f05749aa5ae0ac39cabff67c0fba030ac6491e7da67977bd",
       "source_base": "c0a1bca90325a612abfc8ac15cd9a2a037ffe18d"
     },
+    "original_inv_roots_minmax_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_inv_roots_minmax_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 50,
+        "sha256": "5af6984885862130ad669ccaf3a0d4cbe47d04e79b3c8206830c2cab575543b2"
+      },
+      "limits": [
+        "Only default native preferences, not alternate settings or fullfunction/API/JAX/backend/performance.",
+        "Callback/providercoefficientwords may differ while original tolerance formulas pass; no nativewordqualification.",
+        "Inventory file-wide statuses remain unverified; attach scoped default-predicate evidence.",
+        "Originalrawcontrolrun001 JSONnumpyboolserialization failure preserved;run002 also uses exactoriginalcomplex/prune arguments. No numeric bound was changed."
+      ],
+      "report": "docs/original_inv_roots_minmax_cpu_20261018.json",
+      "report_sha256": "0c37f83c4c510e81331ae67d66a15cad026277f8e26aa3aeee32cac9537a40c0",
+      "scope": "Default-preference predicate mapping for three original native test functions.88native return slots; Python64cases acrosscounterpartfiles (61mappedoriginal+3supplementals) plus17provider controls in existing81casegate, plus4rawcomplexordering controls. Not complete library/API/provider-word/alternate-preference qualification."
+    },
     "original_system2_polyfit8_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_system2_polyfit8_parent_cpu_20261017.tar.gz",
@@ -819,6 +835,22 @@
       "path": "docs/subspace_unbnd_inner_cpu_20261017.json",
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
       "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
+    },
+    "tan_imaginary_nan_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_imaginary_nan_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3593,
+        "sha256": "094c9b3884daa4e5bd5bb0a55be226fd92ae7c296850f51d73e5b774476f025f"
+      },
+      "limits": [
+        "14originalunaryrecords and remainingfreshfixturegaps; whole-subnormalSIN candidateunderqualification, other6methodsrequirestagingdiagnosis.",
+        "Native numeric disk rank-cap/NaN/error/source arithmetic/JAXmigration; preservedproviderwordgaps.",
+        "Originaldefaultpredicateevidence is not a completedfullfunction/API/alternateprefs audit.",
+        "322final-sourcepages,1305scientificfigures,knownslowpaths and latest-mainCI/coverage>=79%."
+      ],
+      "report": "docs/tan_imaginary_nan_parent_cpu_20261018.json",
+      "report_sha256": "4642989ba1eee614d13da55b569e8494f181b36cbb1ce6e6ce1bb949e63a16c7",
+      "scope": "TAN exact-zero-real/imaginaryquietNaN realcomponent class and canonical word; preserve prior real/imag words outside approved mask and all analyticJVPs. CPU only, no fullIEEE/API/pages/performanceclosure."
     },
     "tan_tanh_parent_cpu_20261018": {
       "archive": {
@@ -90044,6 +90076,10 @@
         {
           "artifact": "tan_tanh_parent_cpu_20261018",
           "scope": "CPU TreeVar TAN exact-real-axis and TANH finite nonzero imaginary-axis component-zero conventions, with finite analytic first/second derivatives. No whole API/page/figure/performance closure. Checked scope only; full API/assertion parity unverified."
+        },
+        {
+          "artifact": "tan_imaginary_nan_parent_cpu_20261018",
+          "scope": "TAN exact-zero-real/imaginaryquietNaN realcomponent class and canonical word; preserve prior real/imag words outside approved mask and all analyticJVPs. CPU only, no fullIEEE/API/pages/performanceclosure. Full semantic/API status remains unverified."
         }
       ],
       "functions": [
@@ -104630,6 +104666,13 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_inv_matlab.py"
       ],
+      "default_preference_qualification": {
+        "artifact": "original_inv_roots_minmax_cpu_20261018",
+        "full_item_status_unchanged": true,
+        "mapped_python_cases": 21,
+        "native_slots": 48,
+        "status": "verified_default_predicates"
+      },
       "evidence": [
         {
           "artifact": "inverse_c2r_parent_cpu_20261017",
@@ -104642,6 +104685,10 @@
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
+        },
+        {
+          "artifact": "original_inv_roots_minmax_cpu_20261018",
+          "scope": "Every default native return slot mapped/passing with explicit stronger predicates/adapters and rawcomplex-order checks. No fullAPI/alternateprefs/providerword/warning/performanceclosure."
         }
       ],
       "functions": [
@@ -118750,10 +118797,21 @@
         "tests/test_matlab_port/singfun/test_minandmax_matlab.py",
         "tests/test_matlab_port/trigtech/test_minandmax_matlab.py"
       ],
+      "default_preference_qualification": {
+        "artifact": "original_inv_roots_minmax_cpu_20261018",
+        "full_item_status_unchanged": true,
+        "mapped_python_cases": 16,
+        "native_slots": 16,
+        "status": "verified_default_predicates"
+      },
       "evidence": [
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
+        },
+        {
+          "artifact": "original_inv_roots_minmax_cpu_20261018",
+          "scope": "Every default native return slot mapped/passing with explicit stronger predicates/adapters and rawcomplex-order checks. No fullAPI/alternateprefs/providerword/warning/performanceclosure."
         }
       ],
       "functions": [
@@ -119214,6 +119272,13 @@
         "tests/test_matlab_port/spherefun/test_roots_matlab.py",
         "tests/test_matlab_port/trigtech/test_roots_matlab.py"
       ],
+      "default_preference_qualification": {
+        "artifact": "original_inv_roots_minmax_cpu_20261018",
+        "full_item_status_unchanged": true,
+        "mapped_python_cases": 24,
+        "native_slots": 24,
+        "status": "verified_default_predicates"
+      },
       "evidence": [
         {
           "artifact": "roots_normalization_parent_cpu_20261018",
@@ -119230,6 +119295,10 @@
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Full selected Python counterpart modules24/24/16cases pass in isolated81casegate, original bytes/assertions/bounds retained. Not a completed native-clause assertion audit or full API qualification."
+        },
+        {
+          "artifact": "original_inv_roots_minmax_cpu_20261018",
+          "scope": "Every default native return slot mapped/passing with explicit stronger predicates/adapters and rawcomplex-order checks. No fullAPI/alternateprefs/providerword/warning/performanceclosure."
         }
       ],
       "functions": [

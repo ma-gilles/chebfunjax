@@ -1,3 +1,38 @@
+# TAN imaginary-NaN real component and original predicate maps — 2026-10-18
+
+TAN now returns canonical positive real NaN for exact-zero real input with
+imaginary NaN, following four captured native binary64 signed-quiet-NaN points.
+Primitive imaginary words and prior real words outside that mask are retained.
+A barrier around the complete prior result fixes an introduced complex64 sign
+regression; all analytic JVPs stay exact. The first failed full run is retained.
+Three new author-oracle failures were already differences between the prior
+helper and standalone primitive; only those new oracle targets were corrected
+using immutable prior-helper words. Original native assertions/fixtures/bounds
+stay unchanged. A postgate docstring-only whole-module AST bridge is explicit.
+Actual parent1,956PASS27XFAIL: unary1,881PASS27XFAIL plus75disk/roots/CIprotocol
+checks. Observed Python-import files1541/1550 preguarded/stable; no censor or
+survivors. One supplemental expected failure removed;14original records remain.
+27cases=14original+13fresh-fixture cases, including7repeated original inputs.
+Native imaginary NaN sign/payload and signaling-NaN behavior remain unqualified.
+
+Fresh unmodified original native test_inv/test_roots/test_minandmax return
+48/24/16true slots,88total. Every slot has a source/formula/Python-case mapping.
+Inverse48slots include30algorithm predicates plus3broadcast predicates repeated
+six times (33evaluations); Python counterpart files have61mapped cases plus
+3supplementals, with17provider checks making the existing81casegate. Four raw
+complex-root order controls pass at original bounds without sorting, resolving
+that adapter concern for these cases. Real-root sorting and stronger absolute/
+position predicates are explicit. Alternate preferences, full APIs/provider
+words, warning semantics and performance are not qualified. Inventory attaches
+nested default-predicate qualifications; full-item statuses remain unverified.
+
+All1113owners/13lanes/HermiteCore12/79%gate unchanged. Other6subnormal unary
+families contradict a shared analytic-product rule; SIN whole-subnormal family
+is under qualification. Disk rank-cap/NaN/error and source arithmetic/JAX debt,
+322pages/1305scientificfigures, known slow paths and latest-mainCI remain open.
+Evidence: docs/tan_imaginary_nan_parent_cpu_20261018.json and
+ docs/original_inv_roots_minmax_cpu_20261018.json.
+
 # Disk constructor storage and inverse finishing — 2026-10-18
 
 Coefficient-to-Diskfun conversion now follows native numeric construction:

@@ -110,7 +110,16 @@ def _tan_tanh_complex_axes(value, hyperbolic):
     else:
         result_real = jnp.where(zero_real & zero_imag, real, result_real)
         result_imag = jnp.where(zero_imag, jnp.zeros_like(imag), result_imag)
-    return jax.lax.complex(result_real, result_imag)
+    result = jax.lax.complex(result_real, result_imag)
+    if not hyperbolic:
+        # Preserve the complete prior result before applying the captured
+        # TAN exact-zero-real/imaginary-NaN real-component convention. A
+        # floating select inside the prior calculation can alter NaN signs.
+        result = jax.lax.optimization_barrier(result)
+        corrected_real = jnp.where(zero_real & jnp.isnan(imag),
+                                   jnp.full_like(real, jnp.nan), jnp.real(result))
+        result = jax.lax.complex(corrected_real, jnp.imag(result))
+    return result
 
 
 @_tan_tanh_complex_axes.defjvp
@@ -132,6 +141,8 @@ def _tan_numeric(value):
     Independent R2025b direct-component scalar/mixed-array captures establish
     positive imaginary zero on the exact real axis, including nonfinite real
     inputs, and retain the input real-zero sign when both components are zero.
+    Word-exact-zero real inputs with imaginary quiet NaN return canonical
+    positive real NaN; their primitive imaginary words remain unchanged.
     Word-aware tests exclude nonzero subnormals. Other primitive words and
     the ordinary analytic derivatives are retained; infinite-imaginary phase
     conventions and minimum-subnormal component losses remain unqualified.

@@ -1,0 +1,1161 @@
+{
+  "scope": "Default-preference predicate mapping for three original native test functions.88native return slots; Python64cases acrosscounterpartfiles (61mappedoriginal+3supplementals) plus17provider controls in existing81casegate, plus4rawcomplexordering controls. Not complete library/API/provider-word/alternate-preference qualification.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_return_slots": 88,
+  "native_all_true": true,
+  "slot_mapping": [
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[roots]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[roots]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        3
+      ],
+      "python_case_name": "test_sausagemap[roots]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[roots]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[roots]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        1,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[newton]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[newton]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        3
+      ],
+      "python_case_name": "test_sausagemap[newton]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[newton]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[newton]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        2,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[bisection]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[bisection]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        3
+      ],
+      "python_case_name": "test_sausagemap[bisection]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[bisection]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[bisection]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        3,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[regulafalsi]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[regulafalsi]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        3
+      ],
+      "python_case_name": "test_sausagemap[regulafalsi]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[regulafalsi]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[regulafalsi]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        4,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[illinois]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[illinois]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        3
+      ],
+      "python_case_name": "test_sausagemap[illinois]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[illinois]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[illinois]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        5,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        1
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[brent]",
+      "bound_or_predicate": "100*eps*inverse.vscale; full infinity norm",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        2
+      ],
+      "python_case_name": "test_sine_and_inverse_roundtrip[brent]",
+      "bound_or_predicate": "same100*eps*inverse.vscale aftertweakDomain2e-15",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        3
+      ],
+      "python_case_name": "test_sausagemap[brent]",
+      "bound_or_predicate": "sum of both full composition infinity norms <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        4
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[brent]",
+      "bound_or_predicate": "20point full infinity norm <100*eps*inverse.vscale",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        5
+      ],
+      "python_case_name": "test_monocheck_and_rangecheck[brent]",
+      "bound_or_predicate": "all domain endpoint errors <10*eps",
+      "alias": "two predicates share one Python case forcolumns1/2or4/5"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        6
+      ],
+      "python_case_name": "test_reject_nonmonotonic",
+      "bound_or_predicate": "case-insensitive exact CHEBFUN:CHEBFUN:inv:doMonoCheck:notMonotonic identifier",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        7
+      ],
+      "python_case_name": "test_piecewise_inverse_with_jump",
+      "bound_or_predicate": "10point roundtrip infinity norm <10*inverse.vscale*eps",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebfun/test_inv.m",
+      "slot": [
+        6,
+        8
+      ],
+      "python_case_name": "test_decreasing_inverse",
+      "bound_or_predicate": "same10point bound for decreasing -sin",
+      "alias": "columns6to8 are broadcast to all6native rows; Python tests evaluate each of these3statements once"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        1
+      ],
+      "python_case_name": "test_roots_bessel[Chebtech1]",
+      "bound_or_predicate": "Bessel mapped zeros infinity norm <10*length(f)*eps",
+      "adapter_review": "Real scalar port sorting redundant with literal library ascending sort"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        2
+      ],
+      "python_case_name": "test_roots_oscillatory[Chebtech1]",
+      "bound_or_predicate": "sin500pi roots infinity norm <length(f)*eps",
+      "adapter_review": "Real scalar port sorting redundant with literal library ascending sort"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        3
+      ],
+      "python_case_name": "test_roots_perturbed_poly[Chebtech1]",
+      "bound_or_predicate": "exact4roots and feval infinity norm <100*length(f)*eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        4
+      ],
+      "python_case_name": "test_roots_simple_linear[Chebtech1]",
+      "bound_or_predicate": "all roots exactlyzero",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        5
+      ],
+      "python_case_name": "test_roots_simple_quadratic[Chebtech1]",
+      "bound_or_predicate": "exact2roots and infinity norm <eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        6
+      ],
+      "python_case_name": "test_roots_complex_pair[Chebtech1]",
+      "bound_or_predicate": "raw ordered roots vs[+i,-i]/5 infinity norm <10eps",
+      "adapter_review": "cols6/7 sorted in original Python port; supplemental4raw controls now pass without sorting at originalbounds"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        7
+      ],
+      "python_case_name": "test_roots_complex_prune[Chebtech1]",
+      "bound_or_predicate": "same raworder bound10*length(f)*eps",
+      "adapter_review": "cols6/7 sorted in original Python port; supplemental4raw controls now pass without sorting at originalbounds"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        8
+      ],
+      "python_case_name": "test_roots_complex_recurse[Chebtech1]",
+      "bound_or_predicate": "nonrecursive201roots and recursive>=213",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        9
+      ],
+      "python_case_name": "test_roots_array_valued[Chebtech1]",
+      "bound_or_predicate": "source one-sided column-major bound10*length(f)*eps with NaNpadding; Python abs bound is stronger",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        10
+      ],
+      "python_case_name": "test_roots_qz_nonempty[Chebtech1]",
+      "bound_or_predicate": "QZroots nonempty",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        11
+      ],
+      "python_case_name": "test_roots_qz_feval[Chebtech1]",
+      "bound_or_predicate": "QZfeval infinity norm <10eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        1,
+        12
+      ],
+      "python_case_name": "test_roots_qz_lowdegree[Chebtech1]",
+      "bound_or_predicate": "lowdegree QZfeval infinity norm <eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        1
+      ],
+      "python_case_name": "test_roots_bessel[Chebtech2]",
+      "bound_or_predicate": "Bessel mapped zeros infinity norm <10*length(f)*eps",
+      "adapter_review": "Real scalar port sorting redundant with literal library ascending sort"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        2
+      ],
+      "python_case_name": "test_roots_oscillatory[Chebtech2]",
+      "bound_or_predicate": "sin500pi roots infinity norm <length(f)*eps",
+      "adapter_review": "Real scalar port sorting redundant with literal library ascending sort"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        3
+      ],
+      "python_case_name": "test_roots_perturbed_poly[Chebtech2]",
+      "bound_or_predicate": "exact4roots and feval infinity norm <100*length(f)*eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        4
+      ],
+      "python_case_name": "test_roots_simple_linear[Chebtech2]",
+      "bound_or_predicate": "all roots exactlyzero",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        5
+      ],
+      "python_case_name": "test_roots_simple_quadratic[Chebtech2]",
+      "bound_or_predicate": "exact2roots and infinity norm <eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        6
+      ],
+      "python_case_name": "test_roots_complex_pair[Chebtech2]",
+      "bound_or_predicate": "raw ordered roots vs[+i,-i]/5 infinity norm <10eps",
+      "adapter_review": "cols6/7 sorted in original Python port; supplemental4raw controls now pass without sorting at originalbounds"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        7
+      ],
+      "python_case_name": "test_roots_complex_prune[Chebtech2]",
+      "bound_or_predicate": "same raworder bound10*length(f)*eps",
+      "adapter_review": "cols6/7 sorted in original Python port; supplemental4raw controls now pass without sorting at originalbounds"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        8
+      ],
+      "python_case_name": "test_roots_complex_recurse[Chebtech2]",
+      "bound_or_predicate": "nonrecursive201roots and recursive>=213",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        9
+      ],
+      "python_case_name": "test_roots_array_valued[Chebtech2]",
+      "bound_or_predicate": "source one-sided column-major bound10*length(f)*eps with NaNpadding; Python abs bound is stronger",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        10
+      ],
+      "python_case_name": "test_roots_qz_nonempty[Chebtech2]",
+      "bound_or_predicate": "QZroots nonempty",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        11
+      ],
+      "python_case_name": "test_roots_qz_feval[Chebtech2]",
+      "bound_or_predicate": "QZfeval infinity norm <10eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_roots.m",
+      "slot": [
+        2,
+        12
+      ],
+      "python_case_name": "test_roots_qz_lowdegree[Chebtech2]",
+      "bound_or_predicate": "lowdegree QZfeval infinity norm <eps",
+      "adapter_review": "Original bounds retained; shape/count/absolute checks may strengthen source"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        1
+      ],
+      "python_case_name": "test_minmax_secant_cubic[Chebtech1]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        2
+      ],
+      "python_case_name": "test_minmax_sin10[Chebtech1]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        3
+      ],
+      "python_case_name": "test_minmax_airy[Chebtech1]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        4
+      ],
+      "python_case_name": "test_minmax_neg_runge[Chebtech1]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        5
+      ],
+      "python_case_name": "test_minmax_cubic_cosh[Chebtech1]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        6
+      ],
+      "python_case_name": "test_minmax_array_valued[Chebtech1]",
+      "bound_or_predicate": "allcolumnvalues within10*max(vscale*eps), callbacks atownextremepositions within samebound; Pythonstrict< strengthens nativeposition<="
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        7
+      ],
+      "python_case_name": "test_minmax_complex_array_vals[Chebtech1]",
+      "bound_or_predicate": "matrix infinity norm =maxrowsum of absvalue differences <100*max(vscale*eps)"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        1,
+        8
+      ],
+      "python_case_name": "test_minmax_complex_array_pos[Chebtech1]",
+      "bound_or_predicate": "FIRST-column position infinity norm <500*max(vscale*eps); nonunique secondcolumn not asserted"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        1
+      ],
+      "python_case_name": "test_minmax_secant_cubic[Chebtech2]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        2
+      ],
+      "python_case_name": "test_minmax_sin10[Chebtech2]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        3
+      ],
+      "python_case_name": "test_minmax_airy[Chebtech2]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        4
+      ],
+      "python_case_name": "test_minmax_neg_runge[Chebtech2]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        5
+      ],
+      "python_case_name": "test_minmax_cubic_cosh[Chebtech2]",
+      "bound_or_predicate": "both extrema and callback at bothpositions within10*vscale*eps"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        6
+      ],
+      "python_case_name": "test_minmax_array_valued[Chebtech2]",
+      "bound_or_predicate": "allcolumnvalues within10*max(vscale*eps), callbacks atownextremepositions within samebound; Pythonstrict< strengthens nativeposition<="
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        7
+      ],
+      "python_case_name": "test_minmax_complex_array_vals[Chebtech2]",
+      "bound_or_predicate": "matrix infinity norm =maxrowsum of absvalue differences <100*max(vscale*eps)"
+    },
+    {
+      "source": "tests/chebtech/test_minandmax.m",
+      "slot": [
+        2,
+        8
+      ],
+      "python_case_name": "test_minmax_complex_array_pos[Chebtech2]",
+      "bound_or_predicate": "FIRST-column position infinity norm <500*max(vscale*eps); nonunique secondcolumn not asserted"
+    }
+  ],
+  "input_source_sha256": {
+    "tests/chebtech/test_roots.m": "eeb9c6254e82e8ab7a6601a7345469a279dad345d29e41d681f514d54c4a0dc4",
+    "tests/test_matlab_port/chebtech/test_roots_matlab.py": "d87f195dbc7f6eba50874e9fdce8c2aa33e2d52a3e1f08aaa5f8290dc9cb6593",
+    "tests/chebfun/test_inv.m": "6b90b025730b895efe86b6eaa93ee7966944c294ca567be26135e23427fc17ab",
+    "tests/test_matlab_port/chebfun/test_inv_matlab.py": "dd4bf329f19392fe8b9a8b87347b340f54d4bdc59564b5160d5c01845251d102",
+    "tests/chebtech/test_minandmax.m": "a076e2918dbcd726be5960910af35d8dbfbf282789c62a8d596adb4ee3f6e8aa",
+    "tests/test_matlab_port/chebtech/test_minandmax_matlab.py": "0376ede29c32a239a4f893b036d38472ff77730999c6955e47766da43ebe7975"
+  },
+  "inverse_alias_accounting": "48returnslots =30algorithm-specific predicates +3broadcast predicates repeated6times;33distinct evaluated native predicates. Python24cases include21nativecounterpart cases+3supplementals (extra jumpdomain,noquasi,badAlgo).",
+  "root_adapter_resolution": [
+    {
+      "tech": "Chebtech1",
+      "native_column": 6,
+      "raw_without_sort": [
+        [
+          -0.0,
+          0.20000000000000037
+        ],
+        [
+          0.0,
+          -0.20000000000000037
+        ]
+      ],
+      "length": 3,
+      "bound": 2.220446049250313e-15,
+      "max_error": 3.608224830031759e-16,
+      "pass": true
+    },
+    {
+      "tech": "Chebtech1",
+      "native_column": 7,
+      "raw_without_sort": [
+        [
+          -1.8943180357666733e-15,
+          0.199999999999988
+        ],
+        [
+          -1.8943180357666733e-15,
+          -0.199999999999988
+        ]
+      ],
+      "length": 17,
+      "bound": 3.774758283725532e-14,
+      "max_error": 1.2166540698075122e-14,
+      "pass": true
+    },
+    {
+      "tech": "Chebtech2",
+      "native_column": 6,
+      "raw_without_sort": [
+        [
+          -0.0,
+          0.2000000000000001
+        ],
+        [
+          0.0,
+          -0.2000000000000001
+        ]
+      ],
+      "length": 3,
+      "bound": 2.220446049250313e-15,
+      "max_error": 8.326672684688674e-17,
+      "pass": true
+    },
+    {
+      "tech": "Chebtech2",
+      "native_column": 7,
+      "raw_without_sort": [
+        [
+          -1.205632815803881e-15,
+          0.19999999999999055
+        ],
+        [
+          -1.205632815803881e-15,
+          -0.19999999999999055
+        ]
+      ],
+      "length": 17,
+      "bound": 3.774758283725532e-14,
+      "max_error": 9.541130668419758e-15,
+      "pass": true
+    }
+  ],
+  "minmax_adapter_notes": "Python tuple layout converted to native min/max rows; SciPytest-only Airy callback is a mathematical test callback, not native-buffer runtime substitution. Complex constructor warning filters remain existingtestbehavior, not warningAPIqualification.",
+  "python_source_bridge": "Selected testfiles byte-identical to isolateda9+finish-split81casegate now publishede1; current TANNaNreal correction does not change inv/roots/minmax finite helper numerical AST. Raw4check sourceguard binds actualcurrent root source.",
+  "limits": [
+    "Only default native preferences, not alternate settings or fullfunction/API/JAX/backend/performance.",
+    "Callback/providercoefficientwords may differ while original tolerance formulas pass; no nativewordqualification.",
+    "Inventory file-wide statuses remain unverified; attach scoped default-predicate evidence.",
+    "Originalrawcontrolrun001 JSONnumpyboolserialization failure preserved;run002 also uses exactoriginalcomplex/prune arguments. No numeric bound was changed."
+  ],
+  "mapped_original_python_cases": 61,
+  "supplemental_python_cases": 3,
+  "receipts": {
+    "original_inv_roots_minmax_native_run001": {
+      "command_exit_code": 0,
+      "wall_seconds": 172.49143166095018,
+      "sampled_peak_summed_rss_kib": 1429440,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "original_raw_complex_order_run001": {
+      "command_exit_code": 1,
+      "wall_seconds": 40.45338296005502,
+      "sampled_peak_summed_rss_kib": 985624,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    },
+    "original_raw_complex_order_run002": {
+      "command_exit_code": 0,
+      "wall_seconds": 26.68820945126936,
+      "sampled_peak_summed_rss_kib": 894756,
+      "remaining_owned_pids": [],
+      "censored_limit": null
+    }
+  },
+  "raw_python_import_guard": {
+    "count": 1345,
+    "missing_or_changed": []
+  },
+  "native_return_matrices": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "scope": "Unmodified original test functions with no arguments/default preferences; per-predicate slot returns, not full API qualification.",
+    "cases": [
+      {
+        "source": "tests/chebfun/test_inv.m",
+        "dispatch": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebfun/test_inv.m",
+        "default_arguments": true,
+        "wall_seconds": 2.199253,
+        "shape": [
+          6,
+          8
+        ],
+        "pass": [
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        ],
+        "total_slots": 48,
+        "true_slots": 48,
+        "false_linear_indices": [],
+        "complete": true
+      },
+      {
+        "source": "tests/chebtech/test_roots.m",
+        "dispatch": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebtech/test_roots.m",
+        "default_arguments": true,
+        "wall_seconds": 0.469407,
+        "shape": [
+          2,
+          12
+        ],
+        "pass": [
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        ],
+        "total_slots": 24,
+        "true_slots": 24,
+        "false_linear_indices": [],
+        "complete": true
+      },
+      {
+        "source": "tests/chebtech/test_minandmax.m",
+        "dispatch": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebtech/test_minandmax.m",
+        "default_arguments": true,
+        "wall_seconds": 0.25827,
+        "shape": [
+          2,
+          8
+        ],
+        "pass": [
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ],
+          [
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true,
+            true
+          ]
+        ],
+        "total_slots": 16,
+        "true_slots": 16,
+        "false_linear_indices": [],
+        "complete": true
+      }
+    ]
+  },
+  "native_runtime_limit": "3439native source/capture/launcher/executable files preguarded; installed native dynamic libraries not exhaustively inventoried/hashed.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/original_inv_roots_minmax_cpu_20261018.tar.gz",
+    "sha256": "5af6984885862130ad669ccaf3a0d4cbe47d04e79b3c8206830c2cab575543b2",
+    "root_stream_verified_payloads": 50
+  }
+}

@@ -19,10 +19,10 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** native disk constructor storage and inverse finishing;85actualparentPASS, separate106disk/81inverse qualifications. Four numeric PDE trajectories remain qualified;14original unary records remain.
-- **Unary work:** fourteen original records remain (seven TAN phase/sign and seven minimum-subnormal loss). Supplementary pure-imaginary NaN and TANH sign gaps remain. Pure-imaginary Inf agrees; no shape/context dependence established.
+- **Latest verified integration:** TAN imaginary-NaN real component;1,956parentPASS27XFAIL. Fourteen original unary records remain. Default original inv/roots/minmax audit maps88native slots to61Python cases; separate3supplementals+17providerchecks account for81casegate.
+- **Unary work:** fourteen original records remain (seven TAN phase/sign, seven subnormal losses). Imaginary-NaN real-class fix qualified; imaginary NaN sign/payload remains. SIN whole-subnormal family under qualification; other six methods need staged arithmetic, not a shared derivative product.
 - **Disk work:** storage/branch/grid repair qualified below. Next: native numeric rank-cap and reciprocal arithmetic, then JAX replacement of inherited host GE; source attribution underway.
-- **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
+- **CI:**3072dda6 passed all46jobs; only that older source qualifies. [Newer completed receipt](ci_3072dda6_cpu_20261018.json). Earlier381ee4cb reported82%coverage; latest-main acceptance remains required.
 
 ### Active work, not yet credited as complete
 
@@ -33,6 +33,10 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] TAN exact-zero-real/imaginaryNaN real component now canonical native NaN, with prior outside-mask/imaginary words and analytic JVPs retained. Actual parent **1,956 PASS / 27 XFAIL**;14originalrecords unchanged. Failed trials and new author-oracle correction explicit. [Evidence](tan_imaginary_nan_parent_cpu_20261018.json).
+- [x] Map all88default native return slots for inv/roots/minmax, alltrue;61mappedPythoncases+3supplementals+17providerchecks=81casegate. Four additional rawcomplex-order controls pass original bounds without sorting. [Per-slot audit](original_inv_roots_minmax_cpu_20261018.json).
+- [ ] Alternate preferences/full APIs/provider words/warnings/JAX/performance remain open. NaNimaginary signs/payloads,14original unaryrecords,322pages/1305figures and latestCI remain required.
 
 - [x] Native coefficient/numeric Diskfun storage, origin-only branch order and pivot-grid metadata.35newcontrols21FAIL14PASS→35PASS;106distinctchildchecks include13originalHelmholtz/rank tests. Public515cold4.27→3.30s includes first values; warm ranges overlap. [Evidence](constructor_inverse_parent_cpu_20261018.json).
 - [x] Share inverse final Clenshaw compilation while retaining original-nFFT:81selectedcasesPASS,20actualoutputartifacts exact. One pairedcold17.02→16.02s/warmmedian1.65→1.62s, descriptive only. Actual combined parent **85 PASS**. [Evidence](constructor_inverse_parent_cpu_20261018.json).
