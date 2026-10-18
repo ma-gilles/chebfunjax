@@ -62,6 +62,11 @@
       "report_sha256": "2d0eb0bb7b72f42fd074a6952a3528a05f0dea96cca09da71f5ef8f002a6a117",
       "scope": "Bounded finite real CPU float64 cosine primal qualification and analytic derivative repair; no constructor/primitive routing"
     },
+    "breakpoint_equality_cpu_20261018": {
+      "path": "docs/breakpoint_equality_cpu_20261018.json",
+      "scope": "Add a JAX executable boundary to unchanged binary64 word equality used in breakpoint evaluation; pure performance change, no arithmetic or callback replacement.",
+      "sha256": "30138ddeef105995d7b52323da689e633c8af73131a9751440a0aae68cc5303c"
+    },
     "c1_eigs_adaptive_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/c1_eigs_adaptive_cpu_20261017.tar.gz",
@@ -51496,6 +51501,15 @@
         {
           "artifact": "ndarray_subspace_cpu_20261017",
           "scope": "Source-bound adapter and original6 subspace predicates only; no broad item/API closure"
+        },
+        {
+          "artifact": "breakpoint_equality_cpu_20261018",
+          "limits": [
+            "Descriptive shared-host CPU timing, not matched MATLAB speed or full Checkmark page qualification.",
+            "No new full Chebfun/API/JAX/AD/native primitive qualification; source integer arithmetic is unchanged.",
+            "Full pages/figures, known correctness faults and latest-main CI/coverage remain required."
+          ],
+          "scope": "Add a JAX executable boundary to unchanged binary64 word equality used in breakpoint evaluation; pure performance change, no arithmetic or callback replacement."
         }
       ],
       "functions": [

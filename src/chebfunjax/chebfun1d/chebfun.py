@@ -107,6 +107,7 @@ def _widen_float32_jvp(primals, tangents):
     return _widen_float32(value), tangent.astype(jnp.float64)
 
 
+@jax.jit
 def _ieee_float64_bits_equal(abits, bbits):
     """IEEE numeric equality for binary64 words; signed zeros compare equal.
 

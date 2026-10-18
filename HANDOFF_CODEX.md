@@ -1,3 +1,13 @@
+# Breakpoint equality execution overhead — 2026-10-18
+
+An execution boundary now groups unchanged JAX integer-word comparisons;
+33existing evaluation/IEEE/ordered-routing tests pass on child and current main.
+Five profiled and nine timed outputs remain word-identical. Three-point/three-
+repeat local warm median0.57519s to0.46542s (19.1%lower); descriptive shared-host
+measurement, not native/fullpage speed parity. No new test/core owner or
+numerical provider. Checkmark completion, all APIs/pages/figures and latestCI
+remain open. Evidence: docs/breakpoint_equality_cpu_20261018.json.
+
 # Two-column native transform and original unbounded tests — 2026-10-17
 
 CPU real float64 n33 two-column inverse now uses the independently qualified

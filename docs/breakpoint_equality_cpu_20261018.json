@@ -1,0 +1,100 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/breakpoint_equality_cpu_20261018.tar.gz",
+    "sha256": "55cfe63dacfcc664e1e921a7d11f3e369c29c11c5253036f651a821730d475a2",
+    "verified_payloads": 77
+  },
+  "correctness": {
+    "child": "33 passed in37.50s",
+    "coverage": "Actual Chebfun evaluation, exact breakpoint words, float32 widening, signedzero/subnormal/NaN/Inf, complex queries, ordered piece routing, point values, eager/JIT/traced coefficients. Existing bounds unchanged.",
+    "distinct_pytest_nodes": 33,
+    "parent_actual61c": "Same33 passed in38.42s",
+    "profiled_outputs_word_exact": 5,
+    "timed_outputs_word_exact": 9
+  },
+  "limits": [
+    "Descriptive shared-host CPU timing, not matched MATLAB speed or full Checkmark page qualification.",
+    "No new full Chebfun/API/JAX/AD/native primitive qualification; source integer arithmetic is unchanged.",
+    "Full pages/figures, known correctness faults and latest-main CI/coverage remain required."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "new_tests_or_core_owners": 0,
+  "parent_base": "61c3638656ec7655ecb730bd93bafb600b377844",
+  "parent_source_bridge": {
+    "different_library_files": [
+      "src/chebfunjax/utils/transforms.py"
+    ],
+    "equal_evaluation_file": true,
+    "scope": "Timing/child gates use pre-FFT afe8 plus the exact candidate equality decorator. Parent executes same33tests on actual61c+decorator. Only other library change is qualified CPU n33x2 transform, unused by scalar timing functions. No whole-repository gate claim."
+  },
+  "profile": {
+    "baseline_selected3_seconds": 4.252238706685603,
+    "candidate_selected3_seconds": 3.3090841686353087,
+    "limitation": "cProfile perturbs timing; the unprofiled serial control above is reported separately."
+  },
+  "receipts": {
+    "breakpoint_equality_parent": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1856060,
+      "wall_seconds": 45.63348878407851
+    },
+    "breakpoint_equality_profile": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1331276,
+      "wall_seconds": 27.76754632545635
+    },
+    "breakpoint_equality_tests": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1868860,
+      "wall_seconds": 44.68354003876448
+    },
+    "breakpoint_equality_timing_baseline": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1471532,
+      "wall_seconds": 34.02119038999081
+    },
+    "breakpoint_equality_timing_candidate": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1361700,
+      "wall_seconds": 30.88483036402613
+    },
+    "checkmark_hotpath_profile": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1458456,
+      "wall_seconds": 30.51117712724954
+    }
+  },
+  "scope": "Add a JAX executable boundary to unchanged binary64 word equality used in breakpoint evaluation; pure performance change, no arithmetic or callback replacement.",
+  "source_bridge": {
+    "baseline_sha256": "34ef30f8d17813ba01407fcbc724aca2a08a53277c13d1f0210350363c933350",
+    "candidate_sha256": "baa030f2dd58b174e0a28ba4947f32057dcc5cb1cd8546b4cdd7b4cdf162a537",
+    "scope": "Only add JAX executable boundary to exact uint64 equality helper. All source AST identical after erasing this decorator.",
+    "unchanged_numerics": true
+  },
+  "timing": {
+    "all_output_words_identical": true,
+    "baseline_median_seconds": 0.575190844014287,
+    "candidate_median_seconds": 0.465419698972255,
+    "median_reduction_fraction": 0.19084299790993442,
+    "paired_evaluations": 9,
+    "scope": "Same3actual-source e(alpha,4) points,3warm repetitions,CPU40-43 serial fresh processes; descriptive shared-host measurement, no native/full-page/cold parity claim."
+  }
+}

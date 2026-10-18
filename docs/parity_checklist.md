@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Group unchanged breakpoint word equality under JAX execution:33existing IEEE/evaluation/routing tests pass on current main,14diagnostic outputs word-identical; selected warm evaluation median19.1%lower. [Evidence](breakpoint_equality_cpu_20261018.json).
+- [ ] Full Checkmark execution and matched native performance remain open; this timing is a descriptive shared-host sample.
+
+
 - [x] Native CPU two-column n33 inverse:660independent native words, two actual compose failures repaired, full96checks pass. Original unbounded default14predicates restored and pass in native/Python. Combined48parent checks pass;1090prior core owners retained+1. [Evidence](fft64_unbounded_parent_cpu_20261017.json).
 - [ ] Disk32 remains failing and worsens under this native-correct plan; supplemental unbounded endpoint failures, broader APIs/JAX/speed and latestCI remain open.
 
