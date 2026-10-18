@@ -1,0 +1,392 @@
+{
+  "matlab_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_capture_sha256": "ab4b3e84219fc12e6490a3ae5c34bdb7ceb68da6f6717c599b0b401a9b1e2cc5",
+  "scope": "Fresh original HermiteQuad default GW rows n1..12; raw outputs used only by tests, never production",
+  "rows": [
+    {
+      "n": 1,
+      "x": {
+        "shape": [
+          1,
+          1
+        ],
+        "real": [
+          "0000000000000000"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          1
+        ],
+        "real": [
+          "3ffc5bf891b4ef6a"
+        ]
+      }
+    },
+    {
+      "n": 2,
+      "x": {
+        "shape": [
+          2,
+          1
+        ],
+        "real": [
+          "bfe6a09e667f3bcd",
+          "3fe6a09e667f3bcd"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          2
+        ],
+        "real": [
+          "3fec5bf891b4ef6a",
+          "3fec5bf891b4ef6a"
+        ]
+      }
+    },
+    {
+      "n": 3,
+      "x": {
+        "shape": [
+          3,
+          1
+        ],
+        "real": [
+          "bff3988e1409212d",
+          "0000000000000000",
+          "3ff3988e1409212d"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          3
+        ],
+        "real": [
+          "3fd2e7fb0bcdf4f5",
+          "3ff2e7fb0bcdf4f0",
+          "3fd2e7fb0bcdf4f5"
+        ]
+      }
+    },
+    {
+      "n": 4,
+      "x": {
+        "shape": [
+          4,
+          1
+        ],
+        "real": [
+          "bffa692f8fc3f25e",
+          "bfe0c9e9cffc872c",
+          "3fe0c9e9cffc872c",
+          "3ffa692f8fc3f25e"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          4
+        ],
+        "real": [
+          "3fb4d0eb00fdaeba",
+          "3fe9c1db31953992",
+          "3fe9c1db31953992",
+          "3fb4d0eb00fdaeba"
+        ]
+      }
+    },
+    {
+      "n": 5,
+      "x": {
+        "shape": [
+          5,
+          1
+        ],
+        "real": [
+          "c0002955a30462e7",
+          "bfeeaca0294b9958",
+          "0000000000000000",
+          "3feeaca0294b9958",
+          "40002955a30462e7"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          5
+        ],
+        "real": [
+          "3f946e9f685f0015",
+          "3fd9310f1a00cd4f",
+          "3fee3ff812e32184",
+          "3fd9310f1a00cd4f",
+          "3f946e9f685f0015"
+        ]
+      }
+    },
+    {
+      "n": 6,
+      "x": {
+        "shape": [
+          6,
+          1
+        ],
+        "real": [
+          "c002ce09fafdf99d",
+          "bff55fa347547dcc",
+          "bfdbe8b13bb03841",
+          "3fdbe8b13bb03841",
+          "3ff55fa347547dcc",
+          "4002ce09fafdf99d"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          6
+        ],
+        "real": [
+          "3f728e0f4650c265",
+          "3fc41ac82e074c95",
+          "3fe7302a67a67ac0",
+          "3fe7302a67a67ac0",
+          "3fc41ac82e074c95",
+          "3f728e0f4650c265"
+        ]
+      }
+    },
+    {
+      "n": 7,
+      "x": {
+        "shape": [
+          7,
+          1
+        ],
+        "real": [
+          "c0053737840ee7a4",
+          "bffac6de129b94c7",
+          "bfea1f07c42002ba",
+          "0000000000000000",
+          "3fea1f07c42002ba",
+          "3ffac6de129b94c7",
+          "40053737840ee7a4"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          7
+        ],
+        "real": [
+          "3f4fd7e455521e9c",
+          "3fabe9776aa93b43",
+          "3fdb3d2633b9a87f",
+          "3fe9edb0103065dd",
+          "3fdb3d2633b9a87f",
+          "3fabe9776aa93b43",
+          "3f4fd7e455521e9c"
+        ]
+      }
+    },
+    {
+      "n": 8,
+      "x": {
+        "shape": [
+          8,
+          1
+        ],
+        "real": [
+          "c00771f208238265",
+          "bfffb4ddb71e7f4e",
+          "bff283dd8de18831",
+          "bfd8655e1e2678c4",
+          "3fd8655e1e2678c4",
+          "3ff283dd8de18831",
+          "3fffb4ddb71e7f4e",
+          "400771f208238265"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          8
+        ],
+        "real": [
+          "3f2a2999ecb21825",
+          "3f917ce409fe72ac",
+          "3fca994440b42f6f",
+          "3fe5281dc79924d7",
+          "3fe5281dc79924d7",
+          "3fca994440b42f6f",
+          "3f917ce409fe72ac",
+          "3f2a2999ecb21825"
+        ]
+      }
+    },
+    {
+      "n": 9,
+      "x": {
+        "shape": [
+          9,
+          1
+        ],
+        "real": [
+          "c0098727719b47ad",
+          "c00221f5006280ac",
+          "bff77f31bbd9e6af",
+          "bfe727547750fd4d",
+          "0000000000000000",
+          "3fe727547750fd4d",
+          "3ff77f31bbd9e6af",
+          "400221f5006280ac",
+          "40098727719b47ad"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          9
+        ],
+        "real": [
+          "3f04c3f560560df5",
+          "3f743fc40964eff0",
+          "3fb6a64441b01a72",
+          "3fdbb0902a1eae58",
+          "3fe70c2ab90e9370",
+          "3fdbb0902a1eae58",
+          "3fb6a64441b01a72",
+          "3f743fc40964eff0",
+          "3f04c3f560560df5"
+        ]
+      }
+    },
+    {
+      "n": 10,
+      "x": {
+        "shape": [
+          10,
+          1
+        ],
+        "real": [
+          "c00b7d40fdfa1504",
+          "c0044308d2f2fc3b",
+          "bffc1b6050729326",
+          "bff095f53cca0193",
+          "bfd5f218688b9256",
+          "3fd5f218688b9256",
+          "3ff095f53cca0193",
+          "3ffc1b6050729326",
+          "40044308d2f2fc3b",
+          "400b7d40fdfa1504"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          10
+        ],
+        "real": [
+          "3ee005ed187f8cb3",
+          "3f5603a8a28ca7c0",
+          "3fa157fc10b7583f",
+          "3fcebcdcac8d7dda",
+          "3fe38c2fcb47bb9d",
+          "3fe38c2fcb47bb9d",
+          "3fcebcdcac8d7dda",
+          "3fa157fc10b7583f",
+          "3f5603a8a28ca7c0",
+          "3ee005ed187f8cb3"
+        ]
+      }
+    },
+    {
+      "n": 11,
+      "x": {
+        "shape": [
+          11,
+          1
+        ],
+        "real": [
+          "c00d59073e426c35",
+          "c006442d998ebdfe",
+          "c00035243bbaf111",
+          "bff53993ebe2ecee",
+          "bfe504957f2eac63",
+          "0000000000000000",
+          "3fe504957f2eac63",
+          "3ff53993ebe2ecee",
+          "400035243bbaf111",
+          "4006442d998ebdfe",
+          "400d59073e426c35"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          11
+        ],
+        "real": [
+          "3eb826dd644b5783",
+          "3f36baaa43f62a73",
+          "3f8865006f15bf15",
+          "3fbe02a562065e59",
+          "3fdb7aa153a5a552",
+          "3fe4f3c9bf819d56",
+          "3fdb7aa153a5a552",
+          "3fbe02a562065e59",
+          "3f8865006f15bf15",
+          "3f36baaa43f62a73",
+          "3eb826dd644b5783"
+        ]
+      }
+    },
+    {
+      "n": 12,
+      "x": {
+        "shape": [
+          12,
+          1
+        ],
+        "real": [
+          "c00f1e2816564d1c",
+          "c0082a43be9fd8fd",
+          "c0023c6e354e0519",
+          "bff9901baab5e16d",
+          "bfee544851fcf566",
+          "bfd41c83aac617e0",
+          "3fd41c83aac617e0",
+          "3fee544851fcf566",
+          "3ff9901baab5e16d",
+          "40023c6e354e0519",
+          "40082a43be9fd8fd",
+          "400f1e2816564d1c"
+        ]
+      },
+      "w": {
+        "shape": [
+          1,
+          12
+        ],
+        "real": [
+          "3e91d75b65601417",
+          "3f1679b437e4bbb2",
+          "3f6ffe329ad9cf5b",
+          "3faa6c5ca4dd859e",
+          "3fd0abe7f05c6b6e",
+          "3fe23e8c40416d38",
+          "3fe23e8c40416d38",
+          "3fd0abe7f05c6b6e",
+          "3faa6c5ca4dd859e",
+          "3f6ffe329ad9cf5b",
+          "3f1679b437e4bbb2",
+          "3e91d75b65601417"
+        ]
+      }
+    }
+  ]
+}

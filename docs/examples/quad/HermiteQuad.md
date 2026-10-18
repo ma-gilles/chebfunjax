@@ -67,8 +67,8 @@ end
     n        error
   1   0.392065403862373
   2  -0.032889983326330
-  3   0.001644624344905
-  4  -0.000058689881886
+  3   0.001644624344904
+  4  -0.000058689881887
   5   0.000001628892514
   6  -0.000000036992409
   7   0.000000000710935
@@ -111,7 +111,7 @@ end
   3   0.042363958855156
   6  -0.000513739182282
   9   0.000007261885988
- 12  -0.000000082766157
+ 12  -0.000000082766158
  15   0.000000000965252
  18  -0.000000000011277
  21   0.000000000000119
@@ -131,9 +131,9 @@ tic, [s,w]= hermpts(100000); toc
 ```
 
 ```text
-Elapsed time is 3.196813 seconds.
-Elapsed time is 2.835588 seconds.
-Elapsed time is 3.009905 seconds.
+Elapsed time is 4.096178 seconds.
+Elapsed time is 3.822503 seconds.
+Elapsed time is 3.568655 seconds.
 ```
 
 This raises questions. Most of the points in these large-$n$ formulas correspond to values of $x$ where $\exp(-x^2)$ is very small. For example, with $n = 10000$, here is the fraction of quadrature nodes for which $\exp(-x^2)$ is smaller than machine precision:

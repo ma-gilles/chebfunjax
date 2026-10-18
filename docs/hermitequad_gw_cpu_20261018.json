@@ -1,0 +1,126 @@
+{
+  "base_head": "7492f6ca71e4a95d86346028c842df74706f4176",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Confirmed GW source-normalization correction, source-grid example correction, fresh final full-page run, and bounded same-input native diagnostics; no full-page/API/performance closure",
+  "source_changes": [
+    "Remove extra GW normalization before symmetry; public source normalization afterward is retained.",
+    "Use existing source_grid adapter for the original symmetric trapezoid linspace, retaining all original n."
+  ],
+  "baseline_new_tests": "6 failed,6 passed",
+  "candidate_tests": "33 passed:12 exact GW,9 existing quadrature Hermite,8 existing source-grid,4 original mapped methods;original test ASTs unchanged",
+  "fresh_native_weights": "All78weights and78nodes across n1..12 exact;raw eigenweights were already exact before correction.",
+  "fresh_native_trapezoid_grids": "All108coordinates exact after using existing source_grid;7of8grids differed before.",
+  "fresh_native_printed_tables": {
+    "hermite_rows_matching": 11,
+    "hermite_rows_total": 12,
+    "trapezoid_rows_matching": 6,
+    "trapezoid_rows_total": 8,
+    "remaining_n": {
+      "hermite": [
+        11
+      ],
+      "trapezoid": [
+        3,
+        24
+      ]
+    }
+  },
+  "constructor_first_finite_difference": {
+    "call": 4,
+    "primitive": "exp",
+    "native_output": "3fe90cc5a540f2e5",
+    "python_output": "3fe90cc5a540f2e6",
+    "absolute_error": 1.1102230246251565e-16,
+    "physical_input_word": "bfdfab7493906cfb",
+    "actual_exp_argument_word": "bfcf57c885799b33"
+  },
+  "representation_lengths": {
+    "unbounded_native": 129,
+    "unbounded_python": 137,
+    "restricted_native": 109,
+    "restricted_python": 111
+  },
+  "plot_diagnostics": "Same-coefficient finite x coordinates exact; natural grids differ because lengths differ. Same-coefficient yLine differs at1349words, max4.441e-16.",
+  "full_application": {
+    "seconds": 72.41174251772463,
+    "figure_dimensions": [
+      600,
+      270
+    ],
+    "figure_sha256": "56a75770ff3595b71dcdb9cf99f04d4c161edbb76b83bc517abcac8fc39c0e4a",
+    "warnings": [],
+    "timing_scope": "Unmodified public hermpts calls; no timed-call observers or internal array saves. Native stages captured separately.",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "backend": "cpu",
+    "x64": true,
+    "cache": false,
+    "source_origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_stages_20261018/src/chebfunjax/__init__.py",
+    "cpu_affinity": [
+      36,
+      37,
+      38,
+      39
+    ]
+  },
+  "supervisor": {
+    "command_exit_code": 0,
+    "inputs_stable": true,
+    "sampled_peak_summed_rss_kib": 2361148,
+    "remaining_owned_pids": []
+  },
+  "page": {
+    "input_blocks": 9,
+    "output_blocks": 7,
+    "all_prose_math_inputs_figure_order_unchanged": true,
+    "all_page_outputs_equal_fresh_full_stdout": true
+  },
+  "runtime_guards": {
+    "baseline": {
+      "imported_files": 1367,
+      "all_preguarded_and_unchanged": true
+    },
+    "baseline_tests": {
+      "imported_files": 1477,
+      "all_preguarded_and_unchanged": true
+    },
+    "candidate_tests": {
+      "imported_files": 1524,
+      "all_preguarded_and_unchanged": true
+    },
+    "candidate_stages": {
+      "imported_files": 1376,
+      "all_preguarded_and_unchanged": true
+    },
+    "mapping_audit": {
+      "imported_files": 1350,
+      "all_preguarded_and_unchanged": true
+    },
+    "full_page": {
+      "imported_files": 1380,
+      "all_preguarded_and_unchanged": true
+    }
+  },
+  "figure": "Final600x270PNG byte-identical to published image;actual reference/final viewed. Scientific curve/nodes/frame preserved; native representation/font/glyph/raster gaps remain.",
+  "remaining": [
+    "Hermite n11 printed final digit still differs from fresh native, after weights are exact; external cosine and dot-provider arithmetic remain separately scoped.",
+    "Trapezoid n3 and n24 printed final digits differ; g representation137vs129 and provider/reduction effects remain open.",
+    "Native plotData natural coordinates/count, same-coefficient yLine transform words, fonts/glyphs/raster and matched native CPU speed remain open.",
+    "Cached HTML final digits differ from fresh pinned R2025b too; no output fitting, truncation, tolerance widening, crop or representation substitution used.",
+    "Full Hermite API/barycentric provider words/JAX transformations and latest-main scientificCI/coverage remain required."
+  ],
+  "diagnostic_limits": "Native replay arrays are diagnostic inputs only;library/example never load native fixture values. No speed/parity claim from shared-host timings. Import-time installedCUDAplugin incompatibility warning retained;CPU asserted. Pytest jaxtyping rewrite warning retained;no scientificapplicationwarnings.",
+  "source_bridge": "Candidate tests precede example import-order lint cleanup only;exact earlier example bytes retained. Final source-prefix and fullpage execute final linted imports.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_stages_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_gw_package_20261018.tar.gz",
+    "sha256": "441466f62e4af864821f4be8907437521dd2a64c09468c30829476fa548f6225",
+    "bytes": 17609048,
+    "payloads": 2997
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_gw_stream_hashes_20261018.json",
+    "sha256": "cdb39f3f619cf9309d2d5f74ecec7ff86c798d1ef1494d04757e962cab1616fa"
+  }
+}

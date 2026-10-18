@@ -1,0 +1,84 @@
+{
+  "base_head": "381ee4cb03590f2c6e26dd9045191f7121d69d73",
+  "scope": "Actual parent qualification of source GW normalization and HermiteQuad source grid repair; full-page child source bridge and archive verified",
+  "parent_passed_nodes": 70,
+  "parent_pytest_seconds": 16.24,
+  "parent_scope": [
+    "12exact native GW node/weight controls",
+    "9existing Hermite utility controls",
+    "8existing source-grid checks",
+    "18complete original Hermite-port module nodes",
+    "23CIprotocol checks"
+  ],
+  "child_report": "docs/hermitequad_gw_cpu_20261018.json",
+  "source_bridge": {
+    "publication_paths_equal_child": [
+      "src/chebfunjax/utils/quadrature.py",
+      "examples/quad/hermite_quad.py",
+      "tests/test_utils/test_quadrature.py",
+      "tests/test_utils/fixtures/hermite_gw_source_weights.json",
+      "docs/examples/quad/HermiteQuad.md",
+      "docs/hermitequad_gw_cpu_20261018.json"
+    ],
+    "remaining_library_source_differences": [
+      "src/chebfunjax/diskfun/diskfun.py",
+      "src/chebfunjax/diskfun/_helmholtz.py"
+    ],
+    "scope": "Only unrelated disk Helmholtz code differs from tested full-page child. No Diskfun calls in HermiteQuad. Exact broader-library match is not claimed.",
+    "figure_bytes_identical": true,
+    "core_ownership_changes": false
+  },
+  "child_full_page": {
+    "seconds": 72.41174251772463,
+    "figure_dimensions": [
+      600,
+      270
+    ],
+    "figure_sha256": "56a75770ff3595b71dcdb9cf99f04d4c161edbb76b83bc517abcac8fc39c0e4a",
+    "warnings": [],
+    "timing_scope": "Unmodified public hermpts calls; no timed-call observers or internal array saves. Native stages captured separately.",
+    "jax": "0.11.0",
+    "jaxlib": "0.11.0",
+    "ml_dtypes": "0.5.4",
+    "backend": "cpu",
+    "x64": true,
+    "cache": false,
+    "source_origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_stages_20261018/src/chebfunjax/__init__.py",
+    "cpu_affinity": [
+      36,
+      37,
+      38,
+      39
+    ]
+  },
+  "native_source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_weights_and_nodes_exact": 78,
+  "source_grid_coordinates_exact": 108,
+  "child_archive": {
+    "payloads_verified": 2997,
+    "extra_members": [
+      "hermitequad_gw_stream_hashes_20261018.json"
+    ],
+    "archive_sha256": "441466f62e4af864821f4be8907437521dd2a64c09468c30829476fa548f6225"
+  },
+  "remaining": [
+    "Full GW/barycentric/API/alternate dtype/IEEE and JAX transformation qualification unproven.",
+    "Hermite n11 and trapezoid n3/n24 displayed values still differ.",
+    "Native129vsPython137 unbounded coefficients;109vs111 restricted lengths and natural curve grid differ.",
+    "Transcendental/transform provider words, raster/font parity and matched native CPU speed remain open.",
+    "Latest-main scientific CI/coverage>=79% required."
+  ],
+  "root_receipt": {
+    "wall_seconds": 21.22610059287399,
+    "sampled_peak_summed_rss_kib": 1266856,
+    "command_exit_code": 0,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "core_ownership": "Existing test file extended; all1108owners/13lanes and79% unchanged.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_endpoint_parent_cpu_20261018.tar.gz",
+    "sha256": "3c2d9143df4e1d96b813d882be971ca223081066f55feca7e28607f671fc230c",
+    "root_stream_verified_payloads": 7145
+  }
+}

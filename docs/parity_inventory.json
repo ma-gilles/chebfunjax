@@ -332,6 +332,11 @@
       "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
       "sha256": "7c43eaa8196c87e804c3d6d19ba99dc6c8bdcb6b630b3cb9d250bcbfc23b7912"
     },
+    "hermitequad_gw_parent_cpu_20261018": {
+      "path": "docs/hermitequad_gw_parent_cpu_20261018.json",
+      "scope": "Actual parent70checks;GW normalization/sourcegrid repair; fullchildpage sourcebridge; wholeAPI/page/speed remain open",
+      "sha256": "531a0c6065100020ffbff3fcf5344cb91e32dbfd562adaa904aabcbc2966fa86"
+    },
     "hermitequad_page_cpu_20261018": {
       "path": "docs/hermitequad_page_cpu_20261018.json",
       "scope": "Source plotting repair and full current execution only; printed digits/native coordinates/raster/performance remain incomplete",
@@ -687,6 +692,11 @@
       "path": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
       "scope": "Correct an incorrect legacy test port; no production library repair",
       "sha256": "511321c085e43592ee0d207fe68aaa43aa204dbdecf3207d1d7fa99c167cecbe"
+    },
+    "unbounded_endpoint_provider_cpu_20261018": {
+      "path": "docs/unbounded_endpoint_provider_cpu_20261018.json",
+      "scope": "Fresh3438hash native proof and bounded callback/construction diagnosis; no production repair or original endpoint-predicate claim",
+      "sha256": "99171314ef793a0bec60495e63677152732dd156c3217814661c357c803514b5"
     }
   },
   "example_pages": [
@@ -35984,6 +35994,10 @@
         {
           "artifact": "hermitequad_page_cpu_20261018",
           "scope": "Full CPU execution and source plotting correction; page dimensions independently qualified, whole page status unchanged."
+        },
+        {
+          "artifact": "hermitequad_gw_parent_cpu_20261018",
+          "scope": "Fresh full all-order page execution and corrected GW/sourcegrid computations. Printed rows3remaining/native representation/raster/speed stillopen; whole-item statuses unchanged."
         }
       ],
       "figure_content_status": "unverified",
@@ -92900,7 +92914,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "unbounded_endpoint_provider_cpu_20261018",
+          "scope": "Both directions same-coefficient evaluation200words exact; endpoint-inclusive supplemental failure remains upstream of evaluation."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -95902,6 +95921,10 @@
             15
           ],
           "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
+        },
+        {
+          "artifact": "hermitequad_gw_parent_cpu_20261018",
+          "scope": "Remove premature GW normalization; exact native78nodes/78weights n1..12; othermethods/IEEE/API not inferred."
         }
       ],
       "functions": [
@@ -95940,6 +95963,10 @@
                 15
               ],
               "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
+            },
+            {
+              "artifact": "hermitequad_gw_parent_cpu_20261018",
+              "scope": "Remove premature GW normalization; exact native78nodes/78weights n1..12; othermethods/IEEE/API not inferred."
             }
           ],
           "implementation_status": "unverified",
@@ -123733,6 +123760,10 @@
             15
           ],
           "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
+        },
+        {
+          "artifact": "hermitequad_gw_parent_cpu_20261018",
+          "scope": "All18existing port nodes pass on actualparent, including four mapped methods for default15native predicates; original assertions/bounds retained."
         }
       ],
       "functions": [
@@ -123771,6 +123802,10 @@
                 15
               ],
               "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
+            },
+            {
+              "artifact": "hermitequad_gw_parent_cpu_20261018",
+              "scope": "All18existing port nodes pass on actualparent, including four mapped methods for default15native predicates; original assertions/bounds retained."
             }
           ],
           "implementation_status": "unverified",
@@ -129816,6 +129851,10 @@
           "artifact": "disk_unbounded_parent_cpu_20261018",
           "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
           "scope": "Original14default clauses pass through bothsource-correct adapters; endpointaccuracy unqualified."
+        },
+        {
+          "artifact": "unbounded_endpoint_provider_cpu_20261018",
+          "scope": "Supplemental endpoint grid diagnostic only; not additional original clauses and not a repair. Actual source random queries remain separately qualified."
         }
       ],
       "functions": [

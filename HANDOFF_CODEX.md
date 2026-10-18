@@ -1,3 +1,19 @@
+# Hermite GW source normalization and guarded endpoint diagnosis — 2026-10-18
+
+GW retains raw weights through symmetry and normalizes once afterward. Same12
+native controls6FAIL6PASS become12PASS; all78nodes/78weights exact. Example
+uses existing source_grid for108exact trapezoid coordinates. Actual parent70
+checks pass; complete child72.41s page includes every original order and actual
+stdout, unchanged600x270PNG. Only unrelated disk code differs in source bridge.
+Full page/API/provider/raster/speed/latestCI remain open; three printed rows and
+native129vsPython137representation differ. No core owner/config changes.
+Fresh endpoint native3438hash capture reproduces EXPnative supplemental failure
+and XEXPnativepass/JAXfailure; maps and both matched-coefficient evaluations
+exact. Native callback replay still leaves coefficient gaps. No endpoint library
+repair, source assertion or bound change.7145parent archivepayloads streamverified.
+Evidence: docs/hermitequad_gw_parent_cpu_20261018.json and
+ docs/unbounded_endpoint_provider_cpu_20261018.json.
+
 # Disk Helmholtz source coefficient provider in JAX — 2026-10-18
 
 Disk Helmholtz ultraspherical assembly/forcing/boundary transforms and parity

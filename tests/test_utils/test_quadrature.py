@@ -971,3 +971,26 @@ class TestLegptsLargeN:
                                    atol=1e-12)
         np.testing.assert_allclose(float(np.sum(xw * xx ** 4)), 2.0 / 5.0,
                                    atol=1e-12)
+
+
+@pytest.mark.parametrize("n", range(1, 13))
+def test_hermite_gw_native_source_weights(n):
+    """Original page GW rows retain source weights before/after symmetry.
+
+    MATLAB hermpts.m forms raw eigenvector weights, enforces symmetry and
+    then normalizes once. A premature normalization changes six captured
+    rules despite identical eigenvalues and raw weights on the pinned CPU.
+    """
+    import json
+    from pathlib import Path
+
+    fixture = json.loads((Path(__file__).parent / "fixtures" /
+                          "hermite_gw_source_weights.json").read_text())
+    row = fixture["rows"][n-1]
+    assert row["n"] == n
+    expected_x = np.asarray([int(v, 16) for v in row["x"]["real"]], np.uint64)
+    expected_w = np.asarray([int(v, 16) for v in row["w"]["real"]], np.uint64)
+    for options in ((), ("GW",)):
+        x, w = map(np.asarray, hermpts(n, *options))
+        npt.assert_array_equal(x.view(np.uint64), expected_x)
+        npt.assert_array_equal(w.view(np.uint64), expected_w)

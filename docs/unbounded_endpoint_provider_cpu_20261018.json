@@ -1,0 +1,129 @@
+{
+  "base_head": "381ee4cb03590f2c6e26dd9045191f7121d69d73",
+  "scope": "Fresh hash-guarded proof and bounded first-divergence diagnosis of supplemental endpoint queries; no production repair",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_active_input_hashes": 3438,
+  "native_actual_seconds": 0.664259,
+  "ordinary_logged_coefficients_identical": true,
+  "rows": [
+    {
+      "name": "exp",
+      "native_error": 2.710505431213761e-20,
+      "native_bound": 1.791889249653891e-20,
+      "native_supplemental_pass": false,
+      "python_error": 4.0657581468206416e-20,
+      "python_bound": 1.7918892496538908e-20,
+      "coefficients": {
+        "size": 41,
+        "word_mismatches": 37,
+        "max_finite_difference": 2.541098841762901e-21,
+        "nonfinite_class_mismatches": 0
+      },
+      "diagnostic_native_callback_replay_coefficients": {
+        "size": 41,
+        "word_mismatches": 37,
+        "max_finite_difference": 2.117582368135751e-21,
+        "nonfinite_class_mismatches": 0
+      }
+    },
+    {
+      "name": "xexp",
+      "native_error": 1.0842021724855044e-19,
+      "native_bound": 1.6888158308277575e-19,
+      "native_supplemental_pass": true,
+      "python_error": 4.336808689942018e-19,
+      "python_bound": 1.6888158308277575e-19,
+      "coefficients": {
+        "size": 44,
+        "word_mismatches": 38,
+        "max_finite_difference": 2.710505431213761e-20,
+        "nonfinite_class_mismatches": 0
+      },
+      "diagnostic_native_callback_replay_coefficients": {
+        "size": 44,
+        "word_mismatches": 39,
+        "max_finite_difference": 2.710505431213761e-20,
+        "nonfinite_class_mismatches": 0
+      }
+    }
+  ],
+  "matched_inputs": "All200mapped queries and138physical callback-input words agree. Scalar/vector adapters explicit.",
+  "evaluation": "Both directions of same-coefficient evaluation match all100words percase; mismatch occurs before final Clenshaw evaluation.",
+  "callback_differences": "Nine callback output words differ percase; first finite divergence is EXP. Captured native callback replay still leaves37EXP/39XEXPcoefficient differences, so callback differences are not the only construction discrepancy.",
+  "accuracy_mode_probe": {
+    "rows": [
+      {
+        "accuracy": "default",
+        "native_exp_control_words": 69,
+        "native_word_mismatches": 9,
+        "hermite_exp_output": "3fe90cc5a540f2e6"
+      },
+      {
+        "accuracy": "highest",
+        "native_exp_control_words": 69,
+        "native_word_mismatches": 9,
+        "hermite_exp_output": "3fe90cc5a540f2e6"
+      }
+    ],
+    "scope": "Compiler-supported modes only; no production replacement or exact-rounding claim."
+  },
+  "high_precision_scope": "150-digit mpmath1.3.0 diagnosis only, not certified interval rounding or universal accuracy. Among18differing callback controls native closer in12/JAXin6 to real combined function. Separate per-operation XEXP reference retained.",
+  "high_precision_receipt": {
+    "wall_seconds": 1.0428959922865033,
+    "sampled_peak_summed_rss_kib": 0,
+    "command_exit_code": 0,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "limits": [
+    "Supplemental endpoint-inclusive grids differ from original source random queries. No original test or bound changed.",
+    "EXPnative also fails this supplemental bound; XEXPnative passes/JAXfails. No completion claim.",
+    "Native callback replay is diagnostic-only and never loaded by library/example runtime.",
+    "Remaining coefficient differences require same-input transform/extrapolation/construction localization.",
+    "Highest compiler EXP accuracy mode matches default on these controls; no flag-based repair established.",
+    "Source proof covers frozen381ee4cb; full API/IEEE/JAX/performance/page/figure/CI closure not inferred."
+  ],
+  "receipts": {
+    "unbounded_endpoint_baseline_run001": {
+      "wall_seconds": 33.284564793109894,
+      "sampled_peak_summed_rss_kib": 1016760,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_endpoint_native_run001": {
+      "wall_seconds": 144.8063567019999,
+      "sampled_peak_summed_rss_kib": 1307952,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_endpoint_replay_run001": {
+      "wall_seconds": 18.37985579436645,
+      "sampled_peak_summed_rss_kib": 1024584,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_endpoint_accuracy_run001": {
+      "wall_seconds": 2.1584479860030115,
+      "sampled_peak_summed_rss_kib": 392876,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "unbounded_endpoint_high_precision_run001": {
+      "wall_seconds": 1.0428959922865033,
+      "sampled_peak_summed_rss_kib": 0,
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_endpoint_parent_cpu_20261018.tar.gz",
+    "sha256": "3c2d9143df4e1d96b813d882be971ca223081066f55feca7e28607f671fc230c",
+    "root_stream_verified_payloads": 7145
+  }
+}

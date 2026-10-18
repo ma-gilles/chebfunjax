@@ -27,6 +27,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Hermite GW normalization now follows source order: identical12controls6FAIL6PASS→12PASS, all78nodes/78weights exact. Source-grid example adapter makes108trapezoid coordinates exact. Actual parent70checks pass; fresh full72.41s page/all original orders, unchanged600×270PNG. [Parent evidence](hermitequad_gw_parent_cpu_20261018.json).
+- [ ] Hermite n11/trapezoid n3,n24 printed values, native129vsPython137representation, natural curve coordinates/provider words/raster/full API/transforms/matched speed and latestCI remain open.
+- [x] Fresh endpoint native capture with3438active hashes replaces the earlier unguarded observation: EXPnative alsofails supplemental bound; XEXPnative passes whileJAXfails. Allquery/physical sample maps and both matched-coefficient evaluation directions exact. [Diagnosis](unbounded_endpoint_provider_cpu_20261018.json).
+- [ ] Endpoint callback and construction/transform word gaps remain. Native callback replay still leaves coefficient differences; highest EXP compiler mode does not repair sampled word gaps. No library change or tolerance relaxation claimed.
+
 - [x] Disk Helmholtz assembly/forcing/boundary and parity-batched dense solves use JAX; exact complex K² and source correction order retained, Python integers promoted before JIT. Actual parent47distinct checks pass, including original10predicates within13original/rank nodes; source bounds unchanged.1106prior core owners retained+2;13lanes/79%unchanged. [Evidence](disk_helmholtz_parent_cpu_20261018.json).
 - [ ] Native sparse complexity/matched CPU speed, full singular/nonfinite/complex status grammar, whole-call JIT/AD/vmap, inherited Diskfun constructor/coeffs2/harmonic providers and latest-main CI remain open.
 

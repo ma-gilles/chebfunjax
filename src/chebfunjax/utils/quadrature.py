@@ -721,9 +721,8 @@ def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
     x = eigvals
     w = jnp.sqrt(jnp.pi) * eigvecs[0, :] ** 2
 
-    # Normalise so that sum(w) = sqrt(pi)
-    w = (jnp.sqrt(jnp.pi) / jnp.sum(w)) * w
-
+    # hermpts.m retains raw eigenvector weights through symmetry. The public
+    # wrapper performs the source normalization after this branch.
     # Enforce symmetry
     m = n // 2
     x_lo = x[:m]

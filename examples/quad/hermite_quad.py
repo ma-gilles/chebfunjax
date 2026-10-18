@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import chebfunjax as cj
 from chebfunjax.plotting import chebfun_style, matlab_plot
 from chebfunjax.plotting import save_chebfun_figure as _savefig
+from chebfunjax.utils._matlab_linspace import source_grid
 from chebfunjax.utils.quadrature import hermpts
 
 chebfun_style()
@@ -71,7 +72,7 @@ def run():
     for n in range(3, 25, 3):
         h = (-1 + np.sqrt(8 * np.pi * n)) / (2 * n)
         d = (n - 1) * h / 2
-        sg = jnp.linspace(-d, d, n)
+        sg = source_grid(-d, d, n)
         In = float(jnp.sum(h * g(sg)))              # trapezoidal sum
         print(f"{n:3d} {In - exact:19.15f}")
 
