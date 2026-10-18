@@ -1,3 +1,14 @@
+# Existing-grid absolute value representation — 2026-10-17
+
+C1/C2 direct absolute value now follows native real/pure-imaginary storage
+dispatch, preserving the existing coefficient count and happiness. Empty
+arrays retain shape and realify storage. General complex fallback is unchanged.
+Parent87tech/original/protocol checks plus3original unbounded assertions pass;
+all1085prior core owners retained plus1new. Child79checks overlap these gates.
+Three native nonfinite transform-mask discrepancies remain open primitive debt;
+no complete ABS API/output, speed, page/figure or latestCI claim.
+Evidence: docs/abs_existing_grid_parent_cpu_20261017.json.
+
 # First-kind adaptive eigenproblems — 2026-10-17
 
 C1 now shares the native targeting/refinement policy with C2 and retains

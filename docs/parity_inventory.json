@@ -15,6 +15,23 @@
     "test_file_count_is_assertion_coverage": false
   },
   "evidence_register": {
+    "abs_existing_grid_parent_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/abs_existing_grid_parent_cpu_20261017.tar.gz",
+        "sha256": "c2e50a7d1ad26f779be3915edd3bfebb5235a11ba4e901d00ebce2c978600dda",
+        "verified_payloads": 28
+      },
+      "limits": [
+        "Three nonfinite transform Inf/NaN mask differences remain unresolved (C1 real Inf, C1 pure imaginary Inf, C2 pure imaginary Inf).",
+        "Native storage dispatch qualification does not establish whole output/API parity.",
+        "Old eager general complex fallback unchanged; data-dependent complex dispatch is not advertised JIT-safe.",
+        "Full JAX primitive/API qualification, matched CPU speed, pages/figures and latest-main CI/coverage remain required.",
+        "Child raw baseline, fixture-parser failure, representation failure and observer timeout are preserved in the reviewed archive."
+      ],
+      "report": "docs/abs_existing_grid_parent_cpu_20261017.json",
+      "report_sha256": "487e3e596351db40771c07f9bd79923126024be678d1dd06e4d0598e7742fe93",
+      "scope": "Parent qualification of source existing-grid C1/C2 absolute value storage dispatch"
+    },
     "bary_complex_cpu_20261017": {
       "path": "docs/bary_complex_cpu_20261017.json",
       "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
@@ -69210,7 +69227,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "abs_existing_grid_parent_cpu_20261017",
+          "scope": "Existing-grid representation/storage dispatch and selected original clauses; full original file/API remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -100967,7 +100989,12 @@
         "tests/test_matlab_port/spherefun/test_abs_matlab.py",
         "tests/test_matlab_port/trigtech/test_abs_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "abs_existing_grid_parent_cpu_20261017",
+          "scope": "Existing-grid representation/storage dispatch and selected original clauses; full original file/API remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -116104,7 +116131,12 @@
         "tests/test_matlab_port/spherefun/test_abs_matlab.py",
         "tests/test_matlab_port/trigtech/test_abs_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "abs_existing_grid_parent_cpu_20261017",
+          "scope": "Existing-grid representation/storage dispatch and selected original clauses; full original file/API remains unverified."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

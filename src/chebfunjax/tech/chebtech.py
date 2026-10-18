@@ -2758,6 +2758,19 @@ def _tech_series_data(f):
     return f.coeffs
 
 
+def _abs_uses_existing_grid(coeffs: jax.Array) -> bool:
+    """Native ABS storage predicate after scalar multiplication by 1i.
+
+    @chebtech/isreal.m tests storage, rather than zero imaginary values.
+    Native mtimes realifies pure-imaginary coefficients (including Inf),
+    but not those containing NaN. The pinned C1/C2 storage capture covers
+    these distinctions, complex-tagged real values, arrays and empties.
+    """
+    if not jnp.iscomplexobj(coeffs):
+        return True
+    return bool(jnp.all(jnp.real(coeffs) == 0) & ~jnp.any(jnp.isnan(coeffs)))
+
+
 class Chebtech2(eqx.Module):
     """Chebyshev interpolant on 2nd-kind points.
 
@@ -4460,10 +4473,20 @@ class Chebtech2(eqx.Module):
             )
 
     def __abs__(self) -> "Chebtech2":
-        """Absolute value (evaluated on a grid, re-interpolated).
+        """Source existing-grid ABS for real or pure-imaginary data.
 
-        NOT JIT-safe (may introduce kinks).
+        @chebtech/abs.m, pin7574c77: retain coefficient count and happiness.
+        General complex data retains the existing oversampled fallback.
+        NOT JIT-safe for a data-dependent complex storage decision.
         """
+        if getattr(self, "_is_empty_object", False):
+            return self
+        if self.isempty():
+            return Chebtech2(coeffs=jnp.abs(self.coeffs), ishappy=self.ishappy)
+        if _abs_uses_existing_grid(self.coeffs):
+            values = Chebtech2.coeffs2vals(self.coeffs)
+            return Chebtech2(coeffs=Chebtech2.vals2coeffs(jnp.abs(values)),
+                             ishappy=self.ishappy)
         n = max(2 * self.n, 17)
         x = chebpts(n, kind=2)
         fv = jnp.abs(_clenshaw(self.coeffs, x))
@@ -6250,6 +6273,20 @@ class Chebtech1(eqx.Module):
             )
 
     def __abs__(self) -> "Chebtech1":
+        """Source existing-grid ABS for real or pure-imaginary data.
+
+        @chebtech/abs.m, pin7574c77: retain coefficient count and happiness.
+        General complex data retains the existing oversampled fallback.
+        NOT JIT-safe for a data-dependent complex storage decision.
+        """
+        if getattr(self, "_is_empty_object", False):
+            return self
+        if self.isempty():
+            return Chebtech1(coeffs=jnp.abs(self.coeffs), ishappy=self.ishappy)
+        if _abs_uses_existing_grid(self.coeffs):
+            values = Chebtech1.coeffs2vals(self.coeffs)
+            return Chebtech1(coeffs=Chebtech1.vals2coeffs(jnp.abs(values)),
+                             ishappy=self.ishappy)
         n = max(2 * self.n, 17)
         x = chebpts(n, kind=1)
         fv = jnp.abs(_clenshaw(self.coeffs, x))

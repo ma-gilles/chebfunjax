@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "title": "Source existing-grid real/pure-imaginary Chebtech ABS; finite representation repair with explicit nonfinite transform gaps",
+  "base_commit": "9c4b8ee582042bb09d39c180087a7d52021ee4f7",
+  "native_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "src/chebfunjax/tech/chebtech.py",
+    "tests/test_tech/test_abs_existing_grid_source.py",
+    "tests/test_tech/fixtures/abs_existing_grid_native.json",
+    "docs/chebtech_abs_existing_grid_cpu_20261017.json"
+  ],
+  "ownership": {
+    "new_test_file": "tests/test_tech/test_abs_existing_grid_source.py",
+    "new_selectors": 50,
+    "new_file_owners_needed": 1,
+    "existing_native_test_bytes_changed": false,
+    "ci_config_or_core_baseline_changed_by_child": false
+  },
+  "source": {
+    "native": "@chebtech/abs.m: if isreal(f)||isreal(1i*f), coeffs2vals(existingcoeffs), abs(values), vals2coeffs(values); no refinement/chop/happiness update. Native direct tech ABS assumes no roots in[-1,1]; higher Chebfun layer introduces breaks.",
+    "fault": "Both Python direct tech classes always oversampled max(2*n,17), evaluated through Clenshaw and constructed from_values with default happiness. Existing bounded _Piece branch already had a grid recipe, but Unbndfun delegates directly to tech ABS and exposed this route.",
+    "repair": "Use existing representation transforms, coefficient count, array columns and original ishappy for real-storage or native-qualified pure-imaginary inputs. Empty coefficient arrays retain dimensions/happiness and realify storage via abs without sampling; canonical no-data empty objects return unchanged. General eager complex fallback body remains byte/AST-identical.",
+    "predicate": "Real coefficient storage OR (all real coefficient components exactly zero AND no NaN coefficients). Native mtimes by1i realifies pure-imaginary finite/Inf and zero data, but not NaN data. Complex-tagged nonzero real storage and mixed real/imaginary arrays retain fallback. No epsilon, norm cutoff or lookup.",
+    "preliminary_empty_wording_correction": "Initial plan said empty unchanged; actual native capture proves complex empty coefficient storage becomes real. Final implementation preserves empty shape/happiness while realifying data-bearing empty coefficients.",
+    "new_numerics": "JAX arrays/operators only; no new NumPy/SciPy provider/import/waiver. Existing transforms, normalization, root/eigen policies unchanged.",
+    "scope_hashes": {
+      "baseline_chebtech": "48329b87786e36ece52f3df6ae45d96fccacdab8b8d4b750049177f2b0cf7be4",
+      "candidate_chebtech": "6a2b251efc44517d0c5afe3df32afb6bc942fedb38d33e480dc4bc831a1e2a8f",
+      "new_test": "34721cf1c2eed2f197a2b6b590497c95aebbd56b9a5fe47bd70ec8481e96bb3e",
+      "native_fixture": "36177a9a801f2e0dda88838d20d82f0b66143400eaf5b7a2534d3b44b89d086d"
+    },
+    "ast_bridge": {
+      "changed_existing_methods": [
+        "Chebtech1.__abs__",
+        "Chebtech2.__abs__"
+      ],
+      "new_helper": "_abs_uses_existing_grid",
+      "legacy_complex_fallback_tail_AST_equal": true,
+      "all_other_module_AST_equal": true,
+      "baseline24test_function_AST_equal_on_final_parser_bytes": [
+        "test_existing_grid_coefficients_and_happiness",
+        "test_empty_object_preserved"
+      ],
+      "baseline_original16test_bytes_equal_base": true,
+      "parent_head": "38d2fefa75fe61cdf5316d133a93cead8328e108",
+      "parent_library_deltas": [
+        "src/chebfunjax/tech/_roots_sampled_cpu.py",
+        "src/chebfunjax/utils/interpolation.py"
+      ],
+      "actual_call_overlap": {
+        "recorded_python_calls": {
+          "interpolation:<module>": 1,
+          "sampled_helper:<module>": 1,
+          "sampled_helper:grid_and_states": 1,
+          "sampled_helper:dynamic_points": 1,
+          "sampled_helper:affine_points": 1,
+          "sampled_helper:recurrence_states": 1,
+          "sampled_helper:body": 1,
+          "sampled_helper:instruction": 1,
+          "sampled_helper:<lambda>": 6,
+          "sampled_helper:finish_subdivision": 1
+        },
+        "roots_subdivide_shapes": {
+          "((104,), 'float64', 'numpy')": 1,
+          "((66,), 'float64', 'numpy')": 2,
+          "((93,), 'float64', 'numpy')": 1,
+          "((69,), 'float64', 'numpy')": 1,
+          "((70,), 'float64', 'numpy')": 1,
+          "((627,), 'float64', 'numpy')": 1,
+          "((124,), 'float64', 'numpy')": 1,
+          "((56,), 'float64', 'numpy')": 1,
+          "((89,), 'float64', 'numpy')": 1,
+          "((62,), 'float64', 'numpy')": 1,
+          "((347,), 'float64', 'numpy')": 1,
+          "((168,), 'float64', 'numpy')": 1,
+          "((80,), 'float64', 'numpy')": 1,
+          "((91,), 'float64', 'numpy')": 1
+        },
+        "tech_abs_shapes": {
+          "('Chebtech2', (100,), 'float64')": 2,
+          "('Chebtech2', (93,), 'float64')": 1,
+          "('Chebtech2', (697,), 'float64')": 1,
+          "('Chebtech2', (59,), 'float64')": 2
+        },
+        "scope": "Main-thread Python call metadata only; no extra numerical evaluation or matrices constructed. Fresh process/profile installed before scientific imports. Instrumented gate is not a timing benchmark."
+      },
+      "bridge_limit": "Sampled helper actually executes n627float64 host operand; do not claim it is unused. Parent should rerun3literalunbounded assertions on combined38d+ABS. Interpolation onlymodule import/no functioncalls recorded. Child numerical qualification stays frozen9c4b."
+    }
+  },
+  "native_capture": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/native_capture.json",
+    "sha256": "36177a9a801f2e0dda88838d20d82f0b66143400eaf5b7a2534d3b44b89d086d",
+    "fixture_exact_capture_bytes": true,
+    "type_storage_cases": 26,
+    "default_original_test_predicates": 8,
+    "all_eight_original_predicates_true": true,
+    "which_test": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebtech/test_abs.m",
+    "test_folder": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/chebtech",
+    "which_chebfun": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/@chebfun/chebfun.m",
+    "scope": "One singleCompThread pinned MATLAB process, CPU36-39, all native mfiles/driver/launcher guarded; initial/final clean reference. Native26storage cases are not26full numeric-parity successes."
+  },
+  "baseline": {
+    "final_representation_plus_existing_tech": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/baseline_final.xml",
+      "sha256": "7ca0c150972737fd7c9aca8a05dbfc1411d13af705b63fd45ec9160fecd546ef",
+      "tests": "40",
+      "failures": "24",
+      "errors": "0",
+      "skipped": "0",
+      "time": "22.669"
+    },
+    "original_unbounded_maps": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/baseline_unbounded.xml",
+      "sha256": "843074ec045d9229939d5d5f02c534d3a9142694abb182c68caf083e6c0b539b",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "38.410"
+    },
+    "meaning": "24actual representation/empty failures;16existing tech tests pass. All3literal unbounded predicates plus2map controls already pass on9c4b; this patch is not credited with repairing their older308CI failure. Baseline24functions/decorators exact AST on final parser bytes; excluded new26native-parser tests were not used to claim fail-to-pass."
+  },
+  "candidate": {
+    "pytest_passed": 79,
+    "tech66": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_tech_final.xml",
+      "sha256": "48187386488e80cebff4943a91b8a69f37862dc8a7341052eb3fbc92c6a390e0",
+      "tests": "66",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "21.292"
+    },
+    "unbounded_map_bounded13": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_unbounded_v2.xml",
+      "sha256": "542bd4227a0c7bf3dc6727787be752125e9416dbafbec9473a51582927716b99",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "52.726"
+    },
+    "breakdown": "50newcontrols=22existing-grid representation/happiness+2canonicalempty+26native storage predicates. Existing16tech=8literal default normest+8authored infinity-norm probes.13other=3literal unbounded+2map+8bounded/nozerofun controls. Original operands/bounds unchanged.",
+    "representation_probe": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/REPRESENTATION_COMPARISON.json",
+      "sha256": "6620aa4f755abb2830f5e4d3ac8abe2daaa2b68789f595ffca7ac19b22d7049b",
+      "legacy_eager_complex_fallback_pairs": 8,
+      "all_legacy_fallback_bytes_identical": true,
+      "finite_C2_capture_coefficients_words_equal": true,
+      "finite_C1_max_coefficient_difference": 3.694961003830599e-16,
+      "scope": "Output shapes/happiness/IEEE masks and component words observed on actual native operands; no new fitted acceptance bound or universal bitwise guarantee."
+    }
+  },
+  "unresolved_nonfinite_pipeline_mismatches": [
+    {
+      "tech": 1,
+      "case": "real_inf",
+      "nan_mask_mismatches": 1,
+      "inf_mask_mismatches": 1,
+      "finite_max_abs": 0.0,
+      "coefficient_words_equal": false,
+      "scope": "Diagnostic component/word comparison only; no new acceptance bound or universal native-bit claim."
+    },
+    {
+      "tech": 1,
+      "case": "pure_imaginary_inf",
+      "nan_mask_mismatches": 1,
+      "inf_mask_mismatches": 1,
+      "finite_max_abs": 0.0,
+      "coefficient_words_equal": false,
+      "scope": "Diagnostic component/word comparison only; no new acceptance bound or universal native-bit claim."
+    },
+    {
+      "tech": 2,
+      "case": "pure_imaginary_inf",
+      "nan_mask_mismatches": 1,
+      "inf_mask_mismatches": 1,
+      "finite_max_abs": 0.0,
+      "coefficient_words_equal": false,
+      "scope": "Diagnostic component/word comparison only; no new acceptance bound or universal native-bit claim."
+    }
+  ],
+  "nonfinite_next_action": "For retained same c0=Inf coefficient inputs, capture native coeffs2vals output and abs(values), then vals2coeffs output, and replay each identical operand with JAX. Current combined pipeline differs in one Inf/NaN coefficient for C1realInf,C1pureimagInf,C2pureimagInf. Native C2coeffs2vals has a separate imaginary-valued branch; C1has weighted FFT and storage/symmetry postprocessing. First differing stage has not been captured, so do not assign a precise primitive cause or add anInf-specific ABS bypass.",
+  "retained_failed_attempts": {
+    "baseline_preformat": "24fail,26excluded; real implementation fault, retained separately from final baseline24fail+16pass.",
+    "candidate_parser_v1": "62pass/4errors: native num2hex(empty) serialized cellstr as[emptystring]; parser attempted int(emptystring,16). Fixed only zero-sized shape serialization; operands unchanged. Final66pass.",
+    "observer_v1": "180s wall censor,0completed scientific assertions. Callback repeatedly constructed source Path strings on every Pythoncall. Source/test/native inputs stable,no survivors. Replaced only observer with precomputed path filtering; same source/tests pass13 in final observed gate. Not a library numerical failure or performance measurement.",
+    "probe_import_v1": "Diagnostic module loading lacked sys.modules registration required by Equinox dataclass. Exited1before operand evaluation. Registration-only retry completes; actual library source/inputs unchanged."
+  },
+  "receipts": {
+    "baseline_final_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/baseline_final_run/receipt.json",
+      "sha256": "7cb38aea1ebae0bc932b01999e03eef3c5c56ba2c3502127a5a6394688b3f543",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 27.96619812771678,
+      "sampled_peak_summed_rss_kib": 1459320,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "baseline_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/baseline_run/receipt.json",
+      "sha256": "b9566de218d490215fb56dbdf9a244f1b924c2b48b56de71c6c3a80e6d28dcf7",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 10.298694981727749,
+      "sampled_peak_summed_rss_kib": 722352,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "baseline_unbounded_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/baseline_unbounded_run/receipt.json",
+      "sha256": "8ffa2498686377ea4b95a951d4b0c112e03bbfb241a25359bc5b095d05b6987d",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 44.594199892599136,
+      "sampled_peak_summed_rss_kib": 2272792,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_tech_final_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_tech_final_run/receipt.json",
+      "sha256": "3dc2325a6d624ab0cdc65291c7ed08ff7b314fc00801ba3ad29b93669ed0527a",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 26.568877690006047,
+      "sampled_peak_summed_rss_kib": 1464800,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_tech_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_tech_run/receipt.json",
+      "sha256": "bfc292dfd1777e371bb56857be33967bbbec271f48ed276f09804cf141b73e32",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 26.597549938131124,
+      "sampled_peak_summed_rss_kib": 1458036,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_unbounded_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_unbounded_run/receipt.json",
+      "sha256": "4a41218f95cc61a58a155cbf7519eb9ef36361d203c9e1ff637469bb664a9fa6",
+      "command_exit_code": -15,
+      "supervisor_exit_code": 124,
+      "censored_limit": "wall_timeout",
+      "wall_seconds": 181.7536765486002,
+      "sampled_peak_summed_rss_kib": 1466520,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_unbounded_v2_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/candidate_unbounded_v2_run/receipt.json",
+      "sha256": "4e43afc99d2bb278a6c7e06dc07c23e0192ccd7206fd9a60b6a15bde77819dc2",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 62.71742569981143,
+      "sampled_peak_summed_rss_kib": 2481112,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/native_run/receipt.json",
+      "sha256": "794c708bc11293c193d82b01a2d591fe60ec6f1d0d3d091e4b1fee995497a7ef",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 110.56081452732906,
+      "sampled_peak_summed_rss_kib": 1291232,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "representation_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/representation_run/receipt.json",
+      "sha256": "22db422d69afd51fd9bae458f69c449ace004c0d5f1934064c8780b1caa44bfa",
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 2.94915114575997,
+      "sampled_peak_summed_rss_kib": 408284,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "representation_v2_run": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017/representation_v2_run/receipt.json",
+      "sha256": "2a36f82c099dd40956b5ee5285af7c1d0ea3ff80eac81314c26a56e9f85e0e8f",
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 9.06100911879912,
+      "sampled_peak_summed_rss_kib": 792804,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_bridge_and_limits": [
+    "Child numerical qualification is frozen9c4b+ABS. Parent38d differs in interpolation.py and roots_sampled_cpu.py. Observed unbounded gate actually executes sampled helper for627float64hostcoefficients; it is NOT an unused-file bridge. Parent should run3literalunbounded assertions on combined source. Interpolation file onlymodule import/no functioncalls observed.",
+    "Native-source mfile/input/test/config guards do not constitute exhaustive MATLAB/JAX linked-binary closure. Python runtime module hashes are post-observed in gates; not universally preguarded.",
+    "Complex eager fallback numerical outputs preserved for8captured operand pairs, but legacy fixed-grid fallback is not a complete native adaptive compose port. Data-dependent complex classification remains eager; no general complex JIT/AD guarantee.",
+    "Bounded _Piece.abs remains unchanged and has a broader value-based real predicate; not promoted to complete native storage parity.",
+    "Native nonfinite output masks remain wrong for3captured pipeline cases despite correct dispatch/shape/happiness; these are unresolved semantic failures, not word-only or dimension-based parity successes.",
+    "All original finite test bounds retained; finite C1coefficient low words need not be universally identical. No whole ABS/Chebfun/Unbndfun API or page/performance completion claim."
+  ],
+  "evidence_root": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_grid_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/chebtech_abs_existing_grid_package_20261017.tar.gz"
+}

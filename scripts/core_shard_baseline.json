@@ -243,7 +243,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_curl_matlab]",
       "tests/test_utils/test_matlab_imaginary_literals.py",
       "tests/test_utils/test_fft602_ordered.py",
-      "tests/test_scalar_newton_coefficient_breaks_source.py"
+      "tests/test_scalar_newton_coefficient_breaks_source.py",
+      "tests/test_tech/test_abs_existing_grid_source.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1113,6 +1114,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "38d2fefa75fe61cdf5316d133a93cead8328e108",
+  "last_update_parent": "96143681abe1b6537c74a00ae0cd526d458b6b53",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

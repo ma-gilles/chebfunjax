@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Source existing-grid C1/C2 ABS storage dispatch and representation:87parent tech/original/protocol checks and3literal unbounded assertions pass, all1085prior core owners preserved+1new. [Evidence](abs_existing_grid_parent_cpu_20261017.json).
+- [ ] Native nonfinite transform-mask differences in3cases, full ABS/API/JAX and matched speed remain open; storage dispatch success is not full output parity.
+
+
 - [x] C1 native adaptive eigs and explicit system preferences:6focused checks,39existing regressions and21CIprotocol checks pass; fresh pinned native system2 has6true predicates. [Evidence](c1_eigs_adaptive_cpu_20261017.json).
 - [ ] One-argument cell callback API, full eigs/backend/JAX qualification and matched performance remain open; these numerical clauses do not qualify the whole original test file.
 
