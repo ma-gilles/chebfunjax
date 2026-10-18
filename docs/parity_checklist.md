@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Native complex baryWeights capacity/phase and analytic rotation JVP:12focused checks and4fresh native controls pass; real arithmetic/other function ASTs/old test bodies unchanged. [Evidence](bary_complex_cpu_20261017.json).
+- [ ] Full baryWeights API/large-n/performance; latest-main CI/coverage and Maxwell duplicate-zero system eigenmodes remain open.
+
+
 - [x] ActualCIinterp1predicate25 source-loop correction:65interpolation/bary checks pass unchanged bounds,2complex-JVP boundary checks. Five minimax scalar/shape adapters pass on finalsource. [Evidence](interpolation_minimax_ci_cpu_20261017.json).
 - [ ] Native low-word/weights/full APIs, matched speed and latest-main scientificCI/coverage remain open.
 

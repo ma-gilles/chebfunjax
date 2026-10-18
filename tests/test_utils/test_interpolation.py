@@ -185,6 +185,33 @@ class TestBaryWeights:
         npt.assert_allclose(np.array(w), ref, rtol=1e-11, atol=1e-13)
 
 
+    @pytest.mark.parametrize("count", [3, 4])
+    def test_native_complex_capacity_and_weight_phase(self, count):
+        # baryWeights.m uses C=1 for complex nodes. The column-product
+        # formula gives these normalized weights on the imaginary axis.
+        nodes = 1j*jnp.arange(count, dtype=jnp.float64)
+        expected = (jnp.asarray([-.5, 1., -.5]) if count == 3 else
+                    jnp.asarray([1j/3, -1j, 1j, -1j/3]))
+        actual = bary_weights(nodes)
+        assert actual.dtype == jnp.complex128
+        npt.assert_allclose(actual, expected, rtol=1e-14, atol=1e-14)
+
+        # Rigid rotation multiplies source weights by exp(-i*(n-1)*theta).
+        # Its analytic JVP also detects an artificial capacity phase.
+        _, tangent = jax.jvp(bary_weights, (nodes,), (1j*nodes,))
+        npt.assert_allclose(tangent, -1j*(count-1)*expected, rtol=1e-12, atol=1e-12)
+
+
+    @pytest.mark.parametrize("nodes, expected", [
+        ([0, 1, 1j], [-1j, .5+.5j, -.5+.5j]),
+        ([0, 1, 2], [.5, -1, .5]),
+    ])
+    def test_native_triangle_and_real_control(self, nodes, expected):
+        # Independent closed-form controls also checked with pinned baryWeights.m.
+        actual = bary_weights(jnp.asarray(nodes))
+        npt.assert_allclose(actual, expected, rtol=1e-14, atol=1e-14)
+
+
 # ---------------------------------------------------------------------------
 # Tier 1: bary
 # ---------------------------------------------------------------------------

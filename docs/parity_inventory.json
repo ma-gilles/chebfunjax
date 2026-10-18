@@ -15,6 +15,11 @@
     "test_file_count_is_assertion_coverage": false
   },
   "evidence_register": {
+    "bary_complex_cpu_20261017": {
+      "path": "docs/bary_complex_cpu_20261017.json",
+      "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
+      "sha256": "a5c0ab276af7d2b43f435a71a93a9eb06bca78a5118e7a29dd1b9a842e1e4d0c"
+    },
     "c1_nodots_cpu_20261017": {
       "path": "docs/c1_nodots_cpu_20261017.json",
       "scope": "Three original Chebfun2 technology predicates and seven original no-dots predicates plus listed focused controls; no full API closure",
@@ -92804,7 +92809,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "bary_complex_cpu_20261017",
+          "scope": "Complex capacity/phase and rotation JVP;4closed-form native controls; full-item status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

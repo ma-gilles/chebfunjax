@@ -1,3 +1,16 @@
+# Native complex barycentric weights — 2026-10-17
+
+Complex nodes now use native baryWeights.m capacity C=1. Explicit complex
+phase z/abs(z) also retains the analytic rotation JVP (JAX sign gives zero).
+Two initial phase failures and two subsequent derivative failures repaired;
+final12focused checks pass, including4new closed-form controls. Four fresh
+pinned-native controls pass and are compared directly with JAX. First native
+run crashed in MATLAB ProductsInit after producing outputs; rawfailure retained,
+clean retry required. Real arithmetic/other functions and old tests unchanged.
+Full API/large-n/native performance and latest-main CI/coverage remain open.
+Older CI also exposes Maxwell duplicate-zero eigenmodes; these remain unresolved.
+Evidence: docs/bary_complex_cpu_20261017.json.
+
 # Interpolation and minimax CI corrections — 2026-10-17
 
 Actual interpolation predicate25 failure reproduces at exactly100eps. Pinned

@@ -88,7 +88,7 @@ def bary_weights(x: jnp.ndarray) -> jnp.ndarray:
     Parameters
     ----------
     x : jnp.ndarray, shape (n,)
-        Interpolation nodes (real).
+        Interpolation nodes (real or complex).
 
     Returns
     -------
@@ -99,7 +99,7 @@ def bary_weights(x: jnp.ndarray) -> jnp.ndarray:
     -----
     Uses the log-sum-exp trick to avoid overflow/underflow for large n.
     The capacity scaling ``C = 4 / (max(x) - min(x))`` improves numerical
-    stability.
+    stability for real nodes; complex nodes use ``C = 1``.
 
     Provenance
     ----------
@@ -115,7 +115,9 @@ def bary_weights(x: jnp.ndarray) -> jnp.ndarray:
     n = x.shape[0]
 
     # Capacity scaling
-    C = 4.0 / (jnp.max(x) - jnp.min(x))
+    # Native capacity applies only to real nodes. A complex capacity would
+    # rotate every normalized weight by a common, non-native phase.
+    C = 1.0 if jnp.iscomplexobj(x) else 4.0 / (jnp.max(x) - jnp.min(x))
 
     # Difference matrix: V[i,j] = C*(x[i] - x[j]), with diagonal set to 1
     V = C * (x[:, None] - x[None, :])
@@ -126,7 +128,14 @@ def bary_weights(x: jnp.ndarray) -> jnp.ndarray:
     log_abs_V = jnp.sum(jnp.log(jnp.abs(V)), axis=0)
 
     # Sign: product of signs along each column (MATLAB: prod(sign(V)))
-    sign_V = jnp.prod(jnp.sign(V), axis=0)
+    if jnp.iscomplexobj(x):
+        # MATLAB complex sign is z/abs(z). JAX sign has zero JVP, so
+        # express the phase explicitly to retain derivatives under rotation.
+        magnitude = jnp.abs(V)
+        phase = V / jnp.where(magnitude == 0, 1.0, magnitude)
+        sign_V = jnp.prod(phase, axis=0)
+    else:
+        sign_V = jnp.prod(jnp.sign(V), axis=0)
 
     # Weights
     w = 1.0 / (sign_V * jnp.exp(log_abs_V))

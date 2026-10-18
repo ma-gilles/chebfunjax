@@ -1,0 +1,123 @@
+{
+  "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
+  "base_commit": "30896f793b758b360e21ee92aa46ac64361fb626",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "source_fix": "baryWeights.m uses capacity C=1 for complex nodes, real capacity otherwise. Express complex sign as z/abs(z) with zero denominator protected, since JAX sign has zero JVP. Real sign arithmetic unchanged.",
+  "baseline": {
+    "phase_only_new_checks": "2failed5.52s",
+    "first_capacity_candidate": "2failed8passed11.97s; primal fixed but rotation JVP zero"
+  },
+  "final": {
+    "checks": 12,
+    "pytest_seconds": 11.6,
+    "includes": "Existing bary weights/native fixtures and source bary loop controls plus4new closed-form cases; two imaginary-axis cases also check analytic rotation JVP",
+    "supervision": "All baseline/candidate Python gates stable, uncensored and no survivors; final peak761548KiB"
+  },
+  "native": {
+    "clean_retry_receipt": "bary_complex_native_retry_run001/receipt.json",
+    "cases": [
+      {
+        "case": 1,
+        "nodes": 3,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 2,
+        "nodes": 4,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 3,
+        "nodes": 3,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 4,
+        "nodes": 3,
+        "stored_dtype": "uint8",
+        "effective_dtype": "float64",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      }
+    ],
+    "first_run": "Four controls produced then R2025b ProductsInit connector crashed (segmentation violation in libCppMicroServices); raw root-9/descendant cleanup preserved, not accepted as clean reference",
+    "retry": "Same four source controls and same MATLAB launcher flags, fresh output/temp/preferences paths; terminal0/stable/uncensored/no survivors required"
+  },
+  "MAT_reader_adapter": {
+    "preserved_failures": "First two direct comparison runs fail on compact uint8 stored real input; native MATLAB input class is double, as mat_dtype=True confirms. v3 restores recorded real class while retaining raw complex values (SciPy mat_dtype=True discards imaginary parts). No library/tolerance change.",
+    "cases": [
+      {
+        "case": 1,
+        "nodes": 3,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 2,
+        "nodes": 4,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 3,
+        "nodes": 3,
+        "stored_dtype": "complex128",
+        "effective_dtype": "complex128",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      },
+      {
+        "case": 4,
+        "nodes": 3,
+        "stored_dtype": "uint8",
+        "effective_dtype": "float64",
+        "max_abs_error": 0.0,
+        "bound": 1e-14,
+        "passes": true
+      }
+    ],
+    "warnings": [
+      "Casting complex values to real discards the imaginary part"
+    ]
+  },
+  "source_bridge": {
+    "library_files": 362,
+    "other_library_files_identical": 361,
+    "other_interpolation_functions_AST_equal": true,
+    "all_existing_test_bodies_AST_equal": true,
+    "new_test_methods": 2,
+    "new_parametrized_nodes": 4,
+    "new_core_selectors": 0
+  },
+  "limits": [
+    "Controls are added analytic/native checks, not newly ported original MATLAB predicates",
+    "No whole baryWeights API or large-n loop qualification, complete bitwise agreement, duplicate-node convention or matched performance claim",
+    "Pytest source/tests/declared inputs guarded; no full runtime-import freeze claim",
+    "Latest-main CI/coverage and Maxwell duplicate-zero eigenmode failures remain open; complete goal remains incomplete"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bary_complex_cpu_20261017.tar.gz",
+    "sha256": "8fef313fd9ba2db64a1b19e9892ac9b7a8cc9a763c2290de57f9a247cf815f39",
+    "verified_payloads": 469
+  }
+}
