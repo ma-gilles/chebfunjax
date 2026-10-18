@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-17. **Active, incomplete; CPU only.** Latest updates cover original roots/minandmax predicates, native breakpoint grammar, Hermite arithmetic and stable CI ownership; scoped evidence is recorded below. MATLAB reference: `7574c77`.
+Updated 2026-10-17. **Active, incomplete; CPU only.** Latest published evidence through `be0b7958` covers all six default original system2 predicates, all eight default original L1 predicates, three nonfinite transform repairs and bounded cosine derivatives. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -13,7 +13,7 @@ Checked items certify only their stated scope.
 | Library and original tests | Scoped fixes and original predicates linked below | Complete function/assertion audit across 2,333 native library files and 1,102 original test files; remaining API/JAX gaps |
 | Example pages | All 322 references cached; structural prose/block/figure alignment checked | Final-source computations, printed output and complete qualification of all 322 pages, including the 12 interrupted scripts |
 | Figures | All 1,305 reference images archived; all dimensions match at the recorded global snapshot | Scientific content, axes/fonts/layout and raster parity; 0/1,305 images were pixel-identical in that snapshot |
-| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Inverse transform discrepancy, small Hermite ASY, complex poles, PDE failures, Chebfun3 and broader original-test gaps |
+| Numerical correctness | Published GET, rational output, AD/backend, interpolation, plotting and basic PDE option fixes | Small Hermite production integration, complex poles, dense Chebfun3T constructor, external cosine warning and broader original-test/API gaps |
 | CPU performance | Scoped measurements and optimizations recorded | Matched native benchmarks for inverse, Hermite, QR/LU, BVP, roots and other known slow paths |
 | Final acceptance | Published packages linked below; prior documentation deployment passed | Latest-main CI and coverage ≥79%, final provenance/lint and full objective audit remain required |
 
@@ -26,6 +26,12 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] AbsoluteValue complete application: source public plotData/error Chebfun, unclipped error arrays, five600x270figures, empty stdout, zero scientific warnings; fresh native five-cell comparison and parent3956payload archive review. [Evidence](absolute_value_parent_cpu_20261017.json).
+- [ ] AbsoluteValue representation lengths, visible error patterns and all five raster comparisons differ; complete page/figure parity remains open.
+- [x] Paired cos4 source/provider controls: source-compatible constructor15/15native words and MAXITER/20NaNs; external JAX callback finite L1 fit passes original1e-8moment bound. [Evidence](cosine_watson_paired_controls_cpu_20261017.json).
+- [ ] External cosine word/warning parity remains unresolved; existing strict test is unchanged.
+
 
 - [x] All6default original system2 cell/autonomous predicates pass onfc at unchanged1e-9; no library edit, stale unsupported callback entry corrected. New regression+21protocol checks preserve1088prior owners+1new. [Evidence](original_system2_polyfit8_cpu_20261017.json).
 - [x] All8default original polyfitL1 predicates pass on frozen36e at unchanged1e-8; fresh unmodified native testfunction also all8true. [Per-clause table](polyfit_l1_original8_current_cpu_20261017.md).
@@ -41,7 +47,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Source existing-grid C1/C2 ABS storage dispatch and representation:87parent tech/original/protocol checks and3literal unbounded assertions pass, all1085prior core owners preserved+1new. [Evidence](abs_existing_grid_parent_cpu_20261017.json).
-- [ ] Native nonfinite transform-mask differences in3cases, full ABS/API/JAX and matched speed remain open; storage dispatch success is not full output parity.
+- [x] The three nonfinite transform-mask differences noted by this earlier ABS scope were subsequently repaired in `fc674a6b`; see [shared transform evidence](nonfinite_transform_native_cpu_20261017.json). Full ABS/API/JAX and matched speed remain open.
 
 
 - [x] C1 native adaptive eigs and explicit system preferences:6focused checks,39existing regressions and21CIprotocol checks pass; fresh pinned native system2 has6true predicates. [Evidence](c1_eigs_adaptive_cpu_20261017.json).
@@ -58,7 +64,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Projected C2 system eigenproblem repair: both actual CI regressions, four original native predicates,38child scientific selectors and24parent integration nodes pass (counts overlap). Complex eigenfunctions and genuine repeated modes preserved. [Evidence](maxwell_system_eigs_parent_cpu_20261017.json).
-- [ ] Full eigs/BC grammar, wider C1 preferences, generalized-eig JAX conversion, matched performance and latest CI remain open.
+- [ ] Full eigs/BC grammar, generalized-eig JAX conversion, matched performance and latest CI remain open. Explicit C1 preferences were subsequently repaired in `96143681`; all six default original cell/autonomous predicates are verified by [be0b evidence](original_system2_polyfit8_cpu_20261017.json).
 - [x] Matched-input single-CPU inverse benchmark: MATLAB warm0.642599s, JAX1.710633s; matching8630coefficient counts and nearroundoff sample agreement. [Evidence](inverse_single_cpu_20261017.json).
 - [ ] Inverse speed parity remains open:2.662xwarm and32.8xfirst-after-setup in this descriptive shared-host measurement; full API/pages/figures and other known slow paths remain required.
 
@@ -72,7 +78,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Native complex baryWeights capacity/phase and analytic rotation JVP:12focused checks and4fresh native controls pass; real arithmetic/other function ASTs/old test bodies unchanged. [Evidence](bary_complex_cpu_20261017.json).
-- [ ] Full baryWeights API/large-n/performance; latest-main CI/coverage and Maxwell duplicate-zero system eigenmodes remain open.
+- [ ] Full baryWeights API/large-n/performance; latest-main CI/coverage and broader generalized system eigenproblems remain open. The duplicate-zero Maxwell case was subsequently repaired; see [eigenproblem evidence](maxwell_system_eigs_parent_cpu_20261017.json).
 
 
 - [x] ActualCIinterp1predicate25 source-loop correction:65interpolation/bary checks pass unchanged bounds,2complex-JVP boundary checks. Five minimax scalar/shape adapters pass on finalsource. [Evidence](interpolation_minimax_ci_cpu_20261017.json).

@@ -32,6 +32,11 @@
       "report_sha256": "487e3e596351db40771c07f9bd79923126024be678d1dd06e4d0598e7742fe93",
       "scope": "Parent qualification of source existing-grid C1/C2 absolute value storage dispatch"
     },
+    "absolute_value_parent_cpu_20261017": {
+      "path": "docs/absolute_value_parent_cpu_20261017.json",
+      "scope": "Complete actual AbsoluteValue execution, source plotting/error repair and exact presentation bridge; numerical/figure/full-page parity remains open",
+      "sha256": "a13115b0fd7c5ec22cebe76cfd401f6cf76c4c610819ba890fd4ab34fde2b3a5"
+    },
     "bary_complex_cpu_20261017": {
       "path": "docs/bary_complex_cpu_20261017.json",
       "scope": "Native complex barycentric weight phase and analytic rotation JVP; unchanged real branch",
@@ -166,6 +171,11 @@
       "path": "docs/complex_minmax_cpu_20261017.json",
       "scope": "Six native-backed authored complex extrema cases with stored points, sides and arrays; full-item statuses unchanged",
       "sha256": "798da82283310d7bfa69a1438791a4a81a215ff1beb347dd8b30a95fc0fa5b98"
+    },
+    "cosine_watson_paired_controls_cpu_20261017": {
+      "path": "docs/cosine_watson_paired_controls_cpu_20261017.json",
+      "scope": "Paired source-compatible/external-JAX cosine diagnosis; unchanged strict warning regression remains unresolved",
+      "sha256": "c0e8d2dfb554f52029b5eaf1e018669fd7ca9e0aefe9e37f9a7806d29545d56d"
     },
     "coupled_ivp_parent_cpu_20261017": {
       "path": "docs/coupled_ivp_parent_cpu_20261017.json",
@@ -5792,6 +5802,10 @@
             "url": "https://www.chebfun.org/examples/approx/AbsoluteValue.html"
           },
           "status_note": "Observational archive/PNG evidence only. No page status changed; scientific computation, stdout, figure content/pixel parity, figure size qualification, and performance remain unverified."
+        },
+        {
+          "evidence_id": "absolute_value_parent_cpu_20261017",
+          "scope": "Complete actual AbsoluteValue execution, source plotting/error repair and exact presentation bridge; numerical/figure/full-page parity remains open"
         }
       ],
       "figure_content_status": "unverified",
@@ -104583,6 +104597,10 @@
         {
           "evidence_id": "original_system2_polyfit8_cpu_20261017",
           "scope": "All default original predicate indices, source-bound; broader API/global statuses unchanged."
+        },
+        {
+          "evidence_id": "cosine_watson_paired_controls_cpu_20261017",
+          "scope": "Supplemental cos4 is absent from all eight original predicates; paired diagnosis does not change whole-file status."
         }
       ],
       "functions": [

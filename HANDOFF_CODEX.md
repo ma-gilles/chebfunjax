@@ -1,3 +1,25 @@
+# AbsoluteValue source computations and tracked gaps — 2026-10-17
+
+The complete AbsoluteValue example now uses public Chebfun plotData and the
+source error function abs(r-abs(x)); artificial samplewise error clipping was
+removed. Actual application132.33s, five600x270figures, empty stdout and zero
+scientific warnings. All1380actual import files were preguarded. Fresh pinned
+MATLAB executes all five cells; representation lengths and visible error
+patterns differ. Parent reviewed source/evidence archive3956payloads and exact
+presentation replay. This is a source/presentation repair, not page/figure parity.
+Evidence: docs/absolute_value_parent_cpu_20261017.json.
+
+Paired supplemental cos4 controls now establish that source-compatible cosine
+reproduces native MAXITER/20NaNs with15/15native constructor coefficient words;
+unchanged external JAX cosine gives20finite outputs and L1momentnorm2.61e-12
+below original1e-8. Strict external warning regression remains unresolved;
+no solver/test/callback rewriting. Evidence:
+docs/cosine_watson_paired_controls_cpu_20261017.json.
+
+Current checklists supersede stale nonfinite-mask/no-x callback entries.
+All322final-source page qualifications, full API/original tests/JAX/speed,
+scientific figures and latest-main CI/coverage remain required.
+
 # Original cell-system and L1 test coverage — 2026-10-17
 
 All6default original test_eigs_system2 predicates now run with actual cell

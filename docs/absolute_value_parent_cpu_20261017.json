@@ -1,0 +1,58 @@
+{
+  "scope": "Parent integration of complete actual AbsoluteValue run, source computation repairs and presentation replay; full numerical/figure parity remains open",
+  "archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/absolute_value_full_package_20261017.tar.gz",
+    "sha256": "ac4912c07626e70374d334ed39bfec81059340d28882c242e282f1b5569eff55",
+    "payloads_verified": 3956,
+    "manifest_paths_exact": true,
+    "verification": "Sequential archive traversal, hashes compared for every payload against internal manifest"
+  },
+  "executed_base": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c",
+  "integration_base": "be0b79587998d204eb271ef0f44199ce8819db21",
+  "library_source_bridge": {
+    "all_executed_library_python_bytes_equal": true,
+    "different_files": []
+  },
+  "parent_visual_review": {
+    "slots": [
+      1,
+      3,
+      5
+    ],
+    "observations": [
+      "Page framing/font/ticks closer to cached reference",
+      "Error xlabel clipping corrected by labelpad, preserving plot bounds",
+      "Error oscillation and tail patterns visibly differ; all five raster comparisons remain different",
+      "Source linewidth1.6 retained; no numeric data or title strings replaced"
+    ]
+  },
+  "presentation_source_bridge": {
+    "actual_run_source_sha256": "58c5a90d382e8215fd2443549161e7e5d66e1e6d7552d82b8b491a61d2fb4a3a",
+    "final_source_sha256": "a9b839b6ee051c52d5d5113b3f79d7c6cd8f7ce6f6a0ef9f33094dc5ad7c6205",
+    "mathematical_assignments_and_publicplot_save_calls_AST_identical": true,
+    "scientific_AST_nodes": 19,
+    "source_applied": true,
+    "scope": "Final presentation-only delta from executed source; all plotted scientific artist x/y words and title strings separately replayed exactly. No final-source full science rerun. Font/tick/grid settings are page-specific cached-render framing, not a universal conversion from native font points."
+  },
+  "actual_runtime": {
+    "application_seconds": 132.32788036810234,
+    "figures": 5,
+    "dimensions": [
+      600,
+      270
+    ],
+    "stdout_bytes": 0,
+    "scientific_warnings": 0,
+    "actual_import_files": 1380,
+    "all_preguarded": true
+  },
+  "new_selectors": 0,
+  "whole_item_status_changes": 0,
+  "remaining": [
+    "Native representation counts differ from both current Python and older cached figures",
+    "Maximum sampled same-coordinate function gap2.86e-12 across18states",
+    "Scientific error03/05 structure and all five raster comparisons remain different",
+    "No final-source full rerun for presentation-only delta; exact captured data/title replay and source AST bridge supplied",
+    "Full page/native API/performance/latestCI remain open"
+  ]
+}

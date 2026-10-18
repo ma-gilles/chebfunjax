@@ -8,7 +8,7 @@ function or example parity. Native reference is Chebfun 7574c77.
 | Fixed48 PDE | Published scalar33 real CPU transform repair makes the unchanged authored fixed48 test pass;21parent controls qualify that scope. [Evidence](fft64_pde_cpu_20261017.json). | Broader FFT/PDE plans and latest-main CI remain required. |
 | Complex rational fit | Published FFT602/C2R integration qualifies129final-source controls and exactD/V/Z assembly. Pole gap is2.076e-11; denominator gap5.739e-12. [Evidence](fft602_rational_integration_cpu_20261017.json). | Fresh unchanged ThreeBody415coefficients equal retained input; full run104.57s,1380imports preguarded. Same-input JAX default/QR SVD both retain5.739e-12vector discrepancy. Full native ODE/second-fit/figure/performance parity remains open. |
 | Dense Chebfun3T constructor7 | Fresh47a current-source original assertion fails2.864e-14 > unchanged100eps2.220e-14, shape249/259/263;34.48s, stable/no survivors. [Evidence](chebfun3t_current_transform_cpu_20261017.json). | Shared inverse-normalization change did not fix FFT/envelope/chop sensitivity. Strict xfail retained; matched-source diagnosis needed, no fitted cutoff or wider bound. |
-| Small Hermite ASY | Later diagnostics pass n2/5/12/16/20 scoped bounds; n3 preserves native source error. n4/6 fail and n8/10 exceed retained phase support. [Review](/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_small_scope_review_20261017/REVIEW.json). | General gamma/Miller diagnostics improve n4 but leave node failure; derivative/Newton ordering remains under investigation. Production small-order guard retained. |
+| Small Hermite ASY | The later source-derived private diagnostic passes all18valid explicit small orders (2,4..20) at original component bounds; n3 preserves the native source error. [Sealed review](/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_all_small_order_phase_review_20261017_parent_integrity.json). | Production JAX integration remains guarded: repeated full-formula compilations reach the180s cap before numerical output. Private diagnostic success does not qualify public behavior, storage, AD or performance. |
 
 [Detailed bindings and limitations](transform_sensitive_diagnostics_cpu_20261017.json)
 and [rational stage report](ratinterp_complex_stages_cpu_20261017.json) retain
@@ -93,8 +93,10 @@ work remain open; historical timings above describe their measured source.
 [Projected system eigs](maxwell_system_eigs_parent_cpu_20261017.json) removes
 the discrete spurious second zero and preserves complex eigenfunctions. Both
 actual CI failures and all four original default C2 predicates pass. This
-supersedes earlier open duplicate-zero reports; full APIs/C1/no-x/JAX generalized
-eigensolver/matched performance/latest CI remain required.
+supersedes earlier open duplicate-zero reports; full APIs/JAX generalized
+eigensolver/matched performance/latest CI remain required. C1 adaptive preferences
+and all six default original cell/autonomous predicates were subsequently
+verified; see [original predicate evidence](original_system2_polyfit8_cpu_20261017.json).
 
 [Matched single-CPU inverse benchmark](inverse_single_cpu_20261017.json):
 warm medians native0.642599s/JAX1.710633s (2.662x); first-after-setup

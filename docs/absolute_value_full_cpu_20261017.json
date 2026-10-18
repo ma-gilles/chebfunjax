@@ -1,0 +1,165 @@
+{
+  "scope": "Complete actual AbsoluteValue script execution and scoped source-faithful computation/plotting repairs; presentation improvement only, no numerical/raster/full-page parity closure.",
+  "base": "fc674a6bbd2a10946e7b2050df682ffaad4f3b9c",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "worktree": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/absolute_value_full_20261017",
+  "evidence": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/absolute_value_full_evidence_20261017",
+  "publication_paths": [
+    "examples/approx/absolute_value.py",
+    "docs/images/approx/AbsoluteValue_01.png",
+    "docs/images/approx/AbsoluteValue_02.png",
+    "docs/images/approx/AbsoluteValue_03.png",
+    "docs/images/approx/AbsoluteValue_04.png",
+    "docs/images/approx/AbsoluteValue_05.png",
+    "docs/absolute_value_full_cpu_20261017.json",
+    "docs/absolute_value_full_cpu_20261017.md"
+  ],
+  "library_changes": [],
+  "new_test_selectors": [],
+  "script_repairs": [
+    "Use original string constructors and original domains/18 Newton updates/public supremum norms.",
+    "Use source Chebfun plotData via matlab_plot instead of uniform 1200-point samples.",
+    "Construct source public error Chebfun abs(r-abs(x)) instead of samplewise abs.",
+    "Remove artificial maximum(error,1e-19); raw zeros/negative interpolation roundoff remain unchanged; nonpositive log values are masked only by renderer.",
+    "Keep source line width1.6 and axes limits; improve page-specific cached framing/fonts/ticks/grid without asserting universal native-points conversion."
+  ],
+  "reference": {
+    "literal_cells": 5,
+    "stdout_slots": 0,
+    "figures": 5,
+    "cached_html": "reference/AbsoluteValue.html",
+    "downloaded_m": "reference/AbsoluteValue.m",
+    "code_cells_equal_ignoring_comments_blanklines": true,
+    "hashes": "REFERENCE_BINDINGS.json",
+    "cached_titles": "REFERENCE_AUDIT.json"
+  },
+  "actual": {
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 139.69893889175728,
+      "sampled_peak_summed_rss_kib": 4495924,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "application_seconds": 132.32788036810234,
+    "application_completed": true,
+    "plots": 20,
+    "figures": 5,
+    "stdout_bytes": 0,
+    "scientific_warning_events": [],
+    "runtime_modules": 1380,
+    "runtime_not_preguarded": {},
+    "runtime_changed_preguarded": {},
+    "environment": "versions.json",
+    "raw_figures": "outputs/",
+    "artist_arrays": "figure_01_plot_data.npz .. figure_05_plot_data.npz",
+    "executed_source": "actual_run2_absolute_value.py"
+  },
+  "native": {
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 93.31948429718614,
+      "sampled_peak_summed_rss_kib": 3057844,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "summary": "native_summary.json",
+    "literal_cells": 5,
+    "observer_states": 18,
+    "three_final_functions_literal_observer_words_identical": true,
+    "raw_literal": "native_literal.mat",
+    "raw_observer": "native_observer.mat"
+  },
+  "comparison": {
+    "data": "NATIVE_COMPARISON.json",
+    "max_state_sampled_value_gap": 2.8573081400917744e-12,
+    "error_functions": [
+      {
+        "slot": 3,
+        "current_function_pieces": 66,
+        "current_function_length": 558,
+        "native_function_pieces": 71,
+        "native_function_length": 548,
+        "current_line_points": 33638,
+        "native_line_points": 36097,
+        "current_finite_zero_count": 0,
+        "native_finite_zero_count": 2,
+        "current_finite_line_max": 0.015624999999998737,
+        "native_finite_line_max": 0.015624999999997405,
+        "current_finite_line_min": -1.805416620884703e-18,
+        "native_finite_line_min": -2.4775872802077862e-18,
+        "arrays_shape_equal": false
+      },
+      {
+        "slot": 5,
+        "current_function_pieces": 927,
+        "current_function_length": 8479,
+        "native_function_pieces": 945,
+        "native_function_length": 8697,
+        "current_line_points": 465354,
+        "native_line_points": 474390,
+        "current_finite_zero_count": 0,
+        "native_finite_zero_count": 0,
+        "current_finite_line_max": 0.00024414060074801148,
+        "native_finite_line_max": 0.0002441406022239706,
+        "current_finite_line_min": -1.1651201091957716e-18,
+        "native_finite_line_min": -4.252325806134194e-18,
+        "arrays_shape_equal": false
+      }
+    ],
+    "scope": "Current function evaluated at finite native state plotData coordinates; only native NaN separators excluded from max-gap metric. This is sampled evidence, no continuous bound or original numeric acceptance predicate."
+  },
+  "presentation": {
+    "replay_receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 3.371512400917709,
+      "sampled_peak_summed_rss_kib": 261532,
+      "inputs_stable": true,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "exact_artist_proof": "PRESENTATION_REPLAY_PROOF.json",
+    "source_AST_bridge": "PRESENTATION_SOURCE_BRIDGE.json",
+    "raster_metrics": "RASTER_AUDIT.json",
+    "parent_review": "Parent reviewed cached/current01,03,05: closer presentation; source width remains1.6 and renderer stroke differs. Error03 oscillation pattern and05 tail visibly differ; not accepted figure parity. Label bottom fix retained axes x78..543/y20..240.",
+    "error_xlabel_dark_pixel_bbox_y": {
+      "cached": [
+        259,
+        265
+      ],
+      "reviewed_v1": [
+        264,
+        269
+      ],
+      "final": [
+        257,
+        263
+      ]
+    }
+  },
+  "page": {
+    "regenerated_from_actual_empty_stdout": true,
+    "markdown_byte_identical_to_base": true,
+    "page_diff_required": false
+  },
+  "limitations": [
+    "No original numeric tolerance exists in this demonstration; no acceptance bound was invented.",
+    "Current/native/cached degree counts and rounded norm titles differ; no isolated new library fault established.",
+    "Error functions differ in piece count, coefficient count, sampling, oscillation and tail; all raw data retained.",
+    "Raw negative log-domain interpolation values retained, not clipped or forced positive.",
+    "Current unrounded norms observer missed Equinox adapter frames; all18 source public norm calls and actual title strings executed, but current unrounded norm scalars were not captured.",
+    "Import-time JAX CUDA plugin version warning retained on stderr, separate from scientific warning events. CPU origin and CUDA visibility asserted.",
+    "Full science used executed source; final source only presentation settings differ, proven selected scientific AST plus exact captured artist replay. No fresh final-source full nonlinear run.",
+    "Native R2025b figure geometry/fonts differ from historical cached publisher geometry; no universal font conversion asserted.",
+    "Ruff static pass and full application are scoped checks, not whole library/API or page parity."
+  ],
+  "preserved_attempts": [
+    "full_run1: observer SyntaxError before import/operands; failed_run_actual_v1.py and receipt retained.",
+    "render_candidate_run1: reviewed style prior to label geometry fix, preserved presentation_candidate_v1 and source/driver/proof v1."
+  ]
+}
