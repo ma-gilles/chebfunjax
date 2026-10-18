@@ -1,0 +1,100 @@
+{
+  "base_head": "0f0b6095c060c93807802a99356c873c70619ef7",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Shared ultras.multmat lam>=2 literal native after-recurrence tail stopping, not disk-only optimization. No wholeJIT/AD/API/native speed claim.",
+  "parent_runs": [
+    {
+      "run": "ultras_tail_parent_focused_run001",
+      "result": "111 passed",
+      "wall_seconds": 61.33782065613195,
+      "sampled_peak_summed_rss_kib": 3160992,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "ultras_tail_parent_callers_run001",
+      "result": "13 passed",
+      "wall_seconds": 78.66481472970918,
+      "sampled_peak_summed_rss_kib": 3760492,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "ultras_tail_parent_focused_run002",
+      "result": "109 passed, 2 xfailed",
+      "wall_seconds": 61.443189286161214,
+      "sampled_peak_summed_rss_kib": 3170344,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  ],
+  "final_distinct_parent_passed": 122,
+  "final_known_xfailed": 2,
+  "source_bridge": {
+    "src/chebfunjax/discretization/ultras.py": true,
+    "tests/test_discretization/test_ultras_multmat_source_tail.py": false,
+    "tests/fixtures/ultras_multmat_tail_native_20261018.json": true,
+    "tests/fixtures/ultras_multmat_tail_native_20261018.m": true
+  },
+  "test_design_review": {
+    "initial_gate": "111PASSfocused+13PASScallers; initial receipts preserved",
+    "correction": "Two newly authored controls now assert native2steps/output classes and strictxfail on existing dense nonfinite conversion gap; earlier tests asserted known-wrong4steps/allNaN.",
+    "production_unchanged": true,
+    "original_assertions_bounds_fixtures_unchanged": true,
+    "other_test_ASTs_unchanged": true
+  },
+  "other_test_function_ASTs_unchanged": true,
+  "assembly_function_ASTs_equal_child_timing": true,
+  "snapshot_files": 3495,
+  "child_archive_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_tail_packet_20261018.tar.gz",
+    "sha256": "7103d7c443ef76de5257029d004634d0e1e95c09099089db7d00f053da6508af",
+    "root_stream_verified_payloads": 63
+  },
+  "native_derivation": "Unmodified pinned native multmat computes output matrices; normalization coefficient words captured separately. Tail decisions are then evaluated from captured normalized coefficients using source policy; they are not instrumented iteration counts from the actual native call. Exact hex fixture bytes equal raw native JSON.",
+  "native_controls": 12,
+  "native_hex_roundtrip_words": 1196,
+  "timing": {
+    "n": 515,
+    "pair": "baseline first, candidate second; per-arm JAX cache reset, same CPU32-35/dtypes/K/thread settings, synchronized outputs, cold setup separated",
+    "baseline_trace_consteval_s": 14.901599226985127,
+    "candidate_trace_consteval_s": 3.6975546567700803,
+    "baseline_cold_total_s": 14.989694078918546,
+    "candidate_cold_total_s": 3.785973608959466,
+    "baseline_warm_median_s": 0.01103113777935505,
+    "candidate_warm_median_s": 0.009982597082853317,
+    "three_K_three_outputs_word_identical": true,
+    "limit": "Single shared-host matched assembly pair, not robust repeated timing/native/full-public-solver speed claim."
+  },
+  "inherited_nonfinite_gap": "Native convertedNaN=[5/12,NaN,1/48,NaN,0,0]; nativeInf=[5/12,-Inf,1/48,+Inf,0,0]. DenseNaN conversion isallNaN; denseInf=[NaN,-Inf,NaN,+Inf,NaN,NaN]. Bothcurrentpublic resultsallNaN, while nativeInf has35NaN+1negativeInf. Two source-expected strictxfails remain.",
+  "limits": [
+    "Existing value-inspecting Python dispatcher remains; added Python branch does not establish whole-callJIT/AD/vmap.",
+    "Native absoluteeps stopping may alter tiny finite tails: this is required source behavior, not an arbitrary threshold/performance cutoff. Internal zeros do not stop a vector with later large terms.",
+    "Global multmat consumers beyond101bounded checks remain for parent/latestCI. No new core/Q/ownership edits or original-heavy rerun.",
+    "No finite-stencil assembly rewrite; dense builders/output storage and final K-dependent dense product remain.",
+    "Prior banded packet/addendum archives byte unchanged; their original performance observations remain separately scoped.",
+    "Two passing assertions of known-wrong dense nonfinite output replaced only in newly authored tests by native expectations with strictxfail. No original test/fixture/bound changed.",
+    "Parent122passing nodes plus2knownxfails do not close full APIs/JAX/nonfinite behavior, examples/figures/performance or latest-main CI/coverage."
+  ],
+  "ownership": {
+    "old": 1109,
+    "new": 1110,
+    "all_prior_lane_prefixes_retained": true,
+    "lanes": 13,
+    "hermite_12_unchanged": true,
+    "coverage_gate": 79
+  },
+  "n11_diagnosis_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_n11_package_20261018.tar.gz",
+    "sha256": "7d705034aa3fa41042628695e3f3238dba84e9ef05d9570dd596047bf5c54258",
+    "root_stream_verified_payloads": 36,
+    "report_source_bridge": true,
+    "parent_two_output_bridge": "Current0f0b6095 uses same two-output arithmetic as686base; actualparent STATIC_REVIEW in previous barycentric evidence proves it. No new page/runtime qualification."
+  },
+  "review_correction": "Frozen child summary overgeneralized Inf intermediate contamination; nativeInf retains two converted infinities while finite zero-support rows becomeNaN in dense conversion. Public finalM stillallNaN.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_tail_parent_cpu_final_20261018.tar.gz",
+    "sha256": "04061fca65fb726b5046add2f713657c2973379e9265459163a017ff0f371833",
+    "root_stream_verified_payloads": 3663
+  }
+}

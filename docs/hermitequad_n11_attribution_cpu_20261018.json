@@ -1,0 +1,131 @@
+{
+  "base_head": "6869583caffa84cee8a134a82f244ce1575b7ac3",
+  "scope": "Bounded n1..12 HermiteQuad printed-row attribution, binary64 CPU only. No source correction or page/full API closure.",
+  "changes": "Documentation and bounded diagnostic evidence only; no production, test, example or page edits.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_blas": "Intel(R) oneAPI Math Kernel Library Version 2024.1-Product Build 20240215 for Intel(R) 64 architecture applications (CNR branch auto)",
+  "native_capture": {
+    "rows": 12,
+    "original_orders": "1..12",
+    "seconds": 0.127694,
+    "native_source_and_all_callback_inputs_outputs_hex_roundtrip": true,
+    "native_slot": "released"
+  },
+  "python_capture": {
+    "rows": 12,
+    "seconds": 6.325757239945233,
+    "versions": "JAX/jaxlib0.11.0/ml_dtypes0.5.4",
+    "backend": "CPU",
+    "x64": true,
+    "cache": false,
+    "affinity": [
+      36,
+      37,
+      38,
+      39
+    ]
+  },
+  "all78_nodes_and78_weights_exact": true,
+  "all_same_input_products_exact": true,
+  "n11": {
+    "n": 11,
+    "s_words_equal": true,
+    "w_words_equal": true,
+    "callback_differences": [
+      {
+        "index_zero_based": 1,
+        "native": "bfedf7c11817da87",
+        "python": "bfedf7c11817da88"
+      },
+      {
+        "index_zero_based": 9,
+        "native": "bfedf7c11817da87",
+        "python": "bfedf7c11817da88"
+      }
+    ],
+    "products_differences": [
+      {
+        "index_zero_based": 1,
+        "native": "bf35492446c38589",
+        "python": "bf35492446c3858a"
+      },
+      {
+        "index_zero_based": 9,
+        "native": "bf35492446c38589",
+        "python": "bf35492446c3858a"
+      }
+    ],
+    "python_products_native_exact": true,
+    "native_products_python_exact": true,
+    "native_dot": "3ff61612323d3976",
+    "python_dot": "3ff61612323d3978",
+    "native_sum": "3ff61612323d3978",
+    "python_sum": "3ff61612323d3978",
+    "python_cos_native_dot": "3ff61612323d3976",
+    "native_cos_python_dot": "3ff61612323d3978",
+    "python_products_native_sum": "3ff61612323d3978",
+    "native_products_python_sum": "3ff61612323d3978",
+    "exact_python_operands_dot_rounded": "3ff61612323d3977",
+    "exact_native_operands_dot_rounded": "3ff61612323d3977",
+    "exact_python_rounded_products_sum_rounded": "3ff61612323d3977",
+    "exact_native_rounded_products_sum_rounded": "3ff61612323d3977",
+    "exact_cosine_change": {
+      "numerator": -6397689935047283,
+      "denominator": 83076749736557242056487941267521536,
+      "float": -7.700939138007745e-20
+    },
+    "native_error": "3cc0000000000000",
+    "python_error": "3cd0000000000000",
+    "native_display": "0.000000000000000",
+    "python_display": "0.000000000000001"
+  },
+  "conclusion": "The n11 printed row is causally attributable to external dot-product accumulation, independently of the two observed cosine ULP differences. Native and NumPy dot each retain their output on cross-provider cosine replay; same-input elementwise product words match exactly. Native explicit sum of products agrees with NumPy sum but differs from native dot. No internal BLAS accumulation algorithm or source correction is inferred.",
+  "static_review": {
+    "examples/quad/hermite_quad.py": {
+      "unchanged_from_full_page_run": true,
+      "sha256": "45054dd467e041e2a34b7a09b696bd14044dd69ec37e287086c9b0af4d42a839"
+    },
+    "src/chebfunjax/utils/quadrature.py": {
+      "unchanged_from_full_page_run": true,
+      "sha256": "66905a3375d50a9f4e2e7d2c583b075d47cffdd31fab0f303939628a985ee368"
+    },
+    "source_table_loop": "for n in range(1, 13):\n    (s, w) = (np.asarray(v) for v in hermpts(n))\n    print(f'{n:3d} {float(w @ ff(s)) - exact:19.15f}')",
+    "scope": "Bounded n1..12 stage qualification; no page, trapezoid, constructor, plot or heavy-order execution."
+  },
+  "runtime_guard": {
+    "count": 1342,
+    "all_preguarded_unchanged": true
+  },
+  "supervision": {
+    "hermitequad_n11_python_run001_20261018": {
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "sampled_peak_summed_rss_kib": 856876,
+      "remaining_owned_pids": []
+    },
+    "hermitequad_n11_native_run001_20261018": {
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "sampled_peak_summed_rss_kib": 1398708,
+      "remaining_owned_pids": []
+    }
+  },
+  "remaining": [
+    "Native n11 displayed error remains 0.000000000000000 versus Python 0.000000000000001.",
+    "No guessed reduction order, native buffer runtime substitution, fitted constant, tolerance change or production edit.",
+    "Exact rational rounding ...3977 is diagnostic only: native dot ...3976 and NumPy dot ...3978 are both one ULP from it. Matching the native displayed row would not be established by a correctly rounded sum.",
+    "Other page printed rows, callback representation, plot/raster/provider/matched-performance/API/JAX/CI qualification remain open."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_n11_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_n11_package_20261018.tar.gz",
+    "sha256": "7d705034aa3fa41042628695e3f3238dba84e9ef05d9570dd596047bf5c54258",
+    "bytes": 3169722,
+    "payloads": 36
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_n11_stream_hashes_20261018.json",
+    "sha256": "38bfbf62a91c2d8f9b6e2ef8b79a6f172636029854ba77e94cb06cac0ff5c1d3"
+  }
+}

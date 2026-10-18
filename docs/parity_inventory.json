@@ -371,6 +371,22 @@
       "scope": "Actual parent70checks;GW normalization/sourcegrid repair; fullchildpage sourcebridge; wholeAPI/page/speed remain open",
       "sha256": "531a0c6065100020ffbff3fcf5344cb91e32dbfd562adaa904aabcbc2966fa86"
     },
+    "hermitequad_n11_attribution_cpu_20261018": {
+      "archive_review": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermitequad_n11_package_20261018.tar.gz",
+        "parent_two_output_bridge": "Current0f0b6095 uses same two-output arithmetic as686base; actualparent STATIC_REVIEW in previous barycentric evidence proves it. No new page/runtime qualification.",
+        "report_source_bridge": true,
+        "root_stream_verified_payloads": 36,
+        "sha256": "7d705034aa3fa41042628695e3f3238dba84e9ef05d9570dd596047bf5c54258"
+      },
+      "limits": [
+        "External dot accumulation remains unresolved; no production repair, page/figure/API/performance acceptance.",
+        "Fresh12row stages do not qualify full page; current two-output AST bridge is recorded in parent review."
+      ],
+      "report": "docs/hermitequad_n11_attribution_cpu_20261018.json",
+      "report_sha256": "aeaf6d932c9d5b5b63b93389554d16643f84be73b718dbd07dd5bbc4b0ebf86d",
+      "scope": "Bounded n1..12 HermiteQuad printed-row attribution, binary64 CPU only. No source correction or page/full API closure."
+    },
     "hermitequad_page_cpu_20261018": {
       "path": "docs/hermitequad_page_cpu_20261018.json",
       "scope": "Source plotting repair and full current execution only; printed digits/native coordinates/raster/performance remain incomplete",
@@ -721,6 +737,25 @@
       "path": "docs/transient_growth_constructor_cpu_20261017.json",
       "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
       "sha256": "fab0b310cac505fb489edb466917434796fa8beec2c583a63f2730ffdcd2bfd9"
+    },
+    "ultras_tail_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_tail_parent_cpu_final_20261018.tar.gz",
+        "root_stream_verified_payloads": 3663,
+        "sha256": "04061fca65fb726b5046add2f713657c2973379e9265459163a017ff0f371833"
+      },
+      "limits": [
+        "Existing value-inspecting Python dispatcher remains; added Python branch does not establish whole-callJIT/AD/vmap.",
+        "Native absoluteeps stopping may alter tiny finite tails: this is required source behavior, not an arbitrary threshold/performance cutoff. Internal zeros do not stop a vector with later large terms.",
+        "Global multmat consumers beyond101bounded checks remain for parent/latestCI. No new core/Q/ownership edits or original-heavy rerun.",
+        "No finite-stencil assembly rewrite; dense builders/output storage and final K-dependent dense product remain.",
+        "Prior banded packet/addendum archives byte unchanged; their original performance observations remain separately scoped.",
+        "Two passing assertions of known-wrong dense nonfinite output replaced only in newly authored tests by native expectations with strictxfail. No original test/fixture/bound changed.",
+        "Parent122passing nodes plus2knownxfails do not close full APIs/JAX/nonfinite behavior, examples/figures/performance or latest-main CI/coverage."
+      ],
+      "report": "docs/ultras_tail_parent_cpu_20261018.json",
+      "report_sha256": "af247255c6b4d721cd73841873699697a8fe84ddee83826f95f26e82df969e3f",
+      "scope": "Shared ultras.multmat lam>=2 literal native after-recurrence tail stopping, not disk-only optimization. No wholeJIT/AD/API/native speed claim."
     },
     "unbounded_diff_query_adapter_cpu_20261018": {
       "path": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
@@ -36032,6 +36067,10 @@
         {
           "artifact": "hermitequad_gw_parent_cpu_20261018",
           "scope": "Fresh full all-order page execution and corrected GW/sourcegrid computations. Printed rows3remaining/native representation/raster/speed stillopen; whole-item statuses unchanged."
+        },
+        {
+          "artifact": "hermitequad_n11_attribution_cpu_20261018",
+          "scope": "Fresh12row dot/cosine/product cross-replay localizes n11print discrepancy; no page dimension is promoted."
         }
       ],
       "figure_content_status": "unverified",
@@ -92660,10 +92699,20 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "ultras_tail_parent_cpu_20261018",
+          "scope": "Literal tail stopping,122parent passing checks and2known native nonfinite conversionxfails. Source-derived iteration policy, not instrumented native counts. Full API/JAX/provider/performance unqualified."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "ultras_tail_parent_cpu_20261018",
+              "scope": "Literal tail stopping,122parent passing checks and2known native nonfinite conversionxfails. Source-derived iteration policy, not instrumented native counts. Full API/JAX/provider/performance unqualified."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",

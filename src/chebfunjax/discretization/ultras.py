@@ -440,9 +440,8 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
         # so with Python's 0-based loop variable the factors use nn+1.
         # (Together with the spdiags fix above this reproduces MATLAB to
         # 1e-16; each alone still gives O(1) errors for lam >= 2.)
-        # Note: the recurrence must run over ALL positions — an early stop
-        # at the number of NONZERO coefficients broke sparse vectors (every
-        # other coefficient is zero for even/odd functions).
+        # Native tests the entire remaining converted tail after each step;
+        # internal zeros do not terminate a sparse even/odd coefficient vector.
         M = a[0] * eye
         M = M + a[1] * M1
 
@@ -457,6 +456,12 @@ def multmat(n: int, a: jnp.ndarray, lam: int) -> jnp.ndarray:
             M = M + a[nn + 2] * M2
             M0 = Mcur
             Mcur = M2
+            # @ultraS/multmat.m: if (abs(a(nn+3:end)) < eps), break, end.
+            # MATLAB if requires a nonempty condition with every entry true.
+            # NaN/Inf comparisons are false. eps is source binary64 epsilon.
+            tail = a[nn + 3:]
+            if tail.size and bool(jnp.all(jnp.abs(tail) < jnp.finfo(jnp.float64).eps)):
+                break
 
         # Truncate to n x n
         M = M[:n, :n]

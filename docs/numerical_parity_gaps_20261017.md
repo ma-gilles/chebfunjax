@@ -1,3 +1,17 @@
+## Shared ultras tail and nonfinite conversion — 2026-10-18
+
+Source tail stopping now passes122parent checks; two strictxfails retain native
+NaN/Inf conversion expectations. Native sparse conversion localizes nonfinite
+terms while dense0*nonfinite spreadsNaN. This is separate from the repaired tail
+condition. A matched515assembly pair improves14.99→3.79s with exact outputs at
+threeKvalues; full native/end-to-end speed and JAX/API coverage remain open.
+[Evidence](ultras_tail_parent_cpu_20261018.json).
+
+Hermite n11 is an external dot accumulation discrepancy, independent of the
+observed cosine differences. Explicit product sums match; correctly rounded
+exact dot does not recover the native printout. No production repair inferred.
+[Diagnosis](hermitequad_n11_attribution_cpu_20261018.json).
+
 ## Hermite GW barycentric follow-up — 2026-10-18
 
 Source third-output normalization repairs54of82small-order controls; parent181

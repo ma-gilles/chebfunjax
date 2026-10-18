@@ -1,3 +1,24 @@
+# Ultraspherical multiplication source tail stopping — 2026-10-18
+
+Shared multmat now follows the native after-recurrence absolute-eps tail test,
+including internal zeros, strict threshold, complex magnitude and nonempty
+condition semantics. Actual parent122PASS2XFAIL: final109PASS2XFAILfocused plus
+13unchanged caller controls including an original adaptive predicate. Two newly
+authored tests that asserted existing wrong nonfinite behavior were corrected
+to native expectations with strictxfail; original tests/bounds remain unchanged.
+Matched internal515 assembly cold14.9897s→3.78597s; all three outputs word-identical
+at three wavenumbers. Single shared-host pair, no native/full-solver speed claim.
+All1109prior CI owners retained plus one new file;13lanes/HermiteCore12/79%gate
+unchanged. Native sparse versus dense NaN/Inf conversion, broader API/JAX,
+performance and latest-mainCI remain open.
+Evidence: docs/ultras_tail_parent_cpu_20261018.json.
+
+HermiteQuad n11 is now localized to external dot accumulation: native dot and
+NumPy dot differ even on cross-replayed cosine inputs; explicit product sums
+agree. Correctly rounded exact dot would not reproduce the native printed row.
+No production repair or page closure is claimed. Fresh12row/36payload evidence:
+docs/hermitequad_n11_attribution_cpu_20261018.json.
+
 # Hermite GW barycentric third output — 2026-10-18
 
 GW barycentric weights now use the original eigenvector row before quadrature

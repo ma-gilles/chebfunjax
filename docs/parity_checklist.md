@@ -27,6 +27,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Restore native shared ultras multiplication tail stopping. Parent **122PASS2XFAIL**; original bounds retained. Single matched515assembly pair14.99→3.79s, outputs word-identical at threeKvalues. All1109prior core owners retained+1. [Evidence](ultras_tail_parent_cpu_20261018.json).
+- [ ] Native sparse NaN/Inf conversion remains incorrect in the dense adapter; two named expected failures now assert native behavior. Full API/JAX/performance/latestCI remain open.
+- [x] HermiteQuad n11 printed discrepancy localized to external dot accumulation with fresh12row/native-cosine cross-replay and exact-rational controls. [Evidence](hermitequad_n11_attribution_cpu_20261018.json).
+- [ ] n11 printed row remains different; no guessed reduction, fitted output or callback replacement installed. Other printed/representation/figure/speed gaps remain.
+
 - [x] Hermite GW third output follows the source eigenvector normalization/sign/symmetry path. Same82small-order public controls54FAIL28PASS→82PASS; actual parent **181 checks pass**, including separate23native-row and14staticGWJIT controls. Nodes/weights and the page's two-output arithmetic are preserved. [Evidence](hermite_gw_bary_parent_cpu_20261018.json).
 - [ ] Four explicitGW32/42 provider cases remain; full API/IEEE/AD/vmap, printed page values, representation/figures, matched speed and latestCI are unqualified.
 
