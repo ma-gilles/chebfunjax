@@ -1,3 +1,36 @@
+# Four unary subnormal repairs and JAX numeric disk construction — 2026-10-18
+
+ATAN, EXP, EXPM1 and SINH now retain qualified binary64 tiny imaginary
+components. Four original records pass: the original gap metadata decreases
+13 to 9. The full child cohort is **2,064 PASS / 22 strict XFAIL** in 708.807s;
+nine original and thirteen separate fresh expected failures remain. An earlier
+18-XFAIL prediction was wrong; actual XML proves 22, with source/tests unchanged.
+Existing analytic JVPs, native fixtures, original assertions and bounds remain.
+Only finite-real/normal-coefficient or finite ATAN denominator masks are repaired;
+other provider components and extreme derivatives are not generally qualified.
+
+Non-scalar source-mode disk construction/projection now stays in JAX through
+GE, tolerance, transforms and BMC projection. Literal reciprocal-then-product
+corrects ten finite words across four independent native controls. Twenty-one
+final projection controls match finite/zero words and nonfinite classes; NaN
+payloads remain unqualified. All 15 legacy and 28 source-mode complete replay
+objects/errors retain their words. Child **376 PASS / 3 unchanged XFAIL** includes
+one final original k7. Actual scalar adaptive construction remains separate.
+
+Actual parent gates are **117 disk PASS + 114 unary PASS**, disjoint selections
+in separate processes. Both have stable guarded inputs, all observed imports
+preguarded, no censor or survivors. Constructor dependency/source bridges cover
+unary-only additions integrated afterward. All 1,119 old CI lane prefixes remain;
+there are 1,120 owners, 13 lanes, Hermite lane 12 and the unchanged 79% gate.
+Root lint fixes retain numerical/test expression ASTs, with an explicit same-body
+lambda-to-local-def normalization. Initial integration/preflight errors and
+all child diagnostic corrections are retained.
+
+Nine original unary records / 22 unary expected failures, three disk word
+failures, full API/JAX/AD, actual scalar routes, all 322 final-source pages /
+1,305 scientific figures, matched CPU speed and latest-main CI remain open.
+Evidence: docs/unary_disk_constructor_parent_cpu_20261018.json.
+
 # Recursive root mapping, SIN overflow and disk tolerance — 2026-10-18
 
 Three scientific parent gates pass **795 tests with 3 strict expected failures**:

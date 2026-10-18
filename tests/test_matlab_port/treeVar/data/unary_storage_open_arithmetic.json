@@ -11,42 +11,6 @@
     },
     {
       "packet": "unary_storage_native_arrays.json",
-      "method": "atan",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "exp",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "expm1",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "sinh",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
       "method": "tan",
       "label": "complex_mixed",
       "failures": [

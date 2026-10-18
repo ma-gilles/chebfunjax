@@ -1,0 +1,281 @@
+{
+  "scope": "JAX non-scalar numeric Diskfun constructor/projection; actual public numeric roundtrip and zero-storage original clauses included.",
+  "base_commit": "06258290065e1764922388f2defae47eef428d5f",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent": {
+    "passed": 117,
+    "expected_failures": 0,
+    "pytest_seconds": "85.077",
+    "selection": [
+      "tests/test_diskfun/test_numeric_constructor_jax.py",
+      "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
+      "tests/test_ci_core_process_batches.py",
+      "tests/test_matlab_port/diskfun/test_constructor_matlab.py::test_source_clause_17",
+      "tests/test_matlab_port/diskfun/test_constructor_matlab.py::test_source_clause_33"
+    ],
+    "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_parent_run001_20261018/receipt.json",
+    "receipt_sha256": "f296f7218b1e6befde690f95e2953396c3758ceb21a9a03c7d9c1ffc3f4715a2",
+    "receipt": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "censored_limit": null,
+      "wall_seconds": 96.90492557408288,
+      "sampled_peak_summed_rss_kib": 3731492
+    },
+    "observed_imports": {
+      "count": 1567,
+      "missing_or_changed": []
+    }
+  },
+  "child_qualification": {
+    "immutable": {
+      "base_HEAD": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+      "required_base_bridge": "Apply frozen getTol patch0d4ba1bc6f941721bab687b78af423fb3106624fa77714077763e86795594bc2 first; baseline_diskfun.py exact after its application.",
+      "baseline_diskfun_sha256": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+      "paths": {
+        "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+        "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+        "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+        "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+      },
+      "patch_sha256": "5ace57b4dfd627229694acf1c613f93b4706c5a6c8ba5d022416b868641403e7",
+      "declaration": "Runtime final frozen before focused/special/replay gates, new4special test additions only after initial gate; original53 test prefix exact savedpreimage.",
+      "initial_patch_sha256": "c8a5384bca877064e7b197c16125c70f35b2cff47a0791e20286ee56878ed05a",
+      "patch_file": "candidate_v2.patch",
+      "packaging_correction": "Native rawJSON fixture has no trailingnewline. Initial handwritten diff omitted standard no-newline marker, so gitapply rejected it. V2adds patch marker only, exact4path source bytes unchanged; no scientific rerun needed."
+    },
+    "final_assertions": {
+      "new_controls_PASS": 57,
+      "existing_controls_PASS": 318,
+      "existing_strict_XFAIL": 3,
+      "original_k7_PASS": 1,
+      "total_PASS": 376,
+      "total_strict_XFAIL": 3,
+      "legacy_complete_objects_errors_exact": 15,
+      "source_complete_objects_errors_exact": 28,
+      "source_complete_preprojection_inputs_exact": 28,
+      "native_final_projection_controls": 21,
+      "native_source_counterexample_names": [
+        "normal_m9",
+        "normal_m17",
+        "reciprocal_delta_3ff0000000000001",
+        "cancel"
+      ],
+      "native_source_baseline_finite_word_errors": 10
+    },
+    "receipts": {
+      "native_run": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 80.66504693822935,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 1279152,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "guard_file_sha256": "b6b61ba6f00b39c71e6ee90a4d57426d426e34c23340c65a3680865bf615ccae"
+      },
+      "projection_probe_run": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 12.206370084080845,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 879628,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "guard_file_sha256": "0156c433d4c0319a0d55929d9802867d6fdd0b98c4dac23b7bcf404e50decf90"
+      },
+      "focused_run": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 59.832423789892346,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 2599240,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "guard_file_sha256": "1a0bcd23c6a30e7c98d60dd835544ed0d93a27938ee4e71a5af10ef45e384b8d"
+      },
+      "special_replay_run": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 52.976542578078806,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 2199660,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "guard_file_sha256": "1e8f43be2806b3e20c00841f470f618175e71b26337cbfe16195beb4243118af"
+      },
+      "original_k7_run": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 88.05221338104457,
+        "censored_limit": null,
+        "sampled_peak_summed_rss_kib": 3290100,
+        "remaining_owned_pids": [],
+        "inputs_stable": true,
+        "guard_file_sha256": "d52da532ae35b57254b1b2d1922794c829f9425534080af5784cc379ebddcda9"
+      }
+    },
+    "arithmetic": "JAX-only non-scalar numeric constructor array/scalar arithmetic, source reciprocal then product, qualified tolerance/GE/extrapolation/FFT providers unchanged. Python branch/object/location metadata transfers remain.",
+    "source_bounds": "All original fixtures/assertions/bounds unchanged. Existing inactiveGEMM signedzero and2postGE word strictxfails remain unchanged. New final nativeprojection finite/zero words and NaN/Inf classes strict; NaNpayload not promised. Intermediate outer2zero-sign differences remain documented, not normalized/clamped.",
+    "scope": "Non-scalar preserve_lengths=True construction/projection only. Whole defaultFalse/from_values body unchanged afternewdispatch. Scalar numel1 native adaptive route and empty adapter unchanged; padded1x2 coefficient fixture names are not scalar-adaptive evidence. General normal reduction-order/nativeNaNpayload/AD/wholeJIT unqualified. No native/tolerance buffers or fitted provider data. No performance claim.",
+    "readonly_Q_apply_check": true,
+    "no_owned_scientific_processes": true,
+    "native_slot_released": true,
+    "heavy_slot_released": true,
+    "packaging_correction": "Native rawJSON fixture has no trailingnewline. Initial handwritten diff omitted standard no-newline marker, so gitapply rejected it. V2adds patch marker only, exact4path source bytes unchanged; no scientific rerun needed."
+  },
+  "child_replay_summary": {
+    "legacy_count": 15,
+    "source_count": 28,
+    "legacy_complete_object_and_error_words_exact": true,
+    "source_preprojection_complete_object_words_exact": true,
+    "source_noncolumn_metadata_and_row_words_exact": true,
+    "source_changed_projected_columns_names": [],
+    "all_unrelated_module_and_Diskfun_AST_exact": true,
+    "legacy_from_values_body_AST_exact": true
+  },
+  "source_bridge": {
+    "base": "06258290065e1764922388f2defae47eef428d5f",
+    "child_archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_candidate_20261018.tar.gz",
+      "sha256": "0ceb0003db42ad49cd789a55779dade58e06da263467578ecdf82d616e2a6536",
+      "root_stream_verified_payloads": 79,
+      "baseline_diskfun_exact_to_current_Q": true,
+      "all_original_AST_exact_after_removing_early_dispatch": true,
+      "immutable_paths": {
+        "base_HEAD": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+        "required_base_bridge": "Apply frozen getTol patch0d4ba1bc6f941721bab687b78af423fb3106624fa77714077763e86795594bc2 first; baseline_diskfun.py exact after its application.",
+        "baseline_diskfun_sha256": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+        "paths": {
+          "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+          "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+          "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+          "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+        },
+        "patch_sha256": "5ace57b4dfd627229694acf1c613f93b4706c5a6c8ba5d022416b868641403e7",
+        "declaration": "Runtime final frozen before focused/special/replay gates, new4special test additions only after initial gate; original53 test prefix exact savedpreimage.",
+        "initial_patch_sha256": "c8a5384bca877064e7b197c16125c70f35b2cff47a0791e20286ee56878ed05a",
+        "patch_file": "candidate_v2.patch",
+        "packaging_correction": "Native rawJSON fixture has no trailingnewline. Initial handwritten diff omitted standard no-newline marker, so gitapply rejected it. V2adds patch marker only, exact4path source bytes unchanged; no scientific rerun needed."
+      },
+      "limits": "Non-scalar source-mode only; scalar adaptive route, generic reduction/NaN payload/transform provider/full API/JIT/AD and matched performance remain open."
+    },
+    "critical_dependencies": {
+      "src/chebfunjax/diskfun/_numeric_tolerance.py": {
+        "child_sha256": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+        "parent_sha256": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_numeric_phase_one.py": {
+        "child_sha256": "b38394c43d2a523c496fc22d728bc4510cd04389c341e711dabf4c9078bc436e",
+        "parent_sha256": "b38394c43d2a523c496fc22d728bc4510cd04389c341e711dabf4c9078bc436e",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_numeric_extrema.py": {
+        "child_sha256": "18e9cbcb12250d22695e1dce974e856619f520b33e7616067f2c3601adf00772",
+        "parent_sha256": "18e9cbcb12250d22695e1dce974e856619f520b33e7616067f2c3601adf00772",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/operators/_qz_ieee.py": {
+        "child_sha256": "baf2de55755f4ac6d4284109af6576fc92d80f73141ef922cd5e3f98b66b491a",
+        "parent_sha256": "baf2de55755f4ac6d4284109af6576fc92d80f73141ef922cd5e3f98b66b491a",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/_source_real.py": {
+        "child_sha256": "76a3982e31764f903b260a8da314523f5d7fd541f1daaac0be330df323dff978",
+        "parent_sha256": "76a3982e31764f903b260a8da314523f5d7fd541f1daaac0be330df323dff978",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/_signed_gradual.py": {
+        "child_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+        "parent_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/tech/trigtech.py": {
+        "child_sha256": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+        "parent_sha256": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/quadrature.py": {
+        "child_sha256": "62923b8e1c4c55241bc95c6505e9f1ea4e14502bfda1b995f1efbccc5f8adf84",
+        "parent_sha256": "62923b8e1c4c55241bc95c6505e9f1ea4e14502bfda1b995f1efbccc5f8adf84",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_helmholtz.py": {
+        "child_sha256": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+        "parent_sha256": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/tech/chebtech.py": {
+        "child_sha256": "fc9654eeec72bb1d5a29b2754860d80131c732845e469092fe498d8bbe21ed0a",
+        "parent_sha256": "11307c888a4ab8be1cd19625611b7b495a8e93a4b75a0d3e29e5e89cccee0bc8",
+        "all_nonroot_AST_exact": true
+      }
+    },
+    "copied_paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+      "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+      "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+      "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+    }
+  },
+  "ownership": {
+    "old_owners": 1119,
+    "new_owners": 1120,
+    "old_prefixes_exact": true,
+    "lanes": 13,
+    "Hermite_lane": 12,
+    "coverage_threshold": 79
+  },
+  "native_summary": {
+    "coefficient_controls": 21,
+    "final_finite_and_zero_words_and_nonfinite_classes_exact": true,
+    "nan_payload_word_differences_unqualified": 5,
+    "previous_finite_word_errors": 10,
+    "independent_reciprocal_controls": 4,
+    "algorithm": "Separately rounded reciprocal-then-product as literal native source, not direct division. Exact-tiny-sum eligibility proof reused, ordinary JAX sum provider broader word equality unqualified."
+  },
+  "failures_retained": {
+    "root_preflight": {
+      "scientific_process_started": false,
+      "failure": "Inherited parent guard retained d058 HANDOFF_CODEX.md hash after06258290 publication. Supervisor rejected before spawning.",
+      "changed_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/HANDOFF_CODEX.md",
+      "repair": "Fresh current checkout root-file preinventory; scientific source/tests/scripts unchanged. Initial guard retained."
+    },
+    "child_packaging": "Initial patch lacked no-final-newline marker; retained. V2patch readonly-applies and yields all4exactsource hashes; no scientific byte change.",
+    "child_diagnostics": "Original direct-division counterexamples, unsuccessful plain-JAX tiny variants and intermediate GEMM zero differences retained; final source additions match native controls."
+  },
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "06258290065e1764922388f2defae47eef428d5f",
+    "passed": true
+  },
+  "limits": [
+    "Actual1x1 scalar adaptive route and empty adapter are unchanged; padded1x2 evidence does not qualify scalar construction.",
+    "Three disk strict word expected failures remain outside this parent selection (two transforms, one inactive GEMM zero); child retains them unchanged.",
+    "Generic reduction provider words/NaN payloads/FFT/full API/JIT/AD and defaultFalse host work remain open.",
+    "Full library/original assertion audit,322final-source pages/1305scientific figures, matched CPU performance and latest-main CI/coverage>=79%remain required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_parent_cpu_20261018.tar.gz",
+    "sha256": "0edf6601e87be54ec7cb9c8cf32e28724e15a7e0ffa69c077a231dccf6834493",
+    "manifest_payloads_stream_verified": 3571
+  }
+}

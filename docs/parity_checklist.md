@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover recursive root mapping, SIN near-overflow staging and numeric disk tolerance. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover four unary tiny-component repairs and non-scalar JAX disk construction/projection. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,14 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest scientific integration:** recursive root mapping, SIN finite-hyperbolic overflow staging and JAX disk getTol. Three disjoint parent gates: **795 PASS / 3 strict XFAIL**. [Evidence](roots_sin_tolerance_parent_cpu_20261018.json).
-- **CI repair:** same-runtime frozen-prior TAN preservation test; all byte assertions retained. Older operators-c partition split after a 90-minute cancellation at 93%; all 118 chebop files remain covered exactly once. Latest-main CI and coverage ≥79% remain required.
-- **Unary worker:** four-method tiny-component staging (ATAN, EXP, EXPM1, SINH); full final-source qualification underway. TAN/TANH and phase/sign gaps remain separate open work. Current published metadata still has 13 original records / 26 expected-failure cases.
-- **Disk worker:** non-scalar JAX constructor/projection packet sealed; 376 child PASS / 3 unchanged XFAIL plus 43 exact complete replay records. Root integration/publication pending. Actual 1x1 adaptive route is a separate investigation.
-- **Numerical gaps:** complex rational poles, dense Chebfun3T representation/provider words, Hermite printed values/representation, external elementary providers, disk transform words and broader API/JAX/AD remain. [Detailed gaps](numerical_parity_gaps_20261017.md).
-- **Original tests:** scoped native return-slot maps and passing counterparts are linked below; complete function/assertion coverage across 2,333 library files and 1,102 original test files remains open.
-- **Pages and figures:** final-source computations/stdout and scientific/raster qualification for all 322 pages / 1,305 figures remain open. Historical structural and dimension checks do not close these items.
-- **CPU performance:** inverse, Hermite, Checkmark, QR/LU, BVP and roots need matched native qualification and remaining repairs; recursive root mapping has observed 9–20% warm overhead in one descriptive pair.
+- **Latest verified integration:** ATAN/EXP/EXPM1/SINH tiny-component repairs and non-scalar JAX disk construction/projection. Actual parent **231 PASS** across two disjoint gates; child unary **2,064 PASS / 22 XFAIL**, child disk **376 PASS / 3 XFAIL** are separate overlapping scopes. [Evidence](unary_disk_constructor_parent_cpu_20261018.json).
+- **Unary worker:** nine original records remain (two TAN/TANH subnormal and seven TAN phase/sign records), plus thirteen fresh-control expected failures. Bounded native phase/sign investigation underway. Provider words outside the qualified four-method masks and broader API/JAX/AD remain open.
+- **Disk worker:** actual 1x1 adaptive scalar route, callback-zero metadata and source error/options semantics. A minnormal native control hit its memory cap; no completed result or hidden stable-constant substitute is claimed. Three existing transform/GEMM word expected failures remain.
+- **CI:** latest-main CI and coverage ≥79% remain required. The prior publication repaired authored TAN snapshot portability and split the timed-out operators partition while retaining all files and limits. GitHub reproduction remains required.
+- **Numerical gaps:** complex rational poles, dense Chebfun3T representation/provider words, Hermite printed values/representation, external elementary providers, disk transform words and broader API/JAX/AD. [Detailed gaps](numerical_parity_gaps_20261017.md).
+- **Original tests:** full function/assertion audit across 2,333 library files and 1,102 original test files remains open; scoped predicate mappings and passing counterparts are linked below.
+- **Pages and figures:** final-source computation/stdout and scientific/raster qualification for all 322 pages / 1,305 figures remain open. Historical structural and dimension checks do not close these items.
+- **CPU performance:** inverse, Hermite, Checkmark, QR/LU, BVP and roots need matched native qualification and remaining repairs. Recursive root mapping has observed 9–20% warm overhead in one descriptive pair.
 
 ### Active work, not yet credited as complete
 
@@ -42,6 +42,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Four unary tiny-component repairs and non-scalar JAX disk construction/projection: **231 actual parent PASS** in two disjoint scoped gates. Child unary2,064PASS22XFAIL and disk376PASS3XFAIL remain separately scoped; all original native bounds unchanged. [Evidence](unary_disk_constructor_parent_cpu_20261018.json).
+- [ ] Nine original unary records /22unary expected failures, three disk word expected failures, actual scalar/callback routes, full original assertion/API/JAX/AD qualification, all322pages/1305figures, matched CPU speed and latest-mainCI remain open.
 
 - [x] Recursive root affine mapping, finite-hyperbolic SIN staging and source numeric disk getTol in JAX. Scientific parent **795 PASS / 3 strict XFAIL**, with a separate TAN preservation gate **446 PASS / 22 XFAIL**; disjoint scopes and all raw evidence retained. [Joint evidence](roots_sin_tolerance_parent_cpu_20261018.json).
 - [x] Repair authored TAN preservation oracle portability without changing any assertion AST; split the timed-out operators-c CI file partition without removing any file or changing test/job limits. GitHub reproduction remains required.

@@ -30,8 +30,11 @@ import numpy as np  # uses-numpy: tree bookkeeping on concrete ID vectors
 
 from chebfunjax.utils.elementary import (
     _asinh_numeric,
+    _atan_subnormal_imaginary,
     _conj_numeric,
+    _exp_numeric,
     _sin_cos_numeric,
+    _subnormal_imaginary_product,
     _tan_numeric,
     _tanh_numeric,
     _uminus_numeric,
@@ -295,7 +298,9 @@ def _sinh_complex(values):
     to the opaque numeric builtin. Chebfun commit:
     7574c77680d7e82b79626300bf255498271a72df. Independent R2025b scalar and
     array captures qualify the signs. The correction follows
-    Re(sinh(x+iy)) = sinh(x)*cos(y), without changing nonzero arithmetic.
+    Re(sinh(x+iy)) = sinh(x)*cos(y). Binary64 subnormal imaginary
+    inputs also retain the separately rounded cosh(x)*sin(y) product with a
+    finite normal source coefficient; other nonzero arithmetic is unchanged.
     """
     from jax import lax
 
@@ -308,8 +313,9 @@ def _sinh_complex(values):
     signed_zero = jnp.copysign(jnp.zeros_like(real),
                                jnp.where(negative, -jnp.ones_like(real),
                                          jnp.ones_like(real)))
-    return lax.complex(jnp.where(on_axis, signed_zero, jnp.real(result)),
-                       jnp.imag(result))
+    result = lax.complex(jnp.where(on_axis, signed_zero, jnp.real(result)),
+                         jnp.imag(result))
+    return _subnormal_imaginary_product(values, result, hyperbolic=True)
 
 
 @_sinh_complex.defjvp
@@ -336,7 +342,9 @@ def _atan_complex(values):
     MATLAB source: @treeVar/treeVar.m numeric ATAN dispatch and @chebfun/atan.m.
     Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df. Axis branches
     and nonfinite storage are independently captured R2025b builtin behavior;
-    the builtin implementation is opaque. Off-axis values retain JAX's kernel.
+    the builtin implementation is opaque. Binary64 subnormal imaginary
+    inputs retain the qualified quarter-log1p staging; other off-axis values
+    retain JAX's kernel.
     """
     from jax import lax
 
@@ -356,7 +364,7 @@ def _atan_complex(values):
     imaginary_axis = lax.complex(phase, height)
     real_axis = lax.complex(jnp.arctan(real), jnp.zeros_like(imag))
     result = jnp.where(on_imag, imaginary_axis, jnp.arctan(values))
-    return jnp.where(on_real, real_axis, result)
+    return _atan_subnormal_imaginary(values, jnp.where(on_real, real_axis, result))
 
 
 @_atan_complex.defjvp
@@ -757,7 +765,7 @@ _UNARY_FNS_RAW = {
     "csc": lambda x: _reciprocal_direct_branch(x, "csc"),
     "cscd": lambda x: _direct_degree_branch(x, "cscd"),
     "csch": lambda x: _reciprocal_direct_branch(x, "csch"),
-    "exp": jnp.exp, "expm1": jnp.expm1, "imag": jnp.imag,
+    "exp": _exp_numeric, "expm1": lambda x: _exp_numeric(x, increment=True), "imag": jnp.imag,
     "log": _log_branch, "log10": lambda x: _log_branch(x, base=10),
     "log1p": lambda x: _log_branch(x, increment=True),
     "log2": lambda x: _log_branch(x, base=2), "pow2": _pow2_branch, "real": jnp.real,

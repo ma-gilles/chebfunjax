@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [four-method unary and numeric disk construction qualification](unary_disk_constructor_parent_cpu_20261018.json):231parent passes in two disjoint scoped gates; child full unary2,064PASS22XFAIL and disk376PASS3XFAIL are separate scopes. Four original unary records repaired; remaining full-item statuses stay unverified.
+
 Latest [root mapping, SIN overflow and disk tolerance qualification](roots_sin_tolerance_parent_cpu_20261018.json): 795 scientific parent passes / 3 strict expected failures, with a separate targeted TAN preservation gate and exact CI file-partition audit. Specific native rows carry scoped evidence; whole-item statuses remain unverified.
 
 Latest [SIN output-underflow and JAX disk PhaseOne qualification](sin_disk_jax_parent_cpu_20261018.json):387parentPASS/3strictXFAIL; child full unary and disk gates are separate scopes. Native disk constructor evidence is attached without promoting complete source/API/test statuses.

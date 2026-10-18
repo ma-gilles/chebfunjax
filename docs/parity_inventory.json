@@ -1081,6 +1081,24 @@
       "report_sha256": "af247255c6b4d721cd73841873699697a8fe84ddee83826f95f26e82df969e3f",
       "scope": "Shared ultras.multmat lam>=2 literal native after-recurrence tail stopping, not disk-only optimization. No wholeJIT/AD/API/native speed claim."
     },
+    "unary_disk_constructor_parent_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3601,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_disk_constructor_parent_cpu_20261018.tar.gz",
+        "sha256": "44918a586afdb1651e89c1125395b61103610f38eaa20bef00021022bee13d49"
+      },
+      "limits": [
+        "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+        "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+        "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+        "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+        "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+        "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+      ],
+      "report": "docs/unary_disk_constructor_parent_cpu_20261018.json",
+      "report_sha256": "91ddc69efea91fbb60aefa6f25d45093865cd49d8600f52a659327242d6be1d4",
+      "scope": "Four-method tiny-component unary staging and JAX non-scalar numeric Diskfun constructor/projection; bounded native/source and original-predicate qualification."
+    },
     "unary_sin_cos_axis_parent_cpu_20261018": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_parent_cpu_20261018.tar.gz",
@@ -75697,6 +75715,18 @@
             "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
           ],
           "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
+        },
+        {
+          "artifact": "unary_disk_constructor_parent_cpu_20261018",
+          "limits": [
+            "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+            "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+            "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+            "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+            "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+            "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+          ],
+          "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
         }
       ],
       "functions": [
@@ -77320,7 +77350,20 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "unary_disk_constructor_parent_cpu_20261018",
+          "limits": [
+            "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+            "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+            "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+            "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+            "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+            "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+          ],
+          "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -90310,6 +90353,18 @@
             "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
           ],
           "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
+        },
+        {
+          "artifact": "unary_disk_constructor_parent_cpu_20261018",
+          "limits": [
+            "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+            "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+            "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+            "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+            "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+            "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+          ],
+          "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
         }
       ],
       "functions": [
@@ -121559,6 +121614,18 @@
             "Observed imported Python modules are guarded; not an exhaustive native shared-library/subprocess audit."
           ],
           "scope": "Bounded recursive-root map, SIN finite-hyperbolic or numeric getTol controls as applicable. Whole-file statuses unchanged."
+        },
+        {
+          "artifact": "unary_disk_constructor_parent_cpu_20261018",
+          "limits": [
+            "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+            "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+            "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+            "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+            "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+            "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+          ],
+          "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
         }
       ],
       "functions": [

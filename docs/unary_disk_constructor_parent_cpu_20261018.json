@@ -1,0 +1,316 @@
+{
+  "scope": "Four-method tiny-component unary staging and JAX non-scalar numeric Diskfun constructor/projection; bounded native/source and original-predicate qualification.",
+  "base_commit": "06258290065e1764922388f2defae47eef428d5f",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_cohorts": [
+    {
+      "stage": "disk",
+      "passed": 117,
+      "expected_failures": 0,
+      "pytest_seconds": "85.077",
+      "selection": [
+        "tests/test_diskfun/test_numeric_constructor_jax.py",
+        "tests/test_diskfun/test_coeffs_numeric_storage_source.py",
+        "tests/test_ci_core_process_batches.py",
+        "tests/test_matlab_port/diskfun/test_constructor_matlab.py::test_source_clause_17",
+        "tests/test_matlab_port/diskfun/test_constructor_matlab.py::test_source_clause_33"
+      ],
+      "observed_imports": {
+        "count": 1567,
+        "missing_or_changed": []
+      },
+      "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_parent_run001_20261018/receipt.json",
+      "receipt_sha256": "f296f7218b1e6befde690f95e2953396c3758ceb21a9a03c7d9c1ffc3f4715a2",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 96.90492557408288,
+        "sampled_peak_summed_rss_kib": 3731492
+      }
+    },
+    {
+      "stage": "unary",
+      "passed": 114,
+      "expected_failures": 0,
+      "pytest_seconds": "64.918",
+      "selection": [
+        "tests/test_matlab_port/treeVar/test_subnormal_staging_source.py",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py::test_tan_imaginary_nan_signed_payload_and_offaxis_word_scope",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py::test_tan_imaginary_nan_direct_native_real_words_and_primitive_imaginary"
+      ],
+      "observed_imports": {
+        "count": 1489,
+        "missing_or_changed": []
+      },
+      "receipt_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_parent_run001_20261018/receipt.json",
+      "receipt_sha256": "57d588fb7c89cba126eca35907a67c5d153c21992f1cc797a0ea4f6c5f267948",
+      "receipt": {
+        "command_exit_code": 0,
+        "supervisor_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "censored_limit": null,
+        "wall_seconds": 71.33583780797198,
+        "sampled_peak_summed_rss_kib": 1312844
+      }
+    }
+  ],
+  "parent_distinct": {
+    "passed": 231,
+    "expected_failures": 0,
+    "note": "Two disjoint scoped gates in separate processes. Unary-only source additions were integrated after disk gate; exact scientific dependency/source bridge retained. Child cohorts overlap and are not added."
+  },
+  "child_reports": [
+    "docs/unary_subnormal_staging_cpu_20261018.json",
+    "docs/disk_numeric_constructor_parent_cpu_20261018.json"
+  ],
+  "child_qualification": {
+    "unary": {
+      "commit": "8862a027d054f30541e2e42edca8570d0eb22a46",
+      "passed": 2064,
+      "strict_expected_failures": 22,
+      "seconds": 708.807,
+      "original_metadata": [
+        13,
+        9
+      ],
+      "scope": "Four original records repaired; all13separate fresh xfails remain. Earlier18xf/2068pass projection was wrong and corrected from actual XML, not from a rerun."
+    },
+    "disk": {
+      "passed": 376,
+      "strict_expected_failures": 3,
+      "legacy_complete_objects_errors_exact": 15,
+      "source_complete_objects_errors_exact": 28,
+      "source_projection_controls": 21,
+      "old_finite_word_errors_corrected": 10
+    }
+  },
+  "source_bridge": {
+    "base": "c7e33a63765f8b0730e7d378fdd6cb69757a4cad",
+    "child": "8862a027d054f30541e2e42edca8570d0eb22a46",
+    "paths": {
+      "docs/unary_subnormal_staging_cpu_20261018.json": {
+        "child_sha256": "10e1b318a5ad32468374a30d380e49ec40f1f7cf0b8d9ab88f15b3a955f768bc",
+        "parent_sha256": "10e1b318a5ad32468374a30d380e49ec40f1f7cf0b8d9ab88f15b3a955f768bc"
+      },
+      "src/chebfunjax/operators/treevar.py": {
+        "child_sha256": "52f92a44960b1950c3b911ee8d27d75d830135e9b1737cf214ab75e97dfb59cb",
+        "parent_sha256": "36d00660d778eccf10a10a9dcd37ed7ab7bd7fc64e883774564cb4b9194974b6"
+      },
+      "src/chebfunjax/utils/elementary.py": {
+        "child_sha256": "3a1c88c5779a43fe075226b7b23530a8136c92ed41596de882ea5841307fb404",
+        "parent_sha256": "f3068caf0492125dcc304b0b579bec615ac1a2223e4136e10135001b06139317"
+      },
+      "tests/test_matlab_port/treeVar/data/subnormal_staged_boundaries_native_20261018.json": {
+        "child_sha256": "8f8566f519a09a88748f884bc4b67587e9de4cf843b7f079c2110ae39a4a36aa",
+        "parent_sha256": "8f8566f519a09a88748f884bc4b67587e9de4cf843b7f079c2110ae39a4a36aa"
+      },
+      "tests/test_matlab_port/treeVar/data/subnormal_staged_native_20261018.json": {
+        "child_sha256": "99b7fb7a7ce8898a81c89476ef146b64ea48e3e86321635e509cf3c6ec8ed1ea",
+        "parent_sha256": "99b7fb7a7ce8898a81c89476ef146b64ea48e3e86321635e509cf3c6ec8ed1ea"
+      },
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": {
+        "child_sha256": "31f26c069f3bbc4a93b977c46ac907f258a0c16e5324e10016939a1414da6bc6",
+        "parent_sha256": "31f26c069f3bbc4a93b977c46ac907f258a0c16e5324e10016939a1414da6bc6"
+      },
+      "tests/test_matlab_port/treeVar/test_subnormal_staging_source.py": {
+        "child_sha256": "bf7d27a6b755cf80ff8b32885fe695702f93f76115a0c0117a759c7f4f9f7b52",
+        "parent_sha256": "043af0b84feacb9a6701dd874fd5d16b51fbaa0487b1c4dbe4dfdd2cdb9b73ce"
+      }
+    },
+    "function_bridges": {
+      "src/chebfunjax/operators/treevar.py": {
+        "all_existing_functions_AST_exact_except": [
+          "_atan_complex",
+          "_sinh_complex"
+        ],
+        "all_existing_JVP_AST_exact": true
+      },
+      "src/chebfunjax/utils/elementary.py": {
+        "all_existing_functions_AST_exact_except": [],
+        "all_existing_JVP_AST_exact": true
+      }
+    },
+    "test_semicolon_AST_exact": true,
+    "E731_same_local_function_expression_normalized_AST_exact": true,
+    "all_nonimport_ASTs_exact_after_format": true,
+    "TAN_test_exception": "Parent same-runtime frozen prior correction already published06258290; child leaves historical storage test unchanged. Original native assertions/fixtures/bounds unchanged."
+  },
+  "disk_source_bridge": {
+    "base": "06258290065e1764922388f2defae47eef428d5f",
+    "child_archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_candidate_20261018.tar.gz",
+      "sha256": "0ceb0003db42ad49cd789a55779dade58e06da263467578ecdf82d616e2a6536",
+      "root_stream_verified_payloads": 79,
+      "baseline_diskfun_exact_to_current_Q": true,
+      "all_original_AST_exact_after_removing_early_dispatch": true,
+      "immutable_paths": {
+        "base_HEAD": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+        "required_base_bridge": "Apply frozen getTol patch0d4ba1bc6f941721bab687b78af423fb3106624fa77714077763e86795594bc2 first; baseline_diskfun.py exact after its application.",
+        "baseline_diskfun_sha256": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+        "paths": {
+          "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+          "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+          "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+          "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+        },
+        "patch_sha256": "5ace57b4dfd627229694acf1c613f93b4706c5a6c8ba5d022416b868641403e7",
+        "declaration": "Runtime final frozen before focused/special/replay gates, new4special test additions only after initial gate; original53 test prefix exact savedpreimage.",
+        "initial_patch_sha256": "c8a5384bca877064e7b197c16125c70f35b2cff47a0791e20286ee56878ed05a",
+        "patch_file": "candidate_v2.patch",
+        "packaging_correction": "Native rawJSON fixture has no trailingnewline. Initial handwritten diff omitted standard no-newline marker, so gitapply rejected it. V2adds patch marker only, exact4path source bytes unchanged; no scientific rerun needed."
+      },
+      "limits": "Non-scalar source-mode only; scalar adaptive route, generic reduction/NaN payload/transform provider/full API/JIT/AD and matched performance remain open."
+    },
+    "critical_dependencies": {
+      "src/chebfunjax/diskfun/_numeric_tolerance.py": {
+        "child_sha256": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+        "parent_sha256": "ecf5a63a6277e4ff4e4a5d46e82adf75d7089ae4efe6ea3fde30afd41871d420",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_numeric_phase_one.py": {
+        "child_sha256": "b38394c43d2a523c496fc22d728bc4510cd04389c341e711dabf4c9078bc436e",
+        "parent_sha256": "b38394c43d2a523c496fc22d728bc4510cd04389c341e711dabf4c9078bc436e",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_numeric_extrema.py": {
+        "child_sha256": "18e9cbcb12250d22695e1dce974e856619f520b33e7616067f2c3601adf00772",
+        "parent_sha256": "18e9cbcb12250d22695e1dce974e856619f520b33e7616067f2c3601adf00772",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/operators/_qz_ieee.py": {
+        "child_sha256": "baf2de55755f4ac6d4284109af6576fc92d80f73141ef922cd5e3f98b66b491a",
+        "parent_sha256": "baf2de55755f4ac6d4284109af6576fc92d80f73141ef922cd5e3f98b66b491a",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/_source_real.py": {
+        "child_sha256": "76a3982e31764f903b260a8da314523f5d7fd541f1daaac0be330df323dff978",
+        "parent_sha256": "76a3982e31764f903b260a8da314523f5d7fd541f1daaac0be330df323dff978",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/_signed_gradual.py": {
+        "child_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+        "parent_sha256": "db4d5552782205ba6bf3889fd077a90a97d927bce155ff89da2758e3d1ca8748",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/tech/trigtech.py": {
+        "child_sha256": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+        "parent_sha256": "aab50d8b34fe17e819a61aa4ec62657fabdf891bdd909af5468b29a01e2c7227",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/utils/quadrature.py": {
+        "child_sha256": "62923b8e1c4c55241bc95c6505e9f1ea4e14502bfda1b995f1efbccc5f8adf84",
+        "parent_sha256": "62923b8e1c4c55241bc95c6505e9f1ea4e14502bfda1b995f1efbccc5f8adf84",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/diskfun/_helmholtz.py": {
+        "child_sha256": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+        "parent_sha256": "c527f509dc644d3b77adf4981275d962d3b3e2cbc411567d06ce5aba74a8b8a8",
+        "all_nonroot_AST_exact": true
+      },
+      "src/chebfunjax/tech/chebtech.py": {
+        "child_sha256": "fc9654eeec72bb1d5a29b2754860d80131c732845e469092fe498d8bbe21ed0a",
+        "parent_sha256": "11307c888a4ab8be1cd19625611b7b495a8e93a4b75a0d3e29e5e89cccee0bc8",
+        "all_nonroot_AST_exact": true
+      }
+    },
+    "copied_paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+      "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+      "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+      "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+    }
+  },
+  "ownership": {
+    "old_owners": 1119,
+    "new_owners": 1120,
+    "old_prefixes_exact": true,
+    "lanes": 13,
+    "Hermite_lane": 12,
+    "coverage_threshold": 79
+  },
+  "original_assertions": "All existing native fixtures/assertions/bounds unchanged; gap metadata removes only four newly passing original records. All new unary test assertion ASTs exact across root formatting.",
+  "author_preservation_scope": "Four-method frozen local prior fixture uses only finite input components and no prior NaNs. It does not establish cross-CPU provider-word portability; GitHub reproduction remains required. Existing TAN same-runtime baseline retained.",
+  "child_archives": [
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_package_20261018.tar.gz",
+      "sha256": "7301bce34928a60ac4e5b1c7e6a7e9cb3db5984b922a5354c74d255e6f7064ef",
+      "root_stream_verified_payloads": 3647,
+      "manifest_format": "files:{full_archive_name:{sha256,bytes}}"
+    },
+    {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_constructor_candidate_20261018.tar.gz",
+      "sha256": "0ceb0003db42ad49cd789a55779dade58e06da263467578ecdf82d616e2a6536",
+      "root_stream_verified_payloads": 79,
+      "baseline_diskfun_exact_to_current_Q": true,
+      "all_original_AST_exact_after_removing_early_dispatch": true,
+      "immutable_paths": {
+        "base_HEAD": "d0588a432820640d0dcfe4014a24dd22e6c17569",
+        "required_base_bridge": "Apply frozen getTol patch0d4ba1bc6f941721bab687b78af423fb3106624fa77714077763e86795594bc2 first; baseline_diskfun.py exact after its application.",
+        "baseline_diskfun_sha256": "d24842c58c141c6d96307ecdf566cb4c33d4d062d550bd18998d4e3172a5edcd",
+        "paths": {
+          "src/chebfunjax/diskfun/diskfun.py": "60853bbfd465625de649d699b5f1ad05207e7dae212171ac3fea2130c28a6fad",
+          "src/chebfunjax/diskfun/_numeric_constructor.py": "e1d1b35645c1ebef2cf8f4a12ff169ec1dfaa08d8b35bd02bb0667e3b0108952",
+          "tests/test_diskfun/test_numeric_constructor_jax.py": "151beef07aa1be22b8934c23ceed91c2267cf2fe1e3b1c0a816c99ae896ceea0",
+          "tests/fixtures/disk_numeric_projection_native_20261018.json": "fe0eeaf525cd97e66241b20fc373a5f9f57a98e677f26b80fbcd7d935de08b36"
+        },
+        "patch_sha256": "5ace57b4dfd627229694acf1c613f93b4706c5a6c8ba5d022416b868641403e7",
+        "declaration": "Runtime final frozen before focused/special/replay gates, new4special test additions only after initial gate; original53 test prefix exact savedpreimage.",
+        "initial_patch_sha256": "c8a5384bca877064e7b197c16125c70f35b2cff47a0791e20286ee56878ed05a",
+        "patch_file": "candidate_v2.patch",
+        "packaging_correction": "Native rawJSON fixture has no trailingnewline. Initial handwritten diff omitted standard no-newline marker, so gitapply rejected it. V2adds patch marker only, exact4path source bytes unchanged; no scientific rerun needed."
+      },
+      "limits": "Non-scalar source-mode only; scalar adaptive route, generic reduction/NaN payload/transform provider/full API/JIT/AD and matched performance remain open."
+    }
+  ],
+  "failures_retained": {
+    "root_integration": {
+      "stage": "Before test formatting; no scientific process launched",
+      "failure": "Conservative semicolon splitter rejected comment semicolon; initial static reports10lint errors.",
+      "repair": "Skip comment lines; split statement semicolons with exact AST proof; sort imports. Rewrite E731 lambda as same local def, normalized AST proof below."
+    },
+    "root_preflight": {
+      "scientific_process_started": false,
+      "failure": "Inherited parent guard retained d058 HANDOFF_CODEX.md hash after06258290 publication. Supervisor rejected before spawning.",
+      "changed_path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/publication_checkout_20261017/HANDOFF_CODEX.md",
+      "repair": "Fresh current checkout root-file preinventory; scientific source/tests/scripts unchanged. Initial guard retained."
+    },
+    "worker": "Live test-source mutation invalidated first unary observation; repeated frozen gate had one new authored coefficient classifier failure, then corrected. Final full2086node XML proves2064/22. All raw preimages/receipts retained. Disk original malformed newline patch retained;V2bytes exact."
+  },
+  "static_gate": {
+    "ruff": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "F821": {
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    "diff_check": {
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "policy_violations": [],
+    "head_before_commit": "06258290065e1764922388f2defae47eef428d5f",
+    "passed": true
+  },
+  "limits": [
+    "Nine original unary metadata records plus13fresh expected failures remain (22total). TAN/TANH subnormal words and seven original TAN phase/sign records remain open.",
+    "Source coefficient normal-domain masks only; real components/outside-mask words preserved, not universally native-exact. Complex64/general IEEE/API/JIT/AD and extreme derivative/provider gaps remain open.",
+    "Three disk word expected failures remain; actual1x1 adaptive route and inherited callable/legacy constructor/FFT/reduction/NaN payload/JIT/AD remain open.",
+    "Full function/original assertion audit, all322final-source computation/stdout pages and1305scientific/raster figures remain required.",
+    "Known matched native CPU speed gaps and green latest-main CI/coverage>=79%remain required.",
+    "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_disk_constructor_parent_cpu_20261018.tar.gz",
+    "sha256": "44918a586afdb1651e89c1125395b61103610f38eaa20bef00021022bee13d49",
+    "manifest_payloads_stream_verified": 3601
+  }
+}

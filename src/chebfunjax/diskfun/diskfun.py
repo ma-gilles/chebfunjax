@@ -2060,6 +2060,9 @@ class Diskfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         values = jnp.asarray(F, dtype=jnp.float64)
+        if preserve_lengths and values.size > 1:
+            from ._numeric_constructor import construct_numeric
+            return construct_numeric(cls, values, tol, alpha)
         if values.size == 0:
             return cls.empty()
         if values.ndim < 2:

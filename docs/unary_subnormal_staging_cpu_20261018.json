@@ -1,0 +1,268 @@
+{
+  "title": "Four-method binary64 complex subnormal-imaginary source staging; bounded CPU qualification",
+  "base": "c7e33a63765f8b0730e7d378fdd6cb69757a4cad",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": [
+    "ATAN quarter-log1p staging with separately rounded x*x+1 denominator",
+    "EXP/EXPM1 gradual sin(y)*exp(x) product with finite normal coefficient",
+    "SINH gradual sin(y)*cosh(x) product with finite normal coefficient",
+    "Only binary64, finite real and word-classified nonzero subnormal imaginary; preserve every prior real word and all other imaginary words"
+  ],
+  "source_helpers": [
+    "Existing _source_real.source_exp_jit used strictly |x|<700; unchanged helper contract and source bytes",
+    "Existing _source_complex.source_cosh via safe scalar vmap only |x|<700; separate half-exp/scaled-half-exp fallback beyond helper contract",
+    "Existing _source_real.add/mul retain separate denominator rounding; barriers alone allowed JIT FMA and eight native word mismatches",
+    "Existing gradual_signed_multiply/divide, independently qualified Fraction arithmetic reused without edits"
+  ],
+  "native": {
+    "initial": "Eleven real vectors: separate EXP/COSH/SINH and rejected TAN/TANH identity operands, exact requested input component/shape/storage assertions before every warm and recorded call; direct components extracted before any flatten/repack",
+    "boundaries": "72 real values at \u00b1700, log(minnormal), log(maxfinite), \u00b1.4 and \u00b11 with four neighboring values each side; 12 imaginary zero/subnormal/minnormal controls, four complex methods plus real EXP/COSH operands",
+    "qualified_words": {
+      "prior540_per_method_selected": {
+        "atan": 324,
+        "exp": 264,
+        "expm1": 264,
+        "sinh": 300
+      },
+      "new864_per_method_selected": {
+        "atan": 432,
+        "exp": 384,
+        "expm1": 384,
+        "sinh": 432
+      },
+      "modes": "eager and JIT exact native selected imaginary words"
+    },
+    "operand_controls": {
+      "first_replay": "EXP310 unique inputs:308 exact, subnormal EXP(-709)/EXP(-710) outside normal coefficient contract remain raw JAX zero; COSH329 unique all exact",
+      "new_boundaries": "COSH72 all exact; EXP64 finite-normal coefficients exact and four infinite fallbacks exact; four subnormal native coefficients near log(minnormal) remain raw zero outside repair"
+    }
+  },
+  "derivatives": {
+    "existing_jvp_ast": "All existing elementary.py and treevar.py custom-JVP ASTs exact",
+    "new_exp_jvp": "Forwards original jax.jvp(exp/expm1) tangent; new primal only",
+    "independent": "48 R\u00b2 Jacobian/Hessian tests at six real/off-axis points and fwd/reverse differentiation plus12 transverse JVP controls; cmath analytic controls at unchanged2e-14 bounds;47 actual unary JAX RHS/runtime tests"
+  },
+  "original_controls": {
+    "original_eager_storage_test": "Byte-identical; no prior preservation oracle needed amendment",
+    "original_native_fixtures": "All pre-existing native fixtures and assertions/bounds untouched",
+    "new_fixture": "Four-method540 input/native rows plus immutable published prior eager/JIT words;1152 selected component contexts and complete real/outside imaginary preservation",
+    "new_boundary_fixture": "Four-method864 input/native rows and72 scalar EXP/COSH operands;1632 selected component contexts",
+    "metadata_removed": [
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "atan",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "exp",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "expm1",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "sinh",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      }
+    ],
+    "remaining_records": [
+      {
+        "packet": "unary_storage_native36.json",
+        "method": "tan",
+        "label": "complex_1_inf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_mixed",
+        "failures": [
+          "real_zero_sign",
+          "imag_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_n1_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_p1_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_n2_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_p2_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_grid_6by4",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      }
+    ]
+  },
+  "negative_findings": {
+    "tan": "Natural double-angle staged candidates still contradict native words even with same native coefficients; no production change",
+    "tanh": "Natural exp-scaled/double-angle candidates still contradict native words even with same native coefficients; no production change",
+    "six_original_records": "Only four original records repaired: original metadata13\u21929. All13 separate fresh-control xfails remain, yielding22 strict xfails total (9+13), not18. TAN/TANH subnormal loss plus seven original TAN phase records remain.",
+    "class_limits": "No claim for nonfinite or overflow coefficients/ATAN denominator, subnormal coefficients, complex64 changes, full IEEE/API parity or universally correct-rounded transcendental outputs; inherited large-range derivative limitations unchanged",
+    "native_output_scope": "New exact-native qualification is selected imaginary components only. All540 prior real/outside imaginary words per method are preserved, rather than claimed native-exact. Remaining real/transcendental/provider/storage gaps across broad captures are not closed."
+  },
+  "guard_limitations": {
+    "native_initial_outer": "Two EXP/LOG MATLAB library paths absent outer preinventory; both hashed before recorded calls by internal maps guard and stable afterward. Initial warmups thus not exhaustively outer-qualified. Original raw guard receipts kept.",
+    "native_boundary_outer": "No missing stable mapped code/data in outer preinventory; mutable /var/lib/sss/mc/passwd excluded from stable code input claims.",
+    "maps": "879\u2192891 first capture and880\u2192889 boundary main-process stable mappings; late startup libraries outer prequalified; SSS mutable identity-cache changed; maps sampling is not exhaustive installed/subprocess/transient mapping coverage.",
+    "assertion_origins": "All used builtin origins explicitly asserted under R2025b, plus Chebfun source pin/cleanliness, CPU36\u201339/version/thread settings"
+  },
+  "diagnostic_corrections": [
+    {
+      "run": "focused_run001",
+      "numerics": "123PASS",
+      "validity": "INVALID as gate: new boundary test appended while guard active, final test source hash changed. Raw receipt and failed hash retained; no production source mutation.",
+      "launch_test_source": "preimages/first_focused_test_at_launch.py recovered byte-exact from unchanged final prefix; SHA534b74507e9c9ecc8912d5eebf12aeadc900410c625e87f6ee607b6d736cabf6 matches initial guard."
+    },
+    {
+      "run": "focused_run002",
+      "numerics": "132PASS1FAIL",
+      "validity": "Stable guards; sole failure new authored coefficient classifier grouped four infinite coefficients with four subnormal coefficients. Preserved exact failed test preimage; corrected classification only, no native expectation/bound changes."
+    },
+    {
+      "run": "coefficient_run001",
+      "numerics": "2PASS",
+      "validity": "Stable guards, targeted corrected classifier proof."
+    },
+    {
+      "stage": "terminal count review/seal precondition",
+      "incorrect_prediction": "26 strictXF incorrectly projected to18, commentary incorrectly announced2068PASS/18XF; report postprocessor halted before sealing",
+      "actual": "Original metadata13\u21929 removes four expected failures. Separate13 fresh-control xfails untouched:2064PASS22strictXF/2086 collected,708.807s XML. Source/tests/gate unchanged."
+    }
+  ],
+  "baseline": {
+    "tests": "8FAIL68PASS",
+    "reason": "All8 failures are exact native imaginary word assertions, preservation and ordinary derivative controls pass"
+  },
+  "supervision": [
+    "unary_subnormal_staging_baseline_run001_20261018",
+    "unary_subnormal_staging_boundary_models_run001_20261018",
+    "unary_subnormal_staging_boundary_native_run001_20261018",
+    "unary_subnormal_staging_coefficient_run001_20261018",
+    "unary_subnormal_staging_final_run001_20261018",
+    "unary_subnormal_staging_focused_run001_20261018",
+    "unary_subnormal_staging_focused_run002_20261018",
+    "unary_subnormal_staging_models_run001_20261018",
+    "unary_subnormal_staging_native_run001_20261018",
+    "unary_subnormal_staging_source_reuse_run001_20261018"
+  ],
+  "final": {
+    "passed": 2064,
+    "strict_xfailed": 22,
+    "xml": {
+      "tests": "2086",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "22",
+      "time": "708.807"
+    },
+    "supervisor_wall_seconds": 714.8384457812645,
+    "sampled_peak_summed_rss_kib": 2105012,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "observed_imports": 1551,
+    "missing_or_changed_preguard": [],
+    "changed_after_terminal": []
+  },
+  "source_attribution": [
+    "Existing repository source/licensing in src/chebfunjax/utils/_source_real.py and _source_complex.py; kernels unchanged",
+    "https://netlib.org/fdlibm/e_exp.c",
+    "https://netlib.org/fdlibm/e_cosh.c",
+    "ATAN quarter-log1p formula is an independently stated identity, not a claim to inspected MATLAB builtin internals"
+  ],
+  "published_source_bridge": {
+    "published_head": "06258290065e1764922388f2defae47eef428d5f",
+    "critical_preimage_matches": {
+      "src/chebfunjax/utils/elementary.py": {
+        "published_sha256": "d2578ac8706b5e01ab81dfacfd540047702dddc228a213790b84ae97eb39b1a4",
+        "preimage_sha256": "d2578ac8706b5e01ab81dfacfd540047702dddc228a213790b84ae97eb39b1a4",
+        "exact": true
+      },
+      "src/chebfunjax/operators/treevar.py": {
+        "published_sha256": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+        "preimage_sha256": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+        "exact": true
+      }
+    },
+    "existing_test_exception": "Published TAN authored preservation test uses frozen9aa37701 prior source on the same runtime; child full gate retains immutable c7 test source. Parent qualifies integration against current test source."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_package_20261018.tar.gz",
+    "sha256": "7301bce34928a60ac4e5b1c7e6a7e9cb3db5984b922a5354c74d255e6f7064ef",
+    "bytes": 46435245,
+    "payloads": 3647
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_stream_hashes_20261018.json",
+    "sha256": "184088fa0d59399dfa17bc424b852c642c3923fcbf215a3ed14150f1e922f900"
+  }
+}

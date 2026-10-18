@@ -12,6 +12,116 @@ from chebfunjax.utils._signed_gradual import gradual_signed_divide, gradual_sign
 from chebfunjax.utils.numeric_sign import real_sign
 
 
+@jax.jit
+def _subnormal_exp_coefficient(real):
+    """Reuse the private ordinary EXP source kernel strictly within |x|<700."""
+    from chebfunjax.utils._source_real import source_exp_jit
+
+    supported = jnp.isfinite(real) & (jnp.abs(real) < 700.)
+    ordinary = source_exp_jit(jnp.where(supported, real, 0.))
+    return jnp.where(supported, ordinary, jnp.exp(real))
+
+
+@jax.jit
+def _subnormal_cosh_coefficient(real):
+    """Source COSH with its ordinary-domain kernel and finite large scaling.
+
+    The existing scalar helper retains its |x|<700 EXP contract. Outside it,
+    .5*exp(|x|), then (.5*exp(|x|/2))*exp(|x|/2), avoid premature overflow.
+    R2025b independent operand captures qualify both transitions; infinite
+    coefficients remain outside the gradual-product correction.
+    """
+    from chebfunjax.utils._source_complex import source_cosh
+
+    magnitude = jnp.abs(real)
+    supported = jnp.isfinite(real) & (magnitude < 700.)
+    safe = jnp.where(supported, real, 0.)
+    ordinary = jax.vmap(source_cosh)(safe.ravel()).reshape(real.shape)
+    half_exp = jnp.exp(magnitude * .5)
+    large = jax.lax.optimization_barrier(half_exp * .5) * half_exp
+    fallback = jnp.where(magnitude < jnp.log(jnp.finfo(jnp.float64).max),
+                         jnp.exp(magnitude) * .5, large)
+    return jnp.where(supported, ordinary, fallback)
+
+
+def _subnormal_imaginary_product(value, prior, *, hyperbolic=False):
+    """Retain the separately rounded source coefficient times tiny imaginary.
+
+    Only binary64 nonzero subnormal imaginary inputs, finite real inputs and
+    finite normal coefficients are selected. For EXP/EXPM1, sin(y) rounds to
+    y throughout this class; for SINH the same factor multiplies cosh(x).
+    All prior real words and unselected imaginary words are preserved.
+    Independent native operands are tests, never runtime inputs.
+    """
+    if value.dtype != jnp.complex128:
+        return prior
+    prior = jax.lax.optimization_barrier(prior)
+    real, imag = jnp.real(value), jnp.imag(value)
+    def word(x):
+        return jax.lax.bitcast_convert_type(x, jnp.uint64) & jnp.uint64(0x7fffffffffffffff)
+    magnitude = word(imag)
+    coefficient = (_subnormal_cosh_coefficient(real) if hyperbolic
+                   else _subnormal_exp_coefficient(real))
+    coefficient_word = word(coefficient)
+    selected = ((magnitude > 0) & (magnitude < jnp.uint64(0x0010000000000000))
+                & jnp.isfinite(real)
+                & (coefficient_word >= jnp.uint64(0x0010000000000000))
+                & (coefficient_word < jnp.uint64(0x7ff0000000000000)))
+    product = gradual_signed_multiply(imag, coefficient)
+    return jax.lax.complex(jnp.real(prior),
+                           jnp.where(selected, product, jnp.imag(prior)))
+
+
+def _atan_subnormal_imaginary(value, prior):
+    """Keep ATAN's source quarter-log1p staging for subnormal imaginary input.
+
+    Im(atan(x+iy)) = .25*log1p(4*y/(x*x+(1-y)**2)). In this class
+    (1-y)**2 rounds to one and log1p(t) rounds to t. The square/add,
+    numerator, quotient and final quarter retain separate rounding; a
+    one-round derivative product does not reproduce the source staging.
+    Nonfinite/overflow denominators and all other components stay unchanged.
+    """
+    if value.dtype != jnp.complex128:
+        return prior
+    from chebfunjax.utils._source_real import add, mul
+
+    prior = jax.lax.optimization_barrier(prior)
+    real, imag = jnp.real(value), jnp.imag(value)
+    safe = jnp.where(jnp.isfinite(real), real, 0.)
+    denominator = add(mul(safe, safe), jnp.ones_like(real))
+    magnitude = (jax.lax.bitcast_convert_type(imag, jnp.uint64)
+                 & jnp.uint64(0x7fffffffffffffff))
+    selected = ((magnitude > 0) & (magnitude < jnp.uint64(0x0010000000000000))
+                & jnp.isfinite(real) & jnp.isfinite(denominator))
+    four = jnp.full_like(imag, 4.)
+    quotient = gradual_signed_divide(gradual_signed_multiply(imag, four), denominator)
+    result = gradual_signed_divide(quotient, four)
+    return jax.lax.complex(jnp.real(prior),
+                           jnp.where(selected, result, jnp.imag(prior)))
+
+
+@partial(jax.custom_jvp, nondiff_argnums=(1,))
+def _exp_complex_subnormal(value, increment):
+    primitive = jnp.expm1 if increment else jnp.exp
+    return _subnormal_imaginary_product(value, primitive(value))
+
+
+@_exp_complex_subnormal.defjvp
+def _exp_complex_subnormal_jvp(increment, primals, tangents):
+    """Retain the original primitive's ordinary first and higher derivatives."""
+    (value,), (tangent,) = primals, tangents
+    primitive = jnp.expm1 if increment else jnp.exp
+    return (_exp_complex_subnormal(value, increment),
+            jax.jvp(primitive, (value,), (tangent,))[1])
+
+
+def _exp_numeric(value, *, increment=False):
+    values = jnp.asarray(value)
+    if values.dtype == jnp.complex128:
+        return _exp_complex_subnormal(values, increment)
+    return jnp.expm1(values) if increment else jnp.exp(values)
+
+
 def _positive_zero_imaginary(result):
     """Retain the captured CONJ/UMINUS exact-zero imaginary convention.
 
