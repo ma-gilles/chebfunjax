@@ -123,6 +123,24 @@ def _vals2coeffs_jax(values: jnp.ndarray) -> jnp.ndarray:
             tmp, cpu=real_even_inverse64,
             default=lambda a: jnp.real(jnp.fft.ifft(a, axis=0)),
         )
+    elif (values.dtype == jnp.float64 and values.ndim in (1, 2)
+          and (2 * (n - 1) & (2 * (n - 1) - 1)) == 0):
+        # The source real IFFT sees a circular-even vector. Its first half
+        # is a Hermitian spectrum for C2R; native length32768 uses this route.
+        # Select the radix-two family structurally, independent of samples,
+        # tolerance or the degree selected by subsequent standardChop.
+        def real_even_c2r(a):
+            return jax.lax.cond(
+                jnp.all(jnp.isfinite(a)),
+                lambda z: jnp.fft.irfft(z[:n].astype(jnp.complex128),
+                                        n=2 * (n - 1), axis=0),
+                lambda z: jnp.real(source_ifft(z)), a,
+            )
+
+        coeffs = jax.lax.platform_dependent(
+            tmp, cpu=real_even_c2r,
+            default=lambda a: jnp.real(source_ifft(a)),
+        )
     else:
         coeffs = jnp.real(source_ifft(tmp))
     coeffs = coeffs[:n]

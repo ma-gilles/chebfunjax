@@ -57,7 +57,7 @@ captured stdout. The two changed PNGs and current numerical outputs are
 published. This does not close full native ODE, second-fit residue, renderer
 or matched native performance parity.
 
-## Real-even C2R diagnostics — still open
+## Historical real-even C2R diagnostics — inverse family superseded below
 
 [Source-bound comparison](transform_c2r_diagnostics_cpu_20261017.json) rejects
 a production patch from these observations. Dense363cubed C2R matches fewer
@@ -65,3 +65,15 @@ native coefficient words; both crops fail100eps on the normalized diagnostic
 grid. This does not replace the literal original constructor failure receipt.
 Inverse C2R matches native8630coefficient count while raw coefficient agreement
 is not improved. Native724/32768plans and fresh packed profiling are next.
+
+
+## Real CPU radix-two C2R family integration
+
+The [parent-reviewed integration](inverse_c2r_parent_cpu_20261017.json) follows
+actual native32768plan evidence and a general power-of-two predicate, preserving
+64/602 precedence and nonfinite/complex/nonCPU fallback. All254scientific and
+21parent CIprotocol checks pass. Actual inverse now returns8630coefficients
+(native8630, previous9030), native129value error3.886e-16, both independent
+257compositions nearroundoff. Raw coefficient words still differ; no universal
+bit-equality claim. Warm2.327s vsbase2.336s leaves native speed open. Dense724
+Chebfun3T strictxfail and full API/page/figure/latestCI qualification remain open.

@@ -1,3 +1,16 @@
+# Real radix-two inverse transform family — 2026-10-17
+
+CPU finite realfloat64 DCT-I now uses C2R for power-of-two FFT lengths,
+following native mirrored real input and observed native32768 C2R plan.
+Existing64/602 specializations retain precedence; other routes unchanged.
+All254scientific controls pass unchanged bounds; parent21CIprotocol checks
+pass with1081prior owners retained plus1new selection. Actual inverse now
+returns8630coefficients like native (base9030); native129error3.886e-16,
+independent257compositions nearroundoff. Warm2.327s vsbase2.336s is descriptive,
+not speed qualification. Coefficient low words/full APIs/pages/figures and
+matched native speed remain open. Dense724 is unchanged; latestCI required.
+Evidence: docs/inverse_c2r_parent_cpu_20261017.json.
+
 # Native complex barycentric weights — 2026-10-17
 
 Complex nodes now use native baryWeights.m capacity C=1. Explicit complex

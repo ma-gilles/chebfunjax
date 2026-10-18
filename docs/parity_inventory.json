@@ -160,6 +160,11 @@
       "scope": "Repair actual CI interpolation predicate25 with native bary evaluation branches; integrate five minimax shape/scalar test adapters without changing numerical bounds",
       "sha256": "43284e9608de8e069245e32018184b14a0a80c411c2a6d9c53e628572ff61bdf"
     },
+    "inverse_c2r_parent_cpu_20261017": {
+      "path": "docs/inverse_c2r_parent_cpu_20261017.json",
+      "scope": "Integrate source-motivated real CPU radix-two DCT-I C2R family; actual inverse representation and functional controls; no speed closure",
+      "sha256": "2b021ed4b2cc8426bc65e54fc3d85bf96e54f0362904269cb336f970fadfa8fd"
+    },
     "inverse_packed_color_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_packed_color_cpu_20261017.zip",
@@ -52092,6 +52097,10 @@
         {
           "artifact": "transform_c2r_diagnostics_cpu_20261017",
           "scope": "C2R diagnostic excludes naive backend replacement; full-item statuses unchanged"
+        },
+        {
+          "artifact": "inverse_c2r_parent_cpu_20261017",
+          "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
         }
       ],
       "functions": [
@@ -71537,6 +71546,10 @@
         {
           "artifact": "ratinterp_full602_cpu_20261017",
           "scope": "Complete JAX602inverse diagnostic matches367220native outputwords; no production change/fullAPI/pole acceptance. Real D route remains open."
+        },
+        {
+          "artifact": "inverse_c2r_parent_cpu_20261017",
+          "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
         }
       ],
       "functions": [
@@ -102927,7 +102940,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_inv_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_c2r_parent_cpu_20261017",
+          "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -117924,7 +117942,12 @@
         "tests/test_matlab_port/chebtech2/test_vals2coeffs_matlab.py",
         "tests/test_matlab_port/trigtech/test_vals2coeffs_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "inverse_c2r_parent_cpu_20261017",
+          "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

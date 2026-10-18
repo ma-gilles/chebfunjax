@@ -1,0 +1,521 @@
+{
+  "base": "30896f793b758b360e21ee92aa46ac64361fb626",
+  "status": "Isolated candidate qualified at listed bounds; not integrated/published. Parent review required.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "18line insertion in _vals2coeffs_jax: CPU finite realfloat64 rank1/rank2 radix-two DCT-I uses JAX irfft; exact64/602 prior branches retained. Nonfinite/complex/float32/nonpower2/nonCPU use unchanged existing routes. No tolerance/chop/sample/degree/input lookup change.",
+  "source_audit": "SOURCE_AUDIT.json: other363libraryfiles identical; deleting exact inserted branch reproduces original transform bytes. Original eight test files byte-identical to base.",
+  "source_justification": "Native source mirrors real samples into circular-even lengthL=2*(n-1) before real(ifft). This is algebraically C2R of its half-spectrum. Actual native32768 C2R plan recorded with three neutral controls/defaultestimate; not inferred from64/602 analogy. Power-of-two FFTlength is a structural family, not fitted input/degree cutoff.",
+  "proposal_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_proposal_package_20261017.tar.gz",
+    "sha256": "91f4674db9c41fc25d12c4936b768879f7656ed37587293a28de0105ff6ebdf3"
+  },
+  "native_plan_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_fft32768_plan_package_20261017.tar.gz",
+    "sha256": "6523e6fdef9c38c23f7f24766e552c479cd7d61ba8b956e7acbbc776c2310565"
+  },
+  "qualification": {
+    "candidate_check_count": 254,
+    "counts": {
+      "baseline_focused": {
+        "total": 35,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "baseline_nonfinite": {
+        "total": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_focused": {
+        "total": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_original_transforms": {
+        "total": 160,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_original_inverse": {
+        "total": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "candidate_original_interp1": {
+        "total": 35,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "new_controls": "Sparsepolynomial/DC/Nyquist/dyadic spectrum/roundtrip/layout/parity/defining DCT matrix/linear JVP/VJP/vmap/complex transverse tangents/fallbacks; all changed numerical array math JAX.",
+    "original_bounds": "Unchanged original source transform100eps, inverse100eps*vscale/10eps*vscale, complete sixalgorithms, and all35interp1 predicates including strict25. No tolerance edits.",
+    "baseline_control_correction": "Initial35run:33pass,2fail from erroneous authored expectation all nonfinite FFT outputs NaN. Rawfailure/testv1 retained. Corrected2 compare existing genericFFT masks/values/signs and pass baseline. Final35 candidatepass. This is not a library2fail-to-pass claim."
+  },
+  "actual_inverse": {
+    "baseline": {
+      "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_baseline_20261017/src/chebfunjax/__init__.py",
+      "calls": [
+        {
+          "phase": "cold",
+          "seconds": 17.12146701430902,
+          "length": 9030,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                9030
+              ],
+              "dtype": "float64",
+              "sha256": "41629a6d7f8feb55e8586c5a91384c1ba2869b5f8518b82a3edb65cad59b2237"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        },
+        {
+          "phase": "warm",
+          "seconds": 2.3359551676549017,
+          "length": 9030,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                9030
+              ],
+              "dtype": "float64",
+              "sha256": "41629a6d7f8feb55e8586c5a91384c1ba2869b5f8518b82a3edb65cad59b2237"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "native_length": 8630,
+        "candidate_length": 9030,
+        "common_prefix_max_abs": 5.551115123125783e-17,
+        "common_prefix_word_mismatches": 8627,
+        "domain_word_equal": true,
+        "pointValues_word_equal": true,
+        "native_sites129_max_abs": 6.106226635438361e-16,
+        "original_supplemental_roundtrip129_max_abs": 7.771561172376096e-16,
+        "inverse_composition257_max_abs": 1.1657341758564144e-15,
+        "forward_composition257_max_abs": 5.329070518200751e-15
+      },
+      "artifacts": {
+        "native_sites129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        "inverse_samples129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "8d92592c9ff1c11babf8b5818262e0b39ce3572813477ef4dbca8b5276b486d1"
+        },
+        "roundtrip129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "3e82bb7c8aeb849a61be1b164d95fcdbc0c9c9bdcef58664653d7cac86d0d557"
+        },
+        "gridx257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        "grids257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        "inverse_grid257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "09e88c7da9116b207448404617cfbcb329279f9666468ff87c0b4e0c1e23846f"
+        },
+        "forward_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "ad10062a5c6c77d35e163996967aacf628b350816dcb91595e66a2867826b068"
+        },
+        "inverse_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "11dabf2791f3119a3b7f0e77fc697c5f85fe4844c13eb146baa2e44240c717a8"
+        }
+      },
+      "bound_scope": "Retained existing supplemental129roundtrip <1e-10. Other actual/native comparisons diagnostic; original test_inv bounds are separately gated unchanged. No degree/coefficient forcing or native lookup in production.",
+      "timing_scope": "One cold,one ordinary warm,descriptive sharedhost; no matched native speed qualification."
+    },
+    "candidate": {
+      "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_candidate_20261017/src/chebfunjax/__init__.py",
+      "calls": [
+        {
+          "phase": "cold",
+          "seconds": 17.042233598418534,
+          "length": 8630,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                8630
+              ],
+              "dtype": "float64",
+              "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        },
+        {
+          "phase": "warm",
+          "seconds": 2.3265427532605827,
+          "length": 8630,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                8630
+              ],
+              "dtype": "float64",
+              "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "native_length": 8630,
+        "candidate_length": 8630,
+        "common_prefix_max_abs": 5.551115123125783e-17,
+        "common_prefix_word_mismatches": 8626,
+        "domain_word_equal": true,
+        "pointValues_word_equal": true,
+        "native_sites129_max_abs": 3.885780586188048e-16,
+        "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+        "inverse_composition257_max_abs": 1.3322676295501878e-15,
+        "forward_composition257_max_abs": 7.105427357601002e-15
+      },
+      "artifacts": {
+        "native_sites129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        "inverse_samples129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c"
+        },
+        "roundtrip129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82"
+        },
+        "gridx257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        "grids257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        "inverse_grid257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+        },
+        "forward_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15"
+        },
+        "inverse_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31"
+        }
+      },
+      "bound_scope": "Retained existing supplemental129roundtrip <1e-10. Other actual/native comparisons diagnostic; original test_inv bounds are separately gated unchanged. No degree/coefficient forcing or native lookup in production.",
+      "timing_scope": "One cold,one ordinary warm,descriptive sharedhost; no matched native speed qualification."
+    },
+    "assessment": "Native/coefficient length8630 now matches (baseline9030). Domain/PV native words equal; all actual inverse samples/compositions remain near roundoff. Max native coefficient difference5.551e-17 remains; word differences recorded, no universal byte-equality gate. Representation and public functional evidence are separate.",
+    "retained_bound": "Original supplemental129roundtrip<1e-10 unchanged. Native129difference and independentphysical257grids are diagnostic; original test_inv bounds separately passed. No new page/source bound invented."
+  },
+  "runtime": {
+    "coverage_gates": {
+      "candidate_focused": {
+        "observed": 1474,
+        "missing": [],
+        "changed": []
+      },
+      "candidate_original_transforms": {
+        "observed": 1550,
+        "missing": [
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/_lib/doccer.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/__init__.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_fast_matrix_market/__init__.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_fortran.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_harwell_boeing/__init__.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_harwell_boeing/_fortran_format_parser.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_harwell_boeing/hb.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_idl.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_mmio.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/_netcdf.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/arff/__init__.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/arff/_arffread.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/arff/arffread.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/harwell_boeing.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/idl.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/__init__.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_byteordercodes.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio4.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio5.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio5_params.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio5_utils.cpython-312-x86_64-linux-gnu.so",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_mio_utils.cpython-312-x86_64-linux-gnu.so",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_miobase.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/_streams.cpython-312-x86_64-linux-gnu.so",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/byteordercodes.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio4.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio5.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio5_params.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio5_utils.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/mio_utils.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/miobase.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/matlab/streams.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/mmio.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/netcdf.py",
+          "/home/mg6942/.local/lib/python3.12/site-packages/scipy/io/wavfile.py",
+          "/scratch/gpfs/GILLES/mg6942/_agent_scratch/chebfunjax_pixi_20261002/envs/default/lib/python3.12/lib-dynload/mmap.cpython-312-x86_64-linux-gnu.so"
+        ],
+        "changed": []
+      },
+      "candidate_original_inverse": {
+        "observed": 1510,
+        "missing": [],
+        "changed": []
+      },
+      "candidate_original_interp1": {
+        "observed": 1504,
+        "missing": [],
+        "changed": []
+      }
+    },
+    "actual_coverage": {
+      "baseline_actual": {
+        "observed": 1364,
+        "missing": [],
+        "changed": []
+      },
+      "candidate_actual": {
+        "observed": 1364,
+        "missing": [],
+        "changed": []
+      }
+    },
+    "caveat": "Transform160gate postobserved38 SciPyMATreader/stdlib imports were not preguarded; hash evidence retained. All actual source/tests/fixtures frozen; no claim full externalruntimefreeze for that gate. Other candidate focused/inverse/interp gates and both actualruns have all observed imports preguarded. No rerun solely incidental MAT-reader metadata."
+  },
+  "receipts": {
+    "baseline_focused": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 25.738532047253102,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1292296,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "baseline_nonfinite": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 4.966542015783489,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 526356,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_focused": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 27.18515839613974,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1334712,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_original_transforms": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 135.69047441799194,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 4174600,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_original_inverse": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 86.11763289570808,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 2935836,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_original_interp1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 23.416849761269987,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1310072,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "baseline_actual": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 26.08042242191732,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1117292,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    },
+    "candidate_actual": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 25.976673328317702,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1119024,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "inputs_stable": true
+    }
+  },
+  "performance": "Paired ordinarywarm baseline2.335955s/candidate2.326543s; cold17.121467/17.042234s. Sharedhost singlewarm descriptive only; no speedup/native performance parity. Prior freshprofile callbackdominance remains separate.",
+  "limitations": [
+    "No full inverse API/page/raster/native trajectory or coverage/latestCI completion claim.",
+    "Dense724 Chebfun3T failure remains open; nonradix-two route is unchanged, not qualified by this candidate.",
+    "No new native8192/16384plan capture; native32768 source motive + functional controls support this isolated experiment, not a claim of identical FFTW plans at all lengths/batches.",
+    "Parent pendingcomplex bary_weights changes outside this base require explicit source/branch bridge; not covered by these frozen30896 runs.",
+    "Further core CI owner/baseline metadata and publication belong to parent."
+  ],
+  "proposed_publication_paths": [
+    "src/chebfunjax/utils/transforms.py",
+    "tests/test_utils/test_c2r_radix2_source.py",
+    "docs/inverse_c2r_radix2_cpu_20261017.json"
+  ]
+}

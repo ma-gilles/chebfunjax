@@ -1,0 +1,342 @@
+{
+  "scope": "Integrate source-motivated real CPU radix-two DCT-I C2R family; actual inverse representation and functional controls; no speed closure",
+  "base_commit": "c2c28eeaf26aff96f30ccafb6f86d192468d3333",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "child_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_package_20261017.tar.gz",
+    "sha256": "a8f7cb0aecb4c472214aced530fc14376b6a5864fc83a7483f5337a4a322aa54",
+    "verified_payloads": 136,
+    "raw_receipts_independently_checked": 8
+  },
+  "qualification": {
+    "child_scientific_checks": 254,
+    "breakdown": "35independent family/AD/fallback +160original transform/FFT +24original inverse +35original interp1; all pass unchanged original operands/bounds",
+    "parent_protocol_checks": 21,
+    "parent_protocol_pytest_seconds": 1.75,
+    "existing_owners_unchanged": 1081,
+    "new_core_selector": "tests/test_utils/test_c2r_radix2_source.py",
+    "total_core_selections": 1082,
+    "lanes": 12
+  },
+  "source_bridge": {
+    "child_base": "30896f793b758b360e21ee92aa46ac64361fb626",
+    "parent_base": "c2c28eeaf26aff96f30ccafb6f86d192468d3333",
+    "tracked_library_files": 364,
+    "python_library_files": 362,
+    "intervening_library_delta": [
+      "chebfunjax/utils/interpolation.py"
+    ],
+    "other_interpolation_functions_AST_equal": true,
+    "bary_weights_real_capacity_AST_equal": true,
+    "bary_weights_real_sign_AST_equal": true,
+    "new_transform_bytes_match_child": true,
+    "new_test_bytes_match_child": true,
+    "scope": "Original inverse operands use real functions/nodes; new transform/focused controls do not call complex bary_weights. Shared real capacity/sign arithmetic and other interpolation functions unchanged. No new numerical run solely for metadata."
+  },
+  "actual_inverse": {
+    "baseline": {
+      "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_baseline_20261017/src/chebfunjax/__init__.py",
+      "calls": [
+        {
+          "phase": "cold",
+          "seconds": 17.12146701430902,
+          "length": 9030,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                9030
+              ],
+              "dtype": "float64",
+              "sha256": "41629a6d7f8feb55e8586c5a91384c1ba2869b5f8518b82a3edb65cad59b2237"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        },
+        {
+          "phase": "warm",
+          "seconds": 2.3359551676549017,
+          "length": 9030,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                9030
+              ],
+              "dtype": "float64",
+              "sha256": "41629a6d7f8feb55e8586c5a91384c1ba2869b5f8518b82a3edb65cad59b2237"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "native_length": 8630,
+        "candidate_length": 9030,
+        "common_prefix_max_abs": 5.551115123125783e-17,
+        "common_prefix_word_mismatches": 8627,
+        "domain_word_equal": true,
+        "pointValues_word_equal": true,
+        "native_sites129_max_abs": 6.106226635438361e-16,
+        "original_supplemental_roundtrip129_max_abs": 7.771561172376096e-16,
+        "inverse_composition257_max_abs": 1.1657341758564144e-15,
+        "forward_composition257_max_abs": 5.329070518200751e-15
+      },
+      "artifacts": {
+        "native_sites129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        "inverse_samples129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "8d92592c9ff1c11babf8b5818262e0b39ce3572813477ef4dbca8b5276b486d1"
+        },
+        "roundtrip129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "3e82bb7c8aeb849a61be1b164d95fcdbc0c9c9bdcef58664653d7cac86d0d557"
+        },
+        "gridx257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        "grids257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        "inverse_grid257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "09e88c7da9116b207448404617cfbcb329279f9666468ff87c0b4e0c1e23846f"
+        },
+        "forward_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "ad10062a5c6c77d35e163996967aacf628b350816dcb91595e66a2867826b068"
+        },
+        "inverse_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "11dabf2791f3119a3b7f0e77fc697c5f85fe4844c13eb146baa2e44240c717a8"
+        }
+      },
+      "bound_scope": "Retained existing supplemental129roundtrip <1e-10. Other actual/native comparisons diagnostic; original test_inv bounds are separately gated unchanged. No degree/coefficient forcing or native lookup in production.",
+      "timing_scope": "One cold,one ordinary warm,descriptive sharedhost; no matched native speed qualification."
+    },
+    "candidate": {
+      "origin": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_family_candidate_20261017/src/chebfunjax/__init__.py",
+      "calls": [
+        {
+          "phase": "cold",
+          "seconds": 17.042233598418534,
+          "length": 8630,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                8630
+              ],
+              "dtype": "float64",
+              "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        },
+        {
+          "phase": "warm",
+          "seconds": 2.3265427532605827,
+          "length": 8630,
+          "ishappy": true,
+          "domain": [
+            -6.106226635438361e-16,
+            9.63401213819804
+          ],
+          "artifacts": {
+            "coeffs": {
+              "shape": [
+                8630
+              ],
+              "dtype": "float64",
+              "sha256": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18"
+            },
+            "domain": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318"
+            },
+            "pointValues": {
+              "shape": [
+                2
+              ],
+              "dtype": "float64",
+              "sha256": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff"
+            }
+          }
+        }
+      ],
+      "comparison": {
+        "native_length": 8630,
+        "candidate_length": 8630,
+        "common_prefix_max_abs": 5.551115123125783e-17,
+        "common_prefix_word_mismatches": 8626,
+        "domain_word_equal": true,
+        "pointValues_word_equal": true,
+        "native_sites129_max_abs": 3.885780586188048e-16,
+        "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+        "inverse_composition257_max_abs": 1.3322676295501878e-15,
+        "forward_composition257_max_abs": 7.105427357601002e-15
+      },
+      "artifacts": {
+        "native_sites129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2"
+        },
+        "inverse_samples129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c"
+        },
+        "roundtrip129.bin": {
+          "shape": [
+            129
+          ],
+          "dtype": "float64",
+          "sha256": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82"
+        },
+        "gridx257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69"
+        },
+        "grids257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476"
+        },
+        "inverse_grid257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+        },
+        "forward_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15"
+        },
+        "inverse_composition257.bin": {
+          "shape": [
+            257
+          ],
+          "dtype": "float64",
+          "sha256": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31"
+        }
+      },
+      "bound_scope": "Retained existing supplemental129roundtrip <1e-10. Other actual/native comparisons diagnostic; original test_inv bounds are separately gated unchanged. No degree/coefficient forcing or native lookup in production.",
+      "timing_scope": "One cold,one ordinary warm,descriptive sharedhost; no matched native speed qualification."
+    },
+    "assessment": "Native/coefficient length8630 now matches (baseline9030). Domain/PV native words equal; all actual inverse samples/compositions remain near roundoff. Max native coefficient difference5.551e-17 remains; word differences recorded, no universal byte-equality gate. Representation and public functional evidence are separate.",
+    "retained_bound": "Original supplemental129roundtrip<1e-10 unchanged. Native129difference and independentphysical257grids are diagnostic; original test_inv bounds separately passed. No new page/source bound invented."
+  },
+  "performance": "Paired ordinarywarm baseline2.335955s/candidate2.326543s; cold17.121467/17.042234s. Sharedhost singlewarm descriptive only; no speedup/native performance parity. Prior freshprofile callbackdominance remains separate.",
+  "limits": [
+    "No full inverse API/page/raster/native trajectory or coverage/latestCI completion claim.",
+    "Dense724 Chebfun3T failure remains open; nonradix-two route is unchanged, not qualified by this candidate.",
+    "No new native8192/16384plan capture; native32768 source motive + functional controls support this isolated experiment, not a claim of identical FFTW plans at all lengths/batches.",
+    "Parent pendingcomplex bary_weights changes outside this base require explicit source/branch bridge; not covered by these frozen30896 runs.",
+    "Further core CI owner/baseline metadata and publication belong to parent.",
+    "Child transform160gate has38postobserved incidental MAT-reader/stdlib imports; source/tests/fixtures guarded. Other child gates and paired actual calls have all observed imports preguarded.",
+    "Parent protocol gate freezes source/selected tests/config; no complete external-runtime freeze claim.",
+    "Complex bary_weights intervening change explicitly bridged; full API/page/figure and current-main CI/coverage remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_c2r_parent_cpu_20261017.tar.gz",
+    "sha256": "f486408a0f94beadfc36e6bba405688fc0057d78de6ed2dd3903108a874115f1",
+    "verified_payloads": 24
+  }
+}

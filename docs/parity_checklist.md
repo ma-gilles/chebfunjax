@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Native-motivated real CPU radix-two C2R DCT-I family:254scientific checks plus21parent CIprotocol checks; actual inverse8630/native8630 coefficients and nearroundoff value/composition controls. [Evidence](inverse_c2r_parent_cpu_20261017.json).
+- [ ] Inverse full API/low-word/page/figure and matched CPU performance remain open; dense724 strictxfail unchanged.
+
+
 - [x] Native complex baryWeights capacity/phase and analytic rotation JVP:12focused checks and4fresh native controls pass; real arithmetic/other function ASTs/old test bodies unchanged. [Evidence](bary_complex_cpu_20261017.json).
 - [ ] Full baryWeights API/large-n/performance; latest-main CI/coverage and Maxwell duplicate-zero system eigenmodes remain open.
 
