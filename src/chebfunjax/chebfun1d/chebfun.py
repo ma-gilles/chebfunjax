@@ -12510,7 +12510,7 @@ def _edge_find_max_der(f, a, b, num_ders, grid_size):
     return na, nb, max_der
 
 
-def _find_jump(f, a, b, vscale, hscale):
+def _find_jump(f, a, b, vscale, hscale, *, _return_interval=False):
     """Literal bounded findJump, with MATLAB all/any column conditions.
 
     Provenance
@@ -12518,6 +12518,9 @@ def _find_jump(f, a, b, vscale, hscale):
     MATLAB source : @fun/detectEdge.m (findJump)
     Chebfun commit: 7574c77
     """
+    def result(edge):
+        return (edge, (a, b)) if _return_interval else edge
+
     eps = float(jnp.finfo(jnp.float64).eps)
     y = _edge_sample_rows(f, jnp.asarray([a, b], dtype=jnp.float64))
     ya, yb = y[0], y[1]
@@ -12525,7 +12528,7 @@ def _find_jump(f, a, b, vscale, hscale):
     # identity derivative. Preserve that expression, not an inferred slope.
     max_der = jnp.abs(ya - yb) / ((b - a) / 2)
     if bool(jnp.all(max_der < 1e-5 * vscale / hscale)):
-        return None
+        return result(None)
     cont = 0
     e1 = (b + a) / 2
     e0 = e1 + 1
@@ -12549,9 +12552,9 @@ def _find_jump(f, a, b, vscale, hscale):
         yright = _edge_sample_rows(
             f, jnp.asarray(b + _edge_eps(b), dtype=jnp.float64))[0]
         if bool(jnp.all(jnp.abs(yright - yb) > eps * 100 * vscale)):
-            return b
-        return a
-    return None
+            return result(b)
+        return result(a)
+    return result(None)
 
 
 def _detect_edge_matlab(f, a: float, b: float,
@@ -12566,7 +12569,11 @@ def _detect_edge_matlab(f, a: float, b: float,
     compatibility adapter; they are not part of source constructorSplit.
     The caller compensates exponents before entering this identity-map
     branch. Ordinary callers retain blowup=False; singular construction
-    explicitly enables the source nested function-value check.
+    explicitly enables the source nested function-value check. After a
+    failed findJump, a bracket below the source endpoint proximity scale
+    (1e-14*hscale) is retained to avoid a roundoff-induced global midpoint.
+    This bounded rescue is an explicit extension of the source failure path;
+    ordinary source results and the literal findJump API are unchanged.
 
     Provenance
     ----------
@@ -12599,7 +12606,17 @@ def _detect_edge_matlab(f, a: float, b: float,
             return None
         num = int(jnp.argmax(grows)) + 1
         if num == 1 and right - left < 1e-3 * hscale:
-            return _find_jump(f, left, right, vscale, hscale)
+            edge, interval = _find_jump(
+                f, left, right, vscale, hscale, _return_interval=True)
+            if edge is None and interval[1] - interval[0] <= 1e-14 * hscale:
+                # A resolved FD bracket can lose its jump when rounded
+                # endpoint values coincide or derivative growth stagnates.
+                # Retain that bracket only below the source endpoint
+                # proximity scale (fun.detectEdge's htol), rather than discard
+                # it and split the entire original domain at its midpoint.
+                # The literal findJump result remains the default API.
+                return (interval[0] + interval[1]) / 2
+            return edge
         left, right = float(na[num - 1]), float(nb[num - 1])
         if check_blowup and bool(jnp.all(jnp.abs(jnp.asarray(
                 f(jnp.asarray((left+right)/2)))) > 1e2*vscale)):

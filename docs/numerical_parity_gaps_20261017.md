@@ -1,3 +1,27 @@
+# Resolved edge brackets and original detectEdge tests — 2026-10-18
+
+Actual parent **44 PASS**, including all7original default predicates at exact
+native seed13inputs/unchanged5e-14 and5eps bounds. Source/negative controls and
+CI protocol pass; all1542observed imports preguarded, stable/no survivors.
+Oldport's6loosechecks of another helper replaced by full original7predicates.
+1128owners/13lanes/Hermite12/79%unchanged.
+
+A failed literal findJump now preserves its final bracket only below the
+1e-14*hscale source endpoint-proximity scale. This is an explicit JAX
+roundoff extension of native failure handling; default findJump arithmetic
+and successful native results remain unchanged. No fittededge, callback
+rounding, happiness change or relaxed original bound. Three smooth negative
+controls pass. Baseline original6PASS1FAIL becomes7PASS.
+
+Fresh publicdegree3 Checkmark curve completes with native45/12/12/45piece
+lengths; domains within5.78e-15/coefficient differences<=3.82e-16. Actual
+nativecallback crossfeed restores original detector's nativeedge exactly;
+exp/cos and minimax callback lowwords explain changed branching. Full7curve
+page/stdout/figures, exact knot/provider words and matched CPU speed remain
+open. Fixedphysicalqueries near a shifted fitted knot can select another
+one-sided value; no wholepage or universal bit-parity claim.
+Evidence: docs/edge_roundoff_original_tests_cpu_20261018.json. Goal incomplete.
+
 # Default numeric Diskfun native route — 2026-10-18
 
 Actual parent **145 PASS /5strictXFAIL**,150nodes; all1556observed imports

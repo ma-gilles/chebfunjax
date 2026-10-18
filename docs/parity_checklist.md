@@ -24,15 +24,15 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Published scoped work:** default numeric JAX disk route145PASS/5strictXFAIL; prior matrix simplification195PASS/2strictXFAIL. Counts overlap and are not summed. [Numeric evidence](disk_numeric_direct_cpu_20261018.json), [matrix evidence](disk_matrix_simplify_cpu_20261018.json). Native rank-cap limitations and FFT/provider words remain explicit.
-- **Root:** Checkmark actual Python edge trace underway. Native and Python both accept the same bad forcedhalfinterval fit; native directedge finds the correct transition. Diagnose edge/provider/callback trajectory, without changing source happiness to hide it. [Localization](checkmark_edge_localization_cpu_20261018.json).
-- **Unary worker:** six finite TAN/TANH candidates have focused native verification. The broader run1740PASS/1XF/427FAIL failed entirely on an import-order tracer leak. Minimal constant initialization repair passes cold import controls; repeated-call compilation cost is being fixed before full verification. Infinite-real TANH native-context zero-sign contradiction remains open. No published repair claim yet.
-- **Disk worker:** paired adaptive/equispaced Chebfun2 preferences, per-axis controls, empty-axis defaults and source fixed-callable/error ordering. Baselines/native captures precede implementation; existing fixed/coefficient behavior must stay qualified.
-- **Other numerical/API gaps:** full original assertion audit; complex rational poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
-- **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Inverse warm gap~2.51x is from an earlier descriptive set; disk profile gains are not matched timing qualification.
-- **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish final page parity.
+- **Latest verified integration:** edge failure handling44PASS, all7default originalpredicates restored at exactnativeinputs/unchangedbounds. Actual Checkmarkdegree3 representation45/12/12/45 recovered; exactknot/provider words and full7curvepage remain open. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
+- **Root next:** measure actual minimax/norm callback compilation cost before the full source Checkmark replay; the corrected degree3curve still takes~384s. This is not matched CPU timing qualification.
+- **Unary worker:** compiletime initialization and identical global JIT tail migration pass27controls/coldimports. Full2168existing selection underway, then110new controls. Inf-real TANH native-context zero-sign contradiction remains open; not published yet.
+- **Disk worker:** paired adaptive/equispaced preferences and source grid→Halton→finalize staging now supported in candidate; tuple axisbudget and all20EQUI publicvalue controls pass. Remaining factor cutoff/basis discrepancies under attribution before acceptance.
+- **Other numerical/API gaps:** full original assertion audit; complex poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
+- **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Prior descriptive inverse/disk timings are not complete qualification.
+- **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish finalpage parity.
 - **Final gates:** latest-main scientific CI, aggregate coverage>=79%, provenance/lint and requirement-by-requirement completion audit. No current green latest-main claim.
-- **Evidence corrections:** historical34constructor censor has18dots/no named active node; prior coarseGE2/5 narrative is retracted because raw/public/native ranks agree. Immutable raw evidence retained in the matrix report.
+- **Evidence corrections:** constructor censor18dots/no named active node and coarseGE2/5 narrative retraction preserved; nativebatch parse/static-workspace observerfailures and baseline collector/staleguardchecker raw evidence retained in the newpacket.
 
 ### Active work, not yet credited as complete
 
@@ -43,6 +43,10 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Resolved narrow edge brackets and full7default originaldetectEdge predicates:44parentPASS, no widened bounds. Fresh publicdegree3 Checkmark nativepiece lengths/coefficient bounds recovered. [Evidence](edge_roundoff_original_tests_cpu_20261018.json).
+- [ ] Exact knot/provider words, full7curveCheckmarkpage/figures, matchedspeed and fullgoal remain open.
+
 
 - [x] Default Diskfun numeric route now uses existing native JAX construction:145parentPASS/5strictXF; original assertions/bounds retained. [Evidence](disk_numeric_direct_cpu_20261018.json).
 - [ ] Native rank-cap underresolution, FFT/provider words, wider API/JAX/AD/original tests/pages/figures/speed and latest-mainCI remain open.

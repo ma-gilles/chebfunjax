@@ -1,0 +1,143 @@
+{
+  "base": "0b530b426b1cecd3bc8060131116346f076ad735",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Retain resolved narrow edge brackets after roundoff-induced native findJump failure; restore all seven original default detectEdge predicates",
+  "actual_parent": {
+    "passed": 44,
+    "tests": 44,
+    "pytest_seconds": 15.682,
+    "wall_seconds": 23.112209639977664,
+    "sampled_peak_summed_rss_kib": 1083928,
+    "observed_guarded_imports": 1542,
+    "inputs_stable": true,
+    "remaining_owned_pids": []
+  },
+  "actual_curve": {
+    "degree": 3,
+    "complete": true,
+    "evaluations": 517,
+    "application_seconds": 383.88242737716064,
+    "supervised_seconds": 392.16679939674214,
+    "sampled_peak_summed_rss_kib": 3214436,
+    "observed_guarded_imports": 1379,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "comparison": {
+      "python_domain": [
+        -1.0,
+        -0.480475450423135,
+        0.0,
+        0.480475450423135,
+        1.0
+      ],
+      "native_domain": [
+        -1.0,
+        -0.48047545042314066,
+        0.0,
+        0.48047545042314077,
+        1.0
+      ],
+      "max_domain_difference": 5.773159728050814e-15,
+      "piece_comparison": [
+        {
+          "piece": 0,
+          "python_length": 45,
+          "native_length": 45,
+          "max_coefficient_difference": 3.8163916471489756e-16
+        },
+        {
+          "piece": 1,
+          "python_length": 12,
+          "native_length": 12,
+          "max_coefficient_difference": 3.0878077872387166e-16
+        },
+        {
+          "piece": 2,
+          "python_length": 12,
+          "native_length": 12,
+          "max_coefficient_difference": 3.0878077872387166e-16
+        },
+        {
+          "piece": 3,
+          "python_length": 45,
+          "native_length": 45,
+          "max_coefficient_difference": 3.8163916471489756e-16
+        }
+      ],
+      "fresh_callback_checks": [
+        {
+          "alpha": 0.0,
+          "callback": 0.1250000000000002,
+          "represented": 0.12500014064528,
+          "absolute_error": 1.4064527981139108e-07
+        },
+        {
+          "alpha": 0.25,
+          "callback": 0.10886205954645076,
+          "represented": 0.10886130383482336,
+          "absolute_error": 7.557116274009568e-07
+        },
+        {
+          "alpha": 0.48047545042314066,
+          "callback": 0.07634344974590859,
+          "represented": 0.07634550922096633,
+          "absolute_error": 2.059475057741844e-06
+        },
+        {
+          "alpha": 0.5,
+          "callback": 0.07735026918963563,
+          "represented": 0.07735022672157016,
+          "absolute_error": 4.246806546703841e-08
+        },
+        {
+          "alpha": 0.75,
+          "callback": 0.08858471074380173,
+          "represented": 0.08858542987790122,
+          "absolute_error": 7.191340994916473e-07
+        },
+        {
+          "alpha": 1.0,
+          "callback": 2.220446049250313e-16,
+          "represented": 1.9851504125256714e-06,
+          "absolute_error": 1.9851504123036268e-06
+        }
+      ],
+      "all_imports_preguarded": true,
+      "runtime_imports": 1379
+    }
+  },
+  "child": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/edge_callback_diagnosis_packet_20261018.tar.gz",
+    "sha256": "b9348005c7938cef207c321984b0af2b1f876075550ca86e22cec10098be289e",
+    "payloads_verified": 125
+  },
+  "parent_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/edge_roundoff_parent_20261018.tar.gz",
+    "sha256": "a65d83664a51d20ba5a269f3f223dba1d02ffcf5b3b0ef6dae100d09c5bcfed3",
+    "payloads_verified": 102
+  },
+  "evidence": [
+    "Actual pinned native originaltest7/7TRUE; all10seedRNG(13) inputwords confirmed. Oldport had only6loosechecks of another helper. Restore original50randomtrial calculations plus2special predicates with unchanged5e-14/5eps bounds.",
+    "Actual default originalbaseline6PASS1FAIL becomes7PASS; parent44includes14source/negativecontrols and23CI protocol checks, no expected failures. Childsame44scope is not added as unique coverage.",
+    "Only2module ASTnodes change; default literalfindJump math/branches ASTexact after removing optionalmetadata return adapter. No callback rounding, fitted spatialedge or source happiness change. Source mock accepts new metadata; its assertions unchanged.",
+    "Native actualcallback crossfeed into originalJAX detector restores native Checkmarkedge exactly; Pythoncallback replay restoresNone. Original C1failure additionally traces exp44word/cos7word differences on exact322Pythoninputs; staged arithmetic matches native expression, no FMA attribution.",
+    "Fresh actual publicdegree3curve now has native45/12/12/45piece lengths, domains within5.78e-15 and all captured coefficient differences<=3.82e-16. Initial[0,1]129unhappy then12/45happy at resolvededge; all1379observed imports preguarded (actual count recorded above).",
+    "1128CI owner prefixes/13lanes/Hermite12/79%gate unchanged; existing testfile upgraded, no new owner."
+  ],
+  "source_review": {
+    "changed_top_level_nodes": [
+      "_find_jump",
+      "_detect_edge_matlab"
+    ],
+    "all_other_module_AST_exact": true,
+    "findJump_core_AST_exact_after_removing_metadata_return_adapter": true,
+    "candidate_sha256": "366477b7f458ad48a6bb0fd84c475cd6ee12f5db67e95237793007630bdf758d",
+    "post_gate_change": "Comments/docstring only: clarify threshold comes from source endpoint proximity scale, not a native loop stopping rule.",
+    "new_failure_path": "Only failed findJump with finalwidth<=1e-14*hscale retains final bracket midpoint. Successful native result remains unchanged. This is explicit JAX roundoff handling, not literal native failure-path equality."
+  },
+  "limits": [
+    "The new caller failure path is an explicit JAX roundoff extension: final bracket midpoint is retained only after literal findJump failure with width<=1e-14*hscale, using the source endpoint-proximity scale. It is not identical native failure control flow.",
+    "Exact breakpoint words still differ by<=5.78e-15. Fixed physical queries within a few ulps of a fitted knot may choose a side polynomial instead of that knot value; exact knot/provider word parity remains open. No full Checkmark page/7curves/stdout/figures or matched speed qualification.",
+    "All original APIs/tests/assertions, whole JAX/JIT/AD,322final-sourcepages/1305scientific figures, known CPU slowpaths and latest-main CI/coverage>=79% remain required."
+  ]
+}

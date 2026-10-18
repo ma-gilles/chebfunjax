@@ -73,9 +73,9 @@ def test_source_scale_reduction_is_forwarded_without_floor(monkeypatch, scale, e
 
     forwarded = []
 
-    def jump(f, a, b, vscale, hscale):
+    def jump(f, a, b, vscale, hscale, *, _return_interval=False):
         forwarded.append((a, b, vscale, hscale))
-        return 5e-5
+        return (5e-5, (a, b)) if _return_interval else 5e-5
 
     monkeypatch.setattr(module, "_edge_find_max_der", derivatives)
     monkeypatch.setattr(module, "_find_jump", jump)
@@ -99,3 +99,12 @@ def test_array_jump_visible_only_in_second_column(location, domain):
     # A binary64 threshold step has exact constant one-sided values; source
     # bisection should terminate at an adjacent float, without a broad fit tol.
     assert abs(edge - location) <= 2 * math.ulp(location)
+
+
+@pytest.mark.parametrize('op', [
+    lambda x: jnp.zeros_like(x),
+    lambda x: 2*x+1,
+    lambda x: jnp.exp(x)+jnp.cos(7*x),
+])
+def test_smooth_callbacks_do_not_gain_a_spurious_raw_edge(op):
+    assert _module()._detect_edge_matlab(op, 0., 1., vscale=1., hscale=1.) is None

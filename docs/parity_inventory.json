@@ -404,6 +404,21 @@
       "scope": "Native17dot/6bary/2scalar observations and negative external installedMKL API/branch diagnosis. No production provider substitution or Checkmark repair.",
       "sha256": "2ada6c1614390a482f2acc8f7667f5e32b347af2312c9219c09ac134fed42c46"
     },
+    "edge_roundoff_original_tests_cpu_20261018": {
+      "archive": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/edge_roundoff_parent_20261018.tar.gz",
+        "payloads_verified": 102,
+        "sha256": "a65d83664a51d20ba5a269f3f223dba1d02ffcf5b3b0ef6dae100d09c5bcfed3"
+      },
+      "limits": [
+        "The new caller failure path is an explicit JAX roundoff extension: final bracket midpoint is retained only after literal findJump failure with width<=1e-14*hscale, using the source endpoint-proximity scale. It is not identical native failure control flow.",
+        "Exact breakpoint words still differ by<=5.78e-15. Fixed physical queries within a few ulps of a fitted knot may choose a side polynomial instead of that knot value; exact knot/provider word parity remains open. No full Checkmark page/7curves/stdout/figures or matched speed qualification.",
+        "All original APIs/tests/assertions, whole JAX/JIT/AD,322final-sourcepages/1305scientific figures, known CPU slowpaths and latest-main CI/coverage>=79% remain required."
+      ],
+      "report": "docs/edge_roundoff_original_tests_cpu_20261018.json",
+      "report_sha256": "dfe5acc786cf4c20cc86656ed70410b983fb454c9d8f5d2ab101b345bf80c6c9",
+      "scope": "Retain resolved narrow edge brackets after roundoff-induced native findJump failure; restore all seven original default detectEdge predicates"
+    },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
@@ -79836,6 +79851,15 @@
         {
           "artifact": "checkmark_edge_localization_cpu_20261018",
           "scope": "Actual native directedge versus shared native/Python halfinterval failure; diagnosis only, no edge repair"
+        },
+        {
+          "artifact": "edge_roundoff_original_tests_cpu_20261018",
+          "limits": [
+            "The new caller failure path is an explicit JAX roundoff extension: final bracket midpoint is retained only after literal findJump failure with width<=1e-14*hscale, using the source endpoint-proximity scale. It is not identical native failure control flow.",
+            "Exact breakpoint words still differ by<=5.78e-15. Fixed physical queries within a few ulps of a fitted knot may choose a side polynomial instead of that knot value; exact knot/provider word parity remains open. No full Checkmark page/7curves/stdout/figures or matched speed qualification.",
+            "All original APIs/tests/assertions, whole JAX/JIT/AD,322final-sourcepages/1305scientific figures, known CPU slowpaths and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "All7default originalpredicates/52calculations with exactseed13inputs and unchangedbounds; native7TRUE, Pythonbaseline6PASS1FAIL\u21927PASS. Explicit roundoff rescue beyond native failure control flow."
         }
       ],
       "functions": [
@@ -123913,7 +123937,17 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/fun/test_detectEdge_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "edge_roundoff_original_tests_cpu_20261018",
+          "limits": [
+            "The new caller failure path is an explicit JAX roundoff extension: final bracket midpoint is retained only after literal findJump failure with width<=1e-14*hscale, using the source endpoint-proximity scale. It is not identical native failure control flow.",
+            "Exact breakpoint words still differ by<=5.78e-15. Fixed physical queries within a few ulps of a fitted knot may choose a side polynomial instead of that knot value; exact knot/provider word parity remains open. No full Checkmark page/7curves/stdout/figures or matched speed qualification.",
+            "All original APIs/tests/assertions, whole JAX/JIT/AD,322final-sourcepages/1305scientific figures, known CPU slowpaths and latest-main CI/coverage>=79% remain required."
+          ],
+          "scope": "All7default originalpredicates/52calculations with exactseed13inputs and unchangedbounds; native7TRUE, Pythonbaseline6PASS1FAIL\u21927PASS. Explicit roundoff rescue beyond native failure control flow."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
