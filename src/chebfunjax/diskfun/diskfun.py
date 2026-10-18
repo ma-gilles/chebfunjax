@@ -70,6 +70,32 @@ def _disk_inverse_map(x, a, b):
     return binary(left, right, 2)
 
 
+def _disk_add_poles(f, g, tol):
+    """Native @diskfun/plus.m addPoles on radial Chebtech2 factors.
+
+    The factors live on [-1, 1], so their continuous L2 norm is the
+    CHEBFUN norm used by the source. Combine coefficients without a
+    sampling/reconstruction round trip. A lone pole passes through unchanged.
+    """
+    if g is None:
+        return f
+    if f is None:
+        return g
+    terms = []
+    for col, row, pivot in (f, g):
+        # Native mean(row) = sum(row on [-pi,pi]) / (2*pi).
+        # BNDFUN sum rescales the TRIGTECH integral by pi first.
+        integral = binary(row.sum(), jnp.asarray(jnp.pi), 0)
+        mean = binary(integral, jnp.asarray(2.0 * jnp.pi), 3)
+        weight = binary(mean, jnp.asarray(pivot), 3)
+        terms.append(col * weight)
+    combined = terms[0] + terms[1]
+    if bool(combined.norm() <= tol):
+        return None
+    return (combined, Trigtech.from_coeffs(jnp.ones(1), is_real=True),
+            jnp.asarray(1.0, dtype=jnp.float64))
+
+
 # Machine epsilon for float64.
 _EPS = float(jnp.finfo(jnp.float64).eps)
 
@@ -2531,7 +2557,6 @@ class Diskfun(eqx.Module):
         Chebfun commit: 7574c77
         """
         from chebfunjax.utils.bmc_plus import (
-            _cheb_values,
             block_vscale,
             compress_block,
             techs_from_values,
@@ -2569,29 +2594,14 @@ class Diskfun(eqx.Module):
         pole_cols, pole_rows, pole_piv = [], [], []
         nonzero_poles = False
         if fpole is not None or gpole is not None:
-            nq = 0
-            parts = []
-            for pole in (fpole, gpole):
-                if pole is None:
-                    continue
-                c, r, pv = pole
-                rc = np.asarray(r.coeffs).ravel()
-                rmean = float(np.real(rc[rc.size // 2]))
-                parts.append((c, rmean / pv))
-                nq = max(nq, 2 * int(np.asarray(c.coeffs).shape[0]) + 3)
-            col_vals = None
-            for c, w in parts:
-                V, _ = _cheb_values([c], nq)
-                col_vals = w * V[:, 0] if col_vals is None else col_vals + w * V[:, 0]
-            scales = [float(np.max(np.abs(np.asarray(t.values))))
-                      for t in (self.cols + other.cols)]
-            tol = _EPS * max(scales) if scales else _EPS
-            if np.max(np.abs(col_vals)) > tol:
-                pole_cols = _simplify_global(techs_from_values(col_vals[:, None], "cheb"))
-                pole_rows = [Trigtech.from_values(jnp.ones(2, dtype=jnp.float64))]
-                pole_piv = [1.0]
-                v0 = float(np.abs(np.asarray(pole_cols[0](jnp.asarray(0.0)))))
-                nonzero_poles = bool(v0 > tol)
+            # Native PLUS computes this after extracting both origin terms.
+            vf = 0.0 if f.isempty() or not f.cols else f.vscale()
+            vg = 0.0 if g.isempty() or not g.cols else g.vscale()
+            pole = _disk_add_poles(fpole, gpole, _EPS * max(vf, vg))
+            if pole is not None:
+                col, row, pivot = pole
+                pole_cols, pole_rows, pole_piv = [col], [row], [pivot]
+                nonzero_poles = True
         cols = pole_cols + pc + mc
         rows = pole_rows + pr + mr
         piv = pole_piv + pp + mp

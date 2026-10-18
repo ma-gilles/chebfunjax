@@ -1,3 +1,17 @@
+# Source pole cancellation and callable Bernoulli columns — 2026-10-18
+
+Strict original disk31/32 now pass at unchanged EPS after source addPoles
+coefficient/L2/extracted-scale correction.13newcontrols+17existing+3structural
+checks pass; no externalcallback/provider/trim/tolerance substitution. Canceled-
+only-zero storage/pivot and remaining providerwords stay open.
+Bernoulli now returns a callable column-valuedChebfun; prior recurrence and
+column indexing preserved. Fresh native N0/1/4/8 capture and samefinal5failing
+APIcontrols become6PASS including unchangedoriginalsmoke. Actual combined
+parent64checks pass in2freshprocesses. All1094owners retained+2;79%unchanged.
+Fresh unmodified nativeHermite test15/15true;16assignments/overwritten11mapped
+to4existingpassedPythonmethods. No newwholeAPI/page/figure/speed/CIclaim.
+Evidence: docs/disk_poles_bernoulli_parent_cpu_20261018.json.
+
 # Supplemental cosine L1 test contract — 2026-10-18
 
 External JAX cosine now tests finite continuous L1 optimality at original1e-8,

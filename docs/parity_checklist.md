@@ -27,6 +27,14 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Source disk addPoles fixes unchanged original31/32EPS:directcoefficients/continuousL2/extractedrestscale;13new+17existing+3structural controls pass. Callable Bernoulli returnclass restored;5new+unchangedoriginalsmoke pass and fresh nativeN0/1/4/8 captured. Combined64actualparent checks. [Evidence](disk_poles_bernoulli_parent_cpu_20261018.json).
+- [ ] Canceled-only diskzero storage/pivot/flags, residualproviderwords, full APIs/JAX/performance andlatestCI remain open; Bernoulli returntype list→Chebfun is intentional source-API correction.
+
+
+- [x] All15default final original Hermite test predicates mapped to4existingpassed Python methods and fresh unmodified native testfunction15/15true in0.210109s. Source16assignments/overwritten11slot and Python rankone/output-arity adapters explicit; no redundant Pythonrerun. [Per-clause mapping](hermpts_original15_cpu_20261018.json).
+- [ ] Alternate testpreferences, complete hermpts API/JIT/AD and matched CPU speed/memory remain unqualified; full-item statuses unchanged.
+
+
 - [x] Correct supplementalcos4test contract:external callback finite continuousL1optimality at1e-8; separate matchednativeinput MAXITER/NaNcontrol asserts15coeff+2endpointwords. Actual parent25checks pass; original8 and production unchanged. [Evidence](polyfit_l1_cosine_parent_cpu_20261018.json).
 - [ ] External cosine provider-word parity, full solver/JAX/performance and latestCI remain open. Test correction is not a library repair.
 
@@ -34,12 +42,12 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 - [x] Public small Hermite ASY source integration:full30-node public file/all18valid orders meet original complex-modulus bounds/native finite storage; actual parent47checks include cold cache-disabledn2, actual child coverage merge, original18+largeJIT+dtype controls and23CIprotocol checks. [Evidence](hermite_public_parent_cpu_20261018.json).
 - [ ] Small whole-call JIT/AD, nonfinite native storage, full hermpts API and matched CPU speed/memory remain open. DedicatedCore12 retains all1092old owners; aggregate79%gate unchanged/unproven.
 - [x] Disk source factor maps:actual parent19new+17existing+original31=37PASS. Unbounded legacy source query/exponent correction:both14-clause adapters=28PASS, original assertions/bounds preserved. [Parent source snapshots and evidence](disk_unbounded_parent_cpu_20261018.json).
-- [ ] Strict disk32 and independent1ULP function word gap remain; unbounded endpoint counterexamples remain unresolved. Test-port correction is not an endpoint library fix.
+- [ ] Strict disk32 is repaired by source pole cancellation above; independent1ULP function word gap and unbounded endpoint counterexamples remain unresolved. Test-port correction is not an endpoint library fix.
 - [ ] CI C1 scalar eigs reproducibility:actual CI3.8022e-9 exceeds authored1e-9 while fresh local6.9063e-10passes. Source/backend diagnosis required; no bound change. Latest-main greenCI and coverage remain required.
 
 
 - [x] Disk Cartesian callback/radius semantics:5new+17existing checks and original31 pass. Fresh native FEVAL35/35true and all35Python default counterparts pass within53checks; combined97parent checks. [Predicate mapping and evidence](disk_feval35_parent_cpu_20261018.json).
-- [ ] Strict disk32, residual provider rounding, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
+- [ ] Canceled-zero representation, residual provider rounding, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
 
 
 - [x] Group unchanged breakpoint word equality under JAX execution:33existing IEEE/evaluation/routing tests pass on current main,14diagnostic outputs word-identical; selected warm evaluation median19.1%lower. [Evidence](breakpoint_equality_cpu_20261018.json).
@@ -47,7 +55,7 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 
 - [x] Native CPU two-column n33 inverse:660independent native words, two actual compose failures repaired, full96checks pass. Original unbounded default14predicates restored and pass in native/Python. Combined48parent checks pass;1090prior core owners retained+1. [Evidence](fft64_unbounded_parent_cpu_20261017.json).
-- [ ] Disk32 remains failing and worsens under this native-correct plan; supplemental unbounded endpoint failures, broader APIs/JAX/speed and latestCI remain open.
+- [ ] Disk32 failed under this native-correct plan and is subsequently repaired by source pole cancellation above; supplemental unbounded endpoint failures, broader APIs/JAX/speed and latestCI remain open.
 
 
 - [x] Scalar simplify now honors the current session tolerance:4baseline failures repaired;6new+64existing scientific checks and21parent protocol checks pass,91unique nodes. All1089prior core owners retained+1new. [Evidence](scalar_simplify_parent_cpu_20261017.json).

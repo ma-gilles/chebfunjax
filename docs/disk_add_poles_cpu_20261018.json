@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "scope": "Source addPoles cancellation repair; strict original disk32 now passes without modifying external callbacks, operands or EPS",
+  "base": "a3f1c99e86be6a8b1428838d33afd6b1bbcce474",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "publication_paths": [
+    "src/chebfunjax/diskfun/diskfun.py",
+    "tests/test_disk_add_poles_source.py",
+    "docs/disk_add_poles_cpu_20261018.json"
+  ],
+  "causal_baseline": {
+    "original32_norm": 3.912300188344396e-16,
+    "strict_EPS": 2.220446049250313e-16,
+    "source_direct_pole_norm": 1.5996821562462686e-16,
+    "source_tol": 2.6094708475006314e-16,
+    "extracted_rest_vscales": [
+      1.1752011936438012,
+      1.1752011936438016
+    ],
+    "old_tol": 3.4263272992501725e-16,
+    "old_fault": "Samples pole factors on a2*n+3grid, reconstructs them, and applies sample peak against individual-column scales. This retained a rank1 residual. Source instead combines coefficient representations and applies continuous L2 norm at an extracted-function vscale threshold.",
+    "raw": "BASELINE_POLES.json and baseline_poles.npz in sealed evidence"
+  },
+  "source_mapping": [
+    {
+      "native": "@diskfun/plus.m addPoles empty-side branches",
+      "candidate": "Return the sole existing pole tuple without sampling or normalization."
+    },
+    {
+      "native": "@chebfun/mean.m and @bndfun/sum.m",
+      "candidate": "Existing JAX orderedbinary performs TRIGTECH integral*pi then divide2pi, followed by dividepivot."
+    },
+    {
+      "native": "@diskfun/plus.m coefficient scalar multiples and addition; @chebtech/plus.m",
+      "candidate": "Existing Chebtech2 scalar multiplication/addition preserve coefficient space and native coefficient-zero rule; no resampling/chop inserted."
+    },
+    {
+      "native": "@chebfun/norm.m scalar default sqrt(abs(innerProduct(f,f)))",
+      "candidate": "Existing Chebtech2.norm() is sqrt(abs(inner(self,self))) on the same[-1,1] radial domain."
+    },
+    {
+      "native": "@diskfun/plus.m computes eps*max(vscale(f),vscale(g)) AFTER extractPole; separableApprox vscale(empty)=0",
+      "candidate": "Use extracted-rest vscales. Local empty guard also checks zero columns because internal _extract_pole empty storage lacks the public isempty flag."
+    }
+  ],
+  "source_sha256": {
+    "@diskfun/plus.m": "48f0f971236f9ac39325a8ba63a3da47fccc765b849de664741a441b45fb18b2",
+    "@diskfun/extractPole.m": "f41ff75384472b42c8c899ab4ea050cbea77e5f5d4d015556f8a025d3ca73d1f",
+    "@separableApprox/vscale.m": "50f7b7cf6a0930dad48bbfec46edc1d07b06cf1c08c4d87c079e2ec83a440737",
+    "@chebfun/norm.m": "309733622d875e0de7c13b3fdf77531efe95033cc8293e821a122bf9f8d841cd",
+    "@chebfun/mean.m": "bf6f64f8909e8cbf82426ebbc95b30bc11342817e67f31102137684b4dc072b8",
+    "@bndfun/sum.m": "885bbba0b1c607ad9564f942027b7a489eee1eaaf89b6f4a8dbad9646f283db9",
+    "@chebtech/plus.m": "d9bd981dbed7a128bd238ff92e0e9d11848cc46c81fab25316e1e004c948c279",
+    "@chebtech/times.m": "6c9ba7f7611025bf59c600fe2d23524eee9762ba4275b315b2d52c00fe345e4e",
+    "@trigtech/sum.m": "b2916db7f4991cb5c6d7199ffb92c4847f09e2639d5f362662a1e4c3b7037991"
+  },
+  "unchanged": [
+    "Original31/32 test bytes and strict EPS",
+    "External jnp.exp callback and all constructor/transform/provider inputs",
+    "Shared mapping, Clenshaw/trig evaluators, factor trimming, block compression and its threshold",
+    "Every production AST outside new _disk_add_poles and existing _compression_plus"
+  ],
+  "new_numerics": "JAX coefficient algebra/continuous norm/ordered operations. Existing vscale and BMC compression retain prior host numerical debt; no new NumPy/SciPy import, provider or waiver. Eager control flow, not a new JIT guarantee.",
+  "qualification": {
+    "same_final15_baseline": "12FAIL3PASS42.09s:9missing-private-helper AttributeErrors,2real public contract failures (pivot-scaled cancellation and L2-versus-peak false zero),1unchanged original32failure. Not12repaired MATLAB predicates.",
+    "candidate_scientific": "35unique checks pass across bounded cohorts:11new+original31/32=13PASS37.54s; final2newpublic+3existingstructural=5PASS29.37s; existing17PASS53.70s. Final test module has13new selectors.",
+    "bridges": "test_import_ast_bridge.json proves all original11test-function ASTs unchanged by lazy lookup; final_source_bridge.json binds v2\u2192v3 empty-rest branch correction and unchanged actual nonempty routes. Parent should run final15 on integrated source.",
+    "native": "Reuse retained pinned literal31/32 operand capture, bothnorm0, observed constructor words unchanged. No new MATLAB launch or full original-file claim.",
+    "retained_native_capture_sha256": "d07acb57f4d2b4f2d7185106905b4e99827fff67916e20bb0c1f8c3f0aaefeb4",
+    "retained_native_archive_sha256": "1fe4ac8db5e06fc306bee866e3a3932f0f8c297ef392a732f271205be880596b",
+    "native_guard_input_count": 3438
+  },
+  "preserved_failures": [
+    {
+      "run": "disk_add_poles_candidate_run001",
+      "result": "10PASS3FAIL: independent controls caught incorrect orderedbinary ADD opcode for integral rescale; original31/32 alone happened to pass. Onlyopcode changed to source multiply; same13tests rerun."
+    },
+    {
+      "run": "disk_add_poles_public_run001",
+      "result": "4PASS1FAIL: added structural caller caught empty extractedrest passed to vscale; corrected local source-empty guard and same5tests rerun."
+    }
+  ],
+  "zero_storage_limitation": {
+    "source": "If hp is empty, native addPoles can retain a zero column with pivot0/nonZeroPoles0; it removes the canceledpole when hp is nonempty.",
+    "candidate": "Canceled helper returnsNone; if all resulting blocks vanish, preexisting generic zero factory returns zero Chebtech/Trigtech factors, pivot1 and nonzero_polesFalse (phase_two total_rank==0).",
+    "claim": "Functional zero and cancellation decisions qualified; canceled-only-pole storage/pivot parity remains unqualified. No full addPoles storage claim."
+  },
+  "other_limits": [
+    "OuterG retained8/30coefficient word gaps and upstream callback-provider differences remain unrepaired; native H/Htrue coefficient differences coexist with norm0.",
+    "Independent control norms use exact integral(T2**2)=14/15 and integral(constant**2)=2*constant**2, not fitted disk32 outputs.",
+    "Nonfinite helper tests assert source <=tol comparison does not cancel NaN norms; no broad native nonfinite Diskfun API claim.",
+    "No full disk compose/plus/API/JAX/performance/page parity or green CI claim."
+  ],
+  "gates": {
+    "disk32_provider_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 46.73734610714018,
+      "sampled_peak_summed_rss_kib": 2144124,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_candidate_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 43.584976880811155,
+      "sampled_peak_summed_rss_kib": 2095952,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_candidate_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 42.91730350069702,
+      "sampled_peak_summed_rss_kib": 2071464,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_existing_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 59.69840168720111,
+      "sampled_peak_summed_rss_kib": 2606236,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_public_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 33.66474758461118,
+      "sampled_peak_summed_rss_kib": 1698480,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_public_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 34.103035224135965,
+      "sampled_peak_summed_rss_kib": 1730928,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "disk_add_poles_final_test_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 47.42561394907534,
+      "sampled_peak_summed_rss_kib": 2205556,
+      "censored_limit": null,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "selectors": [
+    "tests/test_disk_add_poles_source.py",
+    "tests/test_matlab_port/chebfun/test_subsref_remaining_original_source.py::test_original_disk"
+  ],
+  "ownership": "One new core file/13selectors; parent appends owner and maintains all old owners. Existing selected tests/bounds unchanged.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk32_provider_evidence_20261018",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_add_poles_package_20261018.tar.gz"
+}

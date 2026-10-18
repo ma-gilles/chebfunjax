@@ -1,0 +1,80 @@
+{
+  "api": "Returntype changes list\u2192Chebfun so B(x) evaluates all columns and B[index] still selects a column. Existing originalported smoke and B2sanity pass unchanged; N4len remains5.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bernoulli_callable_source_cpu_20261018.tar.gz",
+    "sha256": "8844787d0701a31490d0ef9bab6a91768565d21c16cedfc0cb290fe898955ff6",
+    "verified_payloads": 794
+  },
+  "base": "0afc015c94f933d1932ac6ab9af8138c625980c2",
+  "baseline": "Samefinal5newcontrols fail genuine API calls, existingoriginalsmoke1passes;10.51s.",
+  "candidate": "Same6nodesPASS13.33s,stable/uncensored/no survivors.",
+  "change": "Return existing Chebfun.horzcat(*B) instead of list; same polynomial generation/scaling/cumsum/mean and other top-levelASTs unchanged.",
+  "limits": [
+    "Native rank-one singleton dimensions adapted to existingPythonChebfun convention; no full return-shape byteidentity claim.",
+    "Native coefficient/storage arrays retained diagnostically; tests assert values at sixqueries, not all coefficient words/fullAPI.",
+    "No new numericprovider, no new NumPy/SciPy import; unchanged inheritedscalarfloat orchestration remains.",
+    "All othernamespacefunctions/ASTs unchanged. No universalN/nonfinite/complexpref/JIT/AD/performance orpageclosure.",
+    "Native originaltest is one doesNotCrash predicate; new5supplemental checks do not represent5neworiginalMATLABpredicates.",
+    "No matchedperformance comparison; actualtesttimings include different startup/compilation contexts."
+  ],
+  "native": {
+    "classes": [
+      "chebfun",
+      "chebfun",
+      "chebfun",
+      "chebfun"
+    ],
+    "lengths": [
+      1,
+      2,
+      5,
+      9
+    ],
+    "orders": [
+      0,
+      1,
+      4,
+      8
+    ],
+    "original_test_result": true,
+    "original_test_seconds": 0.712195,
+    "samples": [
+      0,
+      0.125,
+      0.37,
+      0.5,
+      0.875,
+      1
+    ],
+    "which": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/+cheb/bernoulli.m"
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "new_test_scope": "4callable/domain/column/native-value cases N0/1/4/8 plus documented B4 Bernoulli numbers. Existing supplemental1e-13 numeric bound retained, not an originalnativeaccuracybound.",
+  "receipts": {
+    "bernoulli_source_baseline_run001": {
+      "censored_limit": null,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1144980,
+      "wall_seconds": 14.759549190755934
+    },
+    "bernoulli_source_candidate_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1322104,
+      "wall_seconds": 17.1898785084486
+    },
+    "bernoulli_source_native_run001": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1336232,
+      "wall_seconds": 80.39758342597634
+    }
+  },
+  "scope": "Restore callable column-valued Bernoulli return type with unchanged recurrence; native orders0/1/4/8 and existing smoke qualified"
+}

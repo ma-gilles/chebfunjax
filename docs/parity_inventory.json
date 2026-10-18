@@ -47,6 +47,11 @@
       "scope": "Native barycentric node-loop materialization and elementwise division; combined root-recurrence integration",
       "sha256": "97e6a6cf06ed271f54f2f513a04d6049f66d0c34030cc706cb147c907da0a638"
     },
+    "bernoulli_callable_source_cpu_20261018": {
+      "path": "docs/bernoulli_callable_source_cpu_20261018.json",
+      "scope": "Restore callable column-valued Bernoulli return type with unchanged recurrence; native orders0/1/4/8 and existing smoke qualified",
+      "sha256": "61d7917e3c824199758990caaa17d94cc2a59bcb2355d3cae90a1491403c9170"
+    },
     "bounded_cosine_parent_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bounded_cosine_parent_cpu_20261017.tar.gz",
@@ -187,6 +192,11 @@
       "scope": "Parent-reviewed coupled complex derivative towers and original full ThreePlanets CPU execution; not native chaotic trajectory/page/figure parity",
       "sha256": "d5c87b79b0b2b914619facf6217a75dda48559376f1a603b09a5b6b25e06df3b"
     },
+    "disk_add_poles_cpu_20261018": {
+      "path": "docs/disk_add_poles_cpu_20261018.json",
+      "scope": "Source addPoles cancellation repair; strict original disk32 now passes without modifying external callbacks, operands or EPS",
+      "sha256": "afd630874c3abe5950f7a8ae5f4650168932ae4a90c502e92e716d26084520dc"
+    },
     "disk_factor_maps_cpu_20261017": {
       "path": "docs/disk_factor_maps_cpu_20261017.json",
       "scope": "Diskfun stored-factor inverse maps only; original disk32 remains failing",
@@ -196,6 +206,11 @@
       "path": "docs/disk_feval35_parent_cpu_20261018.json",
       "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open.",
       "sha256": "f93ba98f147621152d329a6a4fb38f3604e133d86265223228830e7d1e92a3f6"
+    },
+    "disk_poles_bernoulli_parent_cpu_20261018": {
+      "path": "docs/disk_poles_bernoulli_parent_cpu_20261018.json",
+      "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately",
+      "sha256": "4975fca54db33aea54843836aa839539e34991af3b33bab644f50f907fdaf94d"
     },
     "disk_unbounded_parent_cpu_20261018": {
       "path": "docs/disk_unbounded_parent_cpu_20261018.json",
@@ -266,6 +281,11 @@
       "path": "docs/hermite_public_parent_cpu_20261018.json",
       "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
       "sha256": "7c43eaa8196c87e804c3d6d19ba99dc6c8bdcb6b630b3cb9d250bcbfc23b7912"
+    },
+    "hermpts_original15_cpu_20261018": {
+      "path": "docs/hermpts_original15_cpu_20261018.json",
+      "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure",
+      "sha256": "74c09b642b7db12e872e2e30ef68d78df9f90ec1eee390515c53bbb7bb3f7c3e"
     },
     "interpolation_minimax_ci_cpu_20261017": {
       "path": "docs/interpolation_minimax_ci_cpu_20261017.json",
@@ -43703,11 +43723,39 @@
   "library_sources": [
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
-      "evidence": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/cheb.py"
+      ],
+      "evidence": [
+        {
+          "artifact": "bernoulli_callable_source_cpu_20261018",
+          "limits": [
+            "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+            "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+            "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+            "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+            "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+            "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+          ],
+          "scope": "Restore callable column-valued Bernoulli return type with unchanged recurrence; native orders0/1/4/8 and existing smoke qualified"
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "bernoulli_callable_source_cpu_20261018",
+              "limits": [
+                "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+                "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+                "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+                "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+                "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+                "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+              ],
+              "scope": "Restore callable column-valued Bernoulli return type with unchanged recurrence; native orders0/1/4/8 and existing smoke qualified"
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -76221,11 +76269,39 @@
     },
     {
       "api_assertion_status": "unverified",
-      "candidate_port_paths": [],
-      "evidence": [],
+      "candidate_port_paths": [
+        "src/chebfunjax/diskfun/diskfun.py"
+      ],
+      "evidence": [
+        {
+          "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+          "limits": [
+            "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+            "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+            "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+            "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+            "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+            "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+          ],
+          "scope": "Source pole norm/scale cancellation, original31/32 andmanufacturedcontrols;zeroonlystorage/fullAPIopen."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+              "limits": [
+                "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+                "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+                "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+                "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+                "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+                "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+              ],
+              "scope": "Source pole norm/scale cancellation, original31/32 andmanufacturedcontrols;zeroonlystorage/fullAPIopen."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -95429,6 +95505,35 @@
           "artifact": "hermite_public_parent_cpu_20261018",
           "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
           "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open"
+        },
+        {
+          "artifact": "hermpts_original15_cpu_20261018",
+          "limits": [
+            "Source has16pass assignments but returns15final slots: earlier11shape slot is overwritten; it is separately covered by Python shape assertion but not counted extra nativeclause.",
+            "RankonePythonarrays, explicit bary=True and tupleunpacking adapt MATLAB output arity/orientations. These are explicit API adaptations, not byteidentical return-shape claims.",
+            "Independent NumPy dot/reference assertions in tests retain original strict bounds; no libraryNumPy/SciPy provider added.",
+            "Native default pref only; alternate suppliedtestpreferences and broader hermpts API/method/JIT/AD/performance remain open.",
+            "One fresh unmodified native function invocation plus existing guarded Python evidence; no new pytestnodes or coreowners.",
+            "Latest-mainCI/coverage andallpages/figures remain open."
+          ],
+          "qualified_default_predicates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
         }
       ],
       "functions": [
@@ -95438,6 +95543,35 @@
               "artifact": "hermite_public_parent_cpu_20261018",
               "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
               "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open"
+            },
+            {
+              "artifact": "hermpts_original15_cpu_20261018",
+              "limits": [
+                "Source has16pass assignments but returns15final slots: earlier11shape slot is overwritten; it is separately covered by Python shape assertion but not counted extra nativeclause.",
+                "RankonePythonarrays, explicit bary=True and tupleunpacking adapt MATLAB output arity/orientations. These are explicit API adaptations, not byteidentical return-shape claims.",
+                "Independent NumPy dot/reference assertions in tests retain original strict bounds; no libraryNumPy/SciPy provider added.",
+                "Native default pref only; alternate suppliedtestpreferences and broader hermpts API/method/JIT/AD/performance remain open.",
+                "One fresh unmodified native function invocation plus existing guarded Python evidence; no new pytestnodes or coreowners.",
+                "Latest-mainCI/coverage andallpages/figures remain open."
+              ],
+              "qualified_default_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
             }
           ],
           "implementation_status": "unverified",
@@ -100990,10 +101124,36 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/cheb/test_bernoulli_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+          "limits": [
+            "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+            "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+            "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+            "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+            "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+            "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+          ],
+          "scope": "Unmodifiedsingle doesNotCrash predicate native+Python passes; new5supplementalcontrols notadditionaloriginalpredicates."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+              "limits": [
+                "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+                "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+                "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+                "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+                "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+                "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+              ],
+              "scope": "Unmodifiedsingle doesNotCrash predicate native+Python passes; new5supplementalcontrols notadditionaloriginalpredicates."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -105711,6 +105871,7 @@
       "assertion_coverage_status": "unverified",
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_subsref_matlab.py",
+        "tests/test_matlab_port/chebfun/test_subsref_remaining_original_source.py",
         "tests/test_matlab_port/chebfun2/test_subsref_matlab.py",
         "tests/test_matlab_port/chebfun2v/test_subsref_matlab.py",
         "tests/test_matlab_port/chebfun3/test_subsref_matlab.py",
@@ -105721,10 +105882,36 @@
         "tests/test_matlab_port/spherefun/test_subsref_matlab.py",
         "tests/test_matlab_port/spherefunv/test_subsref_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+          "limits": [
+            "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+            "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+            "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+            "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+            "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+            "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+          ],
+          "scope": "Unchangeddefaultdisk31/32strictEPS predicates nowpass; notwholeoriginalfileclosure."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_poles_bernoulli_parent_cpu_20261018",
+              "limits": [
+                "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+                "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+                "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+                "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+                "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+                "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+              ],
+              "scope": "Unchangeddefaultdisk31/32strictEPS predicates nowpass; notwholeoriginalfileclosure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",
@@ -122983,6 +123170,35 @@
           "artifact": "hermite_public_parent_cpu_20261018",
           "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
           "scope": "Existing18ported Hermite controls pass on actual parent; all original assertions/API not yet audited."
+        },
+        {
+          "artifact": "hermpts_original15_cpu_20261018",
+          "limits": [
+            "Source has16pass assignments but returns15final slots: earlier11shape slot is overwritten; it is separately covered by Python shape assertion but not counted extra nativeclause.",
+            "RankonePythonarrays, explicit bary=True and tupleunpacking adapt MATLAB output arity/orientations. These are explicit API adaptations, not byteidentical return-shape claims.",
+            "Independent NumPy dot/reference assertions in tests retain original strict bounds; no libraryNumPy/SciPy provider added.",
+            "Native default pref only; alternate suppliedtestpreferences and broader hermpts API/method/JIT/AD/performance remain open.",
+            "One fresh unmodified native function invocation plus existing guarded Python evidence; no new pytestnodes or coreowners.",
+            "Latest-mainCI/coverage andallpages/figures remain open."
+          ],
+          "qualified_default_predicates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
         }
       ],
       "functions": [
@@ -122992,6 +123208,35 @@
               "artifact": "hermite_public_parent_cpu_20261018",
               "limits": "Scoped evidence only; whole-file/function statuses unchanged.",
               "scope": "Existing18ported Hermite controls pass on actual parent; all original assertions/API not yet audited."
+            },
+            {
+              "artifact": "hermpts_original15_cpu_20261018",
+              "limits": [
+                "Source has16pass assignments but returns15final slots: earlier11shape slot is overwritten; it is separately covered by Python shape assertion but not counted extra nativeclause.",
+                "RankonePythonarrays, explicit bary=True and tupleunpacking adapt MATLAB output arity/orientations. These are explicit API adaptations, not byteidentical return-shape claims.",
+                "Independent NumPy dot/reference assertions in tests retain original strict bounds; no libraryNumPy/SciPy provider added.",
+                "Native default pref only; alternate suppliedtestpreferences and broader hermpts API/method/JIT/AD/performance remain open.",
+                "One fresh unmodified native function invocation plus existing guarded Python evidence; no new pytestnodes or coreowners.",
+                "Latest-mainCI/coverage andallpages/figures remain open."
+              ],
+              "qualified_default_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15
+              ],
+              "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
             }
           ],
           "implementation_status": "unverified",

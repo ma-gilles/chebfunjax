@@ -191,7 +191,8 @@
       "tests/test_chebfun1d/test_root_power_zero_preflight.py",
       "tests/test_utils/test_ifft_normalization_source.py",
       "tests/test_operators/test_c1_eigs_adaptive_source.py",
-      "tests/test_operators/test_eigs_system2_original_cells_source.py"
+      "tests/test_operators/test_eigs_system2_original_cells_source.py",
+      "tests/test_cheb_bernoulli_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -246,7 +247,8 @@
       "tests/test_utils/test_fft602_ordered.py",
       "tests/test_scalar_newton_coefficient_breaks_source.py",
       "tests/test_tech/test_abs_existing_grid_source.py",
-      "tests/test_chebfun1d/test_simplify_session_tolerance_source.py"
+      "tests/test_chebfun1d/test_simplify_session_tolerance_source.py",
+      "tests/test_disk_add_poles_source.py"
     ],
     [
       "tests/test_active_set_full_native.py",
@@ -1124,6 +1126,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "b15b536942d93e9c82f44c2a1d56baee7a1a0869",
-  "update_scope": "Ownership only; dedicated Hermite lane and disk source-map test file."
+  "last_update_parent": "0afc015c94f933d1932ac6ab9af8138c625980c2",
+  "update_scope": "Ownership only; append disk pole and callable Bernoulli source files, preserve all1094priorowners and dedicatedHermite lane."
 }

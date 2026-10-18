@@ -1,0 +1,248 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermpts_original15_cpu_20261018.tar.gz",
+    "sha256": "f5f38ebbc9cd81f99d81d366ba65942989b2b49f6986dc61ff9e0567b37a16c8",
+    "verified_payloads": 24
+  },
+  "limits": [
+    "Source has16pass assignments but returns15final slots: earlier11shape slot is overwritten; it is separately covered by Python shape assertion but not counted extra nativeclause.",
+    "RankonePythonarrays, explicit bary=True and tupleunpacking adapt MATLAB output arity/orientations. These are explicit API adaptations, not byteidentical return-shape claims.",
+    "Independent NumPy dot/reference assertions in tests retain original strict bounds; no libraryNumPy/SciPy provider added.",
+    "Native default pref only; alternate suppliedtestpreferences and broader hermpts API/method/JIT/AD/performance remain open.",
+    "One fresh unmodified native function invocation plus existing guarded Python evidence; no new pytestnodes or coreowners.",
+    "Latest-mainCI/coverage andallpages/figures remain open."
+  ],
+  "mapping": {
+    "native_default_final_slots": 15,
+    "native_pass_assignment_count": 16,
+    "native_source": "tests/misc/test_hermpts.m",
+    "native_source_sha256": "0f4e02685d195b4480e94bbc2b5e46cb30fb3a24f17c5236715e9d68ceb15f83",
+    "overwritten_assignment": {
+      "counterpart_python_line": 39,
+      "native_line": 27,
+      "not_an_extra_returned_native_slot": true,
+      "slot": 11
+    },
+    "predicates": [
+      {
+        "adaptation": "Shape adapter: Python rank-one x versus MATLAB n-by-1; Python return tuple unpacked.",
+        "native_lines": [
+          15
+        ],
+        "python_lines": [
+          25
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n42_moments_and_references",
+        "slot": 1
+      },
+      {
+        "adaptation": "Shape adapter: rank-one Python x/w/v versus source column/row/column; bary=True explicit third output.",
+        "native_lines": [
+          17,
+          18
+        ],
+        "python_lines": [
+          34
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_barycentric",
+        "slot": 2
+      },
+      {
+        "adaptation": "Independent NumPy dot in test; both original strict inequalities retained.",
+        "native_lines": [
+          19
+        ],
+        "python_lines": [
+          26,
+          27
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n42_moments_and_references",
+        "slot": 3
+      },
+      {
+        "adaptation": "One-based37\u2192zero-based36;10*tol unchanged.",
+        "native_lines": [
+          20
+        ],
+        "python_lines": [
+          28
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n42_moments_and_references",
+        "slot": 4
+      },
+      {
+        "adaptation": "One-based17\u2192zero-based16;tol unchanged.",
+        "native_lines": [
+          21
+        ],
+        "python_lines": [
+          29
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n42_moments_and_references",
+        "slot": 5
+      },
+      {
+        "adaptation": "One-based17\u2192zero-based16;tol unchanged.",
+        "native_lines": [
+          22
+        ],
+        "python_lines": [
+          35
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_barycentric",
+        "slot": 6
+      },
+      {
+        "adaptation": "Explicit bary=True; rank-one shape adapter.",
+        "native_lines": [
+          29,
+          30
+        ],
+        "python_lines": [
+          42,
+          43
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n251_moments",
+        "slot": 7
+      },
+      {
+        "adaptation": "Independent NumPy dot in test; original tol and300*tol retained.",
+        "native_lines": [
+          31
+        ],
+        "python_lines": [
+          44,
+          45
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n251_moments",
+        "slot": 8
+      },
+      {
+        "adaptation": "One-based37\u2192zero-based36;4*tol unchanged.",
+        "native_lines": [
+          32
+        ],
+        "python_lines": [
+          46
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n251_moments",
+        "slot": 9
+      },
+      {
+        "adaptation": "One-based123\u2192zero-based122;10*tol unchanged.",
+        "native_lines": [
+          33
+        ],
+        "python_lines": [
+          47
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n251_moments",
+        "slot": 10
+      },
+      {
+        "adaptation": "Final11 assignment is baryreference; earlier source27 shape assignment overwritten but also asserted separately atPython39.",
+        "native_lines": [
+          34
+        ],
+        "python_lines": [
+          48
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_n251_moments",
+        "slot": 11
+      },
+      {
+        "adaptation": "Maxabs versus vector infinitynorm; bound tol unchanged.",
+        "native_lines": [
+          38
+        ],
+        "python_lines": [
+          54
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_probabilist_scaling_and_explicit_phys",
+        "slot": 12
+      },
+      {
+        "adaptation": "Maxabs versus vector infinitynorm; bound tol unchanged.",
+        "native_lines": [
+          39
+        ],
+        "python_lines": [
+          55
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_probabilist_scaling_and_explicit_phys",
+        "slot": 13
+      },
+      {
+        "adaptation": "Exact arrayequality versus zero infinitynorm; finite retained outputs.",
+        "native_lines": [
+          42
+        ],
+        "python_lines": [
+          58
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_probabilist_scaling_and_explicit_phys",
+        "slot": 14
+      },
+      {
+        "adaptation": "Exact arrayequality versus zero infinitynorm; finite retained outputs.",
+        "native_lines": [
+          43
+        ],
+        "python_lines": [
+          59
+        ],
+        "python_selector": "tests/test_matlab_port/misc/test_hermpts_matlab.py::TestHermpts::test_probabilist_scaling_and_explicit_phys",
+        "slot": 15
+      }
+    ],
+    "prior_python_evidence": "Actual Q legacy_trivial_00223PASS includes all18nodes of file, of which4methods cover original15defaultclauses; other14nodes supplemental. Source hashes guardtheactualexecution, unchangedthrough0afc.",
+    "python_source": "tests/test_matlab_port/misc/test_hermpts_matlab.py",
+    "python_source_sha256": "64c1e53b7214ee62e41dd4cfa8f7e0bd18def0557ff509c57c3591851a4c8c66",
+    "tolerance": "Defaultpref.chebfuneps=eps;tol=10*eps. Alternate suppliedpreferences unqualified."
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "native_result": {
+    "complete": true,
+    "pass": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "seconds": 0.210109,
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "which": "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref/tests/misc/test_hermpts.m"
+  },
+  "python_evidence": "Existing actual-parent23PASS cohort includes all18ported Hermite nodes;4methods cover original15final slots. Exact portfile hash matches original guarded execution; no redundant scientific rerun.",
+  "receipts": {
+    "native": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1284476,
+      "wall_seconds": 80.68891024589539
+    },
+    "python": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1223952,
+      "wall_seconds": 28.24831693759188
+    }
+  },
+  "scope": "All15default final original test_hermpts numerical/shape-adapted predicates; no full hermpts API/alternate preference closure"
+}

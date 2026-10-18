@@ -1,0 +1,55 @@
+{
+  "actual_parent": {
+    "first_process": "58PASS97.22s:13newpolecontrols+original31/32+17existingdisk+3structural+23CIprotocol",
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3805516,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 123.40881198877469
+    },
+    "second_process": "6PASS13.55s:5newBernoullicontrols+existingoriginalsmoke",
+    "unique_nodes": 64
+  },
+  "base": "0afc015c94f933d1932ac6ab9af8138c625980c2",
+  "bernoulli_source_fix": {
+    "baseline": "Samefinal5supplemental APIs fail, oldoriginalsmoke passes. Candidate6PASS, rootactualparent6PASS.",
+    "mechanism": "Return existing column-valuedChebfun rather thanlist, retain exact prior polynomial recurrence and allothernamespaceASTs.",
+    "native": "Fresh unmodifiedoriginalsmoke true, sourceclassChebfun/domain0..1, orders0/1/4/8 lengths1/2/5/9 and sixsamplepoints captured; sourcewhich/pin verified.",
+    "report": "docs/bernoulli_callable_source_cpu_20261018.json"
+  },
+  "disk_source_fix": {
+    "acceptance": "Actual original31/32bothPASS unchanged EPS; no originaltests,callbackwords,transform/providers or tolerance change.",
+    "baseline": "Original32norm3.912300188344396e-16>eps; actual sourcepole norm1.5996821562462686e-16<=source threshold2.6094708475006314e-16. Samefinalbaseline2publicfail+original32fail;9missinghelper failures reported separately.",
+    "child_archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_add_poles_package_20261018.tar.gz",
+      "sha256": "5031080c0f5e467b6097f3676ecd46dfef16ab7580c886b0cdb4be03963fd96f",
+      "verified_payloads": 559
+    },
+    "mechanism": "Native directcoefficient combination/continuousL2norm/extractedrestvscale replaces resampling/peak/columnscale decision. Restzero storage handled locally as sourcevscaleempty=0.",
+    "report": "docs/disk_add_poles_cpu_20261018.json"
+  },
+  "hermite_reconciliation": {
+    "report": "docs/hermpts_original15_cpu_20261018.json",
+    "scope": "Fresh unmodifiednative15finaldefaultpredicatestrue,16assignments/overwritten11 mapped to4existingpassedPythonmethods. No redundant Pythonrerun orwholeAPIclaim."
+  },
+  "limits": [
+    "Canceled-only-zero pole storage/pivot/flags still differs; no sourcezero-pivot representation adopted into unsafeFEVAL. Agent separately investigates sourcecdr reciprocal-infinity handling.",
+    "OuterG8/30coefficientword andtrig/provider lowword differences remain; strict32predicate repair does not claim universal coefficientword/API parity.",
+    "Newpolehelper uses JAXnumerics; unchangedBMCcompression/vscalehostdebt remains; no newJIT/AD/performance guarantee.",
+    "Bernoulli rank-one shape/output adaptation explicit; genericN/alternatepref/AD/performance notqualified.",
+    "C1CIscalar discrepancy unresolved. Source-correct direct-C1constraint candidate remains isolated/unpublished with actualstrictscalar1.44e-9FAIL; notpartofthissource.",
+    "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "All1094priorlane/positions preserved; newBernoullifileCore1 andnewdiskpolefileCore2.1096owners, dedicatedHermiteCore12 unchanged;13laneaggregate/79%threshold unchanged.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_poles_bernoulli_parent_cpu_20261018.tar.gz",
+    "sha256": "0e88f4d90d9438717bacd91fbe88993f1cea84badb13fba87af9326de03c9fe7",
+    "source_inputs": 390,
+    "verified_payloads": 402
+  },
+  "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately"
+}

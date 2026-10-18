@@ -39,19 +39,19 @@ __all__ = [
 ]
 
 
-def bernoulli(N: int) -> list:
+def bernoulli(N: int):
     """Bernoulli polynomials ``B_0, ..., B_N`` on ``[0, 1]``.
 
     Built by the recurrence ``B_{j} = j * cumsum(B_{j-1})`` with each
     polynomial shifted to have zero mean, exactly as MATLAB does; the
-    columns of MATLAB's quasimatrix are returned as a list of Chebfuns.
+    result is a callable column-valued Chebfun, as in the source quasimatrix.
 
     Provenance
     ----------
     MATLAB source : +cheb/bernoulli.m
     Chebfun commit: 7574c77
     """
-    from chebfunjax.chebfun1d.chebfun import chebfun
+    from chebfunjax.chebfun1d.chebfun import Chebfun, chebfun
 
     x = chebfun(lambda t: t, domain=(0.0, 1.0))
     B = [0.0 * x + 1.0]
@@ -59,7 +59,7 @@ def bernoulli(N: int) -> list:
         Bj = float(j) * B[j - 1].cumsum()
         Bj = Bj - float(Bj.sum())
         B.append(Bj)
-    return B
+    return Chebfun.horzcat(*B)
 
 
 def bspline(m: int) -> list:
