@@ -705,7 +705,7 @@ def _hermpts_core(n: int, kind: str = "phys",
     return x, w
 
 
-def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
+def _hermpts_gw(n: int, *, bary: bool = False) -> tuple[jnp.ndarray, ...]:
     """Golub-Welsch eigenvalue method for Gauss-Hermite nodes and weights.
 
     The Jacobi matrix for physicist's Hermite polynomials has:
@@ -738,7 +738,29 @@ def _hermpts_gw(n: int) -> tuple[jnp.ndarray, jnp.ndarray]:
         x = jnp.concatenate([x_lo, -x_lo[::-1]])
         w = jnp.concatenate([w_lo, w_lo[::-1]])
 
+    if bary:
+        return x, w, _hermpts_gw_barycentric(eigvecs[0, :])
     return x, w
+
+
+
+def _hermpts_gw_barycentric(first_row):
+    """Normalize the original GW eigenvector row, then apply source symmetry.
+
+    Provenance
+    ----------
+    MATLAB source : hermpts.m, GW branch (v from abs(V(1, indx))).
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    """
+    v = jnp.abs(first_row)
+    # Preserve elementwise source division instead of a rounded reciprocal.
+    denominator = jax.lax.optimization_barrier(jnp.broadcast_to(jnp.max(v), v.shape))
+    v = v / denominator
+    v = jnp.where(jnp.arange(len(v)) % 2 == 0, v, -v)
+    m = len(v) // 2
+    if len(v) % 2:
+        return jnp.concatenate([v[:m], v[m:m+1], v[:m][::-1]])
+    return jnp.concatenate([v[:m], -v[:m][::-1]])
 
 
 # ---------------------------------------------------------------------------
@@ -1675,8 +1697,11 @@ def hermpts(n: int, kind: str = 'phys', *options, method: str = 'default',
         x, w, v = _hermpts_glr(n)
     else:
         # Explicit GW and the default n<=20 path preserve P's GW implementation.
-        x, w = _hermpts_core(n, 'phys')
-        v = jnp.sqrt(w / jnp.max(w)) * jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
+        if bary:
+            x, w, v = _hermpts_gw(n, bary=True)
+        else:
+            x, w = _hermpts_core(n, 'phys')
+            v = jnp.sqrt(w / jnp.max(w)) * jnp.where(jnp.arange(n) % 2 == 0, 1.0, -1.0)
 
     # MATLAB normalizes each method's weights, then applies the prob scaling.
     # Preserve both source normalization stages. The ASY representation keeps

@@ -345,6 +345,22 @@
       "scope": "Real ASY derivative source order and17existing controls; no small-n/full-item completion",
       "sha256": "8164e5f245a550bd70d36ba1b0eaeb6c53cee29384a6b9231c5c840dc78a5a8d"
     },
+    "hermite_gw_bary_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3575,
+        "sha256": "c0cec3edfc481a8909e2baebf82fe04e1716d1809c17ce8ad122aa41b8b69214"
+      },
+      "limits": [
+        "Four explicitGW32/42 phys/prob cases retain raw-eigenvector provider differences:9/12first-row magnitude words,14finalv words each. Their pre-existing quadrature-weight differences and all node/weight arrays are unchanged.",
+        "Normal native controls and captured same-row helper cases do not qualify arbitrarylargeGW, subnormal/nonfinite eigenvector storage, signedzero metadata or all backends.",
+        "Selected staticGWJIT checks do not qualify full AD/vmap/API/alternate-preference behavior.",
+        "Full page digit/representation/provider/raster/matchedperformance and latest-main scientificCI/coverage remain required."
+      ],
+      "report": "docs/hermite_gw_bary_parent_cpu_20261018.json",
+      "report_sha256": "1bb950ac2207d413db5300dd2758eb7e21aa410ba7bee6ecae79d35b150fc89f",
+      "scope": "Source-derived GW barycentric third output and source normalization; CPU binary64 only. Public native word controls through21; same-native-row stage controls through42. No universal GW/API/JAX/performance/page closure."
+    },
     "hermite_public_parent_cpu_20261018": {
       "path": "docs/hermite_public_parent_cpu_20261018.json",
       "scope": "Production CPU explicit small Hermite ASY source integration, native finite storage and actual ordinary-worker coverage; full API/JIT/AD/performance remains open",
@@ -95951,6 +95967,10 @@
         {
           "artifact": "hermitequad_gw_parent_cpu_20261018",
           "scope": "Remove premature GW normalization; exact native78nodes/78weights n1..12; othermethods/IEEE/API not inferred."
+        },
+        {
+          "artifact": "hermite_gw_bary_parent_cpu_20261018",
+          "scope": "Source GW barycentric third output,82small-order native public controls and181parent checks. Separate23same-native-row controls do not establish larger-order provider parity. Original predicates/bounds and page two-output arithmetic retained."
         }
       ],
       "functions": [
@@ -95993,6 +96013,10 @@
             {
               "artifact": "hermitequad_gw_parent_cpu_20261018",
               "scope": "Remove premature GW normalization; exact native78nodes/78weights n1..12; othermethods/IEEE/API not inferred."
+            },
+            {
+              "artifact": "hermite_gw_bary_parent_cpu_20261018",
+              "scope": "Source GW barycentric third output,82small-order native public controls and181parent checks. Separate23same-native-row controls do not establish larger-order provider parity. Original predicates/bounds and page two-output arithmetic retained."
             }
           ],
           "implementation_status": "unverified",
@@ -123798,6 +123822,10 @@
         {
           "artifact": "hermitequad_gw_parent_cpu_20261018",
           "scope": "All18existing port nodes pass on actualparent, including four mapped methods for default15native predicates; original assertions/bounds retained."
+        },
+        {
+          "artifact": "hermite_gw_bary_parent_cpu_20261018",
+          "scope": "Source GW barycentric third output,82small-order native public controls and181parent checks. Separate23same-native-row controls do not establish larger-order provider parity. Original predicates/bounds and page two-output arithmetic retained."
         }
       ],
       "functions": [
@@ -123840,6 +123868,10 @@
             {
               "artifact": "hermitequad_gw_parent_cpu_20261018",
               "scope": "All18existing port nodes pass on actualparent, including four mapped methods for default15native predicates; original assertions/bounds retained."
+            },
+            {
+              "artifact": "hermite_gw_bary_parent_cpu_20261018",
+              "scope": "Source GW barycentric third output,82small-order native public controls and181parent checks. Separate23same-native-row controls do not establish larger-order provider parity. Original predicates/bounds and page two-output arithmetic retained."
             }
           ],
           "implementation_status": "unverified",

@@ -1,3 +1,17 @@
+# Hermite GW barycentric third output — 2026-10-18
+
+GW barycentric weights now use the original eigenvector row before quadrature
+weight symmetry/normalization, then source signs and odd/even mirroring.
+The same82small-order public native controls improve54FAIL28PASS to82PASS.
+Actual parent181checks pass, including23separate native-row controls through42,
+14staticGWJIT controls and the complete18-node original Hermite module.
+All86node/weight snapshots and9JIT snapshots are unchanged; parent two-output
+numeric AST and original page/image bytes are unchanged. No full-page rerun or
+fresh page/performance qualification claimed. All1109CI owners/13lanes and79%
+gate unchanged. Four larger-orderGW32/42 provider cases and broader API/IEEE/
+AD/vmap/performance/page/figure/latestCI gaps remain open.
+Evidence: docs/hermite_gw_bary_parent_cpu_20261018.json.
+
 # Disk Helmholtz banded coefficient solves — 2026-10-18
 
 The parity solves now pack the exact five nonzero diagonals and use the existing

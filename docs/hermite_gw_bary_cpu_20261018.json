@@ -1,0 +1,124 @@
+{
+  "base_head": "40a941d6cf903df61102652fdd76285e0e225220",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source-derived GW barycentric third output and source normalization; CPU binary64 only. Public native word controls through21; same-native-row stage controls through42. No universal GW/API/JAX/performance/page closure.",
+  "changes": [
+    "Optional third-output GW branch passes its original eigenvector first row to a dedicated source helper.",
+    "Helper takes abs, divides by full-row maximum with a broadcast barrier, applies source alternating signs and odd/even symmetry.",
+    "Two-output source numeric ASTs are unchanged under static baryFalse selection; other method routes and all other library files unchanged."
+  ],
+  "baseline_new_public_controls": "54FAIL28PASS on same82public v controls;all original tests untouched",
+  "candidate_gate": {
+    "passed": 158,
+    "scope": "82public native v +23same-native-row helper +14selected staticGWJIT +12published exactGWweight +9existingHermite utility +full18-node original Hermite module",
+    "test_seconds": 22.63,
+    "sampled_peak_summed_rss_kib": 1690360
+  },
+  "public_vs_stage_distinction": "The82public cases n1..21 call actual hermpts with its own eigensystem. The23stage controls separately pass captured native row magnitudes to the source normalization/folding helper, including n32/42; they do not establish public eigenprovider word parity there. Native fixture data is never read by production library code.",
+  "native_capture": {
+    "cases": 86,
+    "orders": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      32,
+      42
+    ],
+    "routes": "Default/GW \u00d7phys/prob for n1..20;explicitGW \u00d7phys/prob for21/32/42",
+    "stage_roundtrip_assertions": true,
+    "original_test": {
+      "pass": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "count": 15,
+      "all_true": true,
+      "seconds": 0.099035
+    },
+    "seconds": 0.515072
+  },
+  "preservation": {
+    "all86x_w_word_arrays_unchanged": true,
+    "all9jit_two_and_three_output_x_w_word_arrays_unchanged": true,
+    "baseline_two_vs_three_arity_x_w_equal": true,
+    "candidate_two_vs_three_arity_x_w_equal": true,
+    "page_rerun": "None: production page never requests bary. Original example/page/PNG are byte-identical;False numeric ASTs and all page-reachable ASY/files are unchanged. No new page qualification claim."
+  },
+  "phys_prob_v_invariants": 43,
+  "static_false_branch_ast": "Exact pre/post numeric bodies of public hermpts and private GW after selecting static baryFalse;new keyword defaultsFalse. Existing _hermpts_core and32otherquadraturefunctions/imports/globals/all other library files unchanged.",
+  "page_original_bytes": {
+    "examples/quad/hermite_quad.py": "45054dd467e041e2a34b7a09b696bd14044dd69ec37e287086c9b0af4d42a839",
+    "docs/examples/quad/HermiteQuad.md": "a5fb02364a51b1f5d690236b002ee8aea2e89a5432666aed64410b1ded8283fd",
+    "docs/images/quad/HermiteQuad_01.png": "56a75770ff3595b71dcdb9cf99f04d4c161edbb76b83bc517abcac8fc39c0e4a",
+    "tests/test_matlab_port/misc/test_hermpts_matlab.py": "64c1e53b7214ee62e41dd4cfa8f7e0bd18def0557ff509c57c3591851a4c8c66"
+  },
+  "runtime_guards": {
+    "baseline": {
+      "count": 1342,
+      "all_preguarded_unchanged": true
+    },
+    "baseline_tests": {
+      "count": 1478,
+      "all_preguarded_unchanged": true
+    },
+    "candidate_tests": {
+      "count": 1524,
+      "all_preguarded_unchanged": true
+    },
+    "candidate": {
+      "count": 1341,
+      "all_preguarded_unchanged": true
+    }
+  },
+  "remaining": [
+    "Four explicitGW32/42 phys/prob cases retain raw-eigenvector provider differences:9/12first-row magnitude words,14finalv words each. Their pre-existing quadrature-weight differences and all node/weight arrays are unchanged.",
+    "Normal native controls and captured same-row helper cases do not qualify arbitrarylargeGW, subnormal/nonfinite eigenvector storage, signedzero metadata or all backends.",
+    "Selected staticGWJIT checks do not qualify full AD/vmap/API/alternate-preference behavior.",
+    "Full page digit/representation/provider/raster/matchedperformance and latest-main scientificCI/coverage remain required."
+  ],
+  "warnings": "Installed incompatibleCUDAplugin import warning and pytestjaxtyping rewrite warning retained. EffectiveCPU asserted;no new scientific warning or provider introduced.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_evidence_20261018",
+  "native_slot": "Released;no active child processes",
+  "validation": "Full ruff src/tests/scripts/examples and git diff --check pass. All original tests/functions/bounds retained;no CI owner/config or page/image changes.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_package_20261018.tar.gz",
+    "sha256": "4d2506f0de7d6253084efdf6a9b76f8aff5e932c69fcb541168c9efa11cd1a2a",
+    "bytes": 11009244,
+    "payloads": 2922
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_stream_hashes_20261018.json",
+    "sha256": "2097f4e8aaf0681745daa5c084fbca2d77e9be2de435c89dfa47834d30a2642e"
+  }
+}

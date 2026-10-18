@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Hermite GW third output follows the source eigenvector normalization/sign/symmetry path. Same82small-order public controls54FAIL28PASS→82PASS; actual parent **181 checks pass**, including separate23native-row and14staticGWJIT controls. Nodes/weights and the page's two-output arithmetic are preserved. [Evidence](hermite_gw_bary_parent_cpu_20261018.json).
+- [ ] Four explicitGW32/42 provider cases remain; full API/IEEE/AD/vmap, printed page values, representation/figures, matched speed and latestCI are unqualified.
+
 - [x] Disk parity solves use exact five-band packing and the existing distance-two pivoted JAX kernel. Actual parent **81 checks pass**, including all13 original/rank nodes. Separate worker **36 complex derivative controls pass** with an exact source bridge. All1108 prior CI owners retained plus one new file;13 lanes/79% gate unchanged. [Evidence](disk_banded_parent_cpu_20261018.json).
 - [ ] Dense assembly remains expensive; small calls do not improve. Full native ordering/status/IEEE/API/JAX coverage, matched native performance and latest-main CI remain open.
 

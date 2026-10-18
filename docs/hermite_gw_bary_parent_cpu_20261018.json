@@ -1,0 +1,95 @@
+{
+  "base_head": "6869583caffa84cee8a134a82f244ce1575b7ac3",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source-derived GW barycentric third output and source normalization; CPU binary64 only. Public native word controls through21; same-native-row stage controls through42. No universal GW/API/JAX/performance/page closure.",
+  "parent_passed": 181,
+  "parent_components": [
+    "82public native third-output controls",
+    "23separate same-native-row normalization controls",
+    "14staticGWJIT controls",
+    "12previous nativeGWweight controls",
+    "9existingHermiteutility checks",
+    "18complete originalHermite-port module nodes",
+    "23CIprotocol controls"
+  ],
+  "parent_receipt": {
+    "wall_seconds": 31.722686135210097,
+    "sampled_peak_summed_rss_kib": 1707620,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "source_bridge": {
+    "src/chebfunjax/utils/quadrature.py": true,
+    "tests/test_utils/test_quadrature.py": true,
+    "tests/test_utils/fixtures/hermite_gw_bary_source.json": true,
+    "docs/hermite_gw_bary_cpu_20261018.json": true
+  },
+  "static_proof": {
+    "pin": "6869583caffa84cee8a134a82f244ce1575b7ac3",
+    "two_output_numeric_ast": "Bodies of hermpts and _hermpts_gw are identical after static bary=False branch selection;new keyword defaultsFalse. _hermpts_core unchanged. All module imports/globals unchanged.",
+    "unchanged_other_quadrature_functions": [
+      "_chebpts_generic",
+      "chebpts",
+      "chebpts_ab",
+      "chebweights",
+      "gauss_cheb_weights",
+      "_fejer_first_weights",
+      "_clenshaw_curtis_weights",
+      "_clenshaw_curtis_weights_core",
+      "_bary_weights_gauss",
+      "_legpts_core",
+      "_legpts_newton",
+      "_legpts_gw",
+      "_jacpts_core",
+      "_jacpts_gw",
+      "_hermpts_core",
+      "_lagpts_core",
+      "_lagpts_gw",
+      "_ultrapts_core",
+      "_rescale_ultra",
+      "_ultrapts_gw",
+      "_radaupts_core",
+      "_lobpts_core",
+      "trigpts",
+      "chebpts2",
+      "chebpts3",
+      "paduapts",
+      "legpts",
+      "jacpts",
+      "lagpts",
+      "ultrapts",
+      "radaupts",
+      "lobpts"
+    ],
+    "only_new_helper": "_hermpts_gw_barycentric",
+    "all_other_library_files_unchanged": true,
+    "original_tests_ast_unchanged": true,
+    "unchanged_page_and_original_test_hashes": {
+      "examples/quad/hermite_quad.py": "45054dd467e041e2a34b7a09b696bd14044dd69ec37e287086c9b0af4d42a839",
+      "docs/examples/quad/HermiteQuad.md": "a5fb02364a51b1f5d690236b002ee8aea2e89a5432666aed64410b1ded8283fd",
+      "docs/images/quad/HermiteQuad_01.png": "56a75770ff3595b71dcdb9cf99f04d4c161edbb76b83bc517abcac8fc39c0e4a",
+      "tests/test_matlab_port/misc/test_hermpts_matlab.py": "64c1e53b7214ee62e41dd4cfa8f7e0bd18def0557ff509c57c3591851a4c8c66"
+    },
+    "page_scope": "Actual HermiteQuad requests no bary output. Small defaultGW follows the identical baryFalse numeric AST, and large ASY/ratio paths and all their library files are unchanged. No full-page rerun or fresh page/performance qualification inferred."
+  },
+  "child_report": "docs/hermite_gw_bary_cpu_20261018.json",
+  "child_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_package_20261018.tar.gz",
+    "sha256": "4d2506f0de7d6253084efdf6a9b76f8aff5e932c69fcb541168c9efa11cd1a2a",
+    "root_stream_verified_payloads": 2922
+  },
+  "snapshot_files": 3492,
+  "remaining": [
+    "Four explicitGW32/42 phys/prob cases retain raw-eigenvector provider differences:9/12first-row magnitude words,14finalv words each. Their pre-existing quadrature-weight differences and all node/weight arrays are unchanged.",
+    "Normal native controls and captured same-row helper cases do not qualify arbitrarylargeGW, subnormal/nonfinite eigenvector storage, signedzero metadata or all backends.",
+    "Selected staticGWJIT checks do not qualify full AD/vmap/API/alternate-preference behavior.",
+    "Full page digit/representation/provider/raster/matchedperformance and latest-main scientificCI/coverage remain required."
+  ],
+  "ownership": "No new test file;all1109owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "page_scope": "No page rerun: unchanged source and two-output numeric AST verified on actual parent. Prior complete page evidence retained; no fresh page/performance acceptance.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/hermite_gw_bary_parent_cpu_20261018.tar.gz",
+    "sha256": "c0cec3edfc481a8909e2baebf82fe04e1716d1809c17ce8ad122aa41b8b69214",
+    "root_stream_verified_payloads": 3575
+  }
+}

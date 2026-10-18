@@ -1,3 +1,11 @@
+## Hermite GW barycentric follow-up — 2026-10-18
+
+Source third-output normalization repairs54of82small-order controls; parent181
+checks pass. Four explicitGW32/42cases retain eigenprovider differences. Native
+row replay through42 tests normalization only. Nodes/weights and the page's
+unrequested-third-output path are unchanged. Full page/figure/speed/API/JAX
+qualification remains open. [Evidence](hermite_gw_bary_parent_cpu_20261018.json).
+
 ## Disk Helmholtz banded solve follow-up — 2026-10-18
 
 Exact five-band coefficient solves pass81 parent checks and36 separate worker

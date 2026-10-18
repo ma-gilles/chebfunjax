@@ -994,3 +994,53 @@ def test_hermite_gw_native_source_weights(n):
         x, w = map(np.asarray, hermpts(n, *options))
         npt.assert_array_equal(x.view(np.uint64), expected_x)
         npt.assert_array_equal(w.view(np.uint64), expected_w)
+
+
+@pytest.mark.parametrize("case_index", range(82))
+def test_hermite_gw_native_barycentric_weights(case_index):
+    """Native third output uses the eigenvector row before weight symmetry."""
+    import json
+    from pathlib import Path
+
+    fixture = json.loads((Path(__file__).parent / "fixtures" /
+                          "hermite_gw_bary_source.json").read_text())
+    row = fixture["public_cases"][case_index]
+    x, w, v = map(np.asarray, hermpts(row["n"], row["kind"],
+                                    method=row["method"], bary=True))
+    expected = np.asarray([int(v, 16) for v in row["v"]], np.uint64)
+    assert x.shape == w.shape == v.shape == (row["n"],)
+    assert v.dtype == np.float64
+    npt.assert_array_equal(v.view(np.uint64), expected)
+
+
+@pytest.mark.parametrize("source_index", range(23))
+def test_hermite_gw_native_barycentric_source_stage(source_index):
+    """Independent native-row replay separates policy from eig provider words."""
+    import json
+    from pathlib import Path
+
+    from chebfunjax.utils.quadrature import _hermpts_gw_barycentric
+
+    fixture = json.loads((Path(__file__).parent / "fixtures" /
+                          "hermite_gw_bary_source.json").read_text())
+    row = fixture["source_rows"][source_index]
+    source = np.asarray([int(v, 16) for v in row["raw_abs_v"]], np.uint64)
+    expected = np.asarray([int(v, 16) for v in row["v"]], np.uint64)
+    actual = np.asarray(_hermpts_gw_barycentric(jnp.asarray(source.view(np.float64))))
+    npt.assert_array_equal(actual.view(np.uint64), expected)
+
+
+@pytest.mark.parametrize("n", [2, 3, 4, 7, 12, 20, 21])
+@pytest.mark.parametrize("kind", ["phys", "prob"])
+def test_hermite_gw_native_barycentric_jit(n, kind):
+    """Whole-call static GW JIT retains source v division and scaling policy."""
+    import json
+    from pathlib import Path
+
+    fixture = json.loads((Path(__file__).parent / "fixtures" /
+                          "hermite_gw_bary_source.json").read_text())
+    row = next(r for r in fixture["public_cases"]
+               if (r["n"], r["kind"], r["method"]) == (n, kind, "GW"))
+    expected = np.asarray([int(v, 16) for v in row["v"]], np.uint64)
+    rule = jax.jit(lambda: hermpts(n, kind, method="GW", bary=True))()
+    npt.assert_array_equal(np.asarray(rule[2]).view(np.uint64), expected)
