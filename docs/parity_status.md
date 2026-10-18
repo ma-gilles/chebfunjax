@@ -1,3 +1,28 @@
+# Default numeric Diskfun native route — 2026-10-18
+
+Actual parent **145 PASS /5strictXFAIL**,150nodes; all1556observed imports
+preguarded, stable inputs/no censor/survivors. Default numeric Diskfun now
+uses the existing JAX direct route; obsolete hostGE/extra simplify/prune
+removed. Empty/scalar adaptive behavior and preserve_lengths keyword retained.
+1127prior owner prefixes retained;1128owners/13lanes/Hermite12/79%unchanged.
+
+Three authored1e-12 interpolation demands remain strictXFAIL: actual pinned
+MATLAB also underresolves these input matrices at capped ranks3/4/5. Original
+assertion bodies/bounds unchanged; separate native rank/storage/pivot/location
+word/class/publicvalue controls pass. Two FFT/provider matrixXFAIL remain.
+Original named17/19/33/34 pass;40derivative/norm/structural consumers pass,
+with precise source bridges and raw initial failures retained. No full API,
+JAX/AD/original test, page, figure, speed or latest-mainCI closure claimed.
+Evidence: docs/disk_numeric_direct_cpu_20261018.json.
+
+Checkmark diagnosis: both native/Python forced[0,.5] fit are happy11coeff and
+share the same~5.025e-4 transition error; native directedge correctly returns
+.48047545042314066. Root next traces actual Python edge/finite-difference
+callback trajectory. Do not change happiness to hide a source-provider issue.
+1372Pythonimports fully guarded; native complete/stable. Earlier observer
+failures and prior missing-runtime-guard limitation remain explicit.
+Evidence: docs/checkmark_edge_localization_cpu_20261018.json. Goal incomplete.
+
 # Disk shared-matrix simplification — 2026-10-18
 
 Actual parent **195 PASS /2strictXFAIL**,197nodes; all1558observed imports

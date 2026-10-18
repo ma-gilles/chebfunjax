@@ -1,8 +1,9 @@
 """Numeric disk construction must resolve the complete doubled BMC grid.
 
 Provenance: @diskfun/constructor.m PhaseOne, Chebfun commit7574c77.
-The source uses the undoubled row count as a rank cap; this adaptation
-uses the actual doubled matrix dimensions and keeps its stopping tolerance.
+The source uses the undoubled row count as a rank cap. These authored
+stronger-than-native demands previously passed only through the non-native
+doubled-cap adapter. Same-word native captures establish underresolution.
 Analytic harmonic polynomials expose the insufficient old cap independently
 of the original Helmholtz k=7 regression. Bound1e-12 is a new correctness
 control, not a modified MATLAB bound.
@@ -20,6 +21,7 @@ def _polynomial(theta, radius, degree):
     return value
 
 
+@pytest.mark.xfail(strict=True, reason='Pinned native numeric PhaseOne caps rank at undoubled rows; same-word native fails this stronger interpolation demand')
 @pytest.mark.parametrize('nr,nt', [(3,12),(4,16),(5,20)])
 def test_doubled_bmc_grid_resolves_all_harmonic_modes(nr,nt):
     theta = -jnp.pi+2*jnp.pi*jnp.arange(nt)/nt

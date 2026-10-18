@@ -101,8 +101,8 @@ def test_no_host_gate_negative_control(monkeypatch):
             raise AssertionError("host NumPy accessed: " + name)
 
     monkeypatch.setattr(module, "np", ForbidNumpy())
-    with pytest.raises(AssertionError, match="host NumPy accessed: array"):
-        Diskfun.from_values(values)
+    with pytest.raises(AssertionError, match="host NumPy accessed: zeros"):
+        module._phase_one_matrix_disk(values[:1, :], 1e-14, 100.)
 
 
 def test_scalar_route_remains_explicit_adaptive_adapter():
@@ -110,7 +110,7 @@ def test_scalar_route_remains_explicit_adaptive_adapter():
     # The new dispatch covers nonscalar matrices only; no constant replacement.
     dispatch = source.body[0].body[2]
     assert isinstance(dispatch, ast.If)
-    assert ast.unparse(dispatch.test) == "preserve_lengths and values.size > 1"
+    assert ast.unparse(dispatch.test) == "values.size > 1"
 
 
 @pytest.mark.parametrize("kind", ["origin_only", "zero_matrix", "complex_matrix", "empty_adapter"])

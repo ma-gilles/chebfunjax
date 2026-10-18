@@ -1,0 +1,137 @@
+{
+  "scope": "Actual public minimax/norm callback on forced halfinterval and pinned native direct edge localization; CPU diagnostics, no production fix or page/speed qualification",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "python_source_commit": "1c7dfe952b11ec9d6bb991369659a0f2b58240f1",
+  "native_half": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "half_seconds": 1.583305,
+    "domain": [
+      0,
+      0.5
+    ],
+    "happy": true,
+    "length": 11,
+    "coeffs": [
+      0.10429237311716577,
+      -0.026118011959723658,
+      -0.004178561114682885,
+      0.0016057584847907784,
+      0.0005963098888877135,
+      0.0004081564302186938,
+      0.00033575114961155363,
+      0.0002630630722857217,
+      0.00019760467398678393,
+      0.00013316918135833795,
+      7.220787998483294e-05
+    ],
+    "coeff_words": [
+      "3fbab2e7abc2ad48",
+      "bf9abeae1cd06f68",
+      "bf711d89f54f76af",
+      "3f5a4f0a0b5b5b0c",
+      "3f438a35bc4b8063",
+      "3f3abfba84fa1c80",
+      "3f3600f835097cf0",
+      "3f313d774ad10ea0",
+      "3f29e6833980b18d",
+      "3f21746a8ebad4a2",
+      "3f12edc9eea43a0e"
+    ],
+    "points": [
+      0,
+      0.25,
+      0.48047545042314066,
+      0.5
+    ],
+    "callback": [
+      0.125,
+      0.10886205954645098,
+      0.07634344974590855,
+      0.07735026918963575
+    ],
+    "represented": [
+      0.1250235503860239,
+      0.10885688976512677,
+      0.0768459701934748,
+      0.07760782080388363
+    ],
+    "detected_edge": 0.48047545042314066,
+    "edge_seconds": 3.979064,
+    "complete": true
+  },
+  "python_half": {
+    "length": 11,
+    "happy": true,
+    "scale": 0.1250235503860237,
+    "domain": [
+      0.0,
+      0.5
+    ],
+    "points": [
+      0.0,
+      0.25,
+      0.48047545042314066,
+      0.5
+    ],
+    "callback": [
+      0.1250000000000002,
+      0.10886205954645076,
+      0.07634344974590859,
+      0.07735026918963563
+    ],
+    "represented": [
+      0.1250235503860237,
+      0.10885688976512671,
+      0.07684597019347494,
+      0.07760782080388476
+    ],
+    "coeff_words": [
+      "3fbab2e7abc2ad4c",
+      "bf9abeae1cd06f32",
+      "bf711d89f54f7609",
+      "3f5a4f0a0b5b5eaa",
+      "3f438a35bc4b8534",
+      "3f3abfba84fa290c",
+      "3f3600f83509856c",
+      "3f313d774ad11724",
+      "3f29e6833980b340",
+      "3f21746a8ebad247",
+      "3f12edc9eea4383a"
+    ],
+    "wall_seconds": 51.99733808776364
+  },
+  "findings": [
+    "Both native and Python declare the forced [0,.5] interval happy with11coefficients. Both produce the same materially wrong interpolation near the native kink; changing happiness only in Python would not follow pinned source.",
+    "Actual native fun.detectEdge on the same minimax/norm callback returns.48047545042314066, matching the earlier full native curve breakpoint. Python full current2b curve selected midpoint.5; actual per-findJump trajectory still needs capture.",
+    "Next diagnosis is edge/provider/callback finite-difference trajectory, not a guessed construction tolerance or forced kink."
+  ],
+  "measurements": {
+    "native_transition_error": 0.0005025204475662542,
+    "python_transition_error": 0.0005025204475663514,
+    "max_half_represented_difference": 1.124100812432971e-15,
+    "max_half_coeff_difference": 2.0079424234431542e-16,
+    "native_direct_edge": 0.48047545042314066,
+    "python_observed_imports": 1372,
+    "python_missing_or_changed_imports": []
+  },
+  "limitations": [
+    "Earlier current2b full degree3 diagnostic missed user-site runtime guards; these1372Pythonimports are all preguarded. No retrofit qualification of that earlier run.",
+    "Initial native startup failed because TEMPDIR was too long; shortsharedtemp corrected startup. Two later authored observer calls failed (ishappy method and omitted static fun.detectEdge qualification). All raw terminal failures retained.",
+    "No full7curve/page/figure replay or matched speed claim; native half_seconds/edge_seconds and Python timings are descriptive."
+  ],
+  "archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_edge_localization_packet_20261018.tar.gz",
+    "sha256": "2d6c68b80f43b4d54e98db23052f7d1e8a43d3bd573c63ebe445f2fc15b289fc",
+    "payloads_verified": 55,
+    "findings": {
+      "native_transition_error": 0.0005025204475662542,
+      "python_transition_error": 0.0005025204475663514,
+      "max_half_represented_difference": 1.124100812432971e-15,
+      "max_half_coeff_difference": 2.0079424234431542e-16,
+      "native_direct_edge": 0.48047545042314066,
+      "python_observed_imports": 1372,
+      "python_missing_or_changed_imports": []
+    }
+  }
+}

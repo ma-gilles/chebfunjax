@@ -175,6 +175,25 @@
       "sha256": "697d1933c3661f9aca4f349dee4238d56c06f117c4f0d91da0aa6cb7c2718800",
       "source_bridge": "chebtech_ndct_cpu_20261017"
     },
+    "checkmark_edge_localization_cpu_20261018": {
+      "archive": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/checkmark_edge_localization_packet_20261018.tar.gz",
+        "findings": {
+          "max_half_coeff_difference": 2.0079424234431542e-16,
+          "max_half_represented_difference": 1.124100812432971e-15,
+          "native_direct_edge": 0.48047545042314066,
+          "native_transition_error": 0.0005025204475662542,
+          "python_missing_or_changed_imports": [],
+          "python_observed_imports": 1372,
+          "python_transition_error": 0.0005025204475663514
+        },
+        "payloads_verified": 55,
+        "sha256": "2d6c68b80f43b4d54e98db23052f7d1e8a43d3bd573c63ebe445f2fc15b289fc"
+      },
+      "report": "docs/checkmark_edge_localization_cpu_20261018.json",
+      "report_sha256": "90f38f4525f2b88539a750c5864ab9b8951e5819731475cb26883d9fa245737c",
+      "scope": "Actual public minimax/norm callback on forced halfinterval and pinned native direct edge localization; CPU diagnostics, no production fix or page/speed qualification"
+    },
     "ci_core7_cpu_20261017": {
       "path": "docs/ci_core7_cpu_20261017.json",
       "scope": "Repair explicit native nobreaks exchange call and stale adapter test; split actual Core7 deadline at unchanged process boundary",
@@ -332,6 +351,21 @@
       "report": "docs/disk_matrix_simplify_cpu_20261018.json",
       "report_sha256": "2d85c21d40c900a6caf60e55d3156e92604439fc41b20d508992f8ee0e09fcf4",
       "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
+    },
+    "disk_numeric_direct_cpu_20261018": {
+      "archive": {
+        "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_direct_parent_20261018.tar.gz",
+        "payloads_verified": 84,
+        "sha256": "83cf9793e25f208e2e242bbc08c1db3c56841c9150df20c8970197c21a57ea33"
+      },
+      "limits": [
+        "Three unchanged authored interpolation bounds1e-12 are narrowly strict expected failures because actual pinned MATLAB itself has native capped ranks3/4/5 and sampleerrors~.986/.107/.037. The limitation remains, no doubledcap or fallback.",
+        "Two matrix FFT/provider expected failures remain. Other native factor/provider words, whole JIT/AD/API/original assertion coverage and matched CPU performance remain open.",
+        "All322final-sourcepages/1305scientific figures, latest-main scientificCI/coverage>=79% and full objective audit remain required."
+      ],
+      "report": "docs/disk_numeric_direct_cpu_20261018.json",
+      "report_sha256": "70cd6e88fc7dc9f9714b732132ccdca91bb5083dbd8cd755a56e1015e593e480",
+      "scope": "Default Diskfun numeric construction uses qualified native JAX direct route; obsolete host GE/extra simplify/prune adapter removed"
     },
     "disk_poles_bernoulli_parent_cpu_20261018": {
       "path": "docs/disk_poles_bernoulli_parent_cpu_20261018.json",
@@ -75726,6 +75760,15 @@
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+        },
+        {
+          "artifact": "disk_numeric_direct_cpu_20261018",
+          "limits": [
+            "Three unchanged authored interpolation bounds1e-12 are narrowly strict expected failures because actual pinned MATLAB itself has native capped ranks3/4/5 and sampleerrors~.986/.107/.037. The limitation remains, no doubledcap or fallback.",
+            "Two matrix FFT/provider expected failures remain. Other native factor/provider words, whole JIT/AD/API/original assertion coverage and matched CPU performance remain open.",
+            "All322final-sourcepages/1305scientific figures, latest-main scientificCI/coverage>=79% and full objective audit remain required."
+          ],
+          "scope": "Default Diskfun numeric construction uses qualified native JAX direct route; obsolete host GE/extra simplify/prune adapter removed"
         }
       ],
       "functions": [
@@ -75945,6 +75988,15 @@
             "Whole API/JAX/JIT/AD, all original assertions, matched CPU performance,322final-sourcepages/1305scientific figures and latest-main CI/coverage>=79% remain required."
           ],
           "scope": "Retain complete disk PhaseTwo matrices and simplify homogeneous FUN columns together using literal native global tolerance and existing JAX technology transforms"
+        },
+        {
+          "artifact": "disk_numeric_direct_cpu_20261018",
+          "limits": [
+            "Three unchanged authored interpolation bounds1e-12 are narrowly strict expected failures because actual pinned MATLAB itself has native capped ranks3/4/5 and sampleerrors~.986/.107/.037. The limitation remains, no doubledcap or fallback.",
+            "Two matrix FFT/provider expected failures remain. Other native factor/provider words, whole JIT/AD/API/original assertion coverage and matched CPU performance remain open.",
+            "All322final-sourcepages/1305scientific figures, latest-main scientificCI/coverage>=79% and full objective audit remain required."
+          ],
+          "scope": "Default Diskfun numeric construction uses qualified native JAX direct route; obsolete host GE/extra simplify/prune adapter removed"
         }
       ],
       "functions": [
@@ -79780,7 +79832,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "checkmark_edge_localization_cpu_20261018",
+          "scope": "Actual native directedge versus shared native/Python halfinterval failure; diagnosis only, no edge repair"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

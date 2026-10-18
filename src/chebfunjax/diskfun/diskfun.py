@@ -2063,136 +2063,24 @@ class Diskfun(eqx.Module):
         MATLAB source : @diskfun/constructor.m (constructFromDouble,
             PhaseOne with factor = 0)
         Chebfun commit: 7574c77
+
+        ``preserve_lengths`` is retained as a compatibility keyword. Both
+        values now keep the native full factor storage without an extra
+        simplify/prune step; use :meth:`simplify` explicitly when desired.
+        The native GE rank cap can leave general sample matrices unresolved.
         """
+        # Both keyword values use the same native numeric route. The old
+        # False adapter added simplify/prune and host GE absent from source.
+        # Retain the keyword for callers already requesting full storage.
         values = jnp.asarray(F, dtype=jnp.float64)
-        if preserve_lengths and values.size > 1:
+        if values.size > 1:
             from ._numeric_constructor import construct_numeric
             return construct_numeric(cls, values, tol, alpha)
         if values.size == 0:
             return cls.empty()
-        if values.ndim < 2:
-            values = values.reshape(-1, 1)
-        if (preserve_lengths and values.ndim == 2 and values.shape[0] == 1
-                and values.shape[1] % 2 == 0):
-            # Native PhaseOne handles origin-only data before tolerance/zero
-            # decisions: keep its first datum, a unit row, pivot1 and pole flag.
-            # The empty gradient and all remaining angular data are unused.
-            return cls(
-                cols=[Chebtech2.from_values(values[:, 0])],
-                rows=[Trigtech.from_values(jnp.ones(values.shape[1], dtype=jnp.float64))],
-                pivots=jnp.ones(1, dtype=jnp.float64),
-                idx_plus=(0,), idx_minus=(),
-                pivot_locations=((-float(jnp.pi), 0.0),),
-                nonzero_poles=True,
-            ).projectOntoBMCII()
-        # Source PhaseOne numeric exact-zero branch retains m radial and n
-        # angular entries. Inspect binary64 bits so FTZ cannot erase a
-        # nonzero subnormal. Signed zeros both count as zero.
-        if values.size > 1 and values.ndim == 2:
-            bits = jax.lax.bitcast_convert_type(values, jnp.uint64)
-            exact_zero = bool(jnp.all(
-                (bits & jnp.uint64(0x7fffffffffffffff)) == 0))
-            if exact_zero and values.shape[1] % 2 == 0:
-                radial, angular = values.shape
-                return cls(
-                    cols=[Chebtech2.from_coeffs(jnp.zeros(radial, dtype=jnp.float64))],
-                    rows=[Trigtech.from_coeffs(jnp.zeros(angular, dtype=jnp.complex128),
-                                              is_real=True)],
-                    pivots=jnp.asarray([jnp.inf], dtype=jnp.float64),
-                    idx_plus=(0,), idx_minus=(),
-                    pivot_locations=((-float(jnp.pi), 0.0),),
-                    nonzero_poles=False,
-                ).projectOntoBMCII()
-        F = np.array(values, dtype=float)
-        if F.ndim < 2:
-            F = F.reshape(-1, 1)
-        if F.size == 1:
-            c0 = float(F.reshape(-1)[0])
-            return cls.from_function(lambda t, r: c0 + 0.0 * t)
-        n, m = F.shape
-        if m % 2 != 0:
-            raise ValueError("DISKFUN:CONSTRUCTOR:VALUES: When constructing "
-                             "from values the number of columns must be "
-                             "even.")
-        if tol is None:
-            tol = _get_tol(F, 2 * np.pi / m, np.pi / max(n - 1, 1), _EPS,
-                           source_numeric=preserve_lengths)[0]
-        if preserve_lengths:
-            from ._numeric_phase_one import phase_one_numeric
-            phase = phase_one_numeric(F, tol, alpha)
-            # Numeric source construction converts all PhaseOne indices,
-            # including the selected pole column. The compatibility adapter
-            # below omits that row for older callers supplying a pole origin.
-            piv_idx, piv_arr = phase.indices, phase.pivot_array
-            remove_pole, cols, pivots = phase.remove_pole, phase.cols, phase.pivots
-            rows, idx_plus, idx_minus = phase.rows, phase.plus, phase.minus
-        else:
-            (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
-             idx_minus) = _phase_one_matrix_disk(F, tol, alpha)
-        if cols.shape[1] == 0:
-            if preserve_lengths:
-                # Native projection indexes the exhausted empty factors.
-                raise IndexError("MATLAB:badsubscript: Index in position 2 exceeds array bounds.")
-            return cls.from_function(lambda t, r: 0.0 * t)
-        col_data = cols
-        if preserve_lengths:
-            column_values = jnp.asarray(cols)
-            if (not bool(jnp.all(jnp.isnan(column_values)))
-                    and not bool(jnp.all(jnp.isfinite(column_values)))):
-                # Native numeric chebtech.populate extrapolates the complete
-                # array-valued column matrix before its coefficient transform.
-                # A bad row in one column masks that row in every column.
-                from chebfunjax.tech.chebtech import _extrapolate_values
-                col_data = _extrapolate_values(
-                    column_values, chebpts(column_values.shape[0]),
-                    Chebtech2.barywts(column_values.shape[0]))[0]
-        col_techs = [Chebtech2.from_values(jnp.asarray(col_data[:, j]))
-                     for j in range(cols.shape[1])]
-        row_techs = [Trigtech.from_values(jnp.asarray(rows[:, j]))
-                     for j in range(rows.shape[1])]
-        if preserve_lengths:
-            from chebfunjax.operators._qz_ieee import nonzero as source_nonzero
-            all_zero_pivots = not bool(jnp.any(source_nonzero(pivots)))
-        else:
-            all_zero_pivots = np.all(pivots == 0)
-        if all_zero_pivots:
-            pivots = jnp.full_like(pivots, jnp.inf) if preserve_lengths else np.full_like(pivots, np.inf)
-        locs = []
-        if remove_pole and not preserve_lengths:
-            locs.append((-float(jnp.pi), 0.0))
-        if len(piv_idx):
-            if preserve_lengths:
-                # constructFromDouble calls getPoints(n,m), whose literal
-                # grids have2*m angular and2*n+1 doubled radial points.
-                # Retain that source metadata even though it differs from
-                # the numeric input grid. Existing JAX source node providers
-                # preserve its normalization; no fitted coordinate values.
-                from chebfunjax.utils.quadrature import trigpts
-                th = np.asarray(trigpts(2*m, (-jnp.pi, jnp.pi))[0])
-                rr = np.asarray(chebpts(2*n+1))[n:]
-            else:
-                th = -np.pi + 2 * np.pi * np.arange(m) / m
-                rr = np.cos(np.pi * np.arange(2 * n - 2, -1, -1) / (2 * n - 2))[n - 1:]
-            for index, (j, k) in enumerate(piv_idx):
-                location = (float(th[k]), float(rr[j]))
-                locs.append(location)
-                if (preserve_lengths and bool(source_nonzero(piv_arr[index, 0]))
-                        and bool(source_nonzero(piv_arr[index, 1]))):
-                    # Native adjustPivotLocations repeats a coupled rank2
-                    # location once for each retained plus/minus factor.
-                    locs.append(location)
-        g = cls(cols=col_techs, rows=row_techs,
-                pivots=jnp.asarray(pivots, dtype=jnp.float64),
-                idx_plus=tuple(int(i) for i in idx_plus),
-                idx_minus=tuple(int(i) for i in idx_minus),
-                pivot_locations=tuple(locs[:len(pivots)]),
-                nonzero_poles=bool(remove_pole))
-        # Keep the legacy default simplification adapter. Native numeric
-        # construction opts into direct projection and full slice storage.
-        if preserve_lengths:
-            # Source constructFromDouble projects directly without simplify.
-            return g.projectOntoBMCII()
-        return g.simplify()._prune_zero_terms().projectOntoBMCII()
+        # Native numel(op)==1 delegates to the adaptive callable constructor.
+        c0 = float(values.reshape(-1)[0])
+        return cls.from_function(lambda t, r: c0 + 0.0 * t)
 
     def projectOntoBMCII(self) -> "Diskfun":
         """Project the column/row slices onto BMC-II symmetry (even in

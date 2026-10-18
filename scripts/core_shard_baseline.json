@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Thirteen lanes: all1126 prior owner prefixes retained; disk shared-matrix simplification controls append Core0. Dedicated Hermite Core12 and aggregate79% gate unchanged.",
+  "scope": "Thirteen lanes: all1127 prior owner prefixes retained; default native numeric disk controls append Core0. Dedicated Hermite Core12 and aggregate79% gate unchanged.",
   "groups": [
     [
       "tests/test_active_set_box_qp_source.py",
@@ -143,7 +143,8 @@
       "tests/test_chebfun2/test_explicit_preferences_source.py",
       "tests/test_diskfun/test_adaptive_spacing_source.py",
       "tests/test_chebfun2/test_coefficient_preferences_source.py",
-      "tests/test_diskfun/test_matrix_simplify_source.py"
+      "tests/test_diskfun/test_matrix_simplify_source.py",
+      "tests/test_diskfun/test_numeric_direct_source.py"
     ],
     [
       "tests/test_active_set_box_sqp_source.py",

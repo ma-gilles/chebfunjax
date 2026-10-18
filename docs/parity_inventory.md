@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [default numeric disk route](disk_numeric_direct_cpu_20261018.json):145parentPASS/5strictXFAIL, native rank-cap limitations retained. [Checkmark edge localization](checkmark_edge_localization_cpu_20261018.json) narrows the next diagnosis; no edge repair claimed. Full-item statuses remain unverified.
+
 Latest [disk shared-matrix simplification](disk_matrix_simplify_cpu_20261018.json):195parentPASS/2strictXFAIL; complete PhaseTwo matrices, native global tolerance and original rank102 physical/storage checks. Full-item statuses remain unverified.
 
 Latest [coefficient and paired fixed preferences](chebfun2_coefficient_preferences_cpu_20261018.json):141parentPASS/1strictfactorXFAIL;45native constructors and prior preference/CI controls. Fourier provider factor choices and full-item qualification remain open.

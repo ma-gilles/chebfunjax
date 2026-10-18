@@ -1,0 +1,50 @@
+{
+  "base": "1c7dfe952b11ec9d6bb991369659a0f2b58240f1",
+  "reference": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Default Diskfun numeric construction uses qualified native JAX direct route; obsolete host GE/extra simplify/prune adapter removed",
+  "actual_parent": {
+    "passed": 145,
+    "strict_xfailed": 5,
+    "tests": 150,
+    "pytest_seconds": 72.083,
+    "wall_seconds": 84.07738319411874,
+    "sampled_peak_summed_rss_kib": 3374652,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "observed_guarded_imports": 1556
+  },
+  "child": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_direct_candidate_20261018.tar.gz",
+    "sha256": "61ecbfdb64073930c5151306653784347b06af17651ef6a60c68a01b33131aef",
+    "payloads_verified": 175
+  },
+  "parent_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_direct_parent_20261018.tar.gz",
+    "sha256": "83cf9793e25f208e2e242bbc08c1db3c56841c9150df20c8970197c21a57ea33",
+    "payloads_verified": 84
+  },
+  "source_bridge": {
+    "base": "1c7dfe952b11ec9d6bb991369659a0f2b58240f1",
+    "paths": {
+      "src/chebfunjax/diskfun/diskfun.py": "6ba2822cb0199a295006271c6f4312fc8e90912c663fa5acd3879382456d8854",
+      "tests/test_diskfun/test_numeric_constructor_jax.py": "a19eae3fdd9e354987b47622936df8008313f499ac47a30aef51ce922398f038",
+      "tests/test_diskfun/test_numeric_rank_capacity.py": "a719cac2ebaf9dc942136ed75f1bacb5e063d6d288ecac24aa60cb698a0ffa1c",
+      "tests/test_diskfun/test_numeric_direct_source.py": "bd3ad1312d127500021673fc740d00d240d4c5760fd5793e1e6ea39fc5c941d0",
+      "tests/fixtures/disk_numeric_direct_native_20261018.json": "96c22996bd39d75c828d842b82cf53ff9457a5b22e0e30dd673eb3a62d662443",
+      "tests/fixtures/disk_numeric_cap_native_20261018.json": "63c3786d5ddacb4c706a2240ab474224c98f67ecf71ed27ce5960f6c555fb654"
+    },
+    "patch_sha256": "af38ae0b71f07db80c62424355107aa566caee0c9d694d0ef96c1fa56e895da9"
+  },
+  "evidence": [
+    "Only production Diskfun.from_values changes. Non-scalar default/False/True all use existing qualified JAX helper; empty/scalar adaptive behavior retained. preserve_lengths keyword remains accepted.",
+    "Baseline newcontrols10FAIL1PASS. First focused239PASS1oldXF3FAIL retains raw authored1e-12 failures; native sameactual input/grid words confirms all3 limitations.",
+    "Native publicvalue arrays differ from candidate max1.11e-15; every native rank/storage/pivot/location word/class control passes. All three old authored assertion bodies/bounds remain AST-exact under precise strictXF decorators. No assertion threshold relaxation.",
+    "Original constructor17/19/33/34 4PASS65.97s and derivative/norm/structural40PASS128.52s source bridge retained. Childfinal74PASS3XF58.63s; exactfinal10PASS37.73s. Overlapping scopes not summed.",
+    "All1127 CI prefixes retained;1128owners,13lanes,Hermite12,aggregate79%gate unchanged."
+  ],
+  "limits": [
+    "Three unchanged authored interpolation bounds1e-12 are narrowly strict expected failures because actual pinned MATLAB itself has native capped ranks3/4/5 and sampleerrors~.986/.107/.037. The limitation remains, no doubledcap or fallback.",
+    "Two matrix FFT/provider expected failures remain. Other native factor/provider words, whole JIT/AD/API/original assertion coverage and matched CPU performance remain open.",
+    "All322final-sourcepages/1305scientific figures, latest-main scientificCI/coverage>=79% and full objective audit remain required."
+  ]
+}

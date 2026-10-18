@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover Chebfun2 coefficient/paired fixed preferences, adaptive disk source grids/tolerance/rank stopping and stale SINH CI expectation repair. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover the native JAX default numeric disk route, complete PhaseTwo matrices/shared simplification, and Chebfun2 coefficient/paired fixed preferences. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,21 +24,15 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** disk shared-matrix simplification195PASS/2strictFFT-providerXFAIL; [evidence](disk_matrix_simplify_cpu_20261018.json). Numeric direct route is next; three stronger-than-native interpolation demands remain explicit expected failures under qualification.
-- **Checkmark:** current2b source still gives the wrong degree3 curve; actual callback error~5.03e-4 near native transition. Edge/happiness localization remains open. This diagnostic missed some imported user-site runtime guards; no all-importimmutability claim.
-
-
-- **CI repair:** obsolete SINH expectations reconciled;158modulePASS, production/native assertions/bounds unchanged. [Evidence](sinh_axis_ci_reconciliation_20261018.json). GitHub reproduction still required.
-
-- **Latest verified integration:** Chebfun2 coefficient/paired fixed preferences;141actualPASS/1strictfactorXFAIL. [Evidence](chebfun2_coefficient_preferences_cpu_20261018.json). Previous explicit single preferences/adaptive disk grids package194PASS remains recorded separately.
-- **Unary worker:** six finite tiny TAN/TANH candidates have focused native verification; full existing gate currently fails, suspected import-order tracer leak pending terminal traceback. Infinite-real TANH native-context zero-sign contradiction remains open. Not credited as published repair.
-- **Disk worker:** joint matrix PhaseTwo/factor simplification diagnosis. A named original rank102 case passes alone, but native factor storage differs; its CPU compilation cost remains under study. Final FFT factor/provider words and broader adaptive JAX/AD remain open.
-- **Root next:** review disk joint-factor staging candidate; paired adaptive/equispaced Chebfun2 preferences and wider original assertion/API audit remain. Coefficient and paired fixed/numeric preferences are now scoped-qualified, with one Fourier-provider factorXFAIL retained.
-- **CPU speed:** published inverse root-filter compilation optimization; rejected Brent padding experiment retained. Native inverse warm gap~2.51x remains in an earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and other paths require qualification.
-- **CI:** latest-main scientificCI/coverage≥79% remains required. Prior9caeSCI39147084903 has a confirmed chebfun-g failure from stale SINH tests; repaired158modulePASS publishedc91. c91SCI39151049484pending at last observation; no greenCI claim.
-- **Original tests/numerics:** complete audit across2333library files/1102original test files; complex poles, Hermite, Chebfun3T representation/provider and broader API/JAX/AD gaps.
-- **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1305figures remain required.
-- **Evidence correction:** old34case constructor timeout has18progressdots but no named active node; earlier clause10/9pass attribution is retracted, with immutable raw hashes in the latest report.
+- **Published scoped work:** default numeric JAX disk route145PASS/5strictXFAIL; prior matrix simplification195PASS/2strictXFAIL. Counts overlap and are not summed. [Numeric evidence](disk_numeric_direct_cpu_20261018.json), [matrix evidence](disk_matrix_simplify_cpu_20261018.json). Native rank-cap limitations and FFT/provider words remain explicit.
+- **Root:** Checkmark actual Python edge trace underway. Native and Python both accept the same bad forcedhalfinterval fit; native directedge finds the correct transition. Diagnose edge/provider/callback trajectory, without changing source happiness to hide it. [Localization](checkmark_edge_localization_cpu_20261018.json).
+- **Unary worker:** six finite TAN/TANH candidates have focused native verification. The broader run1740PASS/1XF/427FAIL failed entirely on an import-order tracer leak. Minimal constant initialization repair passes cold import controls; repeated-call compilation cost is being fixed before full verification. Infinite-real TANH native-context zero-sign contradiction remains open. No published repair claim yet.
+- **Disk worker:** paired adaptive/equispaced Chebfun2 preferences, per-axis controls, empty-axis defaults and source fixed-callable/error ordering. Baselines/native captures precede implementation; existing fixed/coefficient behavior must stay qualified.
+- **Other numerical/API gaps:** full original assertion audit; complex rational poles, Hermite whole-call JIT/AD/provider words, Chebfun3T representation and broader APIs remain open.
+- **CPU performance:** matched native inverse/Hermite/Checkmark/QR/LU/BVP/roots benchmarks remain. Inverse warm gap~2.51x is from an earlier descriptive set; disk profile gains are not matched timing qualification.
+- **Pages/figures:** final-source computations/stdout and scientific/raster qualification for322pages/1305figures remain required. Historical interrupted-script dispositions do not establish final page parity.
+- **Final gates:** latest-main scientific CI, aggregate coverage>=79%, provenance/lint and requirement-by-requirement completion audit. No current green latest-main claim.
+- **Evidence corrections:** historical34constructor censor has18dots/no named active node; prior coarseGE2/5 narrative is retracted because raw/public/native ranks agree. Immutable raw evidence retained in the matrix report.
 
 ### Active work, not yet credited as complete
 
@@ -49,6 +43,10 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Default Diskfun numeric route now uses existing native JAX construction:145parentPASS/5strictXF; original assertions/bounds retained. [Evidence](disk_numeric_direct_cpu_20261018.json).
+- [ ] Native rank-cap underresolution, FFT/provider words, wider API/JAX/AD/original tests/pages/figures/speed and latest-mainCI remain open.
+
 
 - [x] Disk complete PhaseTwo matrices and shared global simplification:195actual parentPASS/2strictXFAIL; source bounds retained. [Evidence](disk_matrix_simplify_cpu_20261018.json).
 - [ ] NoisyFFT/provider words, direct numeric route, full API/JAX/AD/original tests and matched speed remain open.
