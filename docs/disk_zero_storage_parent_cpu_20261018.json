@@ -1,0 +1,47 @@
+{
+  "actual_parent": {
+    "distinct_checks": 79,
+    "fresh_processes": [
+      "44PASS:21native/publicstorage+23CIprotocol",
+      "18PASS:13polecontrols+original31/32+3structural",
+      "17PASS:composition/FEVAL/constructor/sourcecontrols"
+    ],
+    "receipt": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 3065744,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 176.33834157977253
+    }
+  },
+  "base": "97e5d0d934cf19c225be42a0ced4ec8ddc54640c",
+  "child_report": "docs/disk_zero_storage_cpu_20261018.json",
+  "child_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_zero_storage_phase2_package_20261018.tar.gz",
+    "payloads": 496,
+    "sha256": "e48e8bc1888b519ac45de664fb386b4dc4aecc25a5c01e4772378fbb32fa09ef",
+    "status": "root verified payload hashes; scientific/source integration review remains open",
+    "stream_verified": true
+  },
+  "limits": [
+    "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+    "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+    "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+    "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+    "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+    "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+    "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+    "Latest-main scientificCI/coverage>=79% and full objective remain open."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "1099 prior positions retained; new21node owner appendedCore7;1100 owners,13 lanes, dedicatedHermiteCore12 and79%threshold unchanged.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_zero_storage_parent_cpu_20261018.tar.gz",
+    "payloads": 3400,
+    "sha256": "4adc736eaf9663f38122b66bed283363350ec90db669f779226e9d4b561ea6cd",
+    "stream_verified": true
+  },
+  "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
+}

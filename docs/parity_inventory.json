@@ -232,6 +232,11 @@
       "scope": "Actual parent disk factor maps and corrected unbounded test adapters; C1 CI discrepancy diagnosis only",
       "sha256": "69329f482a9d681c704edde029e021573533e7d0d28b9ba3c70a85564c06fbee"
     },
+    "disk_zero_storage_parent_cpu_20261018": {
+      "path": "docs/disk_zero_storage_parent_cpu_20261018.json",
+      "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim.",
+      "sha256": "a00602856894708c0deb247f77d5066efd0f213adb0d97c1226740292afda3cb"
+    },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
@@ -76357,6 +76362,20 @@
             "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
           ],
           "scope": "Source pole norm/scale cancellation, original31/32 andmanufacturedcontrols;zeroonlystorage/fullAPIopen."
+        },
+        {
+          "artifact": "disk_zero_storage_parent_cpu_20261018",
+          "limits": [
+            "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+            "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+            "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+            "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+            "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+            "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+            "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+            "Latest-main scientificCI/coverage>=79% and full objective remain open."
+          ],
+          "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
         }
       ],
       "functions": [
@@ -76373,6 +76392,20 @@
                 "All322final-sourcepages/1305scientificfigures andmatchedCPUknownslowpaths, latest-maingreenCI/coverage>=79%remain required."
               ],
               "scope": "Source pole norm/scale cancellation, original31/32 andmanufacturedcontrols;zeroonlystorage/fullAPIopen."
+            },
+            {
+              "artifact": "disk_zero_storage_parent_cpu_20261018",
+              "limits": [
+                "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+                "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+                "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+                "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+                "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+                "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+                "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+                "Latest-main scientificCI/coverage>=79% and full objective remain open."
+              ],
+              "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
             }
           ],
           "implementation_status": "unverified",
@@ -81365,10 +81398,40 @@
       "candidate_port_paths": [
         "src/chebfunjax/chebfun1d/mtimes.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_zero_storage_parent_cpu_20261018",
+          "limits": [
+            "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+            "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+            "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+            "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+            "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+            "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+            "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+            "Latest-main scientificCI/coverage>=79% and full objective remain open."
+          ],
+          "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_zero_storage_parent_cpu_20261018",
+              "limits": [
+                "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+                "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+                "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+                "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+                "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+                "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+                "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+                "Latest-main scientificCI/coverage>=79% and full objective remain open."
+              ],
+              "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -81527,10 +81590,40 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_zero_storage_parent_cpu_20261018",
+          "limits": [
+            "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+            "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+            "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+            "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+            "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+            "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+            "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+            "Latest-main scientificCI/coverage>=79% and full objective remain open."
+          ],
+          "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_zero_storage_parent_cpu_20261018",
+              "limits": [
+                "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+                "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+                "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+                "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+                "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained.",
+                "No universal pivot-location/metadata word qualification; nonfinite/unhappy factors and inherited host compression/provider debt remain.",
+                "Native rank2 stale-index errors are deliberately preserved and tested, not sanitized.",
+                "Latest-main scientificCI/coverage>=79% and full objective remain open."
+              ],
+              "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",

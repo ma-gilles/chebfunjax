@@ -2524,7 +2524,19 @@ class Diskfun(eqx.Module):
         c = complex(c)
         c = c.real if c.imag == 0 else c
         if c == 0:
-            return Diskfun.from_function(lambda t, r: 0.0 * t)
+            if self.isempty() or not self.cols:
+                # Retain the existing empty-input adapter outside this scope.
+                return Diskfun.from_function(lambda t, r: 0.0 * t)
+            # Native separableApprox/mtimes keeps the first factor pair,
+            # replaces the pivot by Inf, and retains flags/parity indices.
+            # In particular, source rank-two zeros can retain stale indices.
+            return Diskfun(
+                cols=[self.cols[0] * 0.0], rows=[self.rows[0] * 0.0],
+                pivots=jnp.asarray([jnp.inf], dtype=self.pivots.dtype),
+                idx_plus=self.idx_plus, idx_minus=self.idx_minus,
+                pivot_locations=self.pivot_locations[:1],
+                nonzero_poles=self.nonzero_poles,
+            )
         piv = jnp.asarray(self.pivots) / c
         return Diskfun(cols=list(self.cols), rows=list(self.rows),
                        pivots=piv, idx_plus=tuple(self.idx_plus),
@@ -2633,6 +2645,33 @@ class Diskfun(eqx.Module):
         g, gpole = other._normalize_poles()._extract_pole()
 
         def _block(a, idx_a, b, idx_b):
+            # Native partition produces empty objects for missing blocks;
+            # separableApprox/plus returns the other operand unchanged.
+            if not idx_a:
+                return ([b.cols[i] for i in idx_b],
+                        [b.rows[i] for i in idx_b],
+                        [b.pivots[i] for i in idx_b])
+            if not idx_b:
+                return ([a.cols[i] for i in idx_a],
+                        [a.rows[i] for i in idx_a],
+                        [a.pivots[i] for i in idx_a])
+            def zero_block(obj, indices):
+                block = Diskfun(
+                    cols=[obj.cols[i] for i in indices],
+                    rows=[obj.rows[i] for i in indices],
+                    pivots=jnp.asarray([obj.pivots[i] for i in indices]),
+                    idx_plus=tuple(range(len(indices))), idx_minus=(),
+                )
+                return block.iszero()
+
+            if zero_block(a, idx_a):
+                return ([b.cols[i] for i in idx_b],
+                        [b.rows[i] for i in idx_b],
+                        [b.pivots[i] for i in idx_b])
+            if zero_block(b, idx_b):
+                return ([a.cols[i] for i in idx_a],
+                        [a.rows[i] for i in idx_a],
+                        [a.pivots[i] for i in idx_a])
             cols = [a.cols[i] for i in idx_a] + [b.cols[i] for i in idx_b]
             rows = [a.rows[i] for i in idx_a] + [b.rows[i] for i in idx_b]
             piv = [float(a.pivots[i]) for i in idx_a] + \
@@ -2648,7 +2687,16 @@ class Diskfun(eqx.Module):
             vscl = 2.0 * max(va, vb)
             out = compress_block(cols, rows, piv, "cheb", vscl)
             if out is None:
-                return [], [], []
+                # Source compression_plus returns 0*f, not an empty block.
+                # Its pivot-size swap chooses which first factor is retained.
+                pa = jnp.asarray([a.pivots[i] for i in idx_a])
+                pb = jnp.asarray([b.pivots[i] for i in idx_b])
+                source, indices = (b, idx_b) if bool(
+                    jnp.min(jnp.abs(pa)) < jnp.min(jnp.abs(pb))
+                ) else (a, idx_a)
+                j = indices[0]
+                return ([source.cols[j] * 0.0], [source.rows[j] * 0.0],
+                        [jnp.asarray(jnp.inf)])
             C, R, newpiv = out
             nc = max(int(np.asarray(t.coeffs).shape[0]) for t in cols)
             nr = max(int(np.asarray(t.coeffs).shape[0]) for t in rows)
@@ -2666,6 +2714,15 @@ class Diskfun(eqx.Module):
             vf = 0.0 if f.isempty() or not f.cols else f.vscale()
             vg = 0.0 if g.isempty() or not g.cols else g.vscale()
             pole = _disk_add_poles(fpole, gpole, _EPS * max(vf, vg))
+            if pole is None and not pc:
+                # Native addPoles sets both means to zero then recomputes
+                # the column. Keep its zero/pivot0 result when hp is empty;
+                # public PLUS sets nonZeroPoles from nonemptiness afterward.
+                zero = jnp.asarray(0.0)
+                col = (fpole[0] * binary(zero, jnp.asarray(fpole[2]), 3)
+                       + gpole[0] * binary(zero, jnp.asarray(gpole[2]), 3))
+                pole = (col, Trigtech.from_coeffs(jnp.ones(1), is_real=True),
+                        jnp.asarray(0.0))
             if pole is not None:
                 col, row, pivot = pole
                 pole_cols, pole_rows, pole_piv = [col], [row], [pivot]
@@ -2680,6 +2737,8 @@ class Diskfun(eqx.Module):
                     pivots=jnp.asarray(piv, dtype=jnp.float64),
                     idx_plus=tuple(range(n_plus)),
                     idx_minus=tuple(range(n_plus, len(cols))),
+                    pivot_locations=tuple((float("nan"), float("nan"))
+                                          for _ in cols),
                     nonzero_poles=nonzero_poles)
         return h.projectOntoBMCII()
 
@@ -2689,6 +2748,8 @@ class Diskfun(eqx.Module):
                 return self
             if self.isempty() or self.iszero():
                 return other
+            if self.isequal(-other):
+                return self._scale(0.0)
             return self._compression_plus(other)
         if np.isscalar(other):
             c = other

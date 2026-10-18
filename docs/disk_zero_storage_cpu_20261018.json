@@ -1,0 +1,145 @@
+{
+  "scope": "Source-derived Diskfun scalar-zero, equality shortcut, canceled pole and zero remainder representation/flag transitions. Qualified real finite happy factor grammar and captured public operations; no full Diskfun/storage/API/JAX/complex/nonfinite/performance closure claim.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "worktree_base": "01d33a18 plus sealed phase1 and reciprocal packets; baseline diskfun bytes exactly published3396e84cc339d463b5803fd253ec78d88604476c. Incremental patch based on3396 tree.",
+  "source_mechanisms": {
+    "@separableApprox/mtimes.m": "c==0 retains first col and first row multiplied by literal0, sets pivotInf, keeps flags/parity indices, truncates nonempty pivotLocations. Generic factory remains unchanged.",
+    "@diskfun/plus.m": "After nonzero checks, isequal(f,-g) returns0*f. addPoles zero means/pivot0 result retained iff hp empty; discarded when hp nonempty. Public nonZeroPoles = notisempty(g), so retained zero pole has flagTRUE.",
+    "@separableApprox/plus.m": "Empty/zero block returns other block unchanged. Compression out=None corresponds to source0*f nonempty zero block, not an empty block. Existing source pivot-size swap determines retained first factors.",
+    "unchanged": "CDR reciprocal/rounding helpers, iszero, public isequal, host QR/compression arithmetic, tolerances and global providers unchanged. Only _scale,_compression_plus,__add__ methods differ; all module helpers/imports AST exact reciprocal snapshot."
+  },
+  "native_evidence": {
+    "prior5": "Immutable phase1 native_zero_poles.json: first4zero publicplus contexts exact factor/pivot/flag storage, fifth nonempty remainder retained as scoped functionbound control. Phase1 archiveSHA9e1e68f8855aadd2f8061a9095f4ec1f52e11b389dada3ed217cfc8244cc16c8.",
+    "fresh4": "disk_zero_scale_native_run001 records rank1pole,rank2plus,rank2mixedparity,rank1nonconstantrow inputs; each actual scalar+0,scalar-0,and f+(-f) with repeat-storage assertion. ZERO_SCALE_COMPLETE4 saved before later independent observer failed.",
+    "raw_run001_limit": "Whole process exit1: independent parent-requested root observer called mapping([-1,1]) incorrectly after disk4 output save. No root data accepted fromrun001; disk section itself completed, inputs stable/no censor/no survivors. Both native JSON/MAT and raw failure preserved. This is not a whole-run nativepass claim.",
+    "root_observer_retry": "Separate root-only run002 fixes collector to mapping.linear([-1,1]),9actual alpha controls complete exit0/stable/uncensored/no survivors. Source normalization/mapping observer supplied to parent, not used to fit Diskfun production."
+  },
+  "actual_zero_observables": {
+    "storage": "Canceled-only rescaled/tinyT2 publicplus: zero col,row1,pivot+0,flagTRUE. Exact equality: first factors0,pivotInf,originalflag. Canceled remainder: zero col,row5signedzero,pivotInf,flagFALSE. Native words checked in tests.",
+    "values": "Native captured zeros and Python candidates: nonempty,iszeroTRUE,numericalrank0,vscale0,norm0,zero CartesianFEVAL; source one-output length1 maps to Python .rank, two-output lengths to .length().",
+    "rank2_stale_indices": "Native scalar0/equality retains idxPlus/Minus despite one stored factor: rank2plus sum2/partition raise; mixed parity sum2 succeeds but partition raises. Candidate preserves same index/error outcomes; Python IndexError adapter checked, no cross-language exceptionidentifier/text claim.",
+    "warning_limit": "Native zero iszero has no warning; inherited Python NumPy fast-test divide-by-zero warning remains for pivot0. Not suppressed or claimed warning parity."
+  },
+  "paired_final21": {
+    "baseline": "19FAIL2PASS12.75s on exact final21 test bytes/current published diskfun baseline. All failures are actual public storage/source branch assertions, no missing helper.",
+    "candidate": "21PASS18.40s/1329500KiB, stable/uncensored/no survivors.",
+    "earlier18": "16FAIL2PASS9.83s\u219218PASS13.37s; initial18bytes reconstructed and hashmatched. New3controls independently test public left/right/both zero-remainder aliases, at source1000epsFEVALbound."
+  },
+  "affected_final_callers": {
+    "callers18": "18PASS72.78s/3056768KiB:13oldpole controls+original31/32 unchangedEPS+3structural/performance controls.",
+    "existing17": "17PASS65.50s/2875600KiB: existing composition/FEVAL/constructor/source controls.",
+    "total_final_unique": 56
+  },
+  "prior_unchanged_evidence_bridge": "All module CDR helpers, FEVAL/CDR/coeffs2/norm/SVD-related methods and _svd provider unchanged; prior sealed reciprocal46CDR+17SVD controls construct fields directly and do not call affected plus/scalar0. Exact AST/route bridge attached, not an all-final-byte119test claim.",
+  "limits": [
+    "Complex/nonfinite/subnormal block-compression inputs and unhappy-factor metadata remain unqualified; pre-existing compression/provider/BMC projection limitations retained. Real finite happy-factor cases above do not establish universal representation parity.",
+    "The nonempty fifth native case still has host-QR coefficient/pivot word differences. Its flag/rank and actual function sourcebound pass, not universal coefficientword equality.",
+    "Existing iszero/isequal/constructor/compression host providers remain declared debt; no new NumPy/SciPy provider/import/waiver. _svd.source_svd still computes its own rawdivision, so its finite-denormal behavior is not closed by the local CDR reciprocal packet.",
+    "Public scalar-zero/plus construction remains eager; only produced fields polar coordinate first/second AD qualified. No singular-boundary/Cartesian-origin/globalJIT construction claim.",
+    "Empty scalar-zero adapter and generic factory behavior unchanged; no new empty-input source parity claim. Native rank2 stale-index errors deliberately retained."
+  ],
+  "parent_publication_paths": [
+    "src/chebfunjax/diskfun/diskfun.py",
+    "tests/test_disk_zero_storage_source.py",
+    "tests/fixtures/disk_zero_scale_native_20261018.json",
+    "docs/disk_zero_storage_cpu_20261018.json"
+  ],
+  "ownership": "One new core owner file,21selectors; parent owns stable selector inventory/protocol gate.",
+  "receipts": {
+    "disk_zero_scale_native_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 95.04969546198845,
+      "sampled_peak_summed_rss_kib": 1379080,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_scale_native_root_retry_run002": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 85.15483826771379,
+      "sampled_peak_summed_rss_kib": 1282280,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 13.503014304675162,
+      "sampled_peak_summed_rss_kib": 963332,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_candidate_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 17.432286720257252,
+      "sampled_peak_summed_rss_kib": 1177172,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_baseline_final21_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 16.50759169459343,
+      "sampled_peak_summed_rss_kib": 1111068,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_candidate_final21_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 22.561410502996296,
+      "sampled_peak_summed_rss_kib": 1329500,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_callers18_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 79.77217746106908,
+      "sampled_peak_summed_rss_kib": 3056768,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    },
+    "disk_zero_storage_existing17_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 72.24773762701079,
+      "sampled_peak_summed_rss_kib": 2875600,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sent_signals": [],
+      "events": []
+    }
+  },
+  "hashes": {
+    "baseline": "8beee0d9ae103c3811343a6ca53e22138938f4c104dd5fd8357f0bf87b34c86a",
+    "final": "ea99ffd7bc7273d670002099335150f4312f8fc4cc635cd7c038970fe1dc4d41",
+    "final_test": "43d63a7b3d14d80744d1ef51773b82f69e5eff4b716361ae8b3fdb7b1b712d99",
+    "native_scale_fixture": "d1f5b43349677d7b4ae1ee9034a9cc6c2993bc1dfbcf5b71222c0dc8b3e787ab"
+  },
+  "artifact_scope": "Fullsrc/pyproject, actual executed modules/fixtures/drivers/source variants/raw guards/receipts and targeted pinned native sources. Full native m dependency hashes retained externally via raw native guards, not a copied installed MATLAB tree."
+}

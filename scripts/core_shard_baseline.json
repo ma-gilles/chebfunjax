@@ -770,7 +770,8 @@
       "tests/test_utils/test_bary_native_node_loop.py",
       "tests/test_tech/test_nonfinite_native_transform_stages.py",
       "tests/test_disk_source_maps.py",
-      "tests/test_disk_cdr_source.py"
+      "tests/test_disk_cdr_source.py",
+      "tests/test_disk_zero_storage_source.py"
     ],
     [
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.trigspec.test_multmat_matlab]",

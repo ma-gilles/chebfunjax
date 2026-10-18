@@ -1,3 +1,14 @@
+# Disk zero-result source storage — 2026-10-18
+
+Disk scalar-zero and equality cancellation retain native first factors,
+pivots and flags; canceled-pole and zero-remainder addition follow source
+branches. Same21native/public controls change19FAIL2PASS to21PASS.
+Actual parent79checks pass in3fresh processes, including original31/32 and
+23CIprotocol checks.1099prior owners retained+1Core7;79%gate unchanged.
+Native rank2 stale-index errors are preserved; inherited host warnings,
+complex/nonfinite metadata, fullAPI/JAX/speed and latestCI remain open.
+Evidence: docs/disk_zero_storage_parent_cpu_20261018.json.
+
 # Native root normalization and CI lock metadata — 2026-10-18
 
 Real CPU Chebtech roots now retain source coefficient division rather than
