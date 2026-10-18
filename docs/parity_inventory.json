@@ -187,6 +187,11 @@
       "scope": "Parent-reviewed coupled complex derivative towers and original full ThreePlanets CPU execution; not native chaotic trajectory/page/figure parity",
       "sha256": "d5c87b79b0b2b914619facf6217a75dda48559376f1a603b09a5b6b25e06df3b"
     },
+    "disk_feval35_parent_cpu_20261018": {
+      "path": "docs/disk_feval35_parent_cpu_20261018.json",
+      "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open.",
+      "sha256": "f93ba98f147621152d329a6a4fb38f3604e133d86265223228830e7d1e92a3f6"
+    },
     "fft64_pde_cpu_20261017": {
       "path": "docs/fft64_pde_cpu_20261017.json",
       "scope": "Scalar33 real float64 CPU transform fidelity; unchanged authored fixed48 CI PDE regression passes, no original PDE/full-item closure",
@@ -51510,11 +51515,34 @@
             "Full pages/figures, known correctness faults and latest-main CI/coverage remain required."
           ],
           "scope": "Add a JAX executable boundary to unchanged binary64 word equality used in breakpoint evaluation; pure performance change, no arithmetic or callback replacement."
+        },
+        {
+          "artifact": "disk_feval35_parent_cpu_20261018",
+          "limits": [
+            "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+            "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+            "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+            "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+            "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+          ],
+          "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_feval35_parent_cpu_20261018",
+              "limits": [
+                "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+                "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+                "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+                "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+                "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+              ],
+              "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -74717,10 +74745,34 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_feval35_parent_cpu_20261018",
+          "limits": [
+            "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+            "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+            "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+            "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+            "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+          ],
+          "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_feval35_parent_cpu_20261018",
+              "limits": [
+                "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+                "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+                "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+                "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+                "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+              ],
+              "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -75219,10 +75271,34 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_feval35_parent_cpu_20261018",
+          "limits": [
+            "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+            "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+            "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+            "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+            "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+          ],
+          "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_feval35_parent_cpu_20261018",
+              "limits": [
+                "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+                "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+                "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+                "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+                "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+              ],
+              "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -102757,10 +102833,108 @@
         "tests/test_matlab_port/spherefunv/test_feval_matlab.py",
         "tests/test_matlab_port/trigtech/test_feval_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_feval35_parent_cpu_20261018",
+          "limits": [
+            "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+            "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+            "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+            "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+            "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+          ],
+          "qualified_default_predicates": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            34,
+            35
+          ],
+          "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_feval35_parent_cpu_20261018",
+              "limits": [
+                "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+                "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+                "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+                "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+                "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+              ],
+              "qualified_default_predicates": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35
+              ],
+              "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",

@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Disk Cartesian callback/radius semantics:5new+17existing checks and original31 pass. Fresh native FEVAL35/35true and all35Python default counterparts pass within53checks; combined97parent checks. [Predicate mapping and evidence](disk_feval35_parent_cpu_20261018.json).
+- [ ] Strict disk32, factor-coordinate maps, full FEVAL/disk API/alternate preferences/JAX/performance and latestCI remain open; callback/reference adaptations are explicit.
+
+
 - [x] Group unchanged breakpoint word equality under JAX execution:33existing IEEE/evaluation/routing tests pass on current main,14diagnostic outputs word-identical; selected warm evaluation median19.1%lower. [Evidence](breakpoint_equality_cpu_20261018.json).
 - [ ] Full Checkmark execution and matched native performance remain open; this timing is a descriptive shared-host sample.
 

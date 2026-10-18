@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "scope": "Two source-backed Cartesian semantics corrections; original disk32 remains open",
+  "base": "61c3638656ec7655ecb730bd93bafb600b377844",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "fixes": [
+    {
+      "source": "@diskfun/compose.m38-48",
+      "change": "One/two-column Chebfun composition uses Cartesian constructor callbacks and Cartesian FEVAL, retaining column extraction",
+      "baseline": "Two independent nonradial Cartesian callback controls fail; candidate1 passes both",
+      "limits": "Callable polar and Quasimatrix/Chebfun2 extension paths unchanged; full compose domain/error/warning grammar unqualified"
+    },
+    {
+      "source": "@diskfun/feval.m47-55 and R2025b cart2pol.m24-25",
+      "change": "Existing feval_cart uses JAX hypot and evaluates permitted radius without clipping; same >1+1e-8 rejection retained",
+      "baseline": "Tiny-radius mapping and allowed exterior controls fail before correction; final pass",
+      "native": "At Cartesian(1+5e-9,0), native identity returns1.000000005 versus previous Python1; native rejects1+2e-8",
+      "limits": "No general primitive word-equality claim: JAX hypot differs from native on3/9 recorded radius words. Native actual tiny function value is0; test only qualifies scaled coordinate map, not tiny native function parity."
+    }
+  ],
+  "original_predicates": {
+    "31": "PASS on baseline and both candidates; native exact norm0",
+    "32": {
+      "status": "FAIL unchanged",
+      "python_norm": 3.912300188344396e-16,
+      "strict_bound": 2.220446049250313e-16,
+      "native_norm": 0,
+      "no_changes": "Original operands, comparison and test bytes retained; no xfail/tolerance/output substitution"
+    }
+  },
+  "gates": {
+    "baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 43.98719544103369,
+      "sampled_peak_summed_rss_kib": 2029208,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "baseline2": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 62.922376533038914,
+      "sampled_peak_summed_rss_kib": 2517968,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 66.48645009985194,
+      "sampled_peak_summed_rss_kib": 2724376,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "helper_baseline": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 8.01378433033824,
+      "sampled_peak_summed_rss_kib": 727568,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate2": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 67.80477269180119,
+      "sampled_peak_summed_rss_kib": 2726760,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "existing": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 51.387519410811365,
+      "sampled_peak_summed_rss_kib": 2291444,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 83.78260312601924,
+      "sampled_peak_summed_rss_kib": 1383756,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "comparison": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 16.94032244104892,
+      "sampled_peak_summed_rss_kib": 1191008,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "comparison2": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 28.18317653797567,
+      "sampled_peak_summed_rss_kib": 1645404,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "mapped_comparison": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 29.213635358028114,
+      "sampled_peak_summed_rss_kib": 1688028,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "counts": {
+    "baseline2": "3FAIL1PASS (original32 and2Cartesian callback controls fail)",
+    "candidate1": "1FAIL3PASS",
+    "helper_baseline": "2FAIL",
+    "candidate2": "1FAIL6PASS: original31+5newcontrols pass; original32fails",
+    "existing": "17PASS",
+    "native": "Literal31/32 true, both norms0; observed H coefficients word-identical to unobserved source calls"
+  },
+  "diagnostic_limits": [
+    "Initial baseline guard was bare hash map and checked no input hashes; baseline2 corrected schema and reproduced failure with active library/config/test/driver/HEAD bindings. Raw first receipt preserved.",
+    "First stage comparison failed in diagnostic component-word adapter for mixed scalar dtypes; corrected adapter compares explicit complex component words, preserving raw failure. No production operand change.",
+    "Raw nativecoeff Chebtech evaluation omitted bounded linear.Inv. Mapped replay included source inverse map; remaining breakpoint pointValue differences are not proof of Clenshaw fault.",
+    "Original32 has8/30 outerG coefficient-word differences (max3.93e-17) plus inner-evaluation differences on same native Cartesian operands (max6.66e-16); no completed first-divergent provider attribution."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ci_disk_correctness_evidence_20261017",
+  "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cartesian_semantics_package_20261017.tar.gz",
+  "source_bindings": "SOURCE_BINDINGS.json",
+  "latest_ci": "Read-only snapshots status_refresh_repo.json and failed_jobs_summary.json; no CI cancellation/rerun issued. Latest observed de1218 CI39095936613pending; older61c/afe8 cancellation observed externally.",
+  "parent_bridge": "Later de1218 decorator-only breakpoint helper publication is not included in child source basis; parent can qualify combined source.",
+  "whole_item_status": "Full disk compose/evaluation API, strict original32, full JAX closure/performance and latest CI remain unverified/open.",
+  "next_action": "Separate retained-native-coefficient replay of native separableApprox row/column Chebfun linear.Inv maps; no third library repair in this patch. For remaining G coefficient/provider attribution, capture native original G constructor callback samples and same-input transforms before any provider change."
+}

@@ -1,3 +1,15 @@
+# Disk Cartesian semantics and original FEVAL coverage — 2026-10-18
+
+Disk Chebfun composition now uses source Cartesian constructor/evaluation
+callbacks; Cartesian FEVAL uses hypot and retains permitted near-exterior
+radius instead of clipping it. Five new controls and17existing regressions pass;
+original31 passes. Original32 still fails unchanged and remains explicit.
+Combined parent97checks pass in two serial processes. All1091prior core owners
+retained+1. Unmodified pinned native test_feval()35/35true;53Python checks cover
+all35numbered default counterparts plus18supplemental checks. Source mapping,
+callback/reference adaptations and bounds are recorded, not whole-API closure.
+Evidence: docs/disk_feval35_parent_cpu_20261018.json.
+
 # Breakpoint equality execution overhead — 2026-10-18
 
 An execution boundary now groups unchanged JAX integer-word comparisons;

@@ -2270,12 +2270,12 @@ class Diskfun(eqx.Module):
         """
         x = jnp.asarray(x, dtype=jnp.float64)
         y = jnp.asarray(y, dtype=jnp.float64)
-        r = jnp.sqrt(x ** 2 + y ** 2)
+        r = jnp.hypot(x, y)
         if bool(jnp.any(r > 1 + 1e-8)):
             raise ValueError("CHEBFUN:DISKFUN:FEVAL:pointsNotOnDisk: The "
                              "specified points are not on the unit disk.")
         th = jnp.arctan2(y, x)
-        return self(th, jnp.minimum(r, 1.0))
+        return self(th, r)
 
     @staticmethod
     def coeffs2vals(U, S=None, V=None):
@@ -2689,14 +2689,17 @@ class Diskfun(eqx.Module):
 
         if isinstance(op, Chebfun):
             # Native @diskfun/compose.m extracts two CHEBFUN columns before
-            # scalar construction; packed array FEVAL is not a disk sample.
+            # scalar construction, using Cartesian constructor/FEVAL callbacks.
             if op.n_columns == 1:
-                return Diskfun.from_function(lambda t, r: op(self(t, r)))
+                return Diskfun.from_function(
+                    lambda x, y: op(self.feval_cart(x, y)), coordinates="cart")
             if op.n_columns == 2:
                 first, second = op[0], op[1]
                 return Diskfunv(
-                    Diskfun.from_function(lambda t, r: first(self(t, r))),
-                    Diskfun.from_function(lambda t, r: second(self(t, r))),
+                    Diskfun.from_function(
+                        lambda x, y: first(self.feval_cart(x, y)), coordinates="cart"),
+                    Diskfun.from_function(
+                        lambda x, y: second(self.feval_cart(x, y)), coordinates="cart"),
                 )
             raise ValueError("CHEBFUN:DISKFUN:COMPOSE:Columns: "
                              "The CHEBFUN object must have 1 or 2 columns.")

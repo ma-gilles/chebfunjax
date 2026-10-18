@@ -1,0 +1,278 @@
+{
+  "core_ownership": "All1091prior owners retained; new5-selector disk file group3 makes1092. Existing FEVAL modules unchanged.",
+  "disk_child": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cartesian_semantics_package_20261017.tar.gz",
+    "first_guard_incident": "Initial child bare-map guard had no active inputs; retained only as historical artifact. Proper guarded baseline2 establishes causal failures.",
+    "report": "docs/disk_cartesian_semantics_cpu_20261017.json",
+    "sha256": "1fe4ac8db5e06fc306bee866e3a3932f0f8c297ef392a732f271205be880596b",
+    "verified_payloads": 530
+  },
+  "feval_predicate_mapping": {
+    "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "predicates": [
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 17,
+        "predicate": 1,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_1_literal_scalar_empty_matrix"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "callback_adapter": "Existing SciPy erf callback in tests; library numerical-provider/JAX compatibility not qualified by this callback.",
+        "matlab_line": 26,
+        "predicate": 2,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_2_endpoint_aliases_and_erf_bound"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "callback_adapter": "Existing SciPy erf callback in tests; library numerical-provider/JAX compatibility not qualified by this callback.",
+        "matlab_line": 32,
+        "predicate": 3,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_3_endpoint_aliases_and_erf_bound"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "callback_adapter": "Existing SciPy erf callback in tests; library numerical-provider/JAX compatibility not qualified by this callback.",
+        "matlab_line": 40,
+        "predicate": 4,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_4_bad_endpoint_source_identifier"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 50,
+        "predicate": 5,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_5_sign_value_on_source_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 56,
+        "predicate": 6,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_6_left_and_minus_one_sided_aliases"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 62,
+        "predicate": 7,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_7_right_and_plus_one_sided_aliases"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 69,
+        "predicate": 8,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_8_bad_side_string_source_identifier"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 76,
+        "predicate": 9,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_9_empty_side_source_identifier"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 84,
+        "predicate": 10,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_10_exp_minus_one_on_captured_matlab_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 90,
+        "predicate": 11,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_11_abs_over_quadratic_on_captured_matlab_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 97,
+        "predicate": 12,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_12_high_frequency_cosine_on_captured_matlab_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 105,
+        "predicate": 13,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_source_clauses_2_11_13.py::test_clause_13_complex_sinh_on_captured_matlab_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 114,
+        "predicate": 14,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_14_to_17_scalar_shape_and_values[pass14-row]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 119,
+        "predicate": 15,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_14_to_17_scalar_shape_and_values[pass15-matrix]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 124,
+        "predicate": 16,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_14_to_17_scalar_shape_and_values[pass16-rank3]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 129,
+        "predicate": 17,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_14_to_17_scalar_shape_and_values[pass17-rank4]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 136,
+        "predicate": 18,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_18_transposed_scalar_matrix"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 140,
+        "predicate": 19,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_19_transposed_scalar_rank3"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 148,
+        "predicate": 20,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_20_complex_and_outside_points"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 157,
+        "predicate": 21,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_21_array_vector"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 161,
+        "predicate": 22,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_22_to_24_array_shape_and_values[pass22-matrix]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 166,
+        "predicate": 23,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_22_to_24_array_shape_and_values[pass23-rank3]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 171,
+        "predicate": 24,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_22_to_24_array_shape_and_values[pass24-rank4]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 176,
+        "predicate": 25,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_25_transposed_array_rank4"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 180,
+        "predicate": 26,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_26_and_27_transposed_array_endpoint_values[pass26-left]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 183,
+        "predicate": 27,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_26_and_27_transposed_array_endpoint_values[pass27-right]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 187,
+        "predicate": 28,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_28_and_29_piecewise_array_one_sided_values[pass28-left]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 188,
+        "predicate": 29,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_passes_28_and_29_piecewise_array_one_sided_values[pass29-right]"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 196,
+        "predicate": 30,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_finite_source_shapes.py::TestFevalNativeFiniteShapes::test_pass_30_array_evaluation_at_domain_breakpoints"
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 212,
+        "predicate": 31,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py::test_pass_31_singular_finite_endpoint",
+        "reference_adapter": "Native captured analytic expected values and exact seeded input vectors. Candidate bound capped at captured native bound; no expected-output injection into library."
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 231,
+        "predicate": 32,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py::test_pass_32_entire_line_removable_singularity_and_limits",
+        "reference_adapter": "Native captured analytic expected values and exact seeded input vectors. Candidate bound capped at captured native bound; no expected-output injection into library."
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 241,
+        "predicate": 33,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py::test_pass_33_entire_line_blowup_exponents_and_limits",
+        "reference_adapter": "Native captured analytic expected values and exact seeded input vectors. Candidate bound capped at captured native bound; no expected-output injection into library."
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 259,
+        "predicate": 34,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py::test_pass_34_right_half_line",
+        "reference_adapter": "Native captured analytic expected values and exact seeded input vectors. Candidate bound capped at captured native bound; no expected-output injection into library."
+      },
+      {
+        "assertion_scope": "Passing numbered default predicate counterpart in actual-parent53-node source cohort; adaptations explicitly recorded.",
+        "matlab_line": 278,
+        "predicate": 35,
+        "pytest_node": "tests/test_matlab_port/chebfun/test_feval_unbounded_source_31_35.py::test_pass_35_left_half_line_array_norm_and_limits",
+        "reference_adapter": "Native captured analytic expected values and exact seeded input vectors. Candidate bound capped at captured native bound; no expected-output injection into library."
+      }
+    ],
+    "scope": "Default35 numbered test counterparts only; full alternate preferences/API/backend/JAX/performance remain unverified.",
+    "source": "tests/chebfun/test_feval.m",
+    "source_sha256": "34f768d6b735df1482e4a396d9481a8735319a7a09f42ee99a32d0fd407cf619"
+  },
+  "integration": {
+    "distinct_pytest_nodes": 97,
+    "first_cohort": "53 passed151.08s: all35source FEVAL counterparts plus18supplemental checks",
+    "native": "Unmodified original test_feval()35/35true, actual2.749068s; pin/which/source guarded",
+    "receipts": {
+      "disk_feval35_parent_run001": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 3733360,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 240.3845352269709
+      },
+      "original_feval35_native_run001": {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 1366376,
+        "supervisor_exit_code": 0,
+        "wall_seconds": 83.41432769875973
+      }
+    },
+    "result": "97 passed in two serial fresh Python processes",
+    "second_cohort": "44 passed74.92s:5new disk+17existing disk+original31+21CIprotocol"
+  },
+  "limits": [
+    "Original disk32 still fails unchanged3.912300188344396e-16>eps; native original32norm0. No xfail/tolerance/provider/output substitution.",
+    "Disk coordinates use JAX hypot, which retains3/9native radius-word differences. Tiny-radius mapping test does not claim tiny native function-value agreement.",
+    "FEVAL clauses2-4 retain an existing SciPy erf callback in tests; library JAX compatibility of that callback is not qualified. Tail31-35 retain native captured analytic expected values and bounds capped at captured native bounds.",
+    "Default35test counterparts do not qualify all API grammar/alternate preferences, host numerical debt, JAX/AD, matched speed or pages/figures.",
+    "Third disk factor-coordinate-map repair remains a separate candidate; no third change in this publication. Latest-main scientific CI/coverage remain required."
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_feval35_parent_cpu_20261018.tar.gz",
+    "sha256": "689a0e3a8223d8e46ecba20b14885a7ce80b60cf59c44ed9a8ae41cb3ab93d6f",
+    "verified_payloads": 43
+  },
+  "parent_base": "de1218ed2c36dc4b31b0dc999c74fe67f408d93d",
+  "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open."
+}

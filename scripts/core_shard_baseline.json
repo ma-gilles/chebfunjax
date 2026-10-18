@@ -382,7 +382,8 @@
       "tests/test_utils/test_ratinterp_trim_coeffs.py",
       "tests/test_utils/test_transforms.py",
       "tests/test_utils/test_trigratinterp_empty_degree_matrix_source.py",
-      "tests/test_v03_v05/test_imex_ode_bvp.py"
+      "tests/test_v03_v05/test_imex_ode_bvp.py",
+      "tests/test_disk_chebfun_compose_source.py"
     ],
     [
       "tests/test_active_set_qp_source.py",
@@ -1119,6 +1120,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "afe8eca43c1e6fafd40d177c9116f293ae0ae9b8",
+  "last_update_parent": "de1218ed2c36dc4b31b0dc999c74fe67f408d93d",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }
