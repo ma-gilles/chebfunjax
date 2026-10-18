@@ -1,3 +1,15 @@
+# Polynomial minimax source normalization — 2026-10-18
+
+Polynomial minimax uses the source continuous L2 norm rather than a sampled
+maximum for its stopping scale and returned correction status. Three fresh
+native controls and independent exchange/integral formulas expose6baseline
+failures; all6pass with the source policy. Actual parent61checks pass in2fresh
+processes, including12unchanged original clauses and23CIprotocol checks.
+1100prior owners retained+1Core1;79%gate unchanged. Existing zero-norm adapter,
+fullAPI/JAX/speed and finalCI remain open. Nine Checkmark probes are unchanged;
+this does not repair or qualify the Checkmark page.
+Evidence: docs/minimax_norm_parent_cpu_20261018.json.
+
 # Disk zero-result source storage — 2026-10-18
 
 Disk scalar-zero and equality cancellation retain native first factors,

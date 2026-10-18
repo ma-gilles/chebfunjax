@@ -368,6 +368,11 @@
       "scope": "Projected C2 coupled system eigenproblem parent integration on current main",
       "sha256": "b4cbe4b3649f6410a140e0ed682880d97845b81b770c94081e488342abd56e91"
     },
+    "minimax_norm_parent_cpu_20261018": {
+      "path": "docs/minimax_norm_parent_cpu_20261018.json",
+      "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification.",
+      "sha256": "2bbb7f5cbf5971135525ea41baa4b4e385a08a97781e6fd7531b63ba1d82d230"
+    },
     "minmax_original14_cpu_20261017": {
       "path": "docs/minmax_original14_cpu_20261017.json",
       "scope": "All14default original minandmax predicates and bounded gamma/denominator-root fixes; full-item statuses unchanged",
@@ -96610,10 +96615,36 @@
       "candidate_port_paths": [
         "src/chebfunjax/utils/minimax.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "minimax_norm_parent_cpu_20261018",
+          "limits": [
+            "Inherited zero-norm EPS adapter remains: actual native zero status.delta is nonfinite(encodednull), exact IEEEword not yet captured. Originalzero-coefficient predicate passes but fullzero-status parity remains open.",
+            "Public adaptive polynomial construction remains eager with inherited host NumPy state; no whole-call JIT/AD or complete minimax API/complex/rational qualification.",
+            "Rational code unchanged;5actual caller controls exercise delegation/initialization, not full rational suite.",
+            "Same9Checkmark callback probes remain unchanged; full curve construction/prose/output/figures still open.",
+            "No matched performance claim from test runtimes or removed512samplecall.",
+            "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
+          ],
+          "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minimax_norm_parent_cpu_20261018",
+              "limits": [
+                "Inherited zero-norm EPS adapter remains: actual native zero status.delta is nonfinite(encodednull), exact IEEEword not yet captured. Originalzero-coefficient predicate passes but fullzero-status parity remains open.",
+                "Public adaptive polynomial construction remains eager with inherited host NumPy state; no whole-call JIT/AD or complete minimax API/complex/rational qualification.",
+                "Rational code unchanged;5actual caller controls exercise delegation/initialization, not full rational suite.",
+                "Same9Checkmark callback probes remain unchanged; full curve construction/prose/output/figures still open.",
+                "No matched performance claim from test runtimes or removed512samplecall.",
+                "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
+              ],
+              "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -123829,11 +123860,36 @@
         {
           "artifact": "interpolation_minimax_ci_cpu_20261017",
           "scope": "Source bary loops/originalinterp1default35; minimax10/11 scalar adapters and3supplemental shape checks; full-item statuses unchanged"
+        },
+        {
+          "artifact": "minimax_norm_parent_cpu_20261018",
+          "limits": [
+            "Inherited zero-norm EPS adapter remains: actual native zero status.delta is nonfinite(encodednull), exact IEEEword not yet captured. Originalzero-coefficient predicate passes but fullzero-status parity remains open.",
+            "Public adaptive polynomial construction remains eager with inherited host NumPy state; no whole-call JIT/AD or complete minimax API/complex/rational qualification.",
+            "Rational code unchanged;5actual caller controls exercise delegation/initialization, not full rational suite.",
+            "Same9Checkmark callback probes remain unchanged; full curve construction/prose/output/figures still open.",
+            "No matched performance claim from test runtimes or removed512samplecall.",
+            "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
+          ],
+          "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "minimax_norm_parent_cpu_20261018",
+              "limits": [
+                "Inherited zero-norm EPS adapter remains: actual native zero status.delta is nonfinite(encodednull), exact IEEEword not yet captured. Originalzero-coefficient predicate passes but fullzero-status parity remains open.",
+                "Public adaptive polynomial construction remains eager with inherited host NumPy state; no whole-call JIT/AD or complete minimax API/complex/rational qualification.",
+                "Rational code unchanged;5actual caller controls exercise delegation/initialization, not full rational suite.",
+                "Same9Checkmark callback probes remain unchanged; full curve construction/prose/output/figures still open.",
+                "No matched performance claim from test runtimes or removed512samplecall.",
+                "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
+              ],
+              "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "3",

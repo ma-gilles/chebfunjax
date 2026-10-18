@@ -193,7 +193,8 @@
       "tests/test_operators/test_c1_eigs_adaptive_source.py",
       "tests/test_operators/test_eigs_system2_original_cells_source.py",
       "tests/test_cheb_bernoulli_source.py",
-      "tests/test_roots_normalization_native_source.py"
+      "tests/test_roots_normalization_native_source.py",
+      "tests/test_minimax_norm_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",

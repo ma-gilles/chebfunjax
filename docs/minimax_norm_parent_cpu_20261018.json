@@ -1,0 +1,70 @@
+{
+  "actual_parent": {
+    "distinct_checks": 61,
+    "fresh_processes": [
+      "56PASS:6new+27existing(original9included)+23CIprotocol",
+      "5PASS:rationalcaller/delegation controls including3unchanged original clauses"
+    ],
+    "raw_receipts": "Complete before/after guards, logs and terminal receipts are retained in the stream-verified parent archive; tracked report retains concise terminal summaries.",
+    "receipts": [
+      {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "error": null,
+        "events": [],
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 3966456,
+        "sent_signals": [],
+        "supervisor_exit_code": 0,
+        "wall_seconds": 97.70424701599404,
+        "write_errors": []
+      },
+      {
+        "censored_limit": null,
+        "command_exit_code": 0,
+        "error": null,
+        "events": [],
+        "inputs_stable": true,
+        "remaining_owned_pids": [],
+        "sampled_peak_summed_rss_kib": 2614460,
+        "sent_signals": [],
+        "supervisor_exit_code": 0,
+        "wall_seconds": 52.45470544602722,
+        "write_errors": []
+      }
+    ]
+  },
+  "base": "0f65dc4f22b212dc60d957baff7b96792cc0a586",
+  "checkmark": "Fresh same9fixed-input e/p/residual captures terminal0,25.412s; all compared values,iterations,coeffwords,domains and residualpieces unchanged relative to roots-normalization candidate. This is not a Checkmark repair; no expensive full7rerun repeated.",
+  "limits": [
+    "Inherited zero-norm EPS adapter remains: actual native zero status.delta is nonfinite(encodednull), exact IEEEword not yet captured. Originalzero-coefficient predicate passes but fullzero-status parity remains open.",
+    "Public adaptive polynomial construction remains eager with inherited host NumPy state; no whole-call JIT/AD or complete minimax API/complex/rational qualification.",
+    "Rational code unchanged;5actual caller controls exercise delegation/initialization, not full rational suite.",
+    "Same9Checkmark callback probes remain unchanged; full curve construction/prose/output/figures still open.",
+    "No matched performance claim from test runtimes or removed512samplecall.",
+    "All final322pages/1305figures, latest-main scientificCI and coverage>=79% remain required."
+  ],
+  "native_controls": {
+    "archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_norm_and_tiny_pencil_native_cpu_20261018.tar.gz",
+      "payloads": 15,
+      "sha256": "ce59e865438e4a6410cd19430ea301890c16b6a9bfc1f5075842e1fc9326328d",
+      "stream_verified": true
+    },
+    "baseline": "Samefinal6tests allFAIL8.24s at actual public delta; sampledmax gave.09259259 instead of native.223632357 or.182595055. No missing-helper errors.",
+    "candidate": "Samefinal6PASS7.79s;33focused checksPASS86.90s including9unchanged original clauses. No test tolerance widened.",
+    "capture": "minimax_norm_and_tiny_pencil_native_20261018/capture.json",
+    "description": "Three actual target Chebfuns: mapped t**3+t**2, amplitudes1,-3 and widths2,3. Degree1/maxiter1 public status agrees independent norm sqrt(12*width/35),levelled error1/2,maxerror37/54,delta5/(27*norm). Native convergence warning expected."
+  },
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "ownership": "1100 prior positions retained;6node file appendedCore1;1101 owners,13 lanes and79%threshold unchanged.",
+  "parent_archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/minimax_norm_parent_cpu_20261018.tar.gz",
+    "payloads": 3458,
+    "sha256": "8fb60ba2f02e36d6729795998b88c77a230ceb238c80dae0bc0aa08ed7e77c23",
+    "stream_verified": true
+  },
+  "scope": "Source continuous-L2 normalization for nonzero real scalar polynomial minimax; public correction status, machine floor and overshoot scale. No complete minimax/Checkmark/backend/performance qualification.",
+  "source": "minimax.m parseInputs opts.normf=norm(f); @chebfun/norm.m scalar default Frobenius equals continuousL2. Replace sampled512-or-more maxabs with existing public source.norm(). Existing source metadata and callable handle retained."
+}

@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Polynomial minimax continuousL2 source scale:3fresh native cases and independent formulas expose6baseline failures; actual parent61checks pass, including12original clauses and23CIprotocol. [Evidence](minimax_norm_parent_cpu_20261018.json).
+- [ ] Full minimax API/JAX/rational/zero-status/speed and Checkmark page/figures remain open; same9Checkmark probes unchanged. Latest-main scientificCI remains required.
+
+
 - [x] Native disk zero-result storage: same21controls repair19baseline failures; actual parent79checks in3fresh processes include original31/32 and23CIprotocol. Scalar-zero/equality/canceledpole/zero-remainder branches preserve native storage and rank2 stale-index errors. [Evidence](disk_zero_storage_parent_cpu_20261018.json).
 - [ ] Full disk metadata/API/JAX/complex/nonfinite/provider/performance and latest-main scientificCI remain open; inherited iszero warning remains.
 

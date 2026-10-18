@@ -318,12 +318,10 @@ def minimax(
             stacklevel=2,
         )
 
-    # ---- Estimate function norm ----
-    # Sample on a dense Chebyshev-2 grid to estimate max|f|.
-    n_dense = max(4 * n_ref, 512)
-    dense_pts = np.array(chebpts_ab(n_dense, a, b), dtype=np.float64)
-    fvals_dense = np.asarray(f(jnp.array(dense_pts)), dtype=np.float64).ravel()
-    normf = float(np.max(np.abs(fvals_dense)))
+    # Native minimax.m parseInputs uses norm(f): continuous L2 for scalar
+    # Chebfuns. This scale controls the machine floor, overshoot guard and
+    # returned status.delta; a sampled maximum changes all three contracts.
+    normf = float(source.norm())
     if normf == 0.0:
         normf = float(np.finfo(np.float64).eps)
 
