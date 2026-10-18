@@ -1,0 +1,79 @@
+{
+  "base_head": "e0714cb7a345f67386a9aadb15d1151fc847f80a",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "TreeVar SIN/COS nonfinite exact-real-axis imaginary zero; no general transcendental/IEEE/API/page closure",
+  "parent_passed": 1587,
+  "parent_xfailed": 31,
+  "parent_runtime_guard": {
+    "count": 1639,
+    "missing_or_changed": []
+  },
+  "parent_receipt": {
+    "wall_seconds": 184.81459849933162,
+    "sampled_peak_summed_rss_kib": 1352716,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "source_bridge": {
+    "src/chebfunjax/utils/elementary.py": true,
+    "src/chebfunjax/operators/treevar.py": true,
+    "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": true,
+    "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": true,
+    "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": true,
+    "docs/unary_sin_cos_axis_cpu_20261018.json": true
+  },
+  "static_proof": {
+    "preserved_elementary_functions": [
+      "_asinh_complex_real_axis",
+      "_asinh_complex_real_axis_jvp",
+      "_asinh_numeric",
+      "_asinh_real",
+      "_atanh_log1p_real"
+    ],
+    "only_new_helper": "_sin_cos_numeric",
+    "treevar_only_changes": "Import and two SIN/COS raw-map entries; normalized remaining full module AST exact",
+    "old_test_AST_prefix_unchanged": true,
+    "removed_xfail_records": [
+      [
+        "cos",
+        "complex_c_nonfinite_zero_imag"
+      ],
+      [
+        "cos",
+        "complex_d_nonfinite_mixed"
+      ],
+      [
+        "sin",
+        "complex_c_nonfinite_zero_imag"
+      ],
+      [
+        "sin",
+        "complex_d_nonfinite_mixed"
+      ]
+    ],
+    "original_native_fixtures_unchanged": true,
+    "prior_bounded_cosine_source_unchanged": true
+  },
+  "child_report": "docs/unary_sin_cos_axis_cpu_20261018.json",
+  "child_archive_review": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_package_20261018.tar.gz",
+    "sha256": "62e739af6f21efa1f6f4da019e7e46e48b06456afbc3a37443811d3155c9427e",
+    "root_stream_verified_payloads": 3561
+  },
+  "qualified_baseline": "Same86newcontrols36FAIL50PASS; two assertions may expose same input,18freshnativecases, not36distinctinputs.",
+  "original_assertions_and_fixtures": "Unchanged; only four obsolete SIN/COS expected-failure metadata records removed.",
+  "source_snapshots": 3497,
+  "initial_parent_observation": "Same1587PASS31XFAIL numerical cohort but post-test runtime audit exited1 for58coverage/stdlib inputs absent from guard; preserved and superseded by fullyguarded final run002. No numerical/library source edit between runs.",
+  "native_capture_scope": "80freshrows across sin/cos/conj/uminus are collector evidence;18selected SIN/COS cases plus four old named records repaired. No claim80repairedinputs.",
+  "ownership": "No new core file;all1110owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "remaining": [
+    "31other unary source-bound expected failures remain.",
+    "Other consumers, signedzero/subnormal/nonfinite/NaNpayload words, full API/JIT/AD/vmap/backends remain unqualified.",
+    "Pages, scientificfigures, matched performance beyond separate disk measurement, and latest-main scientificCI/coverage>=79% remain required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_parent_cpu_20261018.tar.gz",
+    "sha256": "def5ee4969c253af8b435f485a7c71f75f3a8d30965ceb2b701c240c57dc5641",
+    "root_stream_verified_payloads": 3657
+  }
+}

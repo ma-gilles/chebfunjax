@@ -1,3 +1,27 @@
+# TreeVar SIN/COS nonfinite real-axis storage — 2026-10-18
+
+SIN/COS preserve native positive imaginary zero on nonfinite exact-real-axis
+inputs; real components and finite/off-axis arithmetic are unchanged. The
+word-aware selector excludes nonzero subnormal imaginary inputs. Four obsolete
+expected-failure records removed; original fixtures/assertions/bounds preserved.
+Actual parent1587PASS31XFAIL; all1639loaded runtime files preguarded/stable.
+First numerical pass had58late coverage/stdlib guard omissions, preserved and
+superseded by a complete repeated gate without library edits. Separate child
+source-exact86control baseline36FAIL50PASS→86PASS;80native collector rows are
+not80repairedcases. No new core owner;1110/13lanes/HermiteCore12/79%unchanged.
+Full unary/IEEE/API/JAX/page/figure/performance/latestCI gaps remain open.
+Evidence: docs/unary_sin_cos_axis_parent_cpu_20261018.json.
+
+Matched source-faithful public disk Helmholtz CPU measurement on frozene071:
+Python firstcall7.441s/native.6704s, warmmedians.09536/.12499s. Nativewarmrange
+.06319–.15476s precludes a uniform warm speed claim. Sevenprobe maxdifference
+3.33e-16, coefficientmax1.67e-16; raw words differ. Both retain native deliberate
+real projection for complexK; not a complex PDE accuracy claim. First-call
+Python overhead remains~11.1x in this pair. Separate profiled call observes208
+backend compilations; profiling perturbs time and does not replace natural
+measurements. Startup/import/loading boundaries and shared-host limits explicit.
+Evidence: docs/disk_matched_performance_cpu_20261018.json.
+
 # Ultraspherical multiplication source tail stopping — 2026-10-18
 
 Shared multmat now follows the native after-recurrence absolute-eps tail test,

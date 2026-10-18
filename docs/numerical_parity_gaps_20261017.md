@@ -1,3 +1,17 @@
+## SIN/COS boundary and matched disk CPU follow-up — 2026-10-18
+
+Four native SIN/COS nonfinite real-axis storage gaps repaired; parent1587PASS/
+31XFAIL and all1639runtime files guarded. Other unary records remain open.
+[Evidence](unary_sin_cos_axis_parent_cpu_20261018.json).
+
+Matched public disk515x256case: Python firstcall7.441s/native.6704s; warmed95/125ms
+medians with native63–155msrange. Sevenprobe error3.33e-16, coefficientmax1.67e-16,
+29,073real coefficient words differ. Source real projection is deliberate for
+this complexK. Cold overhead remains; no uniform warm speed or full API claim.
+Separate profiled call records208backend compilations and~5.94scumulative compiler
+time within8.84sprofiledwall; it is diagnostic, not natural speed qualification.
+[Evidence](disk_matched_performance_cpu_20261018.json).
+
 ## Shared ultras tail and nonfinite conversion — 2026-10-18
 
 Source tail stopping now passes122parent checks; two strictxfails retain native

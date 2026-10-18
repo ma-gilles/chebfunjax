@@ -1,0 +1,2991 @@
+{
+  "pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_capture_sha256": "6428b61e81fbf5feeb28afc28c7d6f2c8d4a91568c263ac89764755d33c26f81",
+  "collector": "Direct real/imag extraction before any complex reshape; requested word identity asserted before every method call. Component hex roundtrips asserted.",
+  "requested": {
+    "methods": [
+      "sin",
+      "cos",
+      "conj",
+      "uminus"
+    ],
+    "cases": [
+      {
+        "name": "complex_b_with_nonzero_imag",
+        "real": [
+          "3fd999999999999a",
+          "bfd999999999999a",
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "0000000000000000",
+          "8000000000000000",
+          "3fd3333333333333"
+        ],
+        "shape": [
+          1,
+          3
+        ]
+      },
+      {
+        "name": "complex_c_nonfinite_zero_imag",
+        "real": [
+          "7ff0000000000000",
+          "fff8000000000000",
+          "fff0000000000000"
+        ],
+        "imag": [
+          "0000000000000000",
+          "0000000000000000",
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          3
+        ]
+      },
+      {
+        "name": "complex_d_nonfinite_mixed",
+        "real": [
+          "7ff0000000000000",
+          "fff8000000000000",
+          "fff0000000000000",
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "0000000000000000",
+          "8000000000000000",
+          "0000000000000000",
+          "3fd3333333333333"
+        ],
+        "shape": [
+          1,
+          4
+        ]
+      },
+      {
+        "name": "complex_min_subnormal_imag",
+        "real": [
+          "3fd999999999999a",
+          "bfd999999999999a"
+        ],
+        "imag": [
+          "0000000000000001",
+          "8000000000000001"
+        ],
+        "shape": [
+          1,
+          2
+        ]
+      },
+      {
+        "name": "pzero_pzero",
+        "real": [
+          "0000000000000000"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "pzero_nzero",
+        "real": [
+          "0000000000000000"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "nzero_pzero",
+        "real": [
+          "8000000000000000"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "nzero_nzero",
+        "real": [
+          "8000000000000000"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "p04_pzero",
+        "real": [
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "p04_nzero",
+        "real": [
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "n04_pzero",
+        "real": [
+          "bfd999999999999a"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "n04_nzero",
+        "real": [
+          "bfd999999999999a"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "pinf_pzero",
+        "real": [
+          "7ff0000000000000"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "pinf_nzero",
+        "real": [
+          "7ff0000000000000"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "ninf_pzero",
+        "real": [
+          "fff0000000000000"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "ninf_nzero",
+        "real": [
+          "fff0000000000000"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "nan_pzero",
+        "real": [
+          "7ff8000000000000"
+        ],
+        "imag": [
+          "0000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "nan_nzero",
+        "real": [
+          "7ff8000000000000"
+        ],
+        "imag": [
+          "8000000000000000"
+        ],
+        "shape": [
+          1,
+          1
+        ]
+      },
+      {
+        "name": "finite_axis_mixed_zero_signs",
+        "real": [
+          "3fd999999999999a",
+          "bfd999999999999a",
+          "4000000000000000",
+          "c000000000000000",
+          "0000000000000000",
+          "8000000000000000",
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "0000000000000000",
+          "8000000000000000",
+          "0000000000000000",
+          "8000000000000000",
+          "0000000000000000",
+          "8000000000000000",
+          "3fd3333333333333"
+        ],
+        "shape": [
+          1,
+          7
+        ]
+      },
+      {
+        "name": "nonfinite_axis_with_side_control",
+        "real": [
+          "7ff0000000000000",
+          "fff0000000000000",
+          "7ff8000000000000",
+          "3fd999999999999a"
+        ],
+        "imag": [
+          "8000000000000000",
+          "0000000000000000",
+          "8000000000000000",
+          "3fd3333333333333"
+        ],
+        "shape": [
+          2,
+          2
+        ]
+      }
+    ]
+  },
+  "capture": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "affinity": "36-39",
+    "rows": [
+      {
+        "name": "complex_b_with_nonzero_imag",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fda0d8011f25460"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "3fd1f369c910ca48"
+          ]
+        }
+      },
+      {
+        "name": "complex_b_with_nonzero_imag",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fed7954e7dba2f8",
+            "3fed7954e7dba2f8",
+            "3feecf6d00834b09"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "bfbe5ba360afecac"
+          ]
+        }
+      },
+      {
+        "name": "complex_b_with_nonzero_imag",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "complex_b_with_nonzero_imag",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a",
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "complex_c_nonfinite_zero_imag",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000",
+            "fff8000000000000",
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "complex_c_nonfinite_zero_imag",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "complex_c_nonfinite_zero_imag",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": true,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "complex_c_nonfinite_zero_imag",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            3
+          ],
+          "isreal": true,
+          "real": [
+            "fff0000000000000",
+            "7ff8000000000000",
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "complex_d_nonfinite_mixed",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "fff8000000000000",
+            "fff8000000000000",
+            "fff8000000000000",
+            "3fda0d8011f25460"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "3fd1f369c910ca48"
+          ]
+        }
+      },
+      {
+        "name": "complex_d_nonfinite_mixed",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "3feecf6d00834b09"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfbe5ba360afecac"
+          ]
+        }
+      },
+      {
+        "name": "complex_d_nonfinite_mixed",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "complex_d_nonfinite_mixed",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            4
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000",
+            "7ff8000000000000",
+            "7ff0000000000000",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "complex_min_subnormal_imag",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000001",
+            "8000000000000001"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b"
+          ],
+          "imag": [
+            "0000000000000001",
+            "8000000000000001"
+          ]
+        }
+      },
+      {
+        "name": "complex_min_subnormal_imag",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000001",
+            "8000000000000001"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": true,
+          "real": [
+            "3fed7954e7dba2f8",
+            "3fed7954e7dba2f8"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "complex_min_subnormal_imag",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000001",
+            "8000000000000001"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "8000000000000001",
+            "0000000000000001"
+          ]
+        }
+      },
+      {
+        "name": "complex_min_subnormal_imag",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000001",
+            "8000000000000001"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000001",
+            "0000000000000001"
+          ]
+        }
+      },
+      {
+        "name": "pzero_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pzero_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nzero_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "8000000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "0000000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd8ec3ae92b676b"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fed7954e7dba2f8"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd8ec3ae92b676b"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fed7954e7dba2f8"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "p04_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd8ec3ae92b676b"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fed7954e7dba2f8"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd8ec3ae92b676b"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fed7954e7dba2f8"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "n04_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "pinf_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "ninf_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff0000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_pzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_pzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_pzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_pzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_nzero",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_nzero",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_nzero",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "nan_nzero",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000"
+          ],
+          "imag": [
+            "8000000000000000"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            1
+          ],
+          "isreal": true,
+          "real": [
+            "fff8000000000000"
+          ],
+          "imag": [
+            "0000000000000000"
+          ]
+        }
+      },
+      {
+        "name": "finite_axis_mixed_zero_signs",
+        "method": "sin",
+        "input": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "4000000000000000",
+            "c000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd8ec3ae92b676b",
+            "bfd8ec3ae92b676b",
+            "3fed18f6ead1b446",
+            "bfed18f6ead1b446",
+            "0000000000000000",
+            "8000000000000000",
+            "3fda0d8011f25460"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "3fd1f369c910ca48"
+          ]
+        }
+      },
+      {
+        "name": "finite_axis_mixed_zero_signs",
+        "method": "cos",
+        "input": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "4000000000000000",
+            "c000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fed7954e7dba2f8",
+            "3fed7954e7dba2f8",
+            "bfdaa22657537205",
+            "bfdaa22657537205",
+            "3ff0000000000000",
+            "3ff0000000000000",
+            "3feecf6d00834b09"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfbe5ba360afecac"
+          ]
+        }
+      },
+      {
+        "name": "finite_axis_mixed_zero_signs",
+        "method": "conj",
+        "input": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "4000000000000000",
+            "c000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "4000000000000000",
+            "c000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "finite_axis_mixed_zero_signs",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "3fd999999999999a",
+            "bfd999999999999a",
+            "4000000000000000",
+            "c000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            1,
+            7
+          ],
+          "isreal": false,
+          "real": [
+            "bfd999999999999a",
+            "3fd999999999999a",
+            "c000000000000000",
+            "4000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "nonfinite_axis_with_side_control",
+        "method": "sin",
+        "input": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff0000000000000",
+            "7ff8000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "fff8000000000000",
+            "fff8000000000000",
+            "fff8000000000000",
+            "3fda0d8011f25460"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "3fd1f369c910ca48"
+          ]
+        }
+      },
+      {
+        "name": "nonfinite_axis_with_side_control",
+        "method": "cos",
+        "input": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff0000000000000",
+            "7ff8000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "3feecf6d00834b09"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfbe5ba360afecac"
+          ]
+        }
+      },
+      {
+        "name": "nonfinite_axis_with_side_control",
+        "method": "conj",
+        "input": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff0000000000000",
+            "7ff8000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff0000000000000",
+            "7ff8000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      },
+      {
+        "name": "nonfinite_axis_with_side_control",
+        "method": "uminus",
+        "input": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "7ff0000000000000",
+            "fff0000000000000",
+            "7ff8000000000000",
+            "3fd999999999999a"
+          ],
+          "imag": [
+            "8000000000000000",
+            "0000000000000000",
+            "8000000000000000",
+            "3fd3333333333333"
+          ]
+        },
+        "output": {
+          "shape": [
+            2,
+            2
+          ],
+          "isreal": false,
+          "real": [
+            "fff0000000000000",
+            "7ff0000000000000",
+            "fff8000000000000",
+            "bfd999999999999a"
+          ],
+          "imag": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "bfd3333333333333"
+          ]
+        }
+      }
+    ],
+    "seconds": 0.087408,
+    "complete": true
+  }
+}

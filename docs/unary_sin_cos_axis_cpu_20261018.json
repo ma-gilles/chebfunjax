@@ -1,0 +1,179 @@
+{
+  "base_head": "0f0b6095c060c93807802a99356c873c70619ef7",
+  "scope": "TreeVar numeric SIN/COS nonfinite exact-real-axis imaginary zero and storage; CPU only. No whole unary/API/page/JAX/nonfinite closure.",
+  "native": {
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "cases": 80,
+    "requested_shapes": 20,
+    "methods": [
+      "sin",
+      "cos",
+      "conj",
+      "uminus"
+    ],
+    "seconds": 0.087408,
+    "all_requested_components_asserted_before_dispatch": true,
+    "component_extraction": "Direct real(z)/imag(z) before flattening the separate real arrays; no complex z(:) packing. Hex roundtrips asserted.",
+    "collector_controls": "Conj/uminus mixed-array positive imaginary zeros reproduced with requested input signs intact; convention is genuine, no conj/uminus correction made.",
+    "selected_original_rows_reproduced": 4,
+    "slot": "released"
+  },
+  "classification": {
+    "count": 35,
+    "by_method": {
+      "tan": 14,
+      "tanh": 6,
+      "atan": 1,
+      "conj": 2,
+      "cos": 3,
+      "exp": 1,
+      "expm1": 1,
+      "sin": 4,
+      "sinh": 1,
+      "uminus": 2
+    },
+    "proposed_family": "sin/cos nonfinite real axis; conj/uminus as input/output collector sign integrity controls; no fixture or arithmetic modification yet",
+    "families": {
+      "exact_zero_sign_conventions": 22,
+      "nonfinite_exact_real_axis": 6,
+      "minimum_subnormal_imaginary_loss": 7
+    },
+    "selected_repair": {
+      "records": 4,
+      "methods": [
+        "sin",
+        "cos"
+      ],
+      "labels": [
+        "complex_c_nonfinite_zero_imag",
+        "complex_d_nonfinite_mixed"
+      ]
+    },
+    "remaining_records": 31,
+    "remaining_families": {
+      "exact_zero_sign_conventions": 22,
+      "tan_nonfinite_exact_real_axis": 2,
+      "minimum_subnormal_imaginary_loss": 7
+    }
+  },
+  "qualified_baseline": {
+    "total": 86,
+    "failures": 36,
+    "skipped": 0,
+    "passed": 50,
+    "seconds": 5.113,
+    "new_controls": 86,
+    "new_control_failures": 36
+  },
+  "qualified_final": {
+    "total": 1595,
+    "failures": 0,
+    "skipped": 31,
+    "passed": 1564,
+    "seconds": 202.22,
+    "new_controls": 86,
+    "new_control_failures": 0
+  },
+  "new_test_breakdown": {
+    "fresh_native_scalar_array": 18,
+    "primal_component_preservation": 40,
+    "nonfinite_real_subnormal_imag_exclusion": 4,
+    "finite_transverse_jvp": 24
+  },
+  "source_change": "Only nonfinite-real, word-exact-zero-imaginary SIN/COS imaginary outputs become positive zero. Existing JAX real result and all finite/off-axis arithmetic retained; existing eager storage wrapper retained.",
+  "source_mathematical_basis": "Source numeric dispatch calls builtins. Independent pinned native raw-word capture establishes this boundary convention. Finite inputs and all nonzero imaginary words are outside the correction, including subnormals; normal transverse derivatives retain the original JAX path. No limiting or universal correctly-rounded transcendental claim.",
+  "static_review": {
+    "base_head": "0f0b6095c060c93807802a99356c873c70619ef7",
+    "source": "Only new private helper and sin/cos TreeVar raw-map entries change. All prior elementary functions and TreeVar functions/other raw-map values exact AST.",
+    "existing_test_AST_prefix_unchanged": true,
+    "original_fixture_and_assertion_bytes_unchanged_except_four_obsolete_xfail_records": true,
+    "open_records": 31,
+    "native_requested_component_identity_all80": true,
+    "fresh_native_reproduces_all_four_original_fixture_rows": true,
+    "protected_cosine_source_bytes": {
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78",
+      "tests/test_utils/test_bounded_cosine_derivatives_source.py": "b6affa5c9d6dd575a1dcc69946bd208aad4c5d7409e4319ef90e024e84753742",
+      "tests/test_utils/test_pde_large_arithmetic_native.py": "3b872b82cbc3d7a0714ebae263ca2a8685e68fa133d5a6252e5e33da41a3e566"
+    },
+    "no_CI_owner_or_configuration_changes": true
+  },
+  "baseline_source_exact": {
+    "src/chebfunjax/utils/elementary.py": "13f5946bbfbfc417e2c936edf59e2d19a1714c272df0109a201a63b4e8453908",
+    "src/chebfunjax/operators/treevar.py": "291afc41e08b913ff06168fe62462970cd6f7eb51791cd0b8a981e5d63412d72"
+  },
+  "runtime_guards": {
+    "qualified_baseline": {
+      "count": 1481,
+      "all_preguarded_unchanged": true
+    },
+    "qualified_final": {
+      "count": 1581,
+      "all_preguarded_unchanged": true
+    }
+  },
+  "censored_diagnostics": "Earlier broad3986-item attempt hit240s at about58%; initial focused1600-item attempt completed relevant unary/original/cosine checks but hit240s in unrelated large PDE arithmetic. Neither counts as a passing gate. Their source guards were stable, all owned trees terminal. The earlier broad inventory also omitted some JSON references; final comparison arms guard every tracked source/test/script asset.",
+  "supervision": {
+    "unary_axis_native_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1255624,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_axis_baseline_tests_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 632336,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_axis_candidate_tests_run001_20261018": {
+      "command_exit_code": -15,
+      "censored_limit": "wall_timeout",
+      "sampled_peak_summed_rss_kib": 1896324,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_axis_final_tests_run001_20261018": {
+      "command_exit_code": -15,
+      "censored_limit": "wall_timeout",
+      "sampled_peak_summed_rss_kib": 4096628,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_axis_qualified_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 633636,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_axis_qualified_final_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1334400,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "validation": "Full ruff src/tests/scripts/examples and git diff --check pass; source/test/native fixture assertions/bounds preserved. Four obsolete expected-failure records removed,35\u219231; no CI owner/config changes.",
+  "remaining": [
+    "31 unary arithmetic expected-failure records remain, including other zero signs, minimum-subnormal imaginary storage, and TAN nonfinite-axis cases.",
+    "Conj/uminus conventions and finite-axis SIN/COS imaginary zero signs are separate unchanged gaps.",
+    "Existing raw finite/off-axis provider differences, extreme derivative behavior, full JIT/AD/vmap/API/nonfinite/backend semantics, page parity, performance and latest-main scientificCI remain open.",
+    "All native fixture words remain immutable. New native fixture is test-only and never read by production library code."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_package_20261018.tar.gz",
+    "sha256": "62e739af6f21efa1f6f4da019e7e46e48b06456afbc3a37443811d3155c9427e",
+    "bytes": 39421862,
+    "payloads": 3561
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_stream_hashes_20261018.json",
+    "sha256": "cfe1bd22b7418fb621b313b46f4666c58db6d954ec6f35e8445baf34d9522cfc"
+  }
+}

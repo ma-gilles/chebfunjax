@@ -27,6 +27,11 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] TreeVar SIN/COS nonfinite exact-real-axis storage: four obsolete xfail records removed; actual parent **1587PASS31XFAIL**, all1639runtime files guarded. Original fixtures/assertions/bounds and finite/off-axis arithmetic retained. [Evidence](unary_sin_cos_axis_parent_cpu_20261018.json).
+- [ ] Other31unary records, full IEEE/API/JAX, pages/figures/performance and latestCI remain open.
+- [x] Matched public disk Helmholtz CPU measurement: firstcallPython7.441s/native.6704s; warmmedians95/125ms with broad native63–155msrange. Probeerror3.33e-16; no exact-word or uniform warm speed claim. [Evidence](disk_matched_performance_cpu_20261018.json).
+- [ ] First-call overhead~11.1x remains in this pair. Full native performance across resolutions/inputs, complete API/status/JAX behavior and latestCI remain open.
+
 - [x] Restore native shared ultras multiplication tail stopping. Parent **122PASS2XFAIL**; original bounds retained. Single matched515assembly pair14.99→3.79s, outputs word-identical at threeKvalues. All1109prior core owners retained+1. [Evidence](ultras_tail_parent_cpu_20261018.json).
 - [ ] Native sparse NaN/Inf conversion remains incorrect in the dense adapter; two named expected failures now assert native behavior. Full API/JAX/performance/latestCI remain open.
 - [x] HermiteQuad n11 printed discrepancy localized to external dot accumulation with fresh12row/native-cosine cross-replay and exact-rational controls. [Evidence](hermitequad_n11_attribution_cpu_20261018.json).

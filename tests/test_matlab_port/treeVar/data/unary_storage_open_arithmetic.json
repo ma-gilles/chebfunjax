@@ -52,29 +52,6 @@
     },
     {
       "packet": "unary_storage_native_arrays.json",
-      "method": "cos",
-      "label": "complex_c_nonfinite_zero_imag",
-      "failures": [
-        "storage",
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "cos",
-      "label": "complex_d_nonfinite_mixed",
-      "failures": [
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
       "method": "exp",
       "label": "complex_min_subnormal_imag",
       "failures": [
@@ -97,31 +74,6 @@
       "label": "complex_b_with_nonzero_imag",
       "failures": [
         "imag_zero_sign"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "sin",
-      "label": "complex_c_nonfinite_zero_imag",
-      "failures": [
-        "storage",
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_sign",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "sin",
-      "label": "complex_d_nonfinite_mixed",
-      "failures": [
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_sign",
-        "imag_zero_class"
       ]
     },
     {

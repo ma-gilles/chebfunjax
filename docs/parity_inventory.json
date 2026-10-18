@@ -255,6 +255,23 @@
       "scope": "JAX disk Helmholtz coefficient provider and all ten default original predicates; actual parent47nodes pass; inherited providers/full API/sparse speed/CI remain open",
       "sha256": "7e694ebf94131a0a570f411a9844b85be73ec472a882129e61713c1b551280a2"
     },
+    "disk_matched_performance_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3862,
+        "sha256": "81b6d09025cb862c0f99f55b848471e88769b0f7feceb1618b87b616fe338387"
+      },
+      "limits": [
+        "Single cold pair and five warm samples, source-faithful projected-real output only.",
+        "Native runtime startup excluded; JAX compile cache disabled; CPU affinity/OMP/BLAS caps agree but internal provider schedules are not identical.",
+        "Coefficients and probes differ; performance measurement does not prove full API/IEEE/word/page parity.",
+        "No new test tolerances or source changes; latest-main CI remains required.",
+        "Process startup and input construction are excluded. Python module imports are outside timing; initial native lazy class/function loading may occur inside its first public call. BLAS/OMP1 and four allowed CPUs agree; internal provider schedules need not match. Five warm samples are descriptive shared-host observations."
+      ],
+      "report": "docs/disk_matched_performance_cpu_20261018.json",
+      "report_sha256": "04f09d9423474b0c06750318284620a6420f58fcbcf7ddd7f44dd9e2a566e1b3",
+      "scope": "Matched numeric input/resolution/dtypes/affinity44\u201347 and BLAS/OMP1, sequential processes on same shared host. First public call and five warmed calls; imports/startup excluded. No uniform warm speed advantage established because native range is broad."
+    },
     "disk_poles_bernoulli_parent_cpu_20261018": {
       "path": "docs/disk_poles_bernoulli_parent_cpu_20261018.json",
       "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately",
@@ -756,6 +773,21 @@
       "report": "docs/ultras_tail_parent_cpu_20261018.json",
       "report_sha256": "af247255c6b4d721cd73841873699697a8fe84ddee83826f95f26e82df969e3f",
       "scope": "Shared ultras.multmat lam>=2 literal native after-recurrence tail stopping, not disk-only optimization. No wholeJIT/AD/API/native speed claim."
+    },
+    "unary_sin_cos_axis_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_axis_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3657,
+        "sha256": "def5ee4969c253af8b435f485a7c71f75f3a8d30965ceb2b701c240c57dc5641"
+      },
+      "limits": [
+        "31other unary source-bound expected failures remain.",
+        "Other consumers, signedzero/subnormal/nonfinite/NaNpayload words, full API/JIT/AD/vmap/backends remain unqualified.",
+        "Pages, scientificfigures, matched performance beyond separate disk measurement, and latest-main scientificCI/coverage>=79% remain required."
+      ],
+      "report": "docs/unary_sin_cos_axis_parent_cpu_20261018.json",
+      "report_sha256": "b093ca55830b2b3819f84f1fad3dcaa07155b2ac55187c90d19aeb902849fa93",
+      "scope": "TreeVar SIN/COS nonfinite exact-real-axis imaginary zero; no general transcendental/IEEE/API/page closure"
     },
     "unbounded_diff_query_adapter_cpu_20261018": {
       "path": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
@@ -75897,6 +75929,10 @@
         {
           "artifact": "disk_banded_parent_cpu_20261018",
           "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
+        },
+        {
+          "artifact": "disk_matched_performance_cpu_20261018",
+          "scope": "One matched public numeric515x256input; first-call overhead remains11.1x, warmvariance limits conclusions. Source projected-real complexK output; no full speed/API/word closure."
         }
       ],
       "functions": [
@@ -75909,6 +75945,10 @@
             {
               "artifact": "disk_banded_parent_cpu_20261018",
               "scope": "Exact band solve with unchanged original predicates/bounds;81parent checks plus36separate worker JVP equation controls. Full API/status/nonfinite/native speed not established."
+            },
+            {
+              "artifact": "disk_matched_performance_cpu_20261018",
+              "scope": "One matched public numeric515x256input; first-call overhead remains11.1x, warmvariance limits conclusions. Source projected-real complexK output; no full speed/API/word closure."
             }
           ],
           "implementation_status": "unverified",
@@ -89701,6 +89741,10 @@
         {
           "artifact": "asinh_axis_parent_cpu_20261018",
           "scope": "ASINH primitive numerical adapters and public consumer controls only; no whole source/API closure."
+        },
+        {
+          "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
+          "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
         }
       ],
       "functions": [
@@ -89873,7 +89917,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
+              "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "199",
@@ -90145,7 +90194,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "unary_sin_cos_axis_parent_cpu_20261018",
+              "scope": "Only SIN/COS nonfinite exact-real-axis imaginary zero.1587parentPASS31XFAIL; original bounds retained. No full function/API/IEEE closure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "472",

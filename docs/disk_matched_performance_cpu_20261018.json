@@ -1,0 +1,249 @@
+{
+  "input_identity": {
+    "internal_m": 515,
+    "n": 256,
+    "public_m": 257,
+    "K_words_exact": true,
+    "all14query_coordinate_words_exact": true,
+    "forcing": "Both construct complex zeros(515,256) with native(1,129)/Python[0,128]=1",
+    "boundary": "Zero vector on each original source theta grid"
+  },
+  "source_projection": "Native coeffs2diskfun explicitly discards imaginary physical values. Both public outputs are real for this complexK; this benchmark is source behavior, not complex PDE accuracy qualification.",
+  "probes": {
+    "python_real": [
+      -0.2720823286213556,
+      -0.26771651715232136,
+      -0.2546410380535824,
+      -0.20266788882175332,
+      -0.11721053943497162,
+      -0.06244009687838714,
+      -2.7755575615628914e-17
+    ],
+    "native_real": [
+      -0.27208232862135595,
+      -0.2677165171523217,
+      -0.2546410380535826,
+      -0.20266788882175335,
+      -0.11721053943497164,
+      -0.062440096878387,
+      1.942890293094024e-16
+    ],
+    "max_absolute_difference": 3.3306690738754696e-16
+  },
+  "coefficients": {
+    "shape": [
+      515,
+      256
+    ],
+    "max_absolute_difference": 1.6653345369377348e-16,
+    "real_words_different": 29073,
+    "imag_words_different": 0,
+    "finite_classes_equal": true,
+    "python_rank": 1,
+    "native_rank": 1
+  },
+  "performance": {
+    "python_cold_public_s": 7.441144979093224,
+    "native_cold_public_s": 0.670435,
+    "python_over_native_cold_ratio": 11.098980481468336,
+    "python_warm_public_s": [
+      0.10405839327722788,
+      0.0981602449901402,
+      0.09535604296252131,
+      0.09241617703810334,
+      0.09387278463691473
+    ],
+    "native_warm_public_s": [
+      0.143594,
+      0.154755,
+      0.072164,
+      0.124987,
+      0.06319
+    ],
+    "python_warm_median_s": 0.09535604296252131,
+    "native_warm_median_s": 0.124987,
+    "python_over_native_warm_median_ratio": 0.7629276881797412
+  },
+  "scope": "Matched numeric input/resolution/dtypes/affinity44\u201347 and BLAS/OMP1, sequential processes on same shared host. First public call and five warmed calls; imports/startup excluded. No uniform warm speed advantage established because native range is broad.",
+  "limits": [
+    "Single cold pair and five warm samples, source-faithful projected-real output only.",
+    "Native runtime startup excluded; JAX compile cache disabled; CPU affinity/OMP/BLAS caps agree but internal provider schedules are not identical.",
+    "Coefficients and probes differ; performance measurement does not prove full API/IEEE/word/page parity.",
+    "No new test tolerances or source changes; latest-main CI remains required."
+  ],
+  "native_version": "25.2.0.3055257 (R2025b) Update 2",
+  "native_blas": "Intel(R) oneAPI Math Kernel Library Version 2024.1-Product Build 20240215 for Intel(R) 64 architecture applications (CNR branch auto)",
+  "source_commit": "e0714cb7a345f67386a9aadb15d1151fc847f80a",
+  "receipts": [
+    {
+      "run": "disk_matched_python_run001",
+      "wall_seconds": 12.58584444783628,
+      "sampled_peak_summed_rss_kib": 1099560,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "disk_matched_native_run001",
+      "wall_seconds": 79.18089698022231,
+      "sampled_peak_summed_rss_kib": 1419496,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "disk_matched_comparison_run001",
+      "wall_seconds": 1.36969885090366,
+      "sampled_peak_summed_rss_kib": 45128,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  ],
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "parent_scope": "Measurement on frozen published e0714cb7; no source/test/fixture change or full API/page/performance parity claim.",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_cpu_20261018.tar.gz",
+    "sha256": "81b6d09025cb862c0f99f55b848471e88769b0f7feceb1618b87b616fe338387",
+    "root_stream_verified_payloads": 3862
+  },
+  "timing_boundary_note": "Process startup and input construction are excluded. Python module imports are outside timing; initial native lazy class/function loading may occur inside its first public call. BLAS/OMP1 and four allowed CPUs agree; internal provider schedules need not match. Five warm samples are descriptive shared-host observations.",
+  "cold_profile": {
+    "scope": "Python cProfile diagnostic on frozen e071 published source; profiling perturbs timings. Not a new performance comparison or natural full-call time.",
+    "affinity": [
+      40,
+      41,
+      42,
+      43
+    ],
+    "observed_profiled_seconds": 8.84077477734536,
+    "selected": [
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/diskfun/diskfun.py",
+        "line": 3768,
+        "name": "_diskfun_helmholtz_ultras",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 0.000263727,
+        "cumulative_seconds": 8.840254249000001
+      },
+      {
+        "path": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/interpreters/pxla.py",
+        "line": 1520,
+        "name": "_cached_compilation",
+        "primitive_calls": 208,
+        "calls": 208,
+        "total_seconds": 0.003099498,
+        "cumulative_seconds": 5.981725412
+      },
+      {
+        "path": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "line": 384,
+        "name": "compile_or_get_cached",
+        "primitive_calls": 208,
+        "calls": 208,
+        "total_seconds": 0.002981444,
+        "cumulative_seconds": 5.942288152000001
+      },
+      {
+        "path": "/home/mg6942/.cache/rattler/cache/uv-cache/wheels-v5/pypi/jax/0.11.0-py3-none-any/jax/_src/compiler.py",
+        "line": 289,
+        "name": "backend_compile_and_load",
+        "primitive_calls": 208,
+        "calls": 208,
+        "total_seconds": 5.93483959,
+        "cumulative_seconds": 5.9350598450000005
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/diskfun/_helmholtz.py",
+        "line": 87,
+        "name": "assemble_operator",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 3.9384e-05,
+        "cumulative_seconds": 3.772553944
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/diskfun/_helmholtz.py",
+        "line": 101,
+        "name": "_assemble_operator",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 0.006767444,
+        "cumulative_seconds": 3.6934578950000003
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/discretization/ultras.py",
+        "line": 295,
+        "name": "multmat",
+        "primitive_calls": 3,
+        "calls": 3,
+        "total_seconds": 0.001463932,
+        "cumulative_seconds": 3.339598107
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/diskfun/diskfun.py",
+        "line": 1863,
+        "name": "coeffs2diskfun",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 0.000150704,
+        "cumulative_seconds": 2.4873141750000003
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/diskfun/diskfun.py",
+        "line": 2028,
+        "name": "from_values",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 0.000260401,
+        "cumulative_seconds": 2.2010025570000002
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/discretization/ultras.py",
+        "line": 194,
+        "name": "convertmat",
+        "primitive_calls": 3,
+        "calls": 3,
+        "total_seconds": 9.496000000000001e-05,
+        "cumulative_seconds": 0.47038166600000003
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/discretization/ultras.py",
+        "line": 45,
+        "name": "diffmat",
+        "primitive_calls": 2,
+        "calls": 2,
+        "total_seconds": 5.0173e-05,
+        "cumulative_seconds": 0.309178999
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/tech/chebtech.py",
+        "line": 3094,
+        "name": "from_values",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 4.4092000000000004e-05,
+        "cumulative_seconds": 0.22025962300000002
+      },
+      {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_matched_performance_20261018/src/chebfunjax/tech/trigtech.py",
+        "line": 1559,
+        "name": "from_values",
+        "primitive_calls": 1,
+        "calls": 1,
+        "total_seconds": 6.9991e-05,
+        "cumulative_seconds": 0.20112415900000002
+      }
+    ],
+    "receipt": {
+      "wall_seconds": 12.47674747183919,
+      "sampled_peak_summed_rss_kib": 988372,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "archive": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_cold_profile_cpu_20261018.tar.gz",
+      "sha256": "66bc267be68c17f34bd853c1c9dc5123199b96ca75fb88833295881d79f7440c",
+      "root_stream_verified_payloads": 14
+    },
+    "source_snapshot": "Same e071 source as matched-performance archive; separate profiled call, not another natural speed comparison."
+  }
+}

@@ -157,3 +157,84 @@ def test_asinh_native_axis_and_gradual_underflow(case, row):
             normal = np.isfinite(target) & ~tiny
             assert np.all(np.abs(values[normal]-target[normal]) <=
                           8*np.finfo(float).eps*np.maximum(1., np.abs(target[normal])))
+
+
+SIN_COS_AXIS_CAPTURE = json.loads(
+    (DATA/'sin_cos_nonfinite_axis_native_20261018.json').read_text())
+SIN_COS_AXIS_ROWS = [r for r in SIN_COS_AXIS_CAPTURE['capture']['rows']
+                     if r['method'] in ('sin', 'cos')]
+SIN_COS_NONFINITE_ROWS = [r for r in SIN_COS_AXIS_ROWS
+                          if 'nonfinite' in r['name'] or
+                          r['name'].startswith(('pinf_', 'ninf_', 'nan_'))]
+
+
+def _decode_sin_cos_capture(row):
+    value = np.empty(len(row['real']), dtype=np.complex128)
+    value.real = np.array([int(v, 16) for v in row['real']], np.uint64).view(np.float64)
+    value.imag = np.array([int(v, 16) for v in row['imag']], np.uint64).view(np.float64)
+    return value.reshape(row['shape'], order='F')
+
+
+@pytest.mark.parametrize('row', SIN_COS_NONFINITE_ROWS,
+                         ids=lambda r:r['method']+'_'+r['name'])
+def test_sin_cos_native_nonfinite_real_axis(row):
+    """Fresh scalar/mixed native controls retain real NaNs and exact imag zeros."""
+    value = jnp.asarray(_decode_sin_cos_capture(row['input']))
+    target = _decode_sin_cos_capture(row['output'])
+    eager = np.asarray(_UNARY_FNS[row['method']](value))
+    assert (not np.iscomplexobj(eager)) == row['output']['isreal']
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW[row['method']])(value))):
+        assert got.shape == target.shape
+        for actual, expected in ((got.real, target.real), (got.imag, target.imag)):
+            assert np.array_equal(np.isnan(actual), np.isnan(expected))
+            assert np.array_equal(np.isposinf(actual), np.isposinf(expected))
+            assert np.array_equal(np.isneginf(actual), np.isneginf(expected))
+            finite = np.isfinite(expected)
+            assert np.all(np.abs(actual[finite]-expected[finite]) <=
+                          8*np.finfo(float).eps*np.maximum(1., np.abs(expected[finite])))
+            zero = expected == 0
+            assert np.array_equal(actual == 0, zero)
+            assert np.array_equal(np.signbit(actual[zero]), np.signbit(expected[zero]))
+
+
+@pytest.mark.parametrize('row', SIN_COS_AXIS_ROWS,
+                         ids=lambda r:r['method']+'_'+r['name'])
+def test_sin_cos_only_nonfinite_axis_imaginary_component_changes(row):
+    """All original real words and all out-of-scope imaginary words stay exact."""
+    value = _decode_sin_cos_capture(row['input'])
+    original = np.asarray(getattr(jnp, row['method'])(jnp.asarray(value)))
+    got = np.asarray(_UNARY_FNS_RAW[row['method']](jnp.asarray(value)))
+    assert got.shape == original.shape and got.dtype == original.dtype
+    assert got.real.tobytes() == original.real.tobytes()
+    zero_imag = (value.imag.copy().view(np.uint64) & np.uint64(0x7fffffffffffffff)) == 0
+    selected = ~np.isfinite(value.real) & zero_imag
+    assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
+    assert np.all(got.imag[selected].copy().view(np.uint64) == 0)
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_sin_cos_nonzero_subnormal_imaginary_is_outside_axis_repair(name, dtype):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    value = np.empty(6, dtype=dtype)
+    value.real = [np.inf, -np.inf, np.nan, np.inf, -np.inf, np.nan]
+    value.imag = [tiny, tiny, tiny, -tiny, -tiny, -tiny]
+    original = getattr(jnp, name)(jnp.asarray(value))
+    for fn in (_UNARY_FNS_RAW[name], jax.jit(_UNARY_FNS_RAW[name])):
+        got = fn(jnp.asarray(value))
+        assert np.asarray(got).tobytes() == np.asarray(original).tobytes()
+
+
+@pytest.mark.parametrize('name', ['sin', 'cos'])
+@pytest.mark.parametrize('dtype', [jnp.complex64, jnp.complex128])
+@pytest.mark.parametrize('z', [.4+0j, -.4-0j, 0j, 1j, -1j, .4+.3j])
+def test_sin_cos_finite_transverse_jvp_retained(name, dtype, z):
+    value = jnp.asarray(z, dtype=dtype)
+    real_dtype = np.float32 if dtype == jnp.complex64 else np.float64
+    for tangent_value in [1., 1j]:
+        tangent = jnp.asarray(tangent_value, dtype=dtype)
+        expected = jax.jvp(getattr(jnp, name), (value,), (tangent,))[1]
+        for fn in (_UNARY_FNS[name], jax.jit(_UNARY_FNS[name])):
+            _, got = jax.jvp(fn, (value,), (tangent,))
+            assert jnp.abs(got-expected) <= 10*np.finfo(real_dtype).eps
