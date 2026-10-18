@@ -1,0 +1,110 @@
+{
+  "base_head": "7492f6ca71e4a95d86346028c842df74706f4176",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Source disk Helmholtz coefficient/forcing/boundary assembly and parity-batched dense solve ported to JAX; exact complex K\u00b2 retained",
+  "changes": [
+    "Remove NumPy numerical arithmetic/solve from _diskfun_helmholtz_ultras; inherited Diskfun constructors/coeffs2 remain separate.",
+    "Respect native multiply/divide/subtract ordering in Sherman-Morrison correction using separate scan iterations.",
+    "Promote Python/scalar K to double components before JIT entry and square, including integer10**20."
+  ],
+  "parent_tests": [
+    {
+      "run": "disk_helmholtz_parent_original_run001",
+      "passed": 13,
+      "pytest_seconds": 300.6,
+      "supervised_wall_seconds": 318.14853611402214,
+      "sampled_peak_summed_rss_kib": 7088024,
+      "guard_stable": true,
+      "remaining_owned_pids": []
+    },
+    {
+      "run": "disk_helmholtz_parent_focused_run002",
+      "passed": 34,
+      "pytest_seconds": 31.14,
+      "supervised_wall_seconds": 36.832472492940724,
+      "sampled_peak_summed_rss_kib": 2027524,
+      "guard_stable": true,
+      "remaining_owned_pids": []
+    }
+  ],
+  "distinct_parent_nodes": 47,
+  "native_default_predicates_true": 10,
+  "native_source_coefficient_cases": 4,
+  "native_capture_supervised_seconds": 81.94765254575759,
+  "original_predicate_mapping": "original_predicate_mapping.json",
+  "native_and_python_test_adapters": "Default source disk L2 predicates/bounds and resolutions retained; Python theta/radius and radius1 boundary-slice adapters explicit.",
+  "original_k7": {
+    "disk_L2_error": 5.564880517959185e-12,
+    "unchanged_bound": 2.220446049250313e-08,
+    "historical_status": "Already passed before this provider port; no obsolete xfail removed."
+  },
+  "source_bridge": {
+    "all_six_publication_paths_equal_sealed_boundary_candidate": true,
+    "exact_files": {
+      "src/chebfunjax/diskfun/_helmholtz.py": "7401660b4d94f967ecfcbcbe4d73488933b73101da47c046f98cb460e25a9c31",
+      "src/chebfunjax/diskfun/diskfun.py": "fe11c375e7f39fd2aea41ab84a3f82eee43a12b2c817a0e53f30655d4c26efa8",
+      "tests/fixtures/disk_helmholtz_native_20261018.json": "cffab7b66918116dfd8c7048310c0cd37a1d92b7ccfcea026cfd91ce17221c08",
+      "tests/fixtures/disk_helmholtz_native_20261018.m": "58ff40f327b73661280b630e5aca89831bba641e24a07d86db1601348e1f620b",
+      "tests/test_diskfun/test_helmholtz_jax_provider.py": "62929cdc44a544b94999d88a4c5956456ca3bb98bb0f74bf178c6bf4f52ac339",
+      "tests/test_diskfun/test_helmholtz_public_provider.py": "bd377ea770af31394cd14b9a6af9edee73e58db35e8a6909a7a47188435a55a4"
+    },
+    "other_parent_changes": "ASINH and HermiteQuad changes already published on7492; parent tests independently qualify current combined source."
+  },
+  "ownership": {
+    "old_selections": 1106,
+    "new_selections": 1108,
+    "all_prior_lane_prefixes_preserved": true,
+    "new_owners": [
+      [
+        6,
+        "tests/test_diskfun/test_helmholtz_jax_provider.py"
+      ],
+      [
+        7,
+        "tests/test_diskfun/test_helmholtz_public_provider.py"
+      ]
+    ],
+    "hermite_part_12_unchanged": true,
+    "coverage_gate_unchanged": true
+  },
+  "static_gate": "static_parent.json",
+  "child_archives": [
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_helmholtz_jax_packet_20261018.tar.gz",
+      "sha256": "e03bc2fabdefc743c9c87cd0dfc19353ad89935970a18b6c1823ab7442d7740a",
+      "payloads": 76
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_helmholtz_reviewed_packet_20261018.tar.gz",
+      "sha256": "81c3456dccd4708d16541fd27afb0d2b474d7a77505ac2357c8762b1ac5ee5d1",
+      "payloads": 36
+    },
+    {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_helmholtz_boundary_packet_20261018.tar.gz",
+      "sha256": "c1bb9b5efba42af8d2ffbdfe842bf65d9d9014ea0a9b4eaea30e7ff1d81882f0",
+      "payloads": 33
+    }
+  ],
+  "review_failures_retained": [
+    "Candidate correction operation reordering changed overflow classes; fixed before parent qualification.",
+    "Barrier-only candidate still permitted CPU reciprocal rewrite; scan order repaired it.",
+    "Input integer10**10 overflow/low-precision square and10**20 pre-JIT abstractification failure repaired.",
+    "Initial seal compared entire fixture including added provenance to raw capture; corrected comparison verifies all cases and predicates unchanged.",
+    "Root first focused launch happened before its guard file was created; no scientific process started. Retried only after guard existed, at a fresh run directory."
+  ],
+  "warnings": "One pytest assertion-rewrite warning for already imported jaxtyping; raw stdout/stderr preserved.",
+  "limits": [
+    "Dense parity solve remains O(q\u00b3); assembly remains dense. Native sparse complexity and matched CPU speed remain unqualified.",
+    "Native singular/ill-conditioned warnings/status/nonfinite K and forcing/full subnormal classes remain unqualified.",
+    "Native Diskfun RHS real-symmetry and final projection quirks are retained; general complex-K semantics remain unqualified.",
+    "Public whole-call JIT/AD/vmap, inherited constructor/coeffs2 host paths and SciPy harmonic provider remain open.",
+    "Broader API/pages/figures and latest-main scientific CI/coverage>=79% remain required."
+  ],
+  "next_speed_evidence": "disk_helmholtz_structure_20261018/recommendation.json: source pentadiagonal parity systems require distance2pivoting; existing JAX banded solver is a defensible next package, not integrated here.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_helmholtz_parent_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_helmholtz_parent_cpu_20261018.tar.gz",
+    "sha256": "dc2e7a5fbd002a2f86cefb9efa6ce48e1ffab259dcef88e6756b17b0ff4daa59",
+    "root_stream_verified_payloads": 3590
+  }
+}

@@ -3779,7 +3779,7 @@ def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
     MATLAB source : @diskfun/helmholtz.m, @diskfun/poisson.m
     Chebfun commit: 7574c77
     """
-    from chebfunjax.discretization import ultras
+    from chebfunjax.diskfun._helmholtz import assemble_operator, solve_modes
     from chebfunjax.tech.trigtech import trig_vals2coeffs
     from chebfunjax.utils.quadrature import trigpts
     from chebfunjax.utils.transforms import vals2coeffs
@@ -3789,64 +3789,36 @@ def _diskfun_helmholtz_ultras(f, K, bc, m: int, n: int) -> "Diskfun":
     if n % 2 == 1:
         raise ValueError("DISKFUN:HELMHOLTZ:N: The Fourier discretization "
                          "size must be even.")
-    D1 = np.asarray(ultras.diffmat(m, 1))
-    D2 = np.asarray(ultras.diffmat(m, 2))
-    Mr = np.asarray(ultras.multmat(m, jnp.asarray([0.0, 1.0]), 1))
-    Mr2 = np.asarray(ultras.multmat(m, jnp.asarray([.5, 0.0, .5]), 2))
-    Mr2c = np.asarray(ultras.multmat(m, jnp.asarray([.5, 0.0, .5]), 0))
-    S1 = np.asarray(ultras.convertmat(m, 0, 1))
-    S12 = np.asarray(ultras.convertmat(m, 1, 1))
-    x0 = np.asarray(chebpts(m, kind=2))
-    th0 = np.pi * np.asarray(trigpts(n)[0])
+    L, S1, Mr2c = assemble_operator(m, K)
+    x0 = chebpts(m, kind=2)
+    th0 = jnp.pi * trigpts(n)[0]
     if isinstance(f, Diskfun):
         real_valued = True
-        F = np.asarray(f.coeffs2(n, m))              # (m Chebyshev, n Fourier)
+        F = f.coeffs2(n, m)                         # (m Chebyshev, n Fourier)
         F = (S1 @ Mr2c @ F).T
     elif callable(f):
-        R, TH = np.meshgrid(x0, th0)                  # (n, m)
-        F = R ** 2 * np.asarray(f(jnp.asarray(TH), jnp.asarray(R)))
-        real_valued = not np.iscomplexobj(F) or not np.any(np.imag(F))
-        F = (S1 @ np.asarray(vals2coeffs(jnp.asarray(F.T)))).T
-        F = np.asarray(trig_vals2coeffs(jnp.asarray(F)))
+        R, TH = jnp.meshgrid(x0, th0)                  # (n, m)
+        F = R ** 2 * jnp.asarray(f(TH, R))
+        real_valued = not jnp.iscomplexobj(F) or not jnp.any(jnp.imag(F))
+        F = (S1 @ vals2coeffs(F.T)).T
+        F = trig_vals2coeffs(F)
     else:                                             # Chebyshev coefficients
         from chebfunjax.tech.chebtech import _alias_chebtech2
         from chebfunjax.tech.trigtech import _alias_trigtech
         real_valued = False
         # Source aliases Fourier columns first, then radial Chebyshev rows.
         coefficients = _alias_chebtech2(_alias_trigtech(jnp.asarray(f).T, n).T, m)
-        F = np.asarray((jnp.asarray(S1) @ jnp.asarray(Mr2c) @ coefficients).T)
-    d = int((-n // 2) * real_valued + n + real_valued)
-    K2 = complex(K) ** 2
-    if abs(K2.imag) < 1e-14 * max(abs(K2.real), 1.0):
-        K2 = K2.real
-    L = Mr2 @ D2 + S12 @ Mr @ D1 + K2 * (S1 @ Mr2c)
-    L = L[:-2, :]
+        F = (S1 @ Mr2c @ coefficients).T
     if bc is None:
-        bcvals = np.zeros(n)
+        bcvals = jnp.zeros(n)
     elif callable(bc):
-        bcvals = np.asarray(bc(jnp.asarray(th0)))
+        bcvals = jnp.asarray(bc(th0))
     else:
-        bcvals = np.full(n, float(bc))
-    bcc = np.asarray(trig_vals2coeffs(jnp.asarray(bcvals)))
+        bcvals = jnp.full(n, float(bc))
+    bcc = trig_vals2coeffs(bcvals)
     S1 = S1[:-2, :]
-    W = np.concatenate(([1.0], np.zeros((m - 1) // 2)))
-    CFS = np.zeros((m, n), dtype=complex)
-    for k in range(1, d + 1):
-        j = -n // 2 + k - 1                           # wave number
-        a = j % 2 + 1                                 # 1 even, 2 odd
-        B = L - j ** 2 * S1
-        kB = np.vstack([np.zeros((1, (m - 1) // 2 + abs(j % 2 - 1))),
-                        B[a - 1::2, a - 1::2]]).astype(complex)
-        kB[0, 0] = 1.0
-        w = W[:len(W) - (a - 1)]
-        b = np.concatenate(([bcc[k - 1]], F[k - 1, a - 1:m - 2:2]))
-        inv_bb = np.linalg.solve(kB, b)
-        inv_bw = np.linalg.solve(kB, w)
-        CFS[a - 1::2, k - 1] = (inv_bb - np.sum(inv_bb[1:]) * inv_bw
-                                / (1 + np.sum(inv_bw[1:])))
-    if real_valued:
-        CFS[:, d:n] = np.fliplr(np.conj(CFS[:, 1:d - 1]))
-    return Diskfun.coeffs2diskfun(jnp.asarray(CFS))
+    CFS = solve_modes(L, S1, F, bcc, real_valued)
+    return Diskfun.coeffs2diskfun(CFS)
 
 
 from chebfunjax.utils.misc import make_empty_aware  # noqa: E402

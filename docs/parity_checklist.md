@@ -27,6 +27,9 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Disk Helmholtz assembly/forcing/boundary and parity-batched dense solves use JAX; exact complex K² and source correction order retained, Python integers promoted before JIT. Actual parent47distinct checks pass, including original10predicates within13original/rank nodes; source bounds unchanged.1106prior core owners retained+2;13lanes/79%unchanged. [Evidence](disk_helmholtz_parent_cpu_20261018.json).
+- [ ] Native sparse complexity/matched CPU speed, full singular/nonfinite/complex status grammar, whole-call JIT/AD/vmap, inherited Diskfun constructor/coeffs2/harmonic providers and latest-main CI remain open.
+
 - [x] ASINH real-axis signed-zero/nonfinite and tiny real/imaginary corrections remove four recorded expected failures. Actual parent broad cohort1392PASS35XFAIL and final50runtime/public checks pass across explicit JVP-only bridge;33native axis inputs and4Pell controls captured. [Evidence](asinh_axis_parent_cpu_20261018.json).
 - [ ] Full ASINH API/branchpoint/nonfinite/IEEE/native-word coverage, extreme higher derivatives, matched CPU speed and latest-main CI remain open.
 

@@ -1,3 +1,17 @@
+# Disk Helmholtz source coefficient provider in JAX — 2026-10-18
+
+Disk Helmholtz ultraspherical assembly/forcing/boundary transforms and parity
+batched dense solves use JAX. Native exact complex K² retained; source correction
+multiply/divide/subtract order preserved; K promoted before JIT entry, including
+Python integer10**20. Actual parent47distinct checks pass:13original/rank plus
+34focused/protocol. All10default original native predicates independently true;
+source bounds/resolutions retained. Historical k7 already passed; current L2
+5.56488e-12 versus unchanged2.22045e-8. All1106prior core owners retained+2;
+13lanes/HermiteCore12/79%unchanged.3590archivepayloads streamverified.
+Inherited constructor/coeffs2/harmonic providers, full singular/nonfinite/API/
+JIT/AD/vmap, native sparse complexity/matched speed and latest-main CI remain
+open. Evidence: docs/disk_helmholtz_parent_cpu_20261018.json.
+
 # ASINH axis/underflow and large finite derivatives — 2026-10-18
 
 ASINH retains native positive imaginary zero on the real axis, preserves tiny

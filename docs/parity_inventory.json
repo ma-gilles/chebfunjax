@@ -232,6 +232,11 @@
       "scope": "Two disk Cartesian source semantics repairs plus current evidence reconciliation of all35default original Chebfun FEVAL predicate counterparts; full APIs/alternate preferences remain open.",
       "sha256": "f93ba98f147621152d329a6a4fb38f3604e133d86265223228830e7d1e92a3f6"
     },
+    "disk_helmholtz_parent_cpu_20261018": {
+      "path": "docs/disk_helmholtz_parent_cpu_20261018.json",
+      "scope": "JAX disk Helmholtz coefficient provider and all ten default original predicates; actual parent47nodes pass; inherited providers/full API/sparse speed/CI remain open",
+      "sha256": "7e694ebf94131a0a570f411a9844b85be73ec472a882129e61713c1b551280a2"
+    },
     "disk_poles_bernoulli_parent_cpu_20261018": {
       "path": "docs/disk_poles_bernoulli_parent_cpu_20261018.json",
       "scope": "Actual parent source pole-cancellation and callable Bernoulli integration; original Hermite15 default audit reconciled separately",
@@ -75797,10 +75802,20 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_helmholtz_parent_cpu_20261018",
+          "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_helmholtz_parent_cpu_20261018",
+              "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -121020,10 +121035,20 @@
         "tests/test_matlab_port/chebop2/test_helmholtz_matlab.py",
         "tests/test_matlab_port/diskfun/test_helmholtz_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "disk_helmholtz_parent_cpu_20261018",
+          "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+        }
+      ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "disk_helmholtz_parent_cpu_20261018",
+              "scope": "All ten default original native predicates mapped; original bounds/resolutions unchanged, theta/radius and boundary slice adapters explicit. Full APIs/preferences/status/IEEE/speed not inferred."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
