@@ -1,0 +1,1288 @@
+{
+  "scope": "Source-supported whole-binary64-subnormal imaginary SIN primal representation repair with finite real input and finite normal computed cosine coefficient. No universal builtin/transcendental rounding, other-method/IEEE/API/page closure.",
+  "base_head": "71759c70f7d20444a5f1fc225446a984991e44e6",
+  "diagnosis_predecessor": "59592941979ed39ad85b21b72f972a4d3a1f608c docs-only packet remains frozen; its tentative word1-only recommendation superseded here by whole-class controls, not used in production.",
+  "native": {
+    "source_pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "version": "25.2.0.3055257 (R2025b) Update 2",
+    "calls": 7,
+    "warmup_calls": 7,
+    "elements_per_call": 540,
+    "all_requested_components_shape_storage_before_every_call": true,
+    "real_imag_extracted_before_complex_flatten_or_repack": true,
+    "capture_sha256": "707973e4f63b3bfeff5a1e326b822aa13c99de8f1bea4f31848837ffe8ce6b53",
+    "SIN_selected_native_words": 324,
+    "coverage": "27real controls including \u00b10.4, \u00b10, extreme finite controls and coefficient rounding transitions;12signed nonzero-subnormal magnitudes including minimum, interior and maximum.216zero/minimum-normal/neighbor/offaxis elements per method are negative controls. No shape causal claim.",
+    "runtime_guard": {
+      "outer_guarded_files": 4330,
+      "before_mapped_files": 883,
+      "after_mapped_files": 890,
+      "late_mapped_libraries": [
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/ddux/ddux_logging/ddux_logging/mwddux_logging.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+        "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so"
+      ],
+      "all_observed_main_process_stable_mapped_code_files_outer_preguarded": true,
+      "excluded_noncode_identity_cache": [
+        "/var/lib/sss/mc/passwd"
+      ],
+      "limitations": "Prior mapped-file union rehashed before launch. Warm-call map inventory misses7late libraries but all7are covered by initial active outer preinventory. Mutable noncode SSSD identity cache excluded from outer guard. Generated/deleted/nonregular/transient mappings retained in raw maps exclusions. No exhaustive installed MATLAB runtime, subprocess-library or future-code mapping coverage claim."
+    },
+    "initial_prelaunch_failure": {
+      "supervisor_precheck_failed_before_launch": true,
+      "no_MATLAB_process_started": true,
+      "stale_irrelevant_prior_child_guard": "old native template retained earlier child pre-edit fixture and predecessor head; remove irrelevant child paths",
+      "mutable_noncode_identity_cache": "/var/lib/sss/mc/passwd excluded explicitly; maps review retains it",
+      "initial_guard_preimage": "guard_attempt001.json"
+    }
+  },
+  "source_change": "For binary64 complex SIN only, retain the complete prior result through optimization_barrier. Select nonzero-subnormal imaginary input by word magnitude and finite real/finite normal cosine coefficient; separately round signed y*cos(x) using existing gradual_positive_multiply and XOR sign restoration. Preserve every prior real component and every outside-mask imaginary word in captured controls. COS, complex64, other methods and existing analytic SIN JVP unchanged.",
+  "mathematical_basis": "Im(sin(x+i*y))=cos(x)*sinh(y). Throughout binary64 subnormal y, sinh(y)-y is far below half a minimum-subnormal unit. SIN real component differs from sin(x) by O(y\u00b2), below binary64 representable spacing. The numerical adaptation preserves the separately rounded computed-cosine product; it does not claim universally correctly rounded native transcendental words. The mask uses IEEE classes, not source input values or fitted cutoffs.",
+  "independent_arithmetic": {
+    "oracle": "Exact Python Fraction product/divide converted RNE in separate system-Python process before JAX import; fixture source generator retained.",
+    "signed_product": [
+      {
+        "mode": "eager",
+        "cases": 320,
+        "all_exact_Fraction_RNE": true
+      },
+      {
+        "mode": "jit",
+        "cases": 320,
+        "all_exact_Fraction_RNE": true
+      }
+    ],
+    "signed_divide_diagnostic_only": [
+      {
+        "mode": "eager",
+        "cases": 320,
+        "all_exact_Fraction_RNE": true
+      },
+      {
+        "mode": "jit",
+        "cases": 320,
+        "all_exact_Fraction_RNE": true
+      }
+    ],
+    "production_signed_multiply_test_cases_per_mode": 320,
+    "ordinary_product_customJVP_Jacobian_Hessian_controls": 3
+  },
+  "derivative_contract": "Existing SIN analytic customJVP AST exact. Independent cmath-based R2Jacobians/Hessians with forward/reverse transforms and transverse complex JVPs pass at ordinary finite axis/offaxis points. New signed product customJVP retains ordinary product derivative; no subnormal derivative qualification inferred.",
+  "rejected_shared_rule": "Fresh source-pinned native controls reject a universal one-round derivative product rule for all7methods. ATAN and TANH include native exact-zero versus mathematically nonzero product counterexamples; TAN differs at x1/yminimum (native4units versus product3). EXP/EXPM1 and SINH also have coefficient/staging word differences. Do not fit outputs or force other6methods.",
+  "all_seven_method_diagnosis": [
+    {
+      "method": "atan",
+      "selected_count": 324,
+      "native_imaginary_word_differences": {
+        "eager": 54,
+        "jit": 66
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 74,
+          "x": "3fed5240f0e0e078",
+          "y": "0000000000000001",
+          "slope": "3fe1652b5920a81c",
+          "prior": "8000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 79,
+          "x": "3fed5240f0e0e077",
+          "y": "0000000000000001",
+          "slope": "3fe1652b5920a81c",
+          "prior": "8000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 80,
+          "x": "3fed5240f0e0e079",
+          "y": "0000000000000001",
+          "slope": "3fe1652b5920a81b",
+          "prior": "8000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 101,
+          "x": "3fed5240f0e0e078",
+          "y": "8000000000000001",
+          "slope": "3fe1652b5920a81c",
+          "prior": "8000000000000000",
+          "model": "8000000000000001",
+          "native": "8000000000000000"
+        },
+        {
+          "i_F": 106,
+          "x": "3fed5240f0e0e077",
+          "y": "8000000000000001",
+          "slope": "3fe1652b5920a81c",
+          "prior": "8000000000000000",
+          "model": "8000000000000001",
+          "native": "8000000000000000"
+        },
+        {
+          "i_F": 107,
+          "x": "3fed5240f0e0e079",
+          "y": "8000000000000001",
+          "slope": "3fe1652b5920a81b",
+          "prior": "8000000000000000",
+          "model": "8000000000000001",
+          "native": "8000000000000000"
+        },
+        {
+          "i_F": 113,
+          "x": "bff921fb54442d18",
+          "y": "0000000000000002",
+          "slope": "3fd275271d91156c",
+          "prior": "8000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 120,
+          "x": "3ff921fb54442d18",
+          "y": "0000000000000002",
+          "slope": "3fd275271d91156c",
+          "prior": "8000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 140,
+          "x": "bff921fb54442d18",
+          "y": "8000000000000002",
+          "slope": "3fd275271d91156c",
+          "prior": "8000000000000000",
+          "model": "8000000000000001",
+          "native": "8000000000000000"
+        },
+        {
+          "i_F": 147,
+          "x": "3ff921fb54442d18",
+          "y": "8000000000000002",
+          "slope": "3fd275271d91156c",
+          "prior": "8000000000000000",
+          "model": "8000000000000001",
+          "native": "8000000000000000"
+        },
+        {
+          "i_F": 169,
+          "x": "bfd999999999999a",
+          "y": "0000000000000003",
+          "slope": "3feb9611a7b9611b",
+          "prior": "8000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 172,
+          "x": "3fd999999999999a",
+          "y": "0000000000000003",
+          "slope": "3feb9611a7b9611b",
+          "prior": "8000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 181,
+          "x": "3fd9f323ecbf984c",
+          "y": "0000000000000003",
+          "slope": "3feb7b5f088f2632",
+          "prior": "8000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 185,
+          "x": "3fd9f323ecbf984b",
+          "y": "0000000000000003",
+          "slope": "3feb7b5f088f2632",
+          "prior": "8000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 186,
+          "x": "3fd9f323ecbf984d",
+          "y": "0000000000000003",
+          "slope": "3feb7b5f088f2631",
+          "prior": "8000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 196,
+          "x": "bfd999999999999a",
+          "y": "8000000000000003",
+          "slope": "3feb9611a7b9611b",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000002"
+        }
+      ]
+    },
+    {
+      "method": "exp",
+      "selected_count": 264,
+      "native_imaginary_word_differences": {
+        "eager": 12,
+        "jit": 12
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 223,
+          "x": "bfd999999999999a",
+          "y": "0008000000000000",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "00055cd0c19c9c3b",
+          "native": "00055cd0c19c9c3c"
+        },
+        {
+          "i_F": 227,
+          "x": "3ff0000000000000",
+          "y": "0008000000000000",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0015bf0a8b14576a",
+          "native": "0015bf0a8b145769"
+        },
+        {
+          "i_F": 250,
+          "x": "bfd999999999999a",
+          "y": "8008000000000000",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "80055cd0c19c9c3b",
+          "native": "80055cd0c19c9c3c"
+        },
+        {
+          "i_F": 254,
+          "x": "3ff0000000000000",
+          "y": "8008000000000000",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8015bf0a8b14576a",
+          "native": "8015bf0a8b145769"
+        },
+        {
+          "i_F": 277,
+          "x": "bfd999999999999a",
+          "y": "000ffffffffffffe",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "000ab9a183393875",
+          "native": "000ab9a183393876"
+        },
+        {
+          "i_F": 281,
+          "x": "3ff0000000000000",
+          "y": "000ffffffffffffe",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0025bf0a8b145767",
+          "native": "0025bf0a8b145766"
+        },
+        {
+          "i_F": 304,
+          "x": "bfd999999999999a",
+          "y": "800ffffffffffffe",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "800ab9a183393875",
+          "native": "800ab9a183393876"
+        },
+        {
+          "i_F": 308,
+          "x": "3ff0000000000000",
+          "y": "800ffffffffffffe",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8025bf0a8b145767",
+          "native": "8025bf0a8b145766"
+        },
+        {
+          "i_F": 330,
+          "x": "bff0000000000000",
+          "y": "000fffffffffffff",
+          "slope": "3fd78b56362cef37",
+          "prior": "0000000000000000",
+          "model": "0005e2d58d8b3bcd",
+          "native": "0005e2d58d8b3bce"
+        },
+        {
+          "i_F": 335,
+          "x": "3ff0000000000000",
+          "y": "000fffffffffffff",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0025bf0a8b145769",
+          "native": "0025bf0a8b145768"
+        },
+        {
+          "i_F": 357,
+          "x": "bff0000000000000",
+          "y": "800fffffffffffff",
+          "slope": "3fd78b56362cef37",
+          "prior": "0000000000000000",
+          "model": "8005e2d58d8b3bcd",
+          "native": "8005e2d58d8b3bce"
+        },
+        {
+          "i_F": 362,
+          "x": "3ff0000000000000",
+          "y": "800fffffffffffff",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8025bf0a8b145769",
+          "native": "8025bf0a8b145768"
+        }
+      ]
+    },
+    {
+      "method": "expm1",
+      "selected_count": 264,
+      "native_imaginary_word_differences": {
+        "eager": 12,
+        "jit": 12
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 223,
+          "x": "bfd999999999999a",
+          "y": "0008000000000000",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "00055cd0c19c9c3b",
+          "native": "00055cd0c19c9c3c"
+        },
+        {
+          "i_F": 227,
+          "x": "3ff0000000000000",
+          "y": "0008000000000000",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0015bf0a8b14576a",
+          "native": "0015bf0a8b145769"
+        },
+        {
+          "i_F": 250,
+          "x": "bfd999999999999a",
+          "y": "8008000000000000",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "80055cd0c19c9c3b",
+          "native": "80055cd0c19c9c3c"
+        },
+        {
+          "i_F": 254,
+          "x": "3ff0000000000000",
+          "y": "8008000000000000",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8015bf0a8b14576a",
+          "native": "8015bf0a8b145769"
+        },
+        {
+          "i_F": 277,
+          "x": "bfd999999999999a",
+          "y": "000ffffffffffffe",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "000ab9a183393875",
+          "native": "000ab9a183393876"
+        },
+        {
+          "i_F": 281,
+          "x": "3ff0000000000000",
+          "y": "000ffffffffffffe",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0025bf0a8b145767",
+          "native": "0025bf0a8b145766"
+        },
+        {
+          "i_F": 304,
+          "x": "bfd999999999999a",
+          "y": "800ffffffffffffe",
+          "slope": "3fe57343067270ed",
+          "prior": "0000000000000000",
+          "model": "800ab9a183393875",
+          "native": "800ab9a183393876"
+        },
+        {
+          "i_F": 308,
+          "x": "3ff0000000000000",
+          "y": "800ffffffffffffe",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8025bf0a8b145767",
+          "native": "8025bf0a8b145766"
+        },
+        {
+          "i_F": 330,
+          "x": "bff0000000000000",
+          "y": "000fffffffffffff",
+          "slope": "3fd78b56362cef37",
+          "prior": "0000000000000000",
+          "model": "0005e2d58d8b3bcd",
+          "native": "0005e2d58d8b3bce"
+        },
+        {
+          "i_F": 335,
+          "x": "3ff0000000000000",
+          "y": "000fffffffffffff",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "0025bf0a8b145769",
+          "native": "0025bf0a8b145768"
+        },
+        {
+          "i_F": 357,
+          "x": "bff0000000000000",
+          "y": "800fffffffffffff",
+          "slope": "3fd78b56362cef37",
+          "prior": "0000000000000000",
+          "model": "8005e2d58d8b3bcd",
+          "native": "8005e2d58d8b3bce"
+        },
+        {
+          "i_F": 362,
+          "x": "3ff0000000000000",
+          "y": "800fffffffffffff",
+          "slope": "4005bf0a8b14576a",
+          "prior": "0000000000000000",
+          "model": "8025bf0a8b145769",
+          "native": "8025bf0a8b145768"
+        }
+      ]
+    },
+    {
+      "method": "sin",
+      "selected_count": 324,
+      "native_imaginary_word_differences": {
+        "eager": 0,
+        "jit": 0
+      },
+      "exact_counterexamples": []
+    },
+    {
+      "method": "sinh",
+      "selected_count": 300,
+      "native_imaginary_word_differences": {
+        "eager": 92,
+        "jit": 92
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 55,
+          "x": "c086300000000000",
+          "y": "0000000000000001",
+          "slope": "7fe3e21a4645092d",
+          "prior": "0000000000000000",
+          "model": "3cc3e21a4645092d",
+          "native": "3cc3e21a464507fa"
+        },
+        {
+          "i_F": 56,
+          "x": "c086280000000000",
+          "y": "0000000000000001",
+          "slope": "7fcd422d2be5de60",
+          "prior": "0000000000000000",
+          "model": "3cad422d2be5de60",
+          "native": "3cad422d2be5dc9b"
+        },
+        {
+          "i_F": 57,
+          "x": "c044000000000000",
+          "y": "0000000000000001",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "005a220d397972dd",
+          "native": "005a220d397972ea"
+        },
+        {
+          "i_F": 68,
+          "x": "4044000000000000",
+          "y": "0000000000000001",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "005a220d397972dd",
+          "native": "005a220d397972ea"
+        },
+        {
+          "i_F": 69,
+          "x": "4086280000000000",
+          "y": "0000000000000001",
+          "slope": "7fcd422d2be5de60",
+          "prior": "0000000000000000",
+          "model": "3cad422d2be5de60",
+          "native": "3cad422d2be5dc9b"
+        },
+        {
+          "i_F": 70,
+          "x": "4086300000000000",
+          "y": "0000000000000001",
+          "slope": "7fe3e21a4645092d",
+          "prior": "0000000000000000",
+          "model": "3cc3e21a4645092d",
+          "native": "3cc3e21a464507fa"
+        },
+        {
+          "i_F": 82,
+          "x": "c086300000000000",
+          "y": "8000000000000001",
+          "slope": "7fe3e21a4645092d",
+          "prior": "0000000000000000",
+          "model": "bcc3e21a4645092d",
+          "native": "bcc3e21a464507fa"
+        },
+        {
+          "i_F": 83,
+          "x": "c086280000000000",
+          "y": "8000000000000001",
+          "slope": "7fcd422d2be5de60",
+          "prior": "0000000000000000",
+          "model": "bcad422d2be5de60",
+          "native": "bcad422d2be5dc9b"
+        },
+        {
+          "i_F": 84,
+          "x": "c044000000000000",
+          "y": "8000000000000001",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "805a220d397972dd",
+          "native": "805a220d397972ea"
+        },
+        {
+          "i_F": 95,
+          "x": "4044000000000000",
+          "y": "8000000000000001",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "805a220d397972dd",
+          "native": "805a220d397972ea"
+        },
+        {
+          "i_F": 96,
+          "x": "4086280000000000",
+          "y": "8000000000000001",
+          "slope": "7fcd422d2be5de60",
+          "prior": "0000000000000000",
+          "model": "bcad422d2be5de60",
+          "native": "bcad422d2be5dc9b"
+        },
+        {
+          "i_F": 97,
+          "x": "4086300000000000",
+          "y": "8000000000000001",
+          "slope": "7fe3e21a4645092d",
+          "prior": "0000000000000000",
+          "model": "bcc3e21a4645092d",
+          "native": "bcc3e21a464507fa"
+        },
+        {
+          "i_F": 109,
+          "x": "c086300000000000",
+          "y": "0000000000000002",
+          "slope": "7fe3e21a4645092d",
+          "prior": "0000000000000000",
+          "model": "3cd3e21a4645092d",
+          "native": "3cd3e21a464507fa"
+        },
+        {
+          "i_F": 110,
+          "x": "c086280000000000",
+          "y": "0000000000000002",
+          "slope": "7fcd422d2be5de60",
+          "prior": "0000000000000000",
+          "model": "3cbd422d2be5de60",
+          "native": "3cbd422d2be5dc9b"
+        },
+        {
+          "i_F": 111,
+          "x": "c044000000000000",
+          "y": "0000000000000002",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "006a220d397972dd",
+          "native": "006a220d397972ea"
+        },
+        {
+          "i_F": 122,
+          "x": "4044000000000000",
+          "y": "0000000000000002",
+          "slope": "437a220d397972dd",
+          "prior": "0000000000000000",
+          "model": "006a220d397972dd",
+          "native": "006a220d397972ea"
+        }
+      ]
+    },
+    {
+      "method": "tan",
+      "selected_count": 324,
+      "native_imaginary_word_differences": {
+        "eager": 164,
+        "jit": 164
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 56,
+          "x": "c086280000000000",
+          "y": "0000000000000001",
+          "slope": "400b662534ac9eef",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000004"
+        },
+        {
+          "i_F": 59,
+          "x": "bff921fb54442d18",
+          "y": "0000000000000001",
+          "slope": "46aa4cb0f6ad7946",
+          "prior": "0000000000000000",
+          "model": "038a4cb0f6ad7946",
+          "native": "038a4cb0f6ad7947"
+        },
+        {
+          "i_F": 60,
+          "x": "bff0000000000000",
+          "y": "0000000000000001",
+          "slope": "400b67766959dae1",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000004"
+        },
+        {
+          "i_F": 65,
+          "x": "3ff0000000000000",
+          "y": "0000000000000001",
+          "slope": "400b67766959dae1",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000004"
+        },
+        {
+          "i_F": 66,
+          "x": "3ff921fb54442d18",
+          "y": "0000000000000001",
+          "slope": "46aa4cb0f6ad7946",
+          "prior": "0000000000000000",
+          "model": "038a4cb0f6ad7946",
+          "native": "038a4cb0f6ad7947"
+        },
+        {
+          "i_F": 69,
+          "x": "4086280000000000",
+          "y": "0000000000000001",
+          "slope": "400b662534ac9eef",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000004"
+        },
+        {
+          "i_F": 74,
+          "x": "3fed5240f0e0e078",
+          "y": "0000000000000001",
+          "slope": "40059636902b0ccb",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 79,
+          "x": "3fed5240f0e0e077",
+          "y": "0000000000000001",
+          "slope": "40059636902b0cc9",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 80,
+          "x": "3fed5240f0e0e079",
+          "y": "0000000000000001",
+          "slope": "40059636902b0cce",
+          "prior": "0000000000000000",
+          "model": "0000000000000003",
+          "native": "0000000000000002"
+        },
+        {
+          "i_F": 83,
+          "x": "c086280000000000",
+          "y": "8000000000000001",
+          "slope": "400b662534ac9eef",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000004"
+        },
+        {
+          "i_F": 86,
+          "x": "bff921fb54442d18",
+          "y": "8000000000000001",
+          "slope": "46aa4cb0f6ad7946",
+          "prior": "8000000000000000",
+          "model": "838a4cb0f6ad7946",
+          "native": "838a4cb0f6ad7947"
+        },
+        {
+          "i_F": 87,
+          "x": "bff0000000000000",
+          "y": "8000000000000001",
+          "slope": "400b67766959dae1",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000004"
+        },
+        {
+          "i_F": 92,
+          "x": "3ff0000000000000",
+          "y": "8000000000000001",
+          "slope": "400b67766959dae1",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000004"
+        },
+        {
+          "i_F": 93,
+          "x": "3ff921fb54442d18",
+          "y": "8000000000000001",
+          "slope": "46aa4cb0f6ad7946",
+          "prior": "8000000000000000",
+          "model": "838a4cb0f6ad7946",
+          "native": "838a4cb0f6ad7947"
+        },
+        {
+          "i_F": 96,
+          "x": "4086280000000000",
+          "y": "8000000000000001",
+          "slope": "400b662534ac9eef",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000004"
+        },
+        {
+          "i_F": 101,
+          "x": "3fed5240f0e0e078",
+          "y": "8000000000000001",
+          "slope": "40059636902b0ccb",
+          "prior": "8000000000000000",
+          "model": "8000000000000003",
+          "native": "8000000000000002"
+        }
+      ]
+    },
+    {
+      "method": "tanh",
+      "selected_count": 252,
+      "native_imaginary_word_differences": {
+        "eager": 83,
+        "jit": 83
+      },
+      "exact_counterexamples": [
+        {
+          "i_F": 72,
+          "x": "bfe62e42fefa39ef",
+          "y": "0000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 75,
+          "x": "bfe62e42fefa39f0",
+          "y": "0000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 76,
+          "x": "bfe62e42fefa39ee",
+          "y": "0000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "0000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 84,
+          "x": "c044000000000000",
+          "y": "8000000000000001",
+          "slope": "38d7fd974d372e5e",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 85,
+          "x": "c008000000000000",
+          "y": "8000000000000001",
+          "slope": "3f8434a517bbc5f5",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 86,
+          "x": "bff921fb54442d18",
+          "y": "8000000000000001",
+          "slope": "3fc45497f923d55c",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 87,
+          "x": "bff0000000000000",
+          "y": "8000000000000001",
+          "slope": "3fdae0dc0f990c43",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 92,
+          "x": "3ff0000000000000",
+          "y": "8000000000000001",
+          "slope": "3fdae0dc0f990c43",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 93,
+          "x": "3ff921fb54442d18",
+          "y": "8000000000000001",
+          "slope": "3fc45497f923d55c",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 94,
+          "x": "4008000000000000",
+          "y": "8000000000000001",
+          "slope": "3f8434a517bbc5f5",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 95,
+          "x": "4044000000000000",
+          "y": "8000000000000001",
+          "slope": "38d7fd974d372e5e",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 99,
+          "x": "bfe62e42fefa39ef",
+          "y": "8000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "8000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 101,
+          "x": "3fed5240f0e0e078",
+          "y": "8000000000000001",
+          "slope": "3fde70a0b9132d5b",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 102,
+          "x": "bfe62e42fefa39f0",
+          "y": "8000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "8000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 103,
+          "x": "bfe62e42fefa39ee",
+          "y": "8000000000000001",
+          "slope": "3fe47ae147ae147b",
+          "prior": "0000000000000000",
+          "model": "8000000000000001",
+          "native": "0000000000000000"
+        },
+        {
+          "i_F": 106,
+          "x": "3fed5240f0e0e077",
+          "y": "8000000000000001",
+          "slope": "3fde70a0b9132d5b",
+          "prior": "0000000000000000",
+          "model": "8000000000000000",
+          "native": "0000000000000000"
+        }
+      ]
+    }
+  ],
+  "later_stage_hypotheses_only": "Root suggested separately rounded TAN y/(cos(2x)+1) then*2, TANH y/(cosh(2x)+1) then*2, and ATAN .25*log1p(4*y/(1+x*x)). Not tested or implemented here; these are hypotheses, not production rules.",
+  "qualified_baseline": {
+    "total": 19,
+    "passed": 17,
+    "failed": 2,
+    "xfailed": 0,
+    "seconds": 4.715
+  },
+  "qualified_focused": {
+    "total": 68,
+    "passed": 68,
+    "failed": 0,
+    "xfailed": 0,
+    "seconds": 35.306
+  },
+  "failed_first_full_author_preservation_oracle": {
+    "total": 1932,
+    "passed": 1905,
+    "failed": 1,
+    "xfailed": 26,
+    "seconds": 387.362
+  },
+  "third_author_oracle_correction": {
+    "failed_run": "unary_subnormal_sin_final_run001_20261018",
+    "failed_test": "test_sin_real_zero_boundary_word_scope[complex128-sin]",
+    "exact_changed_elements": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "inputs_unchanged": true,
+    "real_outside_mask_and_native_assertions_bounds_unchanged": true,
+    "expected_imaginary_word_change": "primitive signedzero replaced with input signedminimum-subnormal; near-origin cos(real) rounds1",
+    "production_source_unchanged_since_failed_full_run": true,
+    "total_prior_author_oracle_functions_superseded": 3
+  },
+  "qualified_full_final": {
+    "total": 1932,
+    "passed": 1906,
+    "failed": 0,
+    "xfailed": 26,
+    "seconds": 380.878
+  },
+  "gate_scope": "Full original unary storage, original univariate and RHS modules plus new24SIN/arithmetic checks. Counts overlap child focused selections and are not added as disjoint evidence.",
+  "static_review": {
+    "base": "71759c70f7d20444a5f1fc225446a984991e44e6",
+    "source_changes": {
+      "elementary": "Only SIN primal supported subnormal-imaginary gradual product and associated documentation; exact root TAN docstring included. Every analytic JVP AST unchanged. COS execution branch and other helper ASTs unchanged.",
+      "signed_gradual": "One signed multiply primal/customJVP added; existing function ASTs unchanged; import adds existing gradual_positive_multiply."
+    },
+    "elementary_changed_AST_nodes": [
+      "4",
+      "_sin_cos_complex_axis",
+      "_sin_cos_numeric",
+      "_tan_numeric"
+    ],
+    "prior_test_AST_exceptions": [
+      "test_sin_cos_only_nonfinite_axis_imaginary_component_changes",
+      "test_sin_cos_finite_axis_component_word_scope",
+      "test_sin_real_zero_boundary_word_scope"
+    ],
+    "oracle_exception_scope": "Only the captured SIN minimum-subnormal row, two complex128SIN finite\u00b10.4/minsubnormal elements, and four near-origin complex128SIN subnormal-imaginary elements replace the proven-wrong primitive-zero expectation. Same inputs, real words, outside-mask words and original native assertions/bounds retained. Near-origin four expectations follow independent sine Taylor reasoning; \u00b1minimum-subnormal real inputs were not newly captured natively. Raw first full failed author-oracle run/preimage retained. No other prior test AST changed.",
+    "protected_bytes": {
+      "src/chebfunjax/operators/treevar.py": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+      "src/chebfunjax/utils/_gradual.py": "a078f23348f070aeaffaa434866a15eb209250584ae351e98ccfc912c5db736a",
+      "src/chebfunjax/utils/numeric_sign.py": "16deb3de5e320f7cb9c22f1d3914a4a4c700a562026f52d0f7609c7df750c83e",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+      "tests/test_matlab_port/treeVar/data/tan_tanh_axis_native_20261018.json": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+      "tests/test_matlab_port/treeVar/data/tan_imaginary_nan_prior_words_20261018.json": "87232043a6adfe27523d75545b7d27d13c87578faaae2eb058fd5d7c6b5448dc"
+    },
+    "removed_metadata_record": [
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "sin",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      }
+    ],
+    "remaining_original_records": 13,
+    "new_native_fixture_source_bound": true,
+    "native_selected_words_per_mode": 324,
+    "native_total_elements": 540,
+    "source_bridge": {
+      "parent_Q_head": "c2c8ebafb404ebe2b85b9d2520da398e2fde4bae",
+      "pre_SIN_elementary_plus_reviewed_TAN_docstring_byte_exact_to_parent_working_source": true,
+      "head_source_matches_working_source": true,
+      "parent_elementary_sha256": "fcd5d85af0f3b4e3d9740ab6fad3faeed0edc191fba6606483043bc5849a8b17",
+      "critical_preimages_byte_exact": {
+        "src/chebfunjax/utils/_signed_gradual.py": "aae2b4bfece9e8c6052b3ff393473108e8f710637b3525b33b94089459e3c97b",
+        "src/chebfunjax/operators/treevar.py": "75c5331fa5f12297661da462f9ce474b49918da7c03ba5f5cf82857c044a580a",
+        "src/chebfunjax/utils/_gradual.py": "a078f23348f070aeaffaa434866a15eb209250584ae351e98ccfc912c5db736a",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "72bc6afe3aaced64557826b71b2119a59021b30cd1cac63ebcf4345a24509971",
+        "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "57b1d07651a11c7a58c117af93dc86e1e10e1316f461ae7c35e77a07a433ebc8",
+        "src/chebfunjax/utils/numeric_sign.py": "16deb3de5e320f7cb9c22f1d3914a4a4c700a562026f52d0f7609c7df750c83e",
+        "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+        "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+        "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+        "tests/test_matlab_port/treeVar/data/tan_tanh_axis_native_20261018.json": "90e2117d78f2cdfb753fe21d13da82be2eab6a23e3c506174de00549306e8f7f",
+        "tests/test_matlab_port/treeVar/data/tan_imaginary_nan_prior_words_20261018.json": "87232043a6adfe27523d75545b7d27d13c87578faaae2eb058fd5d7c6b5448dc"
+      }
+    },
+    "scientific_source_bytes_identical_between_failed_full_and_final_retry": true,
+    "no_CI_owner_or_configuration_changes": true
+  },
+  "runtime_guards": {
+    "model": {
+      "loaded_files": 1343,
+      "all_preguarded": true,
+      "changed_after_terminal_source_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/_signed_gradual.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/elementary.py"
+      ]
+    },
+    "baseline": {
+      "loaded_files": 1481,
+      "all_preguarded": true,
+      "changed_after_terminal_source_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/_signed_gradual.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/tests/test_matlab_port/treeVar/test_subnormal_sine_source.py"
+      ]
+    },
+    "focused": {
+      "loaded_files": 1483,
+      "all_preguarded": true,
+      "changed_after_terminal_source_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/_signed_gradual.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/src/chebfunjax/utils/elementary.py",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "candidate": {
+      "loaded_files": 1542,
+      "all_preguarded": true,
+      "changed_after_terminal_source_bound_to_immutable_preimages": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "final": {
+      "loaded_files": 1542,
+      "all_preguarded": true,
+      "changed_after_terminal_source_bound_to_immutable_preimages": []
+    }
+  },
+  "supervision": {
+    "unary_subnormal_native_run002_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 123.86965964408591,
+      "sampled_peak_summed_rss_kib": 1313284,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_subnormal_model_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 14.184706547297537,
+      "sampled_peak_summed_rss_kib": 837512,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_subnormal_sin_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 10.163534785155207,
+      "sampled_peak_summed_rss_kib": 769296,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_subnormal_sin_focused_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 41.265003896318376,
+      "sampled_peak_summed_rss_kib": 1231152,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_subnormal_sin_final_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 393.6314243427478,
+      "sampled_peak_summed_rss_kib": 1623020,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "unary_subnormal_sin_final_run002_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 386.7328171120025,
+      "sampled_peak_summed_rss_kib": 1635540,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "outside_mask_fresh_native_gaps": {
+    "scope": "Fresh negative controls intentionally retain published prior words outside approved subnormal-input mask; they do not claim native parity.",
+    "by_input_imaginary_word": {
+      "0000000000000000": {
+        "elements": 27,
+        "word_differences": 0,
+        "zero_class_differences": 0,
+        "examples": []
+      },
+      "8000000000000000": {
+        "elements": 27,
+        "word_differences": 0,
+        "zero_class_differences": 0,
+        "examples": []
+      },
+      "0010000000000000": {
+        "elements": 27,
+        "word_differences": 23,
+        "zero_class_differences": 23,
+        "examples": [
+          {
+            "input_real": "c087700000000000",
+            "input_imaginary": "0010000000000000",
+            "native_imaginary": "800aabf65902d6a2",
+            "preserved_prior_imaginary": "8000000000000000"
+          },
+          {
+            "input_real": "c086300000000000",
+            "input_imaginary": "0010000000000000",
+            "native_imaginary": "000fffffff831c98",
+            "preserved_prior_imaginary": "0000000000000000"
+          },
+          {
+            "input_real": "c086280000000000",
+            "input_imaginary": "0010000000000000",
+            "native_imaginary": "0008a54939a45fd6",
+            "preserved_prior_imaginary": "0000000000000000"
+          }
+        ]
+      },
+      "8010000000000000": {
+        "elements": 27,
+        "word_differences": 23,
+        "zero_class_differences": 23,
+        "examples": [
+          {
+            "input_real": "c087700000000000",
+            "input_imaginary": "8010000000000000",
+            "native_imaginary": "000aabf65902d6a2",
+            "preserved_prior_imaginary": "0000000000000000"
+          },
+          {
+            "input_real": "c086300000000000",
+            "input_imaginary": "8010000000000000",
+            "native_imaginary": "800fffffff831c98",
+            "preserved_prior_imaginary": "8000000000000000"
+          },
+          {
+            "input_real": "c086280000000000",
+            "input_imaginary": "8010000000000000",
+            "native_imaginary": "8008a54939a45fd6",
+            "preserved_prior_imaginary": "8000000000000000"
+          }
+        ]
+      },
+      "0010000000000001": {
+        "elements": 27,
+        "word_differences": 23,
+        "zero_class_differences": 23,
+        "examples": [
+          {
+            "input_real": "c087700000000000",
+            "input_imaginary": "0010000000000001",
+            "native_imaginary": "800aabf65902d6a3",
+            "preserved_prior_imaginary": "8000000000000000"
+          },
+          {
+            "input_real": "c086300000000000",
+            "input_imaginary": "0010000000000001",
+            "native_imaginary": "000fffffff831c99",
+            "preserved_prior_imaginary": "0000000000000000"
+          },
+          {
+            "input_real": "c086280000000000",
+            "input_imaginary": "0010000000000001",
+            "native_imaginary": "0008a54939a45fd6",
+            "preserved_prior_imaginary": "0000000000000000"
+          }
+        ]
+      },
+      "8010000000000001": {
+        "elements": 27,
+        "word_differences": 23,
+        "zero_class_differences": 23,
+        "examples": [
+          {
+            "input_real": "c087700000000000",
+            "input_imaginary": "8010000000000001",
+            "native_imaginary": "000aabf65902d6a3",
+            "preserved_prior_imaginary": "0000000000000000"
+          },
+          {
+            "input_real": "c086300000000000",
+            "input_imaginary": "8010000000000001",
+            "native_imaginary": "800fffffff831c99",
+            "preserved_prior_imaginary": "8000000000000000"
+          },
+          {
+            "input_real": "c086280000000000",
+            "input_imaginary": "8010000000000001",
+            "native_imaginary": "8008a54939a45fd6",
+            "preserved_prior_imaginary": "8000000000000000"
+          }
+        ]
+      },
+      "3fd3333333333333": {
+        "elements": 27,
+        "word_differences": 0,
+        "zero_class_differences": 0,
+        "examples": []
+      },
+      "bfd3333333333333": {
+        "elements": 27,
+        "word_differences": 0,
+        "zero_class_differences": 0,
+        "examples": []
+      }
+    }
+  },
+  "remaining": [
+    "Fresh minimum-normal and its successor imaginary inputs retain92captured native SIN zero-class mismatches outside this subnormal-input repair. These are additional observed gaps, not part of13original metadata records or26gate xfails; outside-mask preservation tests do not assert native parity.",
+    "13original metadata rows:6remaining minimum-subnormal methods ATAN/EXP/EXPM1/SINH/TAN/TANH plus7finite-phase infinite-imaginary TAN sign conventions.",
+    "26gate expected failures =13original metadata plus13supplemental fresh-fixture cases (7repeated original TAN sign cases+6other supplemental gaps). One original SIN record repaired; not26distinct defects.",
+    "Finite normal computed cosine coefficient class is qualified. Nonfinite/subnormal/zero cosine coefficients, nonfinite real inputs, complex64 and minimum-normal/offaxis imaginary inputs retain previous words; native universal subnormal SIN behavior is not inferred outside supported mask.",
+    "Cached NaN imaginary-sign/payload gap, broader library/provider/CPU performance, fullAPI/JAX/322pages and scientific figures remain open.",
+    "Actual-parent review/integration/final selection required; no Q edits, push, publication or CI configuration/ownership changes."
+  ],
+  "validation": "Fullruff src/tests/scripts/examples and git diff --check pass. Existing native fixtures/assertions/bounds unchanged; exactly3authored primitive-preservation oracle masks superseded as enumerated.",
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_family_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_sin_package_20261018.tar.gz",
+    "sha256": "77193c9e92e020f810e7da0795b77f5a62c389f65b83e0a19225d3c49474caac",
+    "bytes": 41058456,
+    "payloads": 3592
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_sin_stream_hashes_20261018.json",
+    "sha256": "ce0e42e58346f7c747bf8ef87ba73e46e2405bf6f80788b625350d0bea7acd84"
+  }
+}

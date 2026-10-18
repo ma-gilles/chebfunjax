@@ -212,7 +212,11 @@ def test_sin_cos_only_nonfinite_axis_imaginary_component_changes(row):
         expected_real[zero_real & zero_imag] = value.real[zero_real & zero_imag]
     assert got.real.tobytes() == expected_real.tobytes()
     selected = zero_imag
-    assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
+    expected_imag = original.imag.copy()
+    if row['method'] == 'sin' and row['name'] == 'complex_min_subnormal_imag':
+        # Independent native words supersede the former primitive-loss oracle.
+        expected_imag = _decode_sin_cos_capture(row['output']).imag
+    assert got.imag[~selected].tobytes() == expected_imag[~selected].tobytes()
     assert np.all(got.imag[selected].copy().view(np.uint64) == 0)
 
 
@@ -482,7 +486,16 @@ def test_sin_cos_finite_axis_component_word_scope(dtype, name):
         got = np.asarray(fn(jnp.asarray(value)))
         assert got.dtype == original.dtype and got.shape == original.shape
         assert got.real.tobytes() == expected_real.tobytes()
-        assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
+        expected_imag = original.imag.copy()
+        if name == 'sin' and dtype == np.complex128:
+            magnitude = value.imag.copy().view(word_dtype) & mask
+            subnormal = ((magnitude > 0) & (magnitude < word_dtype(0x0010000000000000))
+                         & np.isfinite(value.real))
+            # The two unchanged +/-0.4 inputs have cos(x) in(0.5,1), so
+            # the minimum-subnormal product rounds to the input imag word.
+            assert np.count_nonzero(subnormal) == 2
+            expected_imag[subnormal] = value.imag[subnormal]
+        assert got.imag[~selected].tobytes() == expected_imag[~selected].tobytes()
         assert np.all(got.imag[selected].copy().view(word_dtype) == 0)
 
 
@@ -584,6 +597,14 @@ def test_sin_real_zero_boundary_word_scope(name, dtype):
         expected.imag[axis] = real_dtype(0)
         if name == 'sin':
             expected.real[axis & zero_real] = value.real[axis & zero_real]
+            if dtype == np.complex128:
+                magnitude = value.imag.copy().view(word_dtype) & magnitude_mask
+                subnormal = ((magnitude > 0) & (magnitude < word_dtype(0x0010000000000000))
+                             & np.isfinite(value.real))
+                # Four unchanged near-origin inputs have cos(real) rounding
+                # to1, so their SIN imaginary words equal the input words.
+                assert np.count_nonzero(subnormal) == 4
+                expected.imag[subnormal] = value.imag[subnormal]
         got = np.asarray(current_fn(argument))
         assert got.dtype == expected.dtype
         assert got.real.tobytes() == expected.real.tobytes()

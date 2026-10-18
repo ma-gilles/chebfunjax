@@ -1,0 +1,172 @@
+{
+  "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion.",
+  "base_commit": "0cf41eaaebf5315e4a22d0d8eeb4c5dbd2603843",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "cohorts": [
+    {
+      "stage": "unary",
+      "pass": 1906,
+      "strict_expected_failure_cases": 26,
+      "observed_python_import_files": 1543,
+      "all_observed_import_paths_preguarded_stable": true
+    },
+    {
+      "stage": "integration",
+      "pass": 146,
+      "strict_expected_failure_cases": 3,
+      "observed_python_import_files": 1596,
+      "all_observed_import_paths_preguarded_stable": true
+    }
+  ],
+  "actual_total_pass": 2052,
+  "actual_expected_failure_cases": 29,
+  "receipt": {
+    "command_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "inputs_stable": true,
+    "remaining_owned_pids": [],
+    "censored_limit": null,
+    "wall_seconds": 483.0221018451266,
+    "sampled_peak_summed_rss_kib": 3458476
+  },
+  "source_bridge": "Integrated SIN/disk source/test/fixture bytes equal reviewed frozen payloads; all source/test guard inputs stable across actual-parent run. Existing roots QZ controls also pass after integration.",
+  "sin_child": {
+    "commit": "3166f7b04c2448ee2d480596e7598e5603e67c17",
+    "archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_sin_package_20261018.tar.gz",
+      "sha256": "77193c9e92e020f810e7da0795b77f5a62c389f65b83e0a19225d3c49474caac",
+      "payloads_verified": 3592,
+      "extras": [
+        "unary_subnormal_sin_stream_hashes_20261018.json"
+      ],
+      "all_manifest_payloads_stream_verified": true
+    },
+    "qualification": "1906PASS26XFAIL; all1542observed Python-import files preguarded/stable.324selected captured native SIN imaginary words exact eager/JIT;320signed gradual products and320divides agree with independent Fraction oracle.",
+    "metadata_original_records_before": 14,
+    "metadata_original_records_after": 13,
+    "authored_oracle_exceptions": "Exactly three prior primitive-preservation tests corrected on already-approved masks:1native row,2finite0.4elements,4near-origin elements. Inputs/real/outside-mask words and original native bounds unchanged. Raw first full1905PASS26XFAIL1author-oracleFAIL preserved; scientific source exact between failed and final runs.",
+    "remaining": "13original records=6other subnormal methods+7TANphase conventions.26xfail cases include repeated fixture inputs.92fresh minimum-normal-input SIN zero-class losses remain additional explicit gaps; outside-mask preservation is not native parity."
+  },
+  "disk_child": {
+    "archive": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_numeric_branch_candidate_20261018.tar.gz",
+      "sha256": "89268628604e7d20a8d23447d26f1ca0910f1cc8d0567c33c6815227dbce9dee",
+      "manifest_payloads_stream_verified": 101
+    },
+    "qualification": {
+      "base": "e1eca90dc0669cfc36eda71a280943e166613ca6",
+      "parent_bridge": "0cf41eaaebf5315e4a22d0d8eeb4c5dbd2603843",
+      "pytest_distinct": 84,
+      "pytest_pass": 81,
+      "pytest_strict_xfail": 3,
+      "partition": {
+        "new_branch_controls": "45PASS3XFAIL finalruntime",
+        "protected_constructor35": "35PASS finalruntime",
+        "original_k7": "1PASS with exact zero-storage-only source bridge"
+      },
+      "legacy_word_error_records_exact": 15,
+      "unrelated_module_functions_and_class_methods_AST_exact": true,
+      "original_tests_fixtures_bounds_unchanged": true,
+      "k7_exact_final_source_bridge": "k7_final_source_bridge.json; only source-zero tensor storage shape expression differs, allzero physical function remains zero",
+      "runs": {
+        "focused_run": {
+          "command_exit_code": 1,
+          "wall_seconds": 34.40011171810329,
+          "sampled_peak_summed_rss_kib": 1192780,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "focused_final_run": {
+          "command_exit_code": 1,
+          "wall_seconds": 18.913462365977466,
+          "sampled_peak_summed_rss_kib": 1172516,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "focused_matrix_run": {
+          "command_exit_code": 1,
+          "wall_seconds": 19.20812897896394,
+          "sampled_peak_summed_rss_kib": 1266820,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "focused_contract_run": {
+          "command_exit_code": 0,
+          "wall_seconds": 9.314027139917016,
+          "sampled_peak_summed_rss_kib": 795828,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "original_k7_run": {
+          "command_exit_code": 0,
+          "wall_seconds": 80.6586984791793,
+          "sampled_peak_summed_rss_kib": 3057800,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "focused_zero_run": {
+          "command_exit_code": 1,
+          "wall_seconds": 9.382393905892968,
+          "sampled_peak_summed_rss_kib": 794508,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "focused_sealed_run": {
+          "command_exit_code": 0,
+          "wall_seconds": 9.348604972008616,
+          "sampled_peak_summed_rss_kib": 794552,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        },
+        "legacy_protected_run": {
+          "command_exit_code": 0,
+          "wall_seconds": 32.93017897289246,
+          "sampled_peak_summed_rss_kib": 1204576,
+          "inputs_stable": true,
+          "remaining_owned_pids": [],
+          "censored_limit": null
+        }
+      },
+      "patch_sha256": "e416960c60774fbabcf0ceec3d7f0a1ac8b3b9ac16ecd592060ad2a8da307e5d",
+      "remaining_owned_pids": [],
+      "slots": "released; no MATLAB in this production package",
+      "initial_failures_preserved": "Three failed focused scientific sources/receipts plus zero-test unsupported complex-dtype oracle preserved; strict word tests retained as namedxfails, no fitted bound."
+    },
+    "scope": "preserve_lengths=True source capmin(m,n),NaN-omitting first-column-major extrema,exhausted-factor native error,coupled pivot location duplication,whole-column-matrix extrapolation,native zero factor storage. DefaultFalse15complete legacy records exact. New extrema use JAX; host NumPy difference/GE/projection arithmetic remains inherited debt.",
+    "heavy_original_source_bridge": {
+      "k7_qualified_sha256": "5dc4ff7908f02f68279ca1f8452e2936178e046f9b4955b2a7e8a885d978226f",
+      "final_runtime_sha256": "372ae3e79d8bdb5323be34b08af2d43ee9915ff66eeda466238d68833d381e0f",
+      "exact_text_bridge": "Only numeric helper zero-return column tensor shape changed2*m-1\u2192m forsource_numeric=True. Replacing this one shape expression yields byte-identical heavy-k7 source; other runtime helper unchanged.",
+      "mathematical_scope": "The zero branch still returnsrank1,allzero column/rowcoefficients,pivotInf,plus0,poleFalse. Only native-required storage length changes; zero function and k7 physical-bound predicate are unchanged. New strict rawzero/Inf-origin controls qualify final shape. All35protected cases either follow m1/exactzero earlyreturns or nonzeroGE; their paths unchanged."
+    },
+    "remaining": "3strict expected failures:rankcap FFTfactor words,oneNaN finite interpolation/transform words,subnormal reciprocal/GE. Additional getTol fractional-power and source projection order debt remains. Capturedtol never enters production."
+  },
+  "ci_ownership": {
+    "before": 1114,
+    "after": 1115,
+    "all_old_lane_prefixes_exact": true,
+    "lanes": 13,
+    "dedicated_hermite_lane": 12,
+    "coverage_gate_percent": 79
+  },
+  "guard_limits": "Observed imported Python module files are preguarded; no exhaustive native installed/shared-library/runtime coverage claim. No matched performance measurement in this parent gate.",
+  "not_claimed": [
+    "All library functions or original assertion coverage",
+    "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+    "322final-sourcepages and1305scientificfigures",
+    "Matched native CPU performance or all known correctness gaps",
+    "Latest-main CI and79%coverage acceptance"
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_parent_cpu_20261018.tar.gz",
+    "sha256": "21d0f23b4e269eff5369d61db0a88536bd48a0f43d429ff6ba02bb94b9ae281d",
+    "manifest_payloads_stream_verified": 3541
+  }
+}

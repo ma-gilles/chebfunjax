@@ -801,6 +801,23 @@
       "scope": "Native breakpoint-root grammar, JAX getRootsForBreaks, NaN-padded quasimatrix roots, numeric MATLAB imaginary suffixes, all19default original roots predicates.",
       "sha256": "23f68f5ff7078bec05115554fecc27dc9832b4163b3c8631a8926caf994d1fe2"
     },
+    "roots_qz_jax_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3458,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/roots_qz_jax_cpu_20261018.tar.gz",
+        "sha256": "444bd22aef474718ba70b30a3101f6cd17ad1cb1a71391cbd31ebe2793506fe9"
+      },
+      "limits": [
+        "Complete root QZ spectra word parity or ordering across all inputs",
+        "Subnormal/nonfinite/complex-normalization provider parity",
+        "Whole-call JIT/AD/vmap; inherited NumPy recursive trimming/filtering remains",
+        "Matched native speed or regression-free performance across degrees",
+        "All322pages/1305figures or latest-main CI/coverage completion"
+      ],
+      "report": "docs/roots_qz_jax_cpu_20261018.json",
+      "report_sha256": "9a9d22208b865f378082c1e661af466d4e7d4de9ef5537abd4e3854134264114",
+      "scope": "Replace Chebtech roots QZ pencil/eigensolver leaf with JAX; not full roots/API/native-provider-word/performance qualification."
+    },
     "scalar_simplify_parent_cpu_20261017": {
       "path": "docs/scalar_simplify_parent_cpu_20261017.json",
       "scope": "Omitted scalar simplify session tolerance;4baseline failures repaired,91unique scoped scientific/protocol nodes; full API/test-file statuses unchanged",
@@ -810,6 +827,23 @@
       "path": "docs/scoped_originals_inventory_reconciliation_20261017.json",
       "scope": "Reconcile five already published scoped reports into precise original-test/function rows and stale power33warning note; no new scientific execution/full-item status promotion.",
       "sha256": "19be96fab0c3822175e6618036f6f12d111ff57a47ddeefdf06cb001e2291afa"
+    },
+    "sin_disk_parent_cpu_20261018": {
+      "archive": {
+        "manifest_payloads_stream_verified": 3541,
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/sin_disk_parent_cpu_20261018.tar.gz",
+        "sha256": "21d0f23b4e269eff5369d61db0a88536bd48a0f43d429ff6ba02bb94b9ae281d"
+      },
+      "limits": [
+        "All library functions or original assertion coverage",
+        "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+        "322final-sourcepages and1305scientificfigures",
+        "Matched native CPU performance or all known correctness gaps",
+        "Latest-main CI and79%coverage acceptance"
+      ],
+      "report": "docs/sin_disk_parent_cpu_20261018.json",
+      "report_sha256": "729c9434e42716c65a7034c3b304474d6378a88b9cc865725a2811208e1bc7dc",
+      "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
     },
     "sphere_extrema_tie_cpu_20261017": {
       "path": "docs/sphere_extrema_tie_cpu_20261017.json",
@@ -71520,6 +71554,17 @@
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+        },
+        {
+          "artifact": "roots_qz_jax_cpu_20261018",
+          "limits": [
+            "Complete root QZ spectra word parity or ordering across all inputs",
+            "Subnormal/nonfinite/complex-normalization provider parity",
+            "Whole-call JIT/AD/vmap; inherited NumPy recursive trimming/filtering remains",
+            "Matched native speed or regression-free performance across degrees",
+            "All322pages/1305figures or latest-main CI/coverage completion"
+          ],
+          "scope": "QZ scaled pencil and generalized eigenvalue leaf use JAX;43CPUchecks pass, including24unchanged original roots and8authored source/analytic controls. No full roots/API/provider-word/performance qualification."
         }
       ],
       "functions": [
@@ -71561,6 +71606,17 @@
             {
               "artifact": "constructor_inverse_parent_cpu_20261018",
               "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            },
+            {
+              "artifact": "roots_qz_jax_cpu_20261018",
+              "limits": [
+                "Complete root QZ spectra word parity or ordering across all inputs",
+                "Subnormal/nonfinite/complex-normalization provider parity",
+                "Whole-call JIT/AD/vmap; inherited NumPy recursive trimming/filtering remains",
+                "Matched native speed or regression-free performance across degrees",
+                "All322pages/1305figures or latest-main CI/coverage completion"
+              ],
+              "scope": "QZ scaled pencil and generalized eigenvalue leaf use JAX;43CPUchecks pass, including24unchanged original roots and8authored source/analytic controls. No full roots/API/provider-word/performance qualification."
             }
           ],
           "implementation_status": "unverified",
@@ -75516,6 +75572,17 @@
         {
           "artifact": "constructor_inverse_parent_cpu_20261018",
           "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+        },
+        {
+          "artifact": "sin_disk_parent_cpu_20261018",
+          "limits": [
+            "All library functions or original assertion coverage",
+            "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+            "322final-sourcepages and1305scientificfigures",
+            "Matched native CPU performance or all known correctness gaps",
+            "Latest-main CI and79%coverage acceptance"
+          ],
+          "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
         }
       ],
       "functions": [
@@ -75524,6 +75591,17 @@
             {
               "artifact": "constructor_inverse_parent_cpu_20261018",
               "scope": "Native coefficient/numeric Diskfun constructor storage and capacity-shaped sampled-root finishing, CPU only. No whole library/API/word/performance/page closure. Scoped fields and controls only; full semantic/function status remains unverified."
+            },
+            {
+              "artifact": "sin_disk_parent_cpu_20261018",
+              "limits": [
+                "All library functions or original assertion coverage",
+                "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+                "322final-sourcepages and1305scientificfigures",
+                "Matched native CPU performance or all known correctness gaps",
+                "Latest-main CI and79%coverage acceptance"
+              ],
+              "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
             }
           ],
           "implementation_status": "unverified",
@@ -75565,7 +75643,19 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "sin_disk_parent_cpu_20261018",
+              "limits": [
+                "All library functions or original assertion coverage",
+                "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+                "322final-sourcepages and1305scientificfigures",
+                "Matched native CPU performance or all known correctness gaps",
+                "Latest-main CI and79%coverage acceptance"
+              ],
+              "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "746",
@@ -75573,7 +75663,19 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "sin_disk_parent_cpu_20261018",
+              "limits": [
+                "All library functions or original assertion coverage",
+                "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+                "322final-sourcepages and1305scientificfigures",
+                "Matched native CPU performance or all known correctness gaps",
+                "Latest-main CI and79%coverage acceptance"
+              ],
+              "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "769",
@@ -90685,7 +90787,19 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "sin_disk_parent_cpu_20261018",
+          "limits": [
+            "All library functions or original assertion coverage",
+            "Complete IEEE/storage/complex/JIT/AD/vmap/API parity",
+            "322final-sourcepages and1305scientificfigures",
+            "Matched native CPU performance or all known correctness gaps",
+            "Latest-main CI and79%coverage acceptance"
+          ],
+          "scope": "Actual parent CPU integration of SIN nonzero-subnormal imaginary component and source numeric Diskfun rank/missing-data/storage branches; no whole API/page/figure/performance completion."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

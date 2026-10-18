@@ -1,3 +1,30 @@
+# SIN subnormal component and numeric Diskfun branches — 2026-10-18
+
+SIN now retains the gradual cos(real)*imaginary product for nonzero binary64
+subnormal imaginary input and finite real input with normal finite cosine.
+324selected native imaginary words match eager/JIT; analytic JVPs unchanged.
+One original metadata record removed14→13.26unaryxfail cases include repeated
+inputs;92fresh minimum-normal-input losses remain additional explicit gaps.
+Three narrowly approved authored primitive-preservation oracles corrected;
+original native fixtures/assertions/bounds unchanged, failed trials retained.
+Broader near-cosine-zero/output-underflow diagnosis continues separately.
+
+Numeric Diskfun preserve_lengths=True now follows source rankcapmin(m,n),
+NaN-omitting first-column-major extrema, exhausted-factor errors, coupled pivot
+location duplication, whole-column-matrix extrapolation and zero factor storage.
+15legacy defaultFalse records exact. Child81PASS3strictXFAIL includes original
+k7with documented one-zero-return-shape bridge; not a finalfilek7rerun claim.
+Three factor/subnormal word gaps, tolerance power and host GE remain open.
+New extrema use JAX; inherited host constructor arithmetic is not fully ported.
+
+Actual combined parent2,052PASS29XFAIL: unary1,906/26 plus integration146/3,
+including disk83cases, roots43 andCIprotocol23. Observed Python-import files
+1543/1596 preguarded/stable; no censor/survivors. Archive3541payloads stream
+verified.1114old CI lane prefixes retained→1115owners/13lanes/Hermite12/79%.
+README now links the running checklist and states full parity is in progress.
+FullAPI/JAX/providerwords,322pages/1305figures, known correctness/performance
+gaps and latest-mainCI remain required. Evidence: docs/sin_disk_parent_cpu_20261018.json.
+
 # Chebtech QZ roots use JAX — 2026-10-18
 
 The scaled generalized colleague pencil and eig(A,B) leaf now use JAX and the

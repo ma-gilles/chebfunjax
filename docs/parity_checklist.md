@@ -6,6 +6,11 @@ Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages c
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
 Checked items certify only their stated scope.
 
+Use **At a glance** and **Current queue** for the current remaining work. The
+completed entries below preserve checkpoint evidence; their historical gap
+counts may be superseded by newer entries above them. Expected failures remain
+open work.
+
 ## At a glance
 
 | Workstream | Verified so far | Still required |
@@ -19,12 +24,14 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **QZ roots:** source pencil and generalized eig leaf now JAX,43focusedchecksPASS; fullAPI/provider/performance and latestCI remain open. [Evidence](roots_qz_jax_cpu_20261018.json).
-
-- **Latest verified integration:** TAN imaginary-NaN real component;1,956parentPASS27XFAIL. Fourteen original unary records remain. Default original inv/roots/minmax audit maps88native slots to61Python cases; separate3supplementals+17providerchecks account for81casegate.
-- **Unary work:** fourteen original records remain (seven TAN phase/sign, seven subnormal losses). Imaginary-NaN real-class fix qualified; imaginary NaN sign/payload remains. SIN whole-subnormal family under qualification; other six methods need staged arithmetic, not a shared derivative product.
-- **Disk work:** storage/branch/grid repair qualified below. Next: native numeric rank-cap and reciprocal arithmetic, then JAX replacement of inherited host GE; source attribution underway.
-- **CI:**3072dda6 passed all46jobs; only that older source qualifies. [Newer completed receipt](ci_3072dda6_cpu_20261018.json). Earlier381ee4cb reported82%coverage; latest-main acceptance remains required.
+- **Latest verified integration:** SIN subnormal imaginary component and numeric Diskfun branches; **2,052 parent PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
+- **Unary work:**13original records remain:6other subnormal methods and7TANphase/sign cases.26unaryxfail cases include repeated inputs.92fresh minimum-normal-input SIN losses are additional gaps; broader output-underflow/near-cosine-zero diagnosis continues.
+- **Disk work:** source numeric rank limits, missing-data handling, locations, extrapolation and zero storage qualified.3strict factor/subnormal word xfails, tolerance power/projection order and inherited host GE remain; JAX GE port underway.
+- **Roots:** source QZ pencil/eigensolver leaf now JAX,43checksPASS; full recursive JAX/API/provider words/AD/performance remain. [Evidence](roots_qz_jax_cpu_20261018.json).
+- **Original tests:**88default native inv/roots/minmax return slots mapped;61Python cases plus3supplementals and17providerchecks. Complete function/assertion coverage remains open.
+- **Pages and figures:** final-source computations/stdout/scientific figures for322pages/1305figures remain; historical dimension/structural checks do not close them.
+- **CPU performance:** known inverse/Hermite/Checkmark/QR/LU/BVP/roots gaps still need matched native measurements and repairs.
+- **CI:**3072dda6passed all46jobs; only that source qualifies. Later a9d5461aCI is active and newer main is queued. Latest-main scientificCI and coverage≥79%remain required; no manual cancellation.
 
 ### Active work, not yet credited as complete
 
@@ -35,6 +42,9 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] SIN binary64 subnormal imaginary product:324selected native words exact eager/JIT; original metadata14→13 and analytic derivatives retained. Numeric Diskfun rank/missing-data/location/extrapolation/zero-storage branches repaired;15legacy records exact. Actual combined parent **2,052 PASS / 29 XFAIL**. [Evidence](sin_disk_parent_cpu_20261018.json).
+- [ ] Thirteen original unary records,92additional minimum-normal-input SIN gaps and broader transition diagnosis;3disk factor/subnormal expected failures, host GE/tolerance/projection providers, completeAPI/JAX/AD, matchedspeed/pages/figures/latestCI remain open.
 
 - [x] Replace Chebtech QZ NumPy/SciPy pencil/eigensolver with JAX generalized Schur.43checksPASS, including24unchangedoriginalroots and8newsource/analyticcontrols. Host eigensolvers prohibited in four real/complex C1/C2 controls; original native bounds retained. [Evidence](roots_qz_jax_cpu_20261018.json).
 - [ ] Whole roots recursion/trim/filter JAX, complete API/JIT/AD, native spectra words, complex/extreme inputs, matched speed and latestCI remain open.

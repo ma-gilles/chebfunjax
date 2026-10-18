@@ -38,15 +38,6 @@
     },
     {
       "packet": "unary_storage_native_arrays.json",
-      "method": "sin",
-      "label": "complex_min_subnormal_imag",
-      "failures": [
-        "storage",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
       "method": "sinh",
       "label": "complex_min_subnormal_imag",
       "failures": [

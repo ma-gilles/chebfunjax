@@ -8,7 +8,7 @@ from functools import partial
 import jax
 import jax.numpy as jnp
 
-from chebfunjax.utils._signed_gradual import gradual_signed_divide
+from chebfunjax.utils._signed_gradual import gradual_signed_divide, gradual_signed_multiply
 from chebfunjax.utils.numeric_sign import real_sign
 
 
@@ -64,8 +64,23 @@ def _sin_cos_complex_axis(value, cosine):
         # when both input components are exact zeros; CPU JIT can lose it.
         # Word-aware tests exclude nonzero subnormals in either component.
         result_real = jnp.where(axis & (real_sign(real) == 0), real, result_real)
-    return jax.lax.complex(
+    result = jax.lax.complex(
         result_real, jnp.where(axis, jnp.zeros_like(imag), jnp.imag(result)))
+    if not cosine and imag.dtype == jnp.float64:
+        # Im(sin(x+iy)) = cos(x)*sinh(y). For binary64 subnormal y,
+        # sinh(y) rounds to y; preserve the separately rounded product.
+        # R2025b direct-component controls span the whole subnormal class.
+        result = jax.lax.optimization_barrier(result)
+        magnitude = jax.lax.bitcast_convert_type(imag, jnp.uint64) & jnp.uint64(0x7fffffffffffffff)
+        slope = jnp.cos(real)
+        slope_magnitude = jax.lax.bitcast_convert_type(slope, jnp.uint64) & jnp.uint64(0x7fffffffffffffff)
+        supported = ((magnitude > 0) & (magnitude < jnp.uint64(0x0010000000000000))
+                     & jnp.isfinite(real) & (slope_magnitude >= jnp.uint64(0x0010000000000000))
+                     & (slope_magnitude < jnp.uint64(0x7ff0000000000000)))
+        result = jax.lax.complex(
+            jnp.real(result), jnp.where(supported, gradual_signed_multiply(imag, slope),
+                                       jnp.imag(result)))
+    return result
 
 
 @_sin_cos_complex_axis.defjvp
@@ -85,8 +100,10 @@ def _sin_cos_numeric(value, *, cosine=False):
     Independent R2025b scalar and mixed-array direct-component captures
     establish positive imaginary zero on the exact real axis, including
     both input zero signs, finite real controls and nonfinite real inputs.
-    Preserve the original real component and all off-axis arithmetic. The
-    word-aware axis test excludes nonzero subnormal imaginary components.
+    Preserve the original real component. For binary64 nonzero-subnormal
+    imaginary inputs and finite real inputs with finite normal cos(x), SIN
+    retains cos(x)*y through gradual multiplication; all other off-axis
+    arithmetic is unchanged. The exact-axis test is word-aware.
     The complex helper supplies the ordinary analytic derivative explicitly
     so the boundary representation retains transverse real-linear tangents.
     """

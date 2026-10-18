@@ -196,7 +196,8 @@
       "tests/test_roots_normalization_native_source.py",
       "tests/test_minimax_norm_source.py",
       "tests/test_minimax_zero_source.py",
-      "tests/test_utils/test_fft724_rader_source.py"
+      "tests/test_utils/test_fft724_rader_source.py",
+      "tests/test_diskfun/test_numeric_branch_source.py"
     ],
     [
       "tests/test_active_set_finite_difference.py",
@@ -1144,6 +1145,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "c2c8ebafb404ebe2b85b9d2520da398e2fde4bae",
+  "last_update_parent": "0cf41eaaebf5315e4a22d0d8eeb4c5dbd2603843",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

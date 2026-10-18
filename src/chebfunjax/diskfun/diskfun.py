@@ -42,6 +42,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
+from chebfunjax.diskfun._numeric_extrema import source_abs_extrema
 from chebfunjax.diskfun._rank_one import phase_two_rank_one
 from chebfunjax.diskfun._simplify import simplify_slice, slice_scale
 from chebfunjax.domain import _linear_inverse_map
@@ -209,7 +210,8 @@ def _disk_row_pts(n: int) -> np.ndarray:
 # ============================================================================
 
 
-def _get_tol(F: np.ndarray, hx: float, hy: float, pseudo_level: float) -> tuple[float, float]:
+def _get_tol(F: np.ndarray, hx: float, hy: float, pseudo_level: float, *,
+             source_numeric: bool = False) -> tuple[float, float]:
     """Compute construction tolerance for diskfun/spherefun.
 
     Provenance
@@ -221,6 +223,19 @@ def _get_tol(F: np.ndarray, hx: float, hy: float, pseudo_level: float) -> tuple[
     grid = max(m, n)
     dfdx = np.diff(F[: m - 1, :], axis=1) / hx
     dfdy = np.diff(F[:, : n - 1], axis=0) / hy
+    if source_numeric:
+        # Source max omits NaNs; integer magnitude keys preserve tiny values.
+        # Existing difference/division and fractional-power providers remain
+        # unchanged; their native rounding debt is separately documented.
+        vscale = float(source_abs_extrema(jnp.asarray(F))[1])
+        if dfdx.size == 0:
+            return jnp.empty((0, 1), dtype=jnp.float64), vscale
+        gradients = jnp.concatenate((jnp.asarray(dfdx).reshape(-1, order='F'),
+                                     jnp.asarray(dfdy).reshape(-1, order='F')))
+        jac_norm = float(source_abs_extrema(gradients)[1])
+        scale = float(source_abs_extrema(jnp.asarray([jac_norm, vscale]))[1])
+        tol = (grid ** (2.0 / 3.0)) * np.pi * scale * pseudo_level
+        return tol, vscale
     jac_norm = np.max(np.maximum(np.abs(dfdx.ravel()), np.abs(dfdy.ravel())))
     vscale = float(np.max(np.abs(F)))
     dom_scale = np.pi  # max of |dom|; domain is [-pi,pi] x [0,1]
@@ -2089,12 +2104,29 @@ class Diskfun(eqx.Module):
                              "from values the number of columns must be "
                              "even.")
         if tol is None:
-            tol = _get_tol(F, 2 * np.pi / m, np.pi / max(n - 1, 1), _EPS)[0]
+            tol = _get_tol(F, 2 * np.pi / m, np.pi / max(n - 1, 1), _EPS,
+                           source_numeric=preserve_lengths)[0]
         (piv_idx, piv_arr, remove_pole, cols, pivots, rows, idx_plus,
-         idx_minus) = _phase_one_matrix_disk(F, tol, alpha)
+         idx_minus) = _phase_one_matrix_disk(
+             F, tol, alpha, source_numeric=preserve_lengths)
         if cols.shape[1] == 0:
+            if preserve_lengths:
+                # Native projection indexes the exhausted empty factors.
+                raise IndexError("MATLAB:badsubscript: Index in position 2 exceeds array bounds.")
             return cls.from_function(lambda t, r: 0.0 * t)
-        col_techs = [Chebtech2.from_values(jnp.asarray(cols[:, j]))
+        col_data = cols
+        if preserve_lengths:
+            column_values = jnp.asarray(cols)
+            if (not bool(jnp.all(jnp.isnan(column_values)))
+                    and not bool(jnp.all(jnp.isfinite(column_values)))):
+                # Native numeric chebtech.populate extrapolates the complete
+                # array-valued column matrix before its coefficient transform.
+                # A bad row in one column masks that row in every column.
+                from chebfunjax.tech.chebtech import _extrapolate_values
+                col_data = _extrapolate_values(
+                    column_values, chebpts(column_values.shape[0]),
+                    Chebtech2.barywts(column_values.shape[0]))[0]
+        col_techs = [Chebtech2.from_values(jnp.asarray(col_data[:, j]))
                      for j in range(cols.shape[1])]
         row_techs = [Trigtech.from_values(jnp.asarray(rows[:, j]))
                      for j in range(rows.shape[1])]
@@ -2116,8 +2148,14 @@ class Diskfun(eqx.Module):
             else:
                 th = -np.pi + 2 * np.pi * np.arange(m) / m
                 rr = np.cos(np.pi * np.arange(2 * n - 2, -1, -1) / (2 * n - 2))[n - 1:]
-            for j, k in piv_idx:
-                locs.append((float(th[k]), float(rr[j])))
+            for index, (j, k) in enumerate(piv_idx):
+                location = (float(th[k]), float(rr[j]))
+                locs.append(location)
+                if (preserve_lengths and piv_arr[index, 0] != 0
+                        and piv_arr[index, 1] != 0):
+                    # Native adjustPivotLocations repeats a coupled rank2
+                    # location once for each retained plus/minus factor.
+                    locs.append(location)
         g = cls(cols=col_techs, rows=row_techs,
                 pivots=jnp.asarray(pivots, dtype=jnp.float64),
                 idx_plus=tuple(int(i) for i in idx_plus),
@@ -3858,7 +3896,7 @@ def _check_pole_disk(val, tol):
     return float(np.mean(val))
 
 
-def _phase_one_matrix_disk(F, tol, alpha):
+def _phase_one_matrix_disk(F, tol, alpha, *, source_numeric=False):
     """MATLAB @diskfun/constructor.m PhaseOne(F, tol, alpha, 0) with the
     (nargout > 4) outputs: full BMC-II Gaussian elimination on a sample
     matrix ``F`` (``m`` radial rows with ``r = 0`` first, ``n`` angular
@@ -3884,9 +3922,14 @@ def _phase_one_matrix_disk(F, tol, alpha):
     col_pole = row_pole = None
     row_val = 0.0
     if abs(pole1) > tol:
-        colmax = np.max(np.abs(Fp), axis=0)
-        pole_col = int(np.argmax(colmax))
-        row_val = float(colmax[pole_col])
+        if source_numeric:
+            _, row_val, index = source_abs_extrema(jnp.asarray(Fp))
+            row_val = float(row_val)
+            pole_col = int(index) // Fp.shape[0]
+        else:
+            colmax = np.max(np.abs(Fp), axis=0)
+            pole_col = int(np.argmax(colmax))
+            row_val = float(colmax[pole_col])
         row_pole = row_val * np.ones(half)
         col_pole = Fp[:, pole_col].copy()
         Fp = Fp - np.outer(col_pole, row_pole / row_val)
@@ -3900,6 +3943,10 @@ def _phase_one_matrix_disk(F, tol, alpha):
     def _argmax(A):
         if A.size == 0:
             return 0.0, (0, 0)
+        if source_numeric:
+            _, value, index = source_abs_extrema(jnp.asarray(A))
+            k, j = divmod(int(index), A.shape[0])
+            return float(value), (j, k)
         idx = int(np.argmax(np.abs(A.T)))
         k, j = divmod(idx, A.shape[0])
         return float(np.abs(A[j, k])), (j, k)
@@ -3908,20 +3955,28 @@ def _phase_one_matrix_disk(F, tol, alpha):
     maxm, im = _argmax(Fm)
     if maxp == 0 and maxm == 0 and not remove_pole:
         return (np.zeros((1, 2), dtype=int), np.array([[0.0, 0.0]]), False,
-                np.zeros((2 * m - 1, 1)), np.array([np.inf]),
+                np.zeros((m if source_numeric else 2 * m - 1, 1)), np.array([np.inf]),
                 np.zeros((n, 1)), [0], [])
-    # The parity extension has 2*m-1 radial rows. Source constructor.m
-    # caps at min(m,n), which can stop before its requested tolerance on
-    # these doubled BMC-II matrices; preserve GE pivots/tolerance and use
-    # the actual matrix rank bound. Source Helmholtz k=7 exposes this loss.
-    min_size = min(2*m-1, n)
-    while max(maxp, maxm) > tol and rank_count < min_size:
+    # Numeric source PhaseOne receives the nonnegative-radius input and
+    # caps at min(m,n). Keep the old doubled-cap adapter only for the legacy
+    # default route; current original k7 dimensions give the same two caps.
+    min_size = min(m, n) if source_numeric else min(2*m-1, n)
+    def pair_maximum(a, b):
+        if source_numeric:
+            return float(source_abs_extrema(jnp.asarray([a, b]))[1])
+        return max(a, b)
+    while pair_maximum(maxp, maxm) > tol and rank_count < min_size:
         j, k = ip if maxp >= maxm else im
         evp = float(Fp[j, k])
         evm = float(Fm[j, k])
         absevp, absevm = abs(evp), abs(evm)
         pivot_indices.append((j, k))
-        if max(absevp, absevm) <= alpha * min(absevp, absevm):
+        if source_numeric:
+            smaller, larger, _ = source_abs_extrema(jnp.asarray([evp, evm]))
+            coupled = float(larger) <= alpha * float(smaller)
+        else:
+            coupled = max(absevp, absevm) <= alpha * min(absevp, absevm)
+        if coupled:
             cp = Fp[:, k].copy()
             rp = Fp[j, :].copy()
             Fp = Fp - np.outer(cp, rp / evp)

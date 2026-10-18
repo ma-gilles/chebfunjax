@@ -3,7 +3,11 @@ import jax
 import jax.numpy as jnp
 from jax import lax
 
-from chebfunjax.utils._gradual import gradual_exp_negative, gradual_positive_divide
+from chebfunjax.utils._gradual import (
+    gradual_exp_negative,
+    gradual_positive_divide,
+    gradual_positive_multiply,
+)
 
 # These modules may first be imported while tracing the public Hermite call.
 # Materialize masks outside that trace so module globals never retain tracers.
@@ -46,6 +50,35 @@ def _signed_divide_jvp(primals, tangents):
     da, db = tangents
     y = gradual_signed_divide(a, b)
     return y, (da - y * db) / b
+
+
+@jax.custom_jvp
+def gradual_signed_multiply(left, right):
+    """Multiply finite binary64 values by finite normal real coefficients.
+
+    Decode the operand magnitudes before arithmetic, separately round their
+    product, and restore the XOR sign bit without tiny floating operations.
+    Other operand classes retain native arithmetic. This is an IEEE binary64
+    representation adaptation; it does not reproduce a transcendental
+    builtin's internal staging or qualify subnormal derivative arithmetic.
+    """
+    a, b = jnp.broadcast_arrays(jnp.asarray(left, dtype=jnp.float64),
+                                jnp.asarray(right, dtype=jnp.float64))
+    ab = lax.bitcast_convert_type(a, jnp.uint64)
+    bb = lax.bitcast_convert_type(b, jnp.uint64)
+    am, bm = ab & _MAG, bb & _MAG
+    magnitude = gradual_positive_multiply(lax.bitcast_convert_type(am, jnp.float64),
+                                          lax.bitcast_convert_type(bm, jnp.float64))
+    result_bits = lax.bitcast_convert_type(magnitude, jnp.uint64) | ((ab ^ bb) & _SIGN)
+    supported = (am < _INF) & (bm >= _MIN_NORMAL) & (bm < _INF)
+    return jnp.where(supported, lax.bitcast_convert_type(result_bits, jnp.float64), a * b)
+
+
+@gradual_signed_multiply.defjvp
+def _signed_multiply_jvp(primals, tangents):
+    a, b = primals
+    da, db = tangents
+    return gradual_signed_multiply(a, b), da * b + a * db
 
 
 def source_barycentric_half(x, ders):

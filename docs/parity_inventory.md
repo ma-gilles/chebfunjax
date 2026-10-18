@@ -10,6 +10,10 @@ checks the native source pin and clean input trees, records the selected Python
 commit, and refuses to overwrite an existing ledger. Generate a fresh baseline
 and reconcile reviewed evidence; regeneration must never erase completed work.
 
+Recent scoped qualifications are linked from the
+[current checklist](parity_checklist.md) and recorded per source in the JSON
+ledger. Full-item statuses remain unverified.
+
 ## Inventory scope
 
 | Level | Count | Tracked state |
