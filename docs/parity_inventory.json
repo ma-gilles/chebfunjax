@@ -596,6 +596,22 @@
       "sha256": "756f3e68bf5d97ad2cc8524729056cd5a6698ec628429ae84ae1a4f6e0dc2567",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
     },
+    "pde_numeric_system_target_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_numeric_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3648,
+        "sha256": "3e42d1c44adbb587453746b07a57f6ec0229ee7b4971ae3169c8cc483726c931"
+      },
+      "limits": [
+        "Nonzero-target trajectories and adaptive/fixed-grid solver agreement are not qualified by these assembly-only captures.",
+        "Vector/matrix multi-element numeric targets, complex/logical targets, middle constraints and broader PDE options/API/graphics remain unresolved. Single-element real arrays follow source scalar replication.",
+        "Descriptor tests preserve NaN/Inf/signedzero target words but do not qualify nonfinite ODE solutions.",
+        "Whole JAX transformations, matched PDE performance, pages/figures and latest-main scientificCI/coverage>=79% remain required."
+      ],
+      "report": "docs/pde_numeric_system_target_cpu_20261018.json",
+      "report_sha256": "1ca41c2782772aa582a76c951adf3e8ec7da717f6d46685408da892da2b478b0",
+      "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
+    },
     "pdeset_consumer_20261017": {
       "path": "docs/pdeset_consumer_cpu_20261017.json",
       "scope": "Four authored fixed-grid native comparison cases and24 Python controls; additional PDE options/spatial adaptation/full API remain unverified.",
@@ -54545,11 +54561,20 @@
         {
           "artifact": "pdeset_consumer_20261017",
           "scope": "Source option forwarding and boundary-offset switch; four matched native cases only, not whole solver."
+        },
+        {
+          "artifact": "pde_numeric_system_target_cpu_20261018",
+          "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
         }
       ],
       "functions": [
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "pde_numeric_system_target_cpu_20261018",
+              "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "first_detected_declaration",
           "line": "1",
@@ -54653,7 +54678,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "pde_numeric_system_target_cpu_20261018",
+              "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "957",

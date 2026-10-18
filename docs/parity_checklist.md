@@ -19,8 +19,8 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** TAN nonfinite-axis repair; parent1,673PASS25XFAIL, evidence below. Previous combined CONJ/UMINUS and conversion package remains qualified in its stated scope.
-- **Active unary work:** finite-real-axis SIN/COS imaginary-zero conventions and independent first/second transverse derivatives; candidate qualification pending.
+- **Latest verified integration:** numeric scalar PDE system endpoint assembly; parent67PASS and12native assemblies. Prior TAN/CONJ/UMINUS/conversion packages remain qualified in their stated scopes.
+- **Unary queue:** finite-axis SIN/COS imaginary-zero packet sealed, parent integration pending; three newly exposed pre-existing real SIN zero-sign gaps tracked separately, repair under validation.
 - **Active investigation:** group static disk operators to reduce cold JAX compilation overhead; preserve source arithmetic and independently measure CPU timings.
 - **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
 
@@ -33,6 +33,9 @@ Checked items certify only their stated scope.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] Numeric real scalar PDE system endpoint targets repeat per component.28final baseline failures repaired; actual parent **67 PASS**,12actual native boundary assemblies, all1593runtimefiles preguarded/stable. Original bounds retained; no ODE evolution claim. [Evidence](pde_numeric_system_target_cpu_20261018.json).
+- [ ] Nonzero-target trajectories, multi-element/complex/logical numeric targets, full PDE boundary grammar/options, whole JAX/API, performance/pages/figures/latestCI remain open.
 
 - [x] TAN nonfinite exact-real-axis imaginary-zero boundary: two obsolete records removed,27→25; actual parent **1,673 PASS / 25 XFAIL**, all loaded runtime files preguarded/stable. Original fixtures/assertions/bounds and prior numeric AST retained. [Evidence](unary_tan_axis_parent_cpu_20261018.json).
 - [x] Diagnose complex ultras multiplication: five native source traces,440primitive calls, actual-five sparse/full agreement; both arithmetic models contradicted. Root verifies93archivepayloads. [Diagnosis](ultras_complex_scalar_diagnosis_cpu_20261018.json).

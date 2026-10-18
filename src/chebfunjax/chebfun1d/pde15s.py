@@ -88,6 +88,8 @@ def pde15s(
     bc='neumann' or bc='dirichlet' supplies symmetric source linear endpoint
     conditions, one row per component at each end. The same tokens can be
     supplied separately as lbc and rbc; callbacks retain their residual counts.
+    A real numeric scalar lbc or rbc supplies that Dirichlet target to every
+    system component, preserving the source AdjustBCs offset convention.
 
     method='NDF' uses JAX only and native default tolerances (1e-6 for both).
     Explicit historical methods retain the existing SciPy compatibility path;

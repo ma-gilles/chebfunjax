@@ -1,7 +1,7 @@
 """Polynomial pdeSolve spatial restart driver, JAX arithmetic.
 Chebfun 7574c77 pdeSolve/chebdouble, MATLAB R2025b ode15s/daeic12.
 Constant full mass, increasing time, scalar or real multicomponent handle BCs.
-Fixed N follows pdeset. Numeric system BCs are unsupported.
+Fixed N follows pdeset. Real scalar numeric endpoint targets repeat per component.
 No-BC unconstrained evolution is a Python compatibility extension.
 
 Provenance
@@ -251,7 +251,7 @@ def solve(
             return rhs
 
         # pdeSolve.m: BCVALOFFSET = F(BCrows) - q.  q is nonzero only
-        # for numeric linear boundary conditions in this scalar API.
+        # for numeric linear boundary conditions, repeated per system component.
         boundary_rhs = jnp.asarray(
             jnp.concatenate(
                 (linear_rhs, jnp.zeros(order - len(linear), dtype=initial_values.dtype))

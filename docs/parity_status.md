@@ -1,3 +1,25 @@
+# Numeric scalar PDE system endpoint targets — 2026-10-18
+
+Real numeric scalar lbc/rbc now repeat a Dirichlet endpoint target for every
+system component, following pdeSolve.m472/525. The previous unsupported branch
+caused all28new controls to fail. Actual parent67PASS37.01s, all1593runtimefiles
+preguarded/stable, no censor/survivors. Twelve actual native source assemblies
+cover two domains, three target pairs and both AdjustBCs settings; B/P/M/q,
+initial/probe RHS and applied offsets match at unchanged100eps*scale bounds.
+The native observer deliberately stops before ODE evolution: no trajectory,
+solver-performance or full PDE qualification is claimed.
+
+Initial candidate61PASS6FAIL reflected an authored private-offset shape
+comparison: native scalar0 broadcasts to six rows, Python stores six zeros.
+Native shape/values remain explicit; only applied-broadcast comparison corrected,
+then28final baseline controls fail before the repair and all67parent checks pass.
+Original test AST prefix/bounds/fixtures and driver/wrapper runtime AST retained.
+Post-gate lint change only sorts two existing imported attributes, with exact
+AST bridge.1111owners/13lanes/HermiteCore12/79%gate unchanged. Nonzero-target
+trajectories, broader numeric grammar/options/complex systems, whole JAX/API,
+performance/pages/figures and latest-main scientificCI remain required.
+Evidence: docs/pde_numeric_system_target_cpu_20261018.json.
+
 # TAN nonfinite real-axis boundary and complex multiplication diagnosis — 2026-10-18
 
 TreeVar TAN now returns native positive imaginary zero for nonfinite real

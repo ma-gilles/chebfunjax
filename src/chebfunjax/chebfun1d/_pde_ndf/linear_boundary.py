@@ -45,7 +45,14 @@ def _split_endpoint_specs(lbc, rbc, size, system):
             elif callable(spec):
                 nonlinear.append((side, spec))
             elif system:
-                raise NotImplementedError("Numeric system boundary targets are not implemented")
+                target = jnp.asarray(spec)
+                if (target.size != 1 or jnp.iscomplexobj(target)
+                        or not jnp.issubdtype(target.dtype, jnp.number)):
+                    raise NotImplementedError("System numeric boundaries require a real scalar target")
+                # pdeSolve.m472/525: repmat(v,SYSSIZE,1), one endpoint
+                # selector per component. Numeric v means Dirichlet data.
+                target = target.reshape(())
+                linear.extend(_LinearEndpoint("dirichlet", side, k, target) for k in range(size))
             else:
                 linear.append(_LinearEndpoint("dirichlet", side, 0, spec))
     return linear, nonlinear

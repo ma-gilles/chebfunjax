@@ -1,3 +1,13 @@
+## Numeric scalar system PDE endpoints — 2026-10-18
+
+The real scalar numeric system-target rejection is repaired: repeat one
+Dirichlet target per component, preserving native offset arithmetic.28baseline
+failures become passing within67parent controls;12actual native boundary
+assemblies match. Native observer stops before ODE evolution, so trajectories,
+nonfinite solutions, general numeric grammar/API/JAX/performance and final
+pages/figures/CI remain open. Original bounds/fixtures retained.
+[Evidence](pde_numeric_system_target_cpu_20261018.json).
+
 ## TAN boundary and complex scalar diagnosis — 2026-10-18
 
 Two TAN nonfinite real-axis records repaired; actual parent1,673PASS25XFAIL,

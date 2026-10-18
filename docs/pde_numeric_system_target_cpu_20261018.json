@@ -1,0 +1,131 @@
+{
+  "base_head": "c25b65fbea236c32bbf73dff5d20e40e08510807",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Real scalar numeric PDE system endpoint target replication and source boundary assembly, including AdjustBCs offset semantics. No ODE-trajectory or full PDE/API qualification.",
+  "parent_passed": 67,
+  "parent_xfailed": 0,
+  "runtime_guard": {
+    "count": 1593,
+    "missing_or_changed": []
+  },
+  "receipts": {
+    "pde_numeric_parent_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 44.92501891311258,
+      "sampled_peak_summed_rss_kib": 1658768,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "pde_numeric_native_run001": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 81.44226405117661,
+      "sampled_peak_summed_rss_kib": 1351848,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "pde_numeric_baseline_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 6.302807614207268,
+      "sampled_peak_summed_rss_kib": 485032,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "pde_numeric_baseline_run002": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 5.920763405971229,
+      "sampled_peak_summed_rss_kib": 483040,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    },
+    "pde_numeric_candidate_run001": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 31.31471533793956,
+      "sampled_peak_summed_rss_kib": 1644060,
+      "censored_limit": null,
+      "remaining_owned_pids": []
+    }
+  },
+  "source_snapshots": 3498,
+  "static_review": {
+    "paths": {
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "5d12b937d79332308024ef04e72b82fd3f9367fe8accc11b8714c8d3f7dfe895",
+      "src/chebfunjax/chebfun1d/_pde_ndf/pde_driver.py": "22c730e04e8770397a92bd4e4278c359f30ae07a40022f5a717c19222ce58ddf",
+      "src/chebfunjax/chebfun1d/pde15s.py": "d42d5f94d48192a6bc8b3dc439089d13ca411a31d28af39c7616809239f3516f",
+      "tests/test_pde_shorthand_contracts.py": "464a26341062042356f11a8fa3284015ff76580b4bfd167ba06cd1a3a182a656",
+      "tests/references/pde_numeric_targets_native_20261018.json": "e4a84c6e7b997d469504ab3ef1315aafe8ae1c328bd09e46ce6ef354b27c2b39",
+      "tests/references/pde_numeric_targets_native_20261018.m": "baa0319ca93497bf229b5285e51b6dd8d9382d8f885d9f05dfed1808f744dda7"
+    },
+    "old_test_AST_prefix_exact": true,
+    "driver_public_wrapper_runtime_AST_unchanged": true,
+    "numeric_branch": "Real numeric scalar repeats Dirichlet target per system component, native pdeSolve.m472/525. Only previous unsupported branch changes.",
+    "CI_ownership": "1111owners/13lanes/Hermite12/79%unchanged; existing test module extended."
+  },
+  "import_order_bridge": {
+    "scope": "Post-gate Ruff I001 sorts two imported existing attributes of the same local module; all other AST exact. No library source or test assertion/bound/input changes.",
+    "qualified_test_sha256": "464a26341062042356f11a8fa3284015ff76580b4bfd167ba06cd1a3a182a656",
+    "publication_test_sha256": "ff4a9c524fd08593c9c6fd25466f63343b6f3dd10436c6fa9c4f0c7fc0d8ce20",
+    "AST_exact_after_sorting_ImportFrom_aliases": true
+  },
+  "baseline": "Same28final controls fail before library edit; all fail at existing unsupported numeric system boundary branch. Baseline002 uses final corrected broadcast assertion and complete runtime guards.",
+  "native_capture": {
+    "cases": 12,
+    "domains": [
+      [
+        -1,
+        1
+      ],
+      [
+        2,
+        6
+      ]
+    ],
+    "endpoint_targets": [
+      [
+        0,
+        0
+      ],
+      [
+        2,
+        -3
+      ],
+      [
+        -3,
+        2
+      ]
+    ],
+    "adjust_bcs": [
+      false,
+      true
+    ],
+    "native_inputs_guarded": 3437,
+    "source": "Unmodified pinned pdeSolve with an ODESolver observer that records actual B/P/M/q/offset/initial/probe RHS then deliberately stops before ODE solve. No synthetic solver result or trajectory claim.",
+    "fixture": "tests/references/pde_numeric_targets_native_20261018.json",
+    "fixture_sha256": "e4a84c6e7b997d469504ab3ef1315aafe8ae1c328bd09e46ce6ef354b27c2b39",
+    "provenance_limit": "Chebfun source pin/clean tree and all3437source/capture inputs guarded; installed MATLAB runtime libraries are not exhaustively hashed.",
+    "comparisons": "All12 source matrices/targets/initial/probe/offset comparisons at unchanged shared100eps*scale bound. Native scalar0 offset when AdjustBCs=false compared after its source broadcast to6boundary rows; native shape separately asserted."
+  },
+  "test_design_correction": {
+    "initial_candidate": "61PASS6FAIL24.98s; no production edits afterward.",
+    "failure": "Six new native AdjustBCs=false private-offset assertions required equal shape. Native scalar0 is intentionally broadcast over six boundary rows; Python stores six explicit zeros.",
+    "correction": "Preserve native offset shape in fixture and assert it explicitly; compare applied broadcast value without changing numerical bound, native words, original assertions or production code.",
+    "next": "Repeat28baselinecontrols with final assertions, then combined actual-parent qualification."
+  },
+  "source_change": "Only prior unsupported system-numeric branch changes: one real numeric scalar becomes a Dirichlet selector/target per component. Original driver/wrapper runtime AST unchanged; two docs clarified. Original test AST prefix and all old bounds/fixtures retained.",
+  "ownership": "Existing core test extended;1111owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "remaining": [
+    "Nonzero-target trajectories and adaptive/fixed-grid solver agreement are not qualified by these assembly-only captures.",
+    "Vector/matrix multi-element numeric targets, complex/logical targets, middle constraints and broader PDE options/API/graphics remain unresolved. Single-element real arrays follow source scalar replication.",
+    "Descriptor tests preserve NaN/Inf/signedzero target words but do not qualify nonfinite ODE solutions.",
+    "Whole JAX transformations, matched PDE performance, pages/figures and latest-main scientificCI/coverage>=79% remain required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/pde_numeric_parent_cpu_20261018.tar.gz",
+    "sha256": "3e42d1c44adbb587453746b07a57f6ec0229ee7b4971ae3169c8cc483726c931",
+    "root_stream_verified_payloads": 3648
+  }
+}
