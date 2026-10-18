@@ -403,8 +403,10 @@ def _phase_one_disk(
     is_happy = max(maxp_val, maxm_val) <= tol
 
     if len(pivot_indices) == 0:
-        pivot_indices = np.array([[0, 0]], dtype=int)
-        pivot_array = np.array([[0.0, 0.0]])
+        # Native GE leaves the nonzero/no-pivot result empty. Keep the
+        # internal two-column storage convention without inventing a zero.
+        pivot_indices = np.empty((0, 2), dtype=int)
+        pivot_array = np.empty((0, 2), dtype=float)
     else:
         pivot_indices = np.array(pivot_indices, dtype=int)
         pivot_array = np.array(pivot_array)
@@ -1113,7 +1115,17 @@ class Diskfun(eqx.Module):
                     stacklevel=2,
                 )
                 failure = True
-                break
+
+            # Native still executes its strike test after the rank warning.
+            # A nonzero matrix below tolerance can have no GE pivots; the
+            # literal pivotArray(1,:) access then raises, rather than creating
+            # a zero Diskfun from a fabricated placeholder.
+            if pivot_array.shape[0] == 0:
+                error = IndexError(
+                    "MATLAB:badsubscript: Index in position 1 exceeds array bounds."
+                )
+                error.identifier = "MATLAB:badsubscript"
+                raise error
 
             # If the function is 0 + noise the dominant pivot is tiny.
             # MATLAB @diskfun/constructor treats this as convergence only

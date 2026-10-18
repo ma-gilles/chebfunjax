@@ -1,0 +1,273 @@
+{
+  "title": "Finite-real/infinite-imaginary TAN source Smith boundary; bounded CPU package",
+  "base": "31488cb8af5e21c146052673b566293a5af1e99f",
+  "diagnosis_base": "8862a027d054f30541e2e42edca8570d0eb22a46",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "C128 finite-real/word-exact-infinite-imaginary TAN with a finite real TAN coefficient; ordinary inputs, every imaginary word and all other prior real words preserved. Existing TAN/TANH JVPs unchanged. No universal IEEE/API/page closure.",
+  "source_identity": "tan(x+iy)=(tan(x)+i*tanh(y))/(1-i*tan(x)*tanh(y)); at imaginary infinity use signed unit tanh limit and existing separately rounded finite source_complex_divide Smith quotient. Only the real result changes. No native coefficients/output buffers are runtime library inputs.",
+  "native_controls": {
+    "calls": 63,
+    "real_phase_values": 828,
+    "imaginary_values": 16,
+    "full_matrix_shape": [
+      828,
+      16
+    ],
+    "finite_real_inf_contexts": 1648,
+    "native_real_classes_in_selected": {
+      "zero": 1552,
+      "normal_cancellation_residual": 96
+    },
+    "native_imaginary": "All selected native words exactly signed one",
+    "contexts": "Independent dyadic grid[-8,8] step1/32, k*pi/4 plus4word neighbors each side, signed zeros/subnormals/minnormal/extremes/NaNs/infinities; same-word Inf-only matrices/row/column,7original row replays and48scalar controls",
+    "precall": "Requested real/imag words, shape, storage and double class asserted before every warm and recorded call; components extracted before flatten/repack; native origin/pin/version/CPU affinity/singlethread guards",
+    "exact_source_stages": "Native literal quotient equals native TAN on both components at ALL captured finite-real values for every imaginary column, including finite-large and NaN columns. Existing source Smith quotient matches all1648selected real/imag words in eager/JIT using either JAX or native real-TAN operands.",
+    "provider": "29scalar real-TAN word differences between native/JAX; none change selected source Smith results. No universal provider-word parity claim.",
+    "zero_axis_guard": "24fresh exact-zero-real/Inf observations prove prior eager/JIT both component words already match native. General whole-prior guard skips correction when no nonzero finite-real/Inf element exists."
+  },
+  "baseline": {
+    "new_native": "24FAIL42PASS17.10s; every failure a direct native component assertion",
+    "initial_candidate": "66PASS27.16s, but broader author controls later expose outside-mask NaN sign regression; no complete gate claim from66 alone"
+  },
+  "regression_diagnosis": {
+    "author_baseline": "15FAIL58PASS33.23s:12phase-oracle cases and3outside-mask NaN cases;15original native assertion bodies already pass strictly",
+    "precise_gap": "Only JIT, C128 cohort0 shapes(12),(1,12),(12,1): six real NaN words at finite off-axis \u00b11 with imaginary NaN. Frozen31488 agrees with adjusted frozen9aa on all old contexts; this was introduced by phase integration. Imaginary words unchanged.",
+    "failed_trial": "Integer-only prior-real transport retains all six regressions; raw source preimage/guard/receipt retained.",
+    "repair": "Whole prior complex result retained through general eligible-class conditional; exact-zero real inputs are already native-qualified. No shape/cohort predicate, NaN rule, outside-mask expectation adjustment or phase sign table. Integer words carry real component updates.",
+    "independent_controls": "16mixed genuine-phase/NaN-neighbor cases across4shapes and phase pairs(\u00b10),(\u00b11),(\u00b1.4),(\u00b12), each eager/JIT, prove unchanged outside real/all imaginary words; existing NaN axis/payload/subnormal cases remain exact.",
+    "amended_gate": "155PASS120.40s including82new controls,15strict original native bodies,34existing capture-word controls and24existing NaN-context controls"
+  },
+  "authored_oracle_supersession": {
+    "approved_scope": "Only C128 finite-real/exact-Inf-imaginary expected real components updated from direct independent native input-word lookup. All original assertion ASTs/native fixtures/bounds unchanged. No production outputs used as expected.",
+    "inventory": "56expected real words across24eager/JIT contexts changed; complete124-context old/new inventory includes all three helper call sites and frozen9aa runtime-prior interactions; all imaginary and outside words exact. Eight synthetic contexts unchanged.",
+    "preimages": "Original helper, intermediate amended helper/status file and initial66test source retained byte-exact.",
+    "third_independent_oracle": {
+      "failure_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_final_run001_20261018/receipt.json",
+      "preimage": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_evidence_20261018/preimages/test_before_third_preservation_correction.py",
+      "native_input_real": "bfd999999999999a",
+      "native_input_imag": "fff0000000000000",
+      "old_expected_real": "8000000000000000",
+      "new_native_real": "0000000000000000",
+      "selected_inputs": 2,
+      "changed_expected_words": 1,
+      "all_original_assertions_retained": true,
+      "all_16_inputs_imaginary_and_outside_words_preserved": true
+    }
+  },
+  "status_retirement": {
+    "original_metadata": [
+      {
+        "packet": "unary_storage_native36.json",
+        "method": "tan",
+        "label": "complex_1_inf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_mixed",
+        "failures": [
+          "real_zero_sign",
+          "imag_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_n1_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_p1_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_n2_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_re_p2_im_pinf",
+        "failures": [
+          "real_zero_sign"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "tan_cross_grid_6by4",
+        "failures": [
+          "real_zero_sign"
+        ]
+      }
+    ],
+    "fresh_names": {
+      "unary_storage_native36.json__tan__complex_1_inf": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__complex_mixed": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__tan_cross_re_n1_im_pinf": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__tan_cross_re_p1_im_pinf": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__tan_cross_re_n2_im_pinf": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__tan_cross_re_p2_im_pinf": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "unary_storage_native_arrays.json__tan__tan_cross_grid_6by4": "Unresolved TAN infinite-imaginary phase/zero-sign convention",
+      "infinite_imaginary_phase_controls__tan": "Unresolved TAN infinite-imaginary phase/zero-sign convention"
+    },
+    "strict_pre_retirement_proof": "amended155PASS includes15original native bodies executed directly with every original assertion/bound intact"
+  },
+  "remaining": {
+    "original_metadata": [
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tanh",
+        "label": "complex_min_subnormal_imag",
+        "failures": [
+          "storage",
+          "imag_zero_class"
+        ]
+      }
+    ],
+    "fresh": "Finite imaginary-axis and near-axis TAN/TANH subnormal component losses (four), plus TANH infinite-real imaginary-zero sign (one), untouched. Actual final counts to be read from XML.",
+    "finite_inputs": "Finite-large imaginary source quotient/residual/provider gaps retained outside approved Inf mask; ALL_CAPTURE_CONTEXT_CLASS_REVIEW.json quantifies every finite-real captured column. No finite-y extension.",
+    "mathematics": "Ideal infinite-imaginary analytic boundary has zero real component; R2025b rounded quotient staging has96finite residuals in1648selected contexts. This package follows the captured source-style staging; no correctly-rounded transcendental/extended-IEEE claim."
+  },
+  "derivatives": "Existing exact TAN/TANH custom-JVP ASTs retained. Independent cmath R\u00b2 first/second Jacobian/Hessian controls and transverse JVPs at ordinary finite points pass. Nonfinite/extreme derivative behavior remains inherited/unqualified.",
+  "native_runtime_coverage": {
+    "before": 878,
+    "after": 889,
+    "late_mappings": [
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/builtins/matlab/io/filesystem/source/mwlibmwfilemanip_builtinimpl.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfilemanip.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwfoundation_extdata_matrix_data.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallcmd.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstallconfiguration.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwinstalllaunchmanager.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/libmwlogger.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/install/vrd/vrd_connector_plugin/mwvrd_startup_plugin.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/matlabdata/startupplugin/libmwmda_startupplugin.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/prefdirwarning/libmw_prefdirwarning.so",
+      "/usr/licensed/matlab-R2025b/bin/glnxa64/matlab_startup_plugins/shared_deviceplugindetection/mwdevicepluginstartup.so"
+    ],
+    "changed_initial": [
+      "/var/lib/sss/mc/passwd"
+    ],
+    "outer_missing": {
+      "before": [
+        "/var/lib/sss/mc/passwd"
+      ],
+      "after": [
+        "/var/lib/sss/mc/passwd"
+      ]
+    }
+  },
+  "guard_limits": "All sampled stable mapped MATLAB code/data files preinventoried, before/after checked; mutable SSS identity-cache change excluded from stable-code claims. Eleven delayed mappings were outer-prequalified. Main-process sampled maps are not an exhaustive installed/subprocess/transient runtime inventory.",
+  "launch_corrections": [
+    {
+      "first_launch": "Supervisor rejected HEAD guard before any scientific child launched",
+      "inherited_heads": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_20261018": "c7e33a63765f8b0730e7d378fdd6cb69757a4cad"
+      },
+      "fresh_heads": {
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_subnormal_staging_20261018": "8862a027d054f30541e2e42edca8570d0eb22a46",
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_20261018": "8862a027d054f30541e2e42edca8570d0eb22a46"
+      },
+      "source_files": "All hashed preimages current; corrected obsolete inherited W c7 head after8862 sealing only"
+    },
+    {
+      "collector": "First launched MATLAB capture stopped during warmup because heterogeneous JSON case fields decode as cells, while collector assumed struct indexing. No recorded outputs. Exact collector preimage retained; generic cell/struct case accessor added; corrected63-call capture terminal0."
+    }
+  ],
+  "supervision": [
+    "tan_infinite_phase_amended_run001_20261018",
+    "tan_infinite_phase_author_baseline_run001_20261018",
+    "tan_infinite_phase_baseline_run001_20261018",
+    "tan_infinite_phase_diagnosis_run001_20261018",
+    "tan_infinite_phase_final_run001_20261018",
+    "tan_infinite_phase_focused_run001_20261018",
+    "tan_infinite_phase_nan_integer_run001_20261018",
+    "tan_infinite_phase_nan_transport_run001_20261018",
+    "tan_infinite_phase_nan_whole_conditional_run001_20261018",
+    "tan_infinite_phase_native_run002_20261018",
+    "tan_infinite_phase_native_run003_20261018",
+    "tan_infinite_phase_oracle_inventory_run001_20261018",
+    "tan_infinite_phase_oracle_synthetic_run001_20261018",
+    "tan_infinite_phase_smith_run001_20261018",
+    "tan_infinite_phase_oracle_final_run001_20261018"
+  ],
+  "final": {
+    "full_production_gate": {
+      "passed": 2160,
+      "strict_xfailed": 7,
+      "xml": {
+        "tests": "2168",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "7",
+        "time": "913.943"
+      },
+      "supervisor_exit_code": 1,
+      "supervisor_wall_seconds": 921.3548985463567,
+      "sampled_peak_summed_rss_kib": 2161940,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "observed_imports": 1554,
+      "missing_or_changed_preguard": [],
+      "changed_after_terminal": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_candidate_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "final_authored_oracle_gate": {
+      "passed": 142,
+      "strict_xfailed": 0,
+      "xml": {
+        "tests": "142",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "113.171"
+      },
+      "supervisor_exit_code": 0,
+      "supervisor_wall_seconds": 118.25326088629663,
+      "sampled_peak_summed_rss_kib": 1498720,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "observed_imports": 1489,
+      "missing_or_changed_preguard": [],
+      "changed_after_terminal": []
+    },
+    "qualification": "Production source byte-identical throughout full nine-file gate and final 142-control gate. Full gate retained as 2160PASS7XF1 authored-oracle FAIL; only that independently native-disproved expected real word was corrected after parent review, with all original assertions retained. No full-suite allpass claim.",
+    "original_metadata_records_remaining": 2,
+    "fresh_open_records_remaining": 5,
+    "scope": "Seven original TAN phase/sign records and eight fresh phase records now strict native-pass; only C128 finite-real/exact-Inf imaginary real component eligible. All imaginary/outside words and analytic JVPs preserved."
+  },
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_package_20261018.tar.gz",
+    "sha256": "4128c73b2a47019e8955a656d2acd94cd92aadc3cf341af0ac29f64d5cd5747f",
+    "bytes": 48869297,
+    "payloads": 4117
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_stream_hashes_20261018.json",
+    "sha256": "ab12b79a4cfea934c2d7878a661f7165175cc61610c1d2df6297c08285f786a3"
+  }
+}

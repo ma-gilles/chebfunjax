@@ -40,6 +40,8 @@ to the specific function/assertion/page dimension before any status changes.
 
 ## Current status and scoped evidence
 
+Latest [TAN phase/disk errors/division](tan_disk_remaining_parent_cpu_20261018.json):251parentPASS/1strictXFAIL; original native assertions/bounds retained. Expected failures/full-item qualification remain open.
+
 Latest [root filter and adaptive scalar qualification](root_disk_parent_cpu_20261018.json):223parent passes in two disjoint scopes. Inverse first-call compilation reduced; native words/speed and full-item statuses remain unverified.
 
 Latest [four-method unary and numeric disk construction qualification](unary_disk_constructor_parent_cpu_20261018.json):231parent passes in two disjoint scoped gates; child full unary2,064PASS22XFAIL and disk376PASS3XFAIL are separate scopes. Four original unary records repaired; remaining full-item statuses stay unverified.

@@ -1,6 +1,6 @@
 # Full MATLAB Chebfun parity — checklist
 
-Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover CPU root filter capacity/tiny tolerance and adaptive disk scalar metadata/error repairs. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
+Updated 2026-10-18. **Active, incomplete; CPU only.** Latest verified packages cover TAN infinite-imaginary phase, disk no-pivot errors and extrapolation division. Current publication and CI status are recorded in the status file. MATLAB reference: `7574c77`.
 [Repository status and evidence](parity_status.md).
 [Full source/test/page inventory](parity_inventory.md).
 Historical detail is preserved in HANDOFF_CODEX.md and the linked scoped evidence.
@@ -24,14 +24,14 @@ open work.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** root filter capacity/tiny tolerance and adaptive disk scalar metadata/error repairs. Actual parent **223 PASS** in two disjoint gates; final child root237PASS, disk42PASS. [Evidence](root_disk_parent_cpu_20261018.json).
-- **Unary worker:** TAN finite-real/infinite-imaginary phase correction in final full qualification; no completion/count credited before terminal evidence. Last published cohort22XFAIL.
-- **Disk worker:** newly confirmed public adaptive no-pivot error mismatch; angular tolerance spacing gap and two final factor-word differences under diagnosis. Three published strict XFAIL remain, one intermediate-only signed zero.
-- **CPU inverse:** first call31.89→28.54s, exact20baseline output arrays; warm timing ranges overlap, native warm gap~2.51x and coefficient/provider words remain open.
-- **CI:** latest-main scientific CI/coverage≥79% remains required;31488run39141854578 observed pending before this publication.
-- **Original tests:** full audit across2,333native library files/1,102original test files; remaining numerical/API/JAX/AD gaps.
+- **Latest verified integration:** TAN phase, adaptive disk no-pivot errors and literal extrapolation division. Actual parent **251 PASS /1strictXFAIL**, two disjoint scopes. [Evidence](tan_disk_remaining_parent_cpu_20261018.json).
+- **Unary worker:** two original TAN/TANH tiny-component records and five fresh strictXFAILs remain; source quotient/native operand diagnosis underway. Full child2160PASS7XF1authored-oracleFAIL is retained, corrected final142PASS is separate overlapping scope.
+- **Disk worker:** adaptive getTol angular spacing and source grid cardinalities/coordinates/decisions. Child502PASS2XFAIL; final FFT factor word and intermediate-only GEMM zero sign remain. Broad FFT changes risk a qualified inverse length decision.
+- **Root:** Chebfun2 explicit fixed-size/technology preferences;18new native controls all complete. Other original API/assertion gaps remain.
+- **CPU speed:** inverse root-filter optimization published; further Brent padding rejected after63checks/20exact arrays because timing evidence did not justify complexity. Native inverse warm gap~2.51x remains in one earlier descriptive set; Hermite/Checkmark/QR/LU/BVP/roots and others require qualification.
+- **CI:** latest-main scientific CI/coverage≥79% remains required. Prior f6f7a535SCI39145050865 was pending at last observation; older d058SCI39135691666 had38completed jobs/no failures and7running, not current-main qualification.
+- **Original tests/numerics:** complete audit across2,333library files/1,102original test files; complex poles, Hermite, Chebfun3T representation/provider and wider API/JAX/AD gaps.
 - **Pages/figures:** final-source computation/stdout and scientific/raster qualification for322pages/1,305figures remain required.
-- **Other performance/numerics:** Hermite, Checkmark, complex poles, QR/LU, BVP, roots and dense Chebfun3T provider/representation qualification remain open.
 
 ### Active work, not yet credited as complete
 
@@ -42,6 +42,9 @@ open work.
 There is **no defensible overall completion percentage** yet. Checked items below qualify only their stated scope, source and bounds; unchecked items remain required.
 
 ## Completed scoped work
+
+- [x] TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division: **251 actual parent PASS /1strictXFAIL**, all original native assertions/bounds retained. [Evidence](tan_disk_remaining_parent_cpu_20261018.json).
+- [ ] Remaining2original+5fresh unary gaps,2disk wordXFAILs, full original assertion/API/JAX/AD audit,322pages/1305figures, matched speed and latest-mainCI remain open.
 
 - [x] Root filter capacity/tiny tolerance and adaptive disk scalar zero/error semantics: **223 actual parent PASS**, original bounds unchanged. [Evidence](root_disk_parent_cpu_20261018.json).
 - [ ] Native speed/provider words, adaptive no-pivot/tolerance, remaining expected failures, complete original assertion/API/JAX/AD audit,322pages/1305figures and latest-mainCI remain open.

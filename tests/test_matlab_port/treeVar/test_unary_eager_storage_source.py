@@ -393,6 +393,17 @@ def test_tan_nonfinite_axis_only_selected_imaginary_words_change(dtype):
     expected_real = original.real.copy()
     zero_real = (value.real.copy().view(word_dtype) & magnitude_mask) == 0
     expected_real[zero_imag & zero_real] = value.real[zero_imag & zero_real]
+    # Supersede primitive real signs only on the independently captured phase
+    # class; retain every imaginary and outside-class primitive word.
+    if dtype == np.complex128:
+        phase = np.isfinite(value.real) & np.isinf(value.imag)
+        xr = value.real.copy().view(np.uint64)
+        yi = value.imag.copy().view(np.uint64)
+        expected_words = expected_real.view(np.uint64)
+        for index in np.flatnonzero(phase):
+            key = (f'{int(xr[index]):016x}', f'{int(yi[index]):016x}')
+            assert key in TAN_INFINITE_PHASE_REAL_WORDS
+            expected_words[index] = np.uint64(int(TAN_INFINITE_PHASE_REAL_WORDS[key], 16))
     for fn in (_UNARY_FNS_RAW['tan'], jax.jit(_UNARY_FNS_RAW['tan'])):
         got = np.asarray(fn(jnp.asarray(value)))
         assert got.dtype == original.dtype and got.shape == original.shape
@@ -613,7 +624,7 @@ def test_sin_real_zero_boundary_word_scope(name, dtype):
 
 
 TAN_TANH_AXIS_CAPTURE = json.loads((DATA/'tan_tanh_axis_native_20261018.json').read_text())
-TAN_TANH_OPEN_NAMES = {'unary_storage_native36.json__tan__complex_1_inf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__complex_mixed': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p1_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_n2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_re_p2_im_pinf': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'unary_storage_native_arrays.json__tan__tan_cross_grid_6by4': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'infinite_imaginary_phase_controls__tan': 'Unresolved TAN infinite-imaginary phase/zero-sign convention', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
+TAN_TANH_OPEN_NAMES = {'finite_imaginary_axis__tan': 'Independent fresh minimum-subnormal component-loss gap', 'finite_imaginary_axis__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tan': 'Independent fresh minimum-subnormal component-loss gap', 'near_axis_nonzero_words__tanh': 'Independent fresh minimum-subnormal component-loss gap', 'infinite_real_controls__tanh': 'Fresh infinite-real TANH imaginary-zero sign gap'}
 TAN_TANH_NATIVE_CASES = [pytest.param(r, id=r['name'], marks=(
     pytest.mark.xfail(strict=True, reason=TAN_TANH_OPEN_NAMES[r['name']])
     if r['name'] in TAN_TANH_OPEN_NAMES else [])) for r in TAN_TANH_AXIS_CAPTURE['rows']]
@@ -648,6 +659,20 @@ def test_tan_tanh_axes_fresh_native_full_components(row):
             assert np.array_equal(np.signbit(actual[zero]), np.signbit(target[zero]))
 
 
+
+# Independent native real words qualify only the new C128 infinite-imaginary
+# class. Primitive/published-prior imaginary and all other words remain fixed.
+TAN_INFINITE_PHASE_NATIVE = json.loads((DATA/'tan_infinite_phase_native_20261018.json').read_text())
+TAN_INFINITE_PHASE_REAL_WORDS = {}
+for _row in TAN_INFINITE_PHASE_NATIVE['rows']:
+    for _xr, _yi, _ro in zip(_row['input']['real'], _row['input']['imag'], _row['output']['real']):
+        if ((int(_xr, 16) & 0x7fffffffffffffff) < 0x7ff0000000000000
+                and (int(_yi, 16) & 0x7fffffffffffffff) == 0x7ff0000000000000):
+            _key = (_xr, _yi)
+            assert TAN_INFINITE_PHASE_REAL_WORDS.get(_key, _ro) == _ro
+            TAN_INFINITE_PHASE_REAL_WORDS[_key] = _ro
+
+
 def _tan_tanh_expected_axis_words(name, value, original):
     expected = np.array(original, copy=True)
     if not np.iscomplexobj(value):
@@ -661,6 +686,16 @@ def _tan_tanh_expected_axis_words(name, value, original):
         expected.imag[zero_imag] = 0.
         imaginary_nan = zero_real & np.isnan(value.imag)
         expected.real[imaginary_nan] = np.nan
+        if value.dtype == np.complex128:
+            phase = np.isfinite(value.real) & np.isinf(value.imag)
+            xr = value.real.copy().view(np.uint64)
+            yi = value.imag.copy().view(np.uint64)
+            expected_real_words = expected.real.copy().view(np.uint64)
+            for index in zip(*np.nonzero(phase)):
+                key = (f'{int(xr[index]):016x}', f'{int(yi[index]):016x}')
+                assert key in TAN_INFINITE_PHASE_REAL_WORDS
+                expected_real_words[index] = np.uint64(int(TAN_INFINITE_PHASE_REAL_WORDS[key], 16))
+            expected.real = expected_real_words.view(np.float64)
     else:
         selected = zero_real & ~zero_imag & np.isfinite(value.imag)
         expected.real[selected] = 0.

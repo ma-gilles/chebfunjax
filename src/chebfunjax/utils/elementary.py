@@ -260,6 +260,37 @@ def _sin_cos_numeric(value, *, cosine=False):
     return _sin_cos_complex_axis(value, cosine)
 
 
+@jax.jit
+def _tan_infinite_imaginary_real(real, imag, prior_words):
+    """Retain TAN's finite Smith quotient on the infinite-imaginary boundary.
+
+    tan(x+iy) = (tan(x)+i*tanh(y))/(1-i*tan(x)*tanh(y)). At y=+/-Inf,
+    tanh(y) is its signed unit limit. Separately rounded Smith division
+    preserves both native zero signs and finite cancellation residuals;
+    replacing the result with zero would lose the captured source staging.
+    Only finite real inputs and finite real TAN coefficients are selected.
+    The existing finite-quotient helper's contract remains unchanged.
+    """
+    from chebfunjax.utils._source_complex import source_complex_divide
+
+    magnitude = (jax.lax.bitcast_convert_type(imag, jnp.uint64)
+                 & jnp.uint64(0x7fffffffffffffff))
+    boundary = jnp.isfinite(real) & (magnitude == jnp.uint64(0x7ff0000000000000))
+    coefficient = jnp.tan(jnp.where(boundary, real, 0.))
+    selected = boundary & jnp.isfinite(coefficient)
+    safe = jnp.where(selected, coefficient, 0.)
+    sign = jnp.where(selected, jnp.copysign(jnp.ones_like(imag), imag), 1.)
+
+    def compute(_):
+        numerator = jax.lax.complex(safe, sign)
+        denominator = jax.lax.complex(jnp.ones_like(safe), -safe * sign)
+        quotient = jax.vmap(source_complex_divide)(
+            numerator.ravel(), denominator.ravel()).reshape(real.shape)
+        return jnp.where(selected, jax.lax.bitcast_convert_type(jnp.real(quotient), jnp.uint64), prior_words)
+
+    return jax.lax.cond(jnp.any(selected), compute, lambda _: prior_words, None)
+
+
 @partial(jax.custom_jvp, nondiff_argnums=(1,))
 def _tan_tanh_complex_axes(value, hyperbolic):
     primitive = jnp.tanh if hyperbolic else jnp.tan
@@ -283,6 +314,19 @@ def _tan_tanh_complex_axes(value, hyperbolic):
         corrected_real = jnp.where(zero_real & jnp.isnan(imag),
                                    jnp.full_like(real, jnp.nan), jnp.real(result))
         result = jax.lax.complex(corrected_real, jnp.imag(result))
+        if value.dtype == jnp.complex128:
+            prior = jax.lax.optimization_barrier(result)
+            phase = jnp.isfinite(real) & jnp.isinf(imag) & (real_sign(real) != 0)
+
+            def correct(_):
+                prior_words = jax.lax.optimization_barrier(
+                    jax.lax.bitcast_convert_type(jnp.real(prior), jnp.uint64))
+                real_words = _tan_infinite_imaginary_real(real, imag, prior_words)
+                return jax.lax.complex(
+                    jax.lax.bitcast_convert_type(real_words, jnp.float64),
+                    jnp.imag(prior))
+
+            result = jax.lax.cond(jnp.any(phase), correct, lambda _: prior, None)
     return result
 
 
@@ -307,9 +351,12 @@ def _tan_numeric(value):
     inputs, and retain the input real-zero sign when both components are zero.
     Word-exact-zero real inputs with imaginary quiet NaN return canonical
     positive real NaN; their primitive imaginary words remain unchanged.
-    Word-aware tests exclude nonzero subnormals. Other primitive words and
-    the ordinary analytic derivatives are retained; infinite-imaginary phase
-    conventions and minimum-subnormal component losses remain unqualified.
+    Binary64 finite-real/infinite-imaginary inputs retain the separately
+    rounded finite Smith quotient using tan(real) and the signed unit limit
+    of tanh(imag). This preserves native signed zeros and nonzero rounding
+    residuals. All imaginary words and other prior words are retained, as
+    are the ordinary analytic derivatives. Minimum-subnormal component
+    losses and finite-imaginary quotient/provider gaps remain unqualified.
     """
     value = jnp.asarray(value)
     if not jnp.iscomplexobj(value):

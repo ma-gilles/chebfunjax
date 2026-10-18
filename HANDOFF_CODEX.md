@@ -1,3 +1,40 @@
+# TAN phase, adaptive disk errors and extrapolation division — 2026-10-18
+
+Actual parent **251 PASS / 1 strict XFAIL**, two disjoint processes:
+165 TAN/CI checks and86disk passes/1expected failure. All observed imports
+preguarded, inputs stable, no censor or survivors. Original native assertions,
+fixtures and bounds remain unchanged.1,121 prior CI lane prefixes retained;
+1,123owners,13lanes, dedicatedHermite12 and aggregate79% gate unchanged.
+
+TAN finite-real/exact-infinite-imaginary binary64 real components now follow
+the independently derived finite Smith quotient. Native rounded cancellation
+residuals and zero signs are retained, with prior imaginary/outside words and
+analytic JVPs. Seven original phase records and eight fresh expected failures
+are retired. Two original tiny-component records and five fresh XFAILs remain.
+Full child production run:2,160PASS/7XFAIL/1authored-oracleFAIL; correcting only
+the independently native-disproved expected real word yields142targetedPASS
+with production unchanged. No full-suite allpass claim. The complete oracle
+inventories and raw failure are retained; no assertion/bound relaxation.
+
+Disk nonzero/no-pivot adaptive construction now raises the native badsubscript
+error, including rank-warning ordering, instead of returning a fabricated zero.
+Shared real extrapolation division now uses the existing ordered JAX primitive;
+exact-rational/native-stage controls prove the one-round quotient. The previous
+one_nan factor-word assertion now passes unchanged. Child502PASS/2strictXFAIL.
+The final FFT factor word and intermediate inactive-GEMM zero sign remain open.
+Adaptive angular tolerance spacing and wider normal/nonfinite/AD/provider
+qualification remain open; no broad FFT replacement or fitted correction.
+
+A separate inverse target-padding trial is intentionally not integrated:
+63checks and20actual output arrays pass exactly, but seven extra small compiler
+calls and<1%observed cold gain do not establish a worthwhile speed improvement.
+Its complete147payload packet is archived. Root next: explicit Chebfun2
+fixed-size/technology preferences, with18fresh successful native controls.
+
+All322final-sourcepages/1305scientific figures, full original assertion/API/JAX
+coverage, matched CPU speed and green latest-mainCI remain required.
+Evidence: docs/tan_disk_remaining_parent_cpu_20261018.json.
+
 # Root filter compilation and adaptive disk scalar repairs — 2026-10-18
 
 Actual parent **223 PASS**: 181 root/CI checks and 42 disk checks in two

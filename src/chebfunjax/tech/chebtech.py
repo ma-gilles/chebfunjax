@@ -973,7 +973,12 @@ def _extrapolate_values(values, x, w):
             else:
                 numerator = _compensated_sum_axis0(w2[:, None] * vgood)
             denominator = _compensated_sum_axis0(w2)
-            replacements.append(numerator / denominator)
+            # Literal source division is one rounded operation. A vector
+            # JAX divide can otherwise become a separately rounded scalar
+            # reciprocal followed by multiplication under CPU compilation.
+            from chebfunjax.utils._ordered_binary import binary
+
+            replacements.append(binary(numerator, denominator, 3))
         v = v.at[mask].set(jnp.stack(replacements).astype(v.dtype))
     return (v[:, 0] if was_1d else v), mask_nan, mask_inf
 

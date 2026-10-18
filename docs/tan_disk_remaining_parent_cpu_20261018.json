@@ -1,0 +1,184 @@
+{
+  "base": "f6f7a535fb95639380d10b785f66a656cfd43601",
+  "scope": "Source TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division",
+  "actual_parent_passes": 251,
+  "actual_parent_strict_xfailed": 1,
+  "disjoint_parent_gates": {
+    "tan": {
+      "counts": {
+        "tests": 165,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed": 165,
+      "strict_xfailed": 0,
+      "run": "tan_disk_remaining_tan_parent_run001_20261018",
+      "wall_seconds": 133.85443931585178,
+      "peak_summed_rss_kib": 1516116,
+      "inputs_stable": true,
+      "no_survivors": true,
+      "observed_imports": 1548,
+      "all_observed_imports_preguarded": true
+    },
+    "disk": {
+      "counts": {
+        "tests": 87,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      },
+      "passed": 86,
+      "strict_xfailed": 1,
+      "run": "tan_disk_remaining_disk_parent_run001_20261018",
+      "wall_seconds": 45.894550170749426,
+      "peak_summed_rss_kib": 1738352,
+      "inputs_stable": true,
+      "no_survivors": true,
+      "observed_imports": 1554,
+      "all_observed_imports_preguarded": true
+    }
+  },
+  "child_unary": {
+    "full_production_gate": {
+      "passed": 2160,
+      "strict_xfailed": 7,
+      "xml": {
+        "tests": "2168",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "7",
+        "time": "913.943"
+      },
+      "supervisor_exit_code": 1,
+      "supervisor_wall_seconds": 921.3548985463567,
+      "sampled_peak_summed_rss_kib": 2161940,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "observed_imports": 1554,
+      "missing_or_changed_preguard": [],
+      "changed_after_terminal": [
+        "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_candidate_20261018/tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ]
+    },
+    "final_authored_oracle_gate": {
+      "passed": 142,
+      "strict_xfailed": 0,
+      "xml": {
+        "tests": "142",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "113.171"
+      },
+      "supervisor_exit_code": 0,
+      "supervisor_wall_seconds": 118.25326088629663,
+      "sampled_peak_summed_rss_kib": 1498720,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "observed_imports": 1489,
+      "missing_or_changed_preguard": [],
+      "changed_after_terminal": []
+    },
+    "qualification": "Production source byte-identical throughout full nine-file gate and final 142-control gate. Full gate retained as 2160PASS7XF1 authored-oracle FAIL; only that independently native-disproved expected real word was corrected after parent review, with all original assertions retained. No full-suite allpass claim.",
+    "original_metadata_records_remaining": 2,
+    "fresh_open_records_remaining": 5,
+    "scope": "Seven original TAN phase/sign records and eight fresh phase records now strict native-pass; only C128 finite-real/exact-Inf imaginary real component eligible. All imaginary/outside words and analytic JVPs preserved."
+  },
+  "child_disk": {
+    "passed": 502,
+    "strict_xfailed": 2,
+    "scientific_imports_all_guarded": 906,
+    "report_in_parent_archive": "disk_child_report.json"
+  },
+  "archives": {
+    "parent": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_disk_remaining_parent_packet_20261018.tar.gz",
+      "sha256": "351aa54f8a93f171d9be7efd0c1bf2e4742a48ee139073ed033ed08d48052416",
+      "verified_payloads": 259
+    },
+    "tan": {
+      "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_package_20261018.tar.gz",
+      "sha256": "4128c73b2a47019e8955a656d2acd94cd92aadc3cf341af0ac29f64d5cd5747f",
+      "independently_verified_payloads": 4117,
+      "critical_preimages_exact_to_current_f6f7a535": {
+        "src/chebfunjax/utils/elementary.py": "f3068caf0492125dcc304b0b579bec615ac1a2223e4136e10135001b06139317",
+        "tests/test_matlab_port/treeVar/data/tan_infinite_phase_native_20261018.json": "new_path",
+        "tests/test_matlab_port/treeVar/data/tan_phase_prior_31488.py.txt": "new_path",
+        "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "31f26c069f3bbc4a93b977c46ac907f258a0c16e5324e10016939a1414da6bc6",
+        "tests/test_matlab_port/treeVar/test_tan_infinite_phase_source.py": "new_path",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "97bae48aaad36b32b333ba2f220f022a11649664bd6871fe17b6176a6cbd913c"
+      },
+      "changed_paths": [
+        "docs/tan_infinite_phase_cpu_20261018.json",
+        "src/chebfunjax/utils/elementary.py",
+        "tests/test_matlab_port/treeVar/data/tan_infinite_phase_native_20261018.json",
+        "tests/test_matlab_port/treeVar/data/tan_phase_prior_31488.py.txt",
+        "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json",
+        "tests/test_matlab_port/treeVar/test_tan_infinite_phase_source.py",
+        "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py"
+      ],
+      "status": "Archive/preimage review complete; production diff and oracle inventory review/integration pending"
+    },
+    "disk": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/disk_no_pivot_division_candidate_20261018.tar.gz",
+      "sha256": "c7b0645fea5d014e6c0f4784dc8c071d434c8da956c86c51d17e9d6417518e9e",
+      "independently_verified_payloads": 99
+    }
+  },
+  "formatting": {
+    "tests/test_diskfun/test_adaptive_no_pivot_source.py": {
+      "non_import_AST_exact": true,
+      "before_sha256": "bd9625e1ee27edeabd77c059048b131bdcdc60b8e323e600aa3473ca1ee33221",
+      "after_sha256": "ab9e95a1ab841a2b849449c8d8de2d6e8ccbe44a96144f00006e02dc1ba53ce5"
+    },
+    "tests/test_matlab_port/treeVar/test_tan_infinite_phase_source.py": {
+      "non_import_AST_exact": true,
+      "before_sha256": "3430ce2f911f7f91221ec9c4b504cbad6480391d368c67b0f18033b0aa19df99",
+      "after_sha256": "99cf4d9eb532cf01b093f4b11ee5a68c120e76311c951a784c1f0917f90a5a3f"
+    },
+    "tests/test_utils/test_extrapolate_division_source.py": {
+      "non_import_AST_exact": true,
+      "before_sha256": "b10322886ddfd7278a16fff68e3866f8ea938dce9bcdc0544abbc6b1497deadc",
+      "after_sha256": "e116e79d466ddf244c7d99e84553d2b615d45a8c97043e347c2aec4cb5ca22bf"
+    }
+  },
+  "original_native_assertions_fixtures_bounds_unchanged": true,
+  "core_owners": 1123,
+  "all1121prior_lane_prefixes_retained": true,
+  "lanes": 13,
+  "dedicated_hermite_lane": 12,
+  "coverage_gate_percent": 79,
+  "reviewed_authored_oracle_correction": {
+    "approved_scope": "Only C128 finite-real/exact-Inf-imaginary expected real components updated from direct independent native input-word lookup. All original assertion ASTs/native fixtures/bounds unchanged. No production outputs used as expected.",
+    "inventory": "56expected real words across24eager/JIT contexts changed; complete124-context old/new inventory includes all three helper call sites and frozen9aa runtime-prior interactions; all imaginary and outside words exact. Eight synthetic contexts unchanged.",
+    "preimages": "Original helper, intermediate amended helper/status file and initial66test source retained byte-exact.",
+    "third_independent_oracle": {
+      "failure_receipt": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_final_run001_20261018/receipt.json",
+      "preimage": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_infinite_phase_evidence_20261018/preimages/test_before_third_preservation_correction.py",
+      "native_input_real": "bfd999999999999a",
+      "native_input_imag": "fff0000000000000",
+      "old_expected_real": "8000000000000000",
+      "new_native_real": "0000000000000000",
+      "selected_inputs": 2,
+      "changed_expected_words": 1,
+      "all_original_assertions_retained": true,
+      "all_16_inputs_imaginary_and_outside_words_preserved": true
+    }
+  },
+  "rejected_inverse_optimization": {
+    "status": "Trial completed; intentionally not integrated",
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/inverse_brent_capacity_trial_packet_20261018.tar.gz",
+    "sha256": "27cad02bd6f6808ea83e66997a306ee280f3673c9925d23d0008291d648aa4ba",
+    "payloads": 147,
+    "all_payloads_stream_verified": true,
+    "scientific_checks": "30focused+33original/preferencePASS,20actualoutputarraysbyteexact",
+    "decision": "Do not integrate: one observed <1% cold reduction, overlapping warm ranges, seven extra small JIT compiles. Evidence does not establish a worthwhile speed improvement; source complexity not justified."
+  },
+  "limits": [
+    "Two original TAN/TANH tiny-component records plus five fresh unary strictXFs remain; two disk strictXFs remain (one final FFT factor word, one intermediate inactive GEMM zero sign).",
+    "TAN full child production run retained2160PASS7XF1authored-oracleFAIL; final corrected authored-oracle/phase/mixedNaN gate142PASS with production unchanged. No full-suite allpass claim or hypothetical count.",
+    "Adaptive disk angular tolerance spacing remains under diagnosis; FFT broad-family replacement has concrete inverse/C2R decision risk.",
+    "Full native function/assertion/API/JAX/AD audit,322final-sourcepages/1305figures, matched CPU speed and latest-mainCI/coverage>=79% remain open."
+  ]
+}

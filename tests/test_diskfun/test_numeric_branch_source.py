@@ -133,13 +133,7 @@ def test_native_subnormal_reciprocal_rank():
                 reason="Inherited post-GE Cheb transform1ulp word gap; native raw GE words remain strict",
             ),
         ),
-        pytest.param(
-            "one_nan3x4",
-            marks=pytest.mark.xfail(
-                strict=True,
-                reason="Remaining finite populate/interpolation/transform word gap; source structure and NaN classes remain strict",
-            ),
-        ),
+        "one_nan3x4",
     ],
 )
 def test_remaining_native_public_finite_factor_words(name):

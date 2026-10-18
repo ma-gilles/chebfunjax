@@ -936,6 +936,17 @@
       "scope": "Six original subspace predicates and three original unbndfun innerProduct predicates; JAX algorithm/API and complex controls, scoped limitations retained",
       "sha256": "2e2457acd7035c961f8a8e81dbd7a1766363544896b70b32175b41f0389b9870"
     },
+    "tan_disk_remaining_parent_cpu_20261018": {
+      "limits": [
+        "Two original TAN/TANH tiny-component records plus five fresh unary strictXFs remain; two disk strictXFs remain (one final FFT factor word, one intermediate inactive GEMM zero sign).",
+        "TAN full child production run retained2160PASS7XF1authored-oracleFAIL; final corrected authored-oracle/phase/mixedNaN gate142PASS with production unchanged. No full-suite allpass claim or hypothetical count.",
+        "Adaptive disk angular tolerance spacing remains under diagnosis; FFT broad-family replacement has concrete inverse/C2R decision risk.",
+        "Full native function/assertion/API/JAX/AD audit,322final-sourcepages/1305figures, matched CPU speed and latest-mainCI/coverage>=79% remain open."
+      ],
+      "path": "docs/tan_disk_remaining_parent_cpu_20261018.json",
+      "scope": "Source TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division",
+      "sha256": "dcb8a8dd5d7c7f302e3ed414ded2836a2b9fdef86e8baaaaf2f081d5f57287e1"
+    },
     "tan_imaginary_nan_parent_cpu_20261018": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_imaginary_nan_parent_cpu_20261018.tar.gz",
@@ -70527,7 +70538,18 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "tan_disk_remaining_parent_cpu_20261018",
+          "limits": [
+            "Two original TAN/TANH tiny-component records plus five fresh unary strictXFs remain; two disk strictXFs remain (one final FFT factor word, one intermediate inactive GEMM zero sign).",
+            "TAN full child production run retained2160PASS7XF1authored-oracleFAIL; final corrected authored-oracle/phase/mixedNaN gate142PASS with production unchanged. No full-suite allpass claim or hypothetical count.",
+            "Adaptive disk angular tolerance spacing remains under diagnosis; FFT broad-family replacement has concrete inverse/C2R decision risk.",
+            "Full native function/assertion/API/JAX/AD audit,322final-sourcepages/1305figures, matched CPU speed and latest-mainCI/coverage>=79% remain open."
+          ],
+          "scope": "Source TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division"
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -75750,6 +75772,16 @@
             "Imported module guard scope is observed Python files; native initial warmup/map omissions and mutable identity-cache exclusions are documented in child report, not an exhaustive runtime claim."
           ],
           "scope": "Bounded four-method tiny-component or non-scalar numeric constructor/projection controls as applicable. Whole-file status unchanged."
+        },
+        {
+          "artifact": "tan_disk_remaining_parent_cpu_20261018",
+          "limits": [
+            "Two original TAN/TANH tiny-component records plus five fresh unary strictXFs remain; two disk strictXFs remain (one final FFT factor word, one intermediate inactive GEMM zero sign).",
+            "TAN full child production run retained2160PASS7XF1authored-oracleFAIL; final corrected authored-oracle/phase/mixedNaN gate142PASS with production unchanged. No full-suite allpass claim or hypothetical count.",
+            "Adaptive disk angular tolerance spacing remains under diagnosis; FFT broad-family replacement has concrete inverse/C2R decision risk.",
+            "Full native function/assertion/API/JAX/AD audit,322final-sourcepages/1305figures, matched CPU speed and latest-mainCI/coverage>=79% remain open."
+          ],
+          "scope": "Source TAN infinite-imaginary phase, adaptive disk no-pivot errors and literal extrapolation division"
         }
       ],
       "functions": [
