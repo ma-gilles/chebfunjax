@@ -74,6 +74,28 @@ def _sin_cos_numeric(value, *, cosine=False):
         jnp.real(result), jnp.where(selected, jnp.zeros_like(imag), jnp.imag(result)))
 
 
+def _tan_numeric(value):
+    """Retain the captured nonfinite real-axis TAN imaginary zero.
+
+    Provenance
+    ----------
+    MATLAB source: @treeVar/treeVar.m numeric TAN dispatch.
+    Chebfun commit: 7574c77680d7e82b79626300bf255498271a72df.
+    Archived R2025b real and complex-array records establish real NaN and
+    positive imaginary zero for nonfinite real inputs on the exact real
+    axis. Preserve the original JAX real component and all finite/off-axis
+    arithmetic. The word-aware axis test excludes nonzero subnormals.
+    """
+    value = jnp.asarray(value)
+    result = jnp.tan(value)
+    if not jnp.iscomplexobj(value):
+        return result
+    real, imag = jnp.real(value), jnp.imag(value)
+    selected = ~jnp.isfinite(real) & (real_sign(imag) == 0)
+    return jax.lax.complex(
+        jnp.real(result), jnp.where(selected, jnp.zeros_like(imag), jnp.imag(result)))
+
+
 def _asinh_real(value):
     # |asinh(x)-x| <= |x|^3/6. For |x| < 2^-26 this is below
     # half the binary64 spacing, including the gradual underflow range.

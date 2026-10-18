@@ -122,29 +122,6 @@
     {
       "packet": "unary_storage_native_arrays.json",
       "method": "tan",
-      "label": "complex_c_nonfinite_zero_imag",
-      "failures": [
-        "storage",
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
-      "label": "complex_d_nonfinite_mixed",
-      "failures": [
-        "imag_nan",
-        "imag_finite",
-        "imag_zero",
-        "imag_zero_class"
-      ]
-    },
-    {
-      "packet": "unary_storage_native_arrays.json",
-      "method": "tan",
       "label": "complex_min_subnormal_imag",
       "failures": [
         "storage",

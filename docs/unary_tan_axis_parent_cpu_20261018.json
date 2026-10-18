@@ -1,0 +1,78 @@
+{
+  "base_head": "18decaf2f02447a5f4e448c5d2f302480934dd76",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only.",
+  "parent_passed": 1673,
+  "parent_xfailed": 25,
+  "runtime_guard": {
+    "count": 1600,
+    "missing_or_changed": []
+  },
+  "receipt": {
+    "wall_seconds": 212.14591657323763,
+    "sampled_peak_summed_rss_kib": 1347792,
+    "censored_limit": null,
+    "remaining_owned_pids": []
+  },
+  "source_snapshots": 3496,
+  "static_review": {
+    "base_head": "18decaf2f02447a5f4e448c5d2f302480934dd76",
+    "predecessor_bridge": "Only other library difference from child178634c8 is independently published ultras.py; unary modules/test/reference baseline exact.",
+    "child_paths_exact": {
+      "docs/unary_tan_axis_cpu_20261018.json": "9b0394d31c72230458fe7886ab67aa476c52fa4ca57596496278717740e0f1d6",
+      "src/chebfunjax/operators/treevar.py": "c8fff194786c8f73fa938681c41a1b6bd0edb51155c6288757131bb83ac645a0",
+      "src/chebfunjax/utils/elementary.py": "600d2adf3951999a6a66b770befec21e57501ce60d004227bb0b2551c0f85aff",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "8b1aa9b56f5ca5f9a80361dc6231b5549ebe8249d5f6258006541ca646854203",
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "8f02a61e5a07736b9f4c7e2a1a7a254884e89679080987df90b5cff7f021863c"
+    },
+    "prior_elementary_AST_exact": true,
+    "prior_TreeVar_AST_exact_after_one_import_and_map_bridge": true,
+    "old_test_AST_prefix_exact": true,
+    "removed_only_two_TAN_records": [
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_c_nonfinite_zero_imag",
+        "failures": [
+          "storage",
+          "imag_nan",
+          "imag_finite",
+          "imag_zero",
+          "imag_zero_class"
+        ]
+      },
+      {
+        "packet": "unary_storage_native_arrays.json",
+        "method": "tan",
+        "label": "complex_d_nonfinite_mixed",
+        "failures": [
+          "imag_nan",
+          "imag_finite",
+          "imag_zero",
+          "imag_zero_class"
+        ]
+      }
+    ],
+    "CI_ownership": "1111/13lanes/Hermite12/79%unchanged"
+  },
+  "child_archive_review": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_axis_package_20261018.tar.gz",
+    "sha256": "d799f78d0b76a32a2785a04e47ef7227238ef0ad19511a78094b6be8e5f8872c",
+    "root_stream_verified_payloads": 3531
+  },
+  "child_report": "docs/unary_tan_axis_cpu_20261018.json",
+  "baseline": "Same18new controls4FAIL14PASS ->18PASS. Child1650PASS25XFAIL; actual parent adds23CIprotocol controls.",
+  "original_contracts": "Original native fixtures/assertions/8eps bounds and old test AST prefix unchanged; only two obsolete TAN expected-failure metadata records removed. All previous elementary function ASTs exact; TreeVar changes only one import and one raw-map value.",
+  "native_scope": "Existing236row archived R2025b capture, original1180field verification and3input stable native receipt; no fresh runtime-library guard claim. Historic complex x(:) collector weakens all-negative-zero sign metadata, but class/isreal observations and mixedUPLUS negativezero preservation support this narrow repair. No new native capture or universal sign claim.",
+  "ownership": "1111owners/13lanes/HermiteCore12/79%gate unchanged.",
+  "remaining": [
+    "25unary records remain:18zero-sign conventions and7minimum-subnormal imaginary-loss records.",
+    "Other TAN nonfinite classes, NaNpayload/extreme IEEE words, API/JIT/AD/vmap/backend and performance remain unqualified.",
+    "Fresh322page computations/stdout,1305scientificfigures and latest-main scientificCI/coverage>=79% remain required."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_parent_cpu_20261018.tar.gz",
+    "sha256": "211a61471c04bde3f32c0a86d95a8c2a80cc4f6e0acf915881fd0ceaa0104965",
+    "root_stream_verified_payloads": 3580
+  }
+}

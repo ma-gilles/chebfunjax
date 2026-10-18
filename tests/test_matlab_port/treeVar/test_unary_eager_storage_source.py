@@ -339,3 +339,86 @@ def test_conj_uminus_real_input_words_and_dtype_unchanged(name, dtype):
     for fn in (_UNARY_FNS_RAW[name], jax.jit(_UNARY_FNS_RAW[name])):
         got = np.asarray(fn(value))
         assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()
+
+
+TAN_NONFINITE_ROWS = [r for r in ROWS if r['method'] == 'tan' and
+                      r['label'] in ('complex_c_nonfinite_zero_imag',
+                                     'complex_d_nonfinite_mixed')]
+
+
+@pytest.mark.parametrize('row', TAN_NONFINITE_ROWS, ids=lambda r:r['label'])
+def test_tan_nonfinite_axis_native_classes_storage_and_zero_signs(row):
+    """Original immutable native records cover all-zero and mixed output storage."""
+    value = jnp.asarray(decode(row['input']))
+    expected = decode(row['output'])
+    eager = np.asarray(_UNARY_FNS['tan'](value))
+    assert (not np.iscomplexobj(eager)) == row['output']['isreal']
+    for got in (eager, np.asarray(jax.jit(_UNARY_FNS_RAW['tan'])(value))):
+        assert got.shape == expected.shape
+        for actual, target in ((got.real, expected.real), (got.imag, expected.imag)):
+            assert np.array_equal(np.isnan(actual), np.isnan(target))
+            assert np.array_equal(np.isposinf(actual), np.isposinf(target))
+            assert np.array_equal(np.isneginf(actual), np.isneginf(target))
+            finite = np.isfinite(target)
+            assert np.all(np.abs(actual[finite]-target[finite]) <=
+                          8*np.finfo(float).eps*np.maximum(1., np.abs(target[finite])))
+            zero = target == 0
+            assert np.array_equal(actual == 0, zero)
+            assert np.array_equal(np.signbit(actual[zero]), np.signbit(target[zero]))
+
+
+@pytest.mark.parametrize('dtype', [np.complex64, np.complex128])
+def test_tan_nonfinite_axis_only_selected_imaginary_words_change(dtype):
+    real_dtype = np.float32 if dtype == np.complex64 else np.float64
+    word_dtype = np.uint32 if dtype == np.complex64 else np.uint64
+    magnitude_mask = word_dtype(0x7fffffff if dtype == np.complex64 else 0x7fffffffffffffff)
+    tiny = np.nextafter(real_dtype(0), real_dtype(1))
+    value = np.empty(16, dtype=dtype)
+    value.real = [np.inf, -np.inf, np.nan, -np.nan, .4, -.4, 0., -0.,
+                  np.inf, -np.inf, np.nan, -np.nan, .4, -.4, .4, -.4]
+    value.imag = [0., -0., 0., -0., 0., -0., 0., -0.,
+                  tiny, -tiny, tiny, -tiny, np.inf, -np.inf, np.nan, -np.nan]
+    original = np.asarray(jnp.tan(jnp.asarray(value)))
+    zero_imag = (value.imag.copy().view(word_dtype) & magnitude_mask) == 0
+    selected = ~np.isfinite(value.real) & zero_imag
+    for fn in (_UNARY_FNS_RAW['tan'], jax.jit(_UNARY_FNS_RAW['tan'])):
+        got = np.asarray(fn(jnp.asarray(value)))
+        assert got.dtype == original.dtype and got.shape == original.shape
+        assert got.real.tobytes() == original.real.tobytes()
+        assert got.imag[~selected].tobytes() == original.imag[~selected].tobytes()
+        assert np.all(got.imag[selected].copy().view(word_dtype) == 0)
+
+
+@pytest.mark.parametrize('dtype', [jnp.complex64, jnp.complex128])
+@pytest.mark.parametrize('point', [0j, .4+0j, -.4-0j, 1j, -1j, .4+.3j])
+def test_tan_nonfinite_axis_finite_first_second_derivatives_retained(dtype, point):
+    import cmath
+
+    value = jnp.asarray(point, dtype=dtype)
+    reference = cmath.tan(point)
+    first = 1+reference*reference
+    second = 2*reference*first
+    real_dtype = np.float32 if dtype == jnp.complex64 else np.float64
+    eps = np.finfo(real_dtype).eps
+    for fn in (_UNARY_FNS['tan'], jax.jit(_UNARY_FNS['tan'])):
+        for direction in [1., 1j]:
+            tangent = jnp.asarray(direction, dtype=dtype)
+            _, actual_first = jax.jvp(fn, (value,), (tangent,))
+            expected_first = first*direction
+            assert jnp.abs(actual_first-expected_first) <= 10*eps*max(1., abs(expected_first))
+            def derivative(z):
+                return jax.jvp(fn, (z,), (tangent,))[1]
+            _, actual_second = jax.jvp(derivative, (value,), (tangent,))
+            expected_second = second*direction*direction
+            assert jnp.abs(actual_second-expected_second) <= 10*eps*max(1., abs(expected_second))
+
+
+@pytest.mark.parametrize('dtype', [np.float32, np.float64])
+def test_tan_nonfinite_axis_real_input_words_and_dtype_unchanged(dtype):
+    tiny = np.nextafter(dtype(0), dtype(1))
+    value = jnp.asarray(np.array([0., -0., tiny, -tiny, .4, -.4,
+                                 np.inf, -np.inf, np.nan, -np.nan], dtype=dtype))
+    expected = np.asarray(jnp.tan(value))
+    for fn in (_UNARY_FNS_RAW['tan'], jax.jit(_UNARY_FNS_RAW['tan'])):
+        got = np.asarray(fn(value))
+        assert got.dtype == expected.dtype and got.tobytes() == expected.tobytes()

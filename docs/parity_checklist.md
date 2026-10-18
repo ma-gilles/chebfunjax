@@ -19,8 +19,8 @@ Checked items certify only their stated scope.
 
 ### Current queue — 2026-10-18
 
-- **Latest verified integration:** CONJ/UMINUS and ultraspherical nonfinite conversion; parent1,774PASS27XFAIL, evidence below.
-- **Next integration:** sealed TAN nonfinite-axis candidate; child1,650PASS25XFAIL, parent review still required.
+- **Latest verified integration:** TAN nonfinite-axis repair; parent1,673PASS25XFAIL, evidence below. Previous combined CONJ/UMINUS and conversion package remains qualified in its stated scope.
+- **Active unary work:** finite-real-axis SIN/COS imaginary-zero conventions and independent first/second transverse derivatives; candidate qualification pending.
 - **Active investigation:** group static disk operators to reduce cold JAX compilation overhead; preserve source arithmetic and independently measure CPU timings.
 - **CI:** earlier381ee4cb passed every job with82%aggregatecoverage; newer-main acceptance remains required. [CI receipt](ci_381ee4cb_cpu_20261018.json).
 
@@ -34,12 +34,16 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] TAN nonfinite exact-real-axis imaginary-zero boundary: two obsolete records removed,27→25; actual parent **1,673 PASS / 25 XFAIL**, all loaded runtime files preguarded/stable. Original fixtures/assertions/bounds and prior numeric AST retained. [Evidence](unary_tan_axis_parent_cpu_20261018.json).
+- [x] Diagnose complex ultras multiplication: five native source traces,440primitive calls, actual-five sparse/full agreement; both arithmetic models contradicted. Root verifies93archivepayloads. [Diagnosis](ultras_complex_scalar_diagnosis_cpu_20261018.json).
+- [ ] Remaining25unary records, five complex nonfinite final multiplication cases and scalar/pureconstant grammar; broader API/IEEE/JAX, pages/figures/performance and latestCI remain open.
+
 - [x] CONJ/UMINUS exact-zero imaginary convention and independent real-linear first/second derivatives: four obsolete xfails removed,31→27. Combined actual parent **1,774 PASS / 27 XFAIL** includes conversion and CI protocol. [Evidence](nonfinite_pair_parent_cpu_20261018.json).
 - [x] Ultraspherical nonfinite sparse conversion: two prior native expected failures now pass; finite AST and24matrix/4,740word proof retained. All1110prior CI owners retained plus one new file,13lanes/Hermite12/79%unchanged. [Evidence](nonfinite_pair_parent_cpu_20261018.json).
-- [ ] Remaining27unary records; five complex nonfinite final multiplication cases; inherited finite conversion-matrix rounding; full API/JAX/pages/figures/performance/latestCI remain open.
+- [ ] Remaining25unary records after TAN; five complex nonfinite final multiplication cases; inherited finite conversion-matrix rounding; full API/JAX/pages/figures/performance/latestCI remain open.
 
 - [x] TreeVar SIN/COS nonfinite exact-real-axis storage: four obsolete xfail records removed; actual parent **1587PASS31XFAIL**, all1639runtime files guarded. Original fixtures/assertions/bounds and finite/off-axis arithmetic retained. [Evidence](unary_sin_cos_axis_parent_cpu_20261018.json).
-- [ ] Remaining27unary records after the CONJ/UMINUS repair above; full IEEE/API/JAX, pages/figures/performance and latestCI remain open.
+- [ ] Remaining25unary records after the subsequent TAN repair above; full IEEE/API/JAX, pages/figures/performance and latestCI remain open.
 - [x] Matched public disk Helmholtz CPU measurement: firstcallPython7.441s/native.6704s; warmmedians95/125ms with broad native63–155msrange. Probeerror3.33e-16; no exact-word or uniform warm speed claim. [Evidence](disk_matched_performance_cpu_20261018.json).
 - [ ] First-call overhead~11.1x remains in this pair. Full native performance across resolutions/inputs, complete API/status/JAX behavior and latestCI remain open.
 

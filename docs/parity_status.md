@@ -1,3 +1,28 @@
+# TAN nonfinite real-axis boundary and complex multiplication diagnosis — 2026-10-18
+
+TreeVar TAN now returns native positive imaginary zero for nonfinite real
+inputs with word-exact-zero imaginary component. Real and finite/off-axis
+primitive words retained, including nonzero subnormal exclusion. Two obsolete
+TAN expected-failure records removed,27→25; original native fixtures/assertions/
+bounds and old test AST prefix retained. Same18controls4FAIL14PASS→18PASS.
+Actual parent1,673PASS25XFAIL, all loaded runtime files preguarded/stable,
+no censor/survivors. Prior elementary numeric AST unchanged; only one TreeVar
+import/map value changes. Existing archived native class/storage evidence and
+collector zero-sign limitations explicit; no fresh native runtime guard claim.
+All1111CI owners/13lanes/HermiteCore12/79%gate unchanged. Full API/IEEE/JAX,
+performance/pages/figures/latest-mainCI remain open.
+Evidence: docs/unary_tan_axis_parent_cpu_20261018.json.
+
+Complex nonfinite ultras multiplication remains unresolved. Five exact native
+source traces localize the first discrepancy to a1*M1;440fresh primitive calls
+reproduce those products. All actual-five sparse/full routes agree, so storage
+alone does not explain the discrepancy. Component scaling and four-product
+models both fail independent controls; finite negative-coefficient signed-zero
+exceptions and failed hypotheses retained. Root streamverifies40+53payloads.
+No scalar production change or universal provider rule is justified. Native
+original-numel versus Python trailingzero shortcut is another explicit gap.
+Evidence: docs/ultras_complex_scalar_diagnosis_cpu_20261018.json.
+
 # CONJ/UMINUS storage and sparse nonfinite conversion — 2026-10-18
 
 TreeVar CONJ/UMINUS preserve native positive imaginary zero while retaining

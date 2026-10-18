@@ -1,3 +1,17 @@
+## TAN boundary and complex scalar diagnosis — 2026-10-18
+
+Two TAN nonfinite real-axis records repaired; actual parent1,673PASS25XFAIL,
+all loaded runtime inputs preguarded/stable. Original bounds/fixtures retained.
+Remaining25unary records and whole API/IEEE/JAX/pages/speed/CI remain open.
+[Parent evidence](unary_tan_axis_parent_cpu_20261018.json).
+
+Five native source traces localize complex multiplication first divergence to
+a1*M1.440native primitive calls show actual-five sparse/full equivalence; both
+component-scaling and four-product interpretations fail. Extra finite negative
+signed-zero exceptions retained. No scalar repair justified; five final-matrix
+cases and original-numel/trailingzero shortcut grammar remain open.
+[Diagnosis](ultras_complex_scalar_diagnosis_cpu_20261018.json).
+
 ## CONJ/UMINUS and nonfinite sparse conversion — 2026-10-18
 
 Four CONJ/UMINUS imaginary-zero records and two real sparse-conversion expected

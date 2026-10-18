@@ -1,0 +1,105 @@
+{
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification.",
+  "archives": {
+    "ultras_complex_stages_20261018": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_complex_stages_20261018.tar.gz",
+      "sha256": "44b452beced824568dfccbbb9adf0da5a87292795784a28cfafcbf8430c610aa",
+      "root_stream_verified_payloads": 40,
+      "receipts": {
+        "native_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 80.09846458490938,
+          "sampled_peak_summed_rss_kib": 1305480,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "python_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 8.982892299070954,
+          "sampled_peak_summed_rss_kib": 771696,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "storage_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 8.39816319476813,
+          "sampled_peak_summed_rss_kib": 775800,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        }
+      }
+    },
+    "ultras_scalar_primitives_20261018": {
+      "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_scalar_primitives_20261018.tar.gz",
+      "sha256": "a0653954a7f7079019522decc4d196744afa35dfa1d828bde061c37a48fb8575",
+      "root_stream_verified_payloads": 53,
+      "receipts": {
+        "analysis_final_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 1.1726824338547885,
+          "sampled_peak_summed_rss_kib": 39000,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "analysis_run": {
+          "command_exit_code": 1,
+          "supervisor_exit_code": 1,
+          "wall_seconds": 0.9257197990082204,
+          "sampled_peak_summed_rss_kib": 0,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "classify_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 0.917277499102056,
+          "sampled_peak_summed_rss_kib": 0,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "native_final_run": {
+          "command_exit_code": 0,
+          "supervisor_exit_code": 0,
+          "wall_seconds": 80.58094601985067,
+          "sampled_peak_summed_rss_kib": 1434232,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        },
+        "native_run": {
+          "command_exit_code": 1,
+          "supervisor_exit_code": 1,
+          "wall_seconds": 136.59507867787033,
+          "sampled_peak_summed_rss_kib": 1255380,
+          "censored_limit": null,
+          "remaining_owned_pids": []
+        }
+      }
+    }
+  },
+  "first_stage": "For five remaining complex nonfinite cases, native conversion/M0/Mx/M1 words agree; first divergent stage is a1*M1. Five literal source traces reproduce unmodified native final matrices. Source addition/subtraction replay matches classes.",
+  "native_primitive_capture": {
+    "successful_calls": 440,
+    "requested_inputs": "Component words, shapes, real/complex storage and sparse/full asserted before every arithmetic call.",
+    "prior_source_products": "All five previous a1*M1 outputs reproduced bitwise.",
+    "operator_order": "330 route/order comparisons identical.",
+    "sparse_full": "All actual-five pairs identical;12extra finite(-2,+.5) exceptions account for496signedzero components. No solely sparse-storage explanation.",
+    "component_scaling_model": "Across24240components,7816class and504finiteword contradictions. Counts include repeated operator routes.",
+    "four_product_model": "Across24240components,3568class and496finiteword contradictions. Counts include repeated operator routes.",
+    "decision": "Neither model justifies a general scalar repair. Preserve contradictions rather than introduce a fitted class/sign rule."
+  },
+  "preserved_failures": [
+    "Initial native shape-metadata orientation assertion failed before any multiplication; metadata-only correction preserved.",
+    "Initial analysis overclaimed sparse/full word equality; finite signed-zero counterexamples now explicitly recorded, not numerically tolerated."
+  ],
+  "remaining": [
+    "Five complex nonfinite final-matrix cases remain unresolved; conversion-only repair is separate.",
+    "Original native scalar shortcut tests numel(input)==1 before prolong; inherited Python n==1/trailingzero shortcut differs. Scalar/pureconstant grammar remains unqualified.",
+    "No universal provider implementation, NaN-payload/IEEE/API/JIT/AD/vmap/native-speed/page/figure closure.",
+    "Native-capture external runtime/initialization boundaries are recorded in original guarded receipts; archive integrity does not imply universal provider provenance."
+  ]
+}

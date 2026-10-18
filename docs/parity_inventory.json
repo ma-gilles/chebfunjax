@@ -771,6 +771,97 @@
       "scope": "Constructor-only exact original operands/prefs resolve28happyFUNs/2032coefficients with0actualwarnings. Nativecached6050warning differs; no fullpage/energy/figure or fresh native proof.",
       "sha256": "fab0b310cac505fb489edb466917434796fa8beec2c583a63f2730ffdcd2bfd9"
     },
+    "ultras_complex_scalar_diagnosis_cpu_20261018": {
+      "archives": {
+        "ultras_complex_stages_20261018": {
+          "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_complex_stages_20261018.tar.gz",
+          "receipts": {
+            "native_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 1305480,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 80.09846458490938
+            },
+            "python_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 771696,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 8.982892299070954
+            },
+            "storage_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 775800,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 8.39816319476813
+            }
+          },
+          "root_stream_verified_payloads": 40,
+          "sha256": "44b452beced824568dfccbbb9adf0da5a87292795784a28cfafcbf8430c610aa"
+        },
+        "ultras_scalar_primitives_20261018": {
+          "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_scalar_primitives_20261018.tar.gz",
+          "receipts": {
+            "analysis_final_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 39000,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 1.1726824338547885
+            },
+            "analysis_run": {
+              "censored_limit": null,
+              "command_exit_code": 1,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 0,
+              "supervisor_exit_code": 1,
+              "wall_seconds": 0.9257197990082204
+            },
+            "classify_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 0,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 0.917277499102056
+            },
+            "native_final_run": {
+              "censored_limit": null,
+              "command_exit_code": 0,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 1434232,
+              "supervisor_exit_code": 0,
+              "wall_seconds": 80.58094601985067
+            },
+            "native_run": {
+              "censored_limit": null,
+              "command_exit_code": 1,
+              "remaining_owned_pids": [],
+              "sampled_peak_summed_rss_kib": 1255380,
+              "supervisor_exit_code": 1,
+              "wall_seconds": 136.59507867787033
+            }
+          },
+          "root_stream_verified_payloads": 53,
+          "sha256": "a0653954a7f7079019522decc4d196744afa35dfa1d828bde061c37a48fb8575"
+        }
+      },
+      "limits": [
+        "Five complex nonfinite final-matrix cases remain unresolved; conversion-only repair is separate.",
+        "Original native scalar shortcut tests numel(input)==1 before prolong; inherited Python n==1/trailingzero shortcut differs. Scalar/pureconstant grammar remains unqualified.",
+        "No universal provider implementation, NaN-payload/IEEE/API/JIT/AD/vmap/native-speed/page/figure closure.",
+        "Native-capture external runtime/initialization boundaries are recorded in original guarded receipts; archive integrity does not imply universal provider provenance."
+      ],
+      "report": "docs/ultras_complex_scalar_diagnosis_cpu_20261018.json",
+      "report_sha256": "f28f09284eca31b82dbe9dae7ffd4420834a2a322a58f1734586f474bc8e42b1",
+      "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification."
+    },
     "ultras_tail_parent_cpu_20261018": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/ultras_tail_parent_cpu_final_20261018.tar.gz",
@@ -804,6 +895,21 @@
       "report": "docs/unary_sin_cos_axis_parent_cpu_20261018.json",
       "report_sha256": "b093ca55830b2b3819f84f1fad3dcaa07155b2ac55187c90d19aeb902849fa93",
       "scope": "TreeVar SIN/COS nonfinite exact-real-axis imaginary zero; no general transcendental/IEEE/API/page closure"
+    },
+    "unary_tan_axis_parent_cpu_20261018": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/tan_parent_cpu_20261018.tar.gz",
+        "root_stream_verified_payloads": 3580,
+        "sha256": "211a61471c04bde3f32c0a86d95a8c2a80cc4f6e0acf915881fd0ceaa0104965"
+      },
+      "limits": [
+        "25unary records remain:18zero-sign conventions and7minimum-subnormal imaginary-loss records.",
+        "Other TAN nonfinite classes, NaNpayload/extreme IEEE words, API/JIT/AD/vmap/backend and performance remain unqualified.",
+        "Fresh322page computations/stdout,1305scientificfigures and latest-main scientificCI/coverage>=79% remain required."
+      ],
+      "report": "docs/unary_tan_axis_parent_cpu_20261018.json",
+      "report_sha256": "f517f96404a2c27196383c39d8e6e5726187570a068bf725c9308702acf3ef29",
+      "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only."
     },
     "unbounded_diff_query_adapter_cpu_20261018": {
       "path": "docs/unbounded_diff_query_adapter_cpu_20261018.json",
@@ -89765,6 +89871,10 @@
         {
           "artifact": "nonfinite_pair_parent_cpu_20261018",
           "scope": "CONJ/UMINUS captured imaginary-zero conventions and independent real-linear derivatives; no full TreeVar/API closure."
+        },
+        {
+          "artifact": "unary_tan_axis_parent_cpu_20261018",
+          "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only. No full-item parity or closure."
         }
       ],
       "functions": [
@@ -90272,7 +90382,12 @@
           "semantic_assertion_coverage_status": "unverified"
         },
         {
-          "evidence": [],
+          "evidence": [
+            {
+              "artifact": "unary_tan_axis_parent_cpu_20261018",
+              "scope": "TAN nonfinite-real exact-real-axis imaginary zero in TreeVar numeric dispatch; CPU only. No full-item parity or closure."
+            }
+          ],
           "implementation_status": "unverified",
           "kind": "subsequent_detected_declaration",
           "line": "513",
@@ -92791,6 +92906,10 @@
         {
           "artifact": "nonfinite_pair_parent_cpu_20261018",
           "scope": "Nonfinite CSC conversion component classes/finitewords only; two real public failures fixed, five complex final-matrix cases still open. No whole multmat/API/transform closure."
+        },
+        {
+          "artifact": "ultras_complex_scalar_diagnosis_cpu_20261018",
+          "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification. No full-item parity or closure."
         }
       ],
       "functions": [
@@ -92803,6 +92922,10 @@
             {
               "artifact": "nonfinite_pair_parent_cpu_20261018",
               "scope": "Nonfinite CSC conversion component classes/finitewords only; two real public failures fixed, five complex final-matrix cases still open. No whole multmat/API/transform closure."
+            },
+            {
+              "artifact": "ultras_complex_scalar_diagnosis_cpu_20261018",
+              "scope": "Diagnostic first-stage localization and independently captured scalar-multiplication contradictions only; no production repair or whole API/IEEE qualification. No full-item parity or closure."
             }
           ],
           "implementation_status": "unverified",

@@ -1,0 +1,273 @@
+{
+  "scope": "TreeVar TAN nonfinite-real exact-zero-imaginary boundary and storage; existing archived native controls, CPU only. No whole IEEE/API/JAX/page/performance closure.",
+  "base_head": "178634c8b54dc6fc5fa45b6c23d47211522ee761",
+  "native_evidence": {
+    "scope": "Existing source-pinned archived native TAN values; no fresh native session.",
+    "rows": [
+      {
+        "input": {
+          "class": "double",
+          "imag_hex": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "isreal": false,
+          "real_hex": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000"
+          ],
+          "shape": [
+            1,
+            3
+          ]
+        },
+        "label": "complex_c_nonfinite_zero_imag",
+        "method": "tan",
+        "ok": true,
+        "output": {
+          "class": "double",
+          "imag_hex": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000"
+          ],
+          "isreal": true,
+          "real_hex": [
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "7ff8000000000000"
+          ],
+          "shape": [
+            1,
+            3
+          ]
+        }
+      },
+      {
+        "input": {
+          "class": "double",
+          "imag_hex": [
+            "0000000000000000",
+            "8000000000000000",
+            "0000000000000000",
+            "3fd3333333333333"
+          ],
+          "isreal": false,
+          "real_hex": [
+            "7ff0000000000000",
+            "fff8000000000000",
+            "fff0000000000000",
+            "3fd999999999999a"
+          ],
+          "shape": [
+            1,
+            4
+          ]
+        },
+        "label": "complex_d_nonfinite_mixed",
+        "method": "tan",
+        "ok": true,
+        "output": {
+          "class": "double",
+          "imag_hex": [
+            "0000000000000000",
+            "0000000000000000",
+            "0000000000000000",
+            "3fd5a5f73902b160"
+          ],
+          "isreal": false,
+          "real_hex": [
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "7ff8000000000000",
+            "3fd86477c89d3bf7"
+          ],
+          "shape": [
+            1,
+            4
+          ]
+        }
+      }
+    ],
+    "capture_mat_sha256": "573d4561853bcacd6ce6212ce470cf62a59224e8a6eebc5f81aec4f6a8198338",
+    "capture_mat": "/scratch/gpfs/GILLES/mg6942/tmp/chebfunjax_goal_shared_20261005/treevar_signed_zero_capture_prepare_20261014/native/capture.mat",
+    "capture_version": "25.2.0.3055257 (R2025b) Update 2",
+    "pin": "7574c77680d7e82b79626300bf255498271a72df",
+    "verification_status": "pass",
+    "collector": "Historical pack extracts components after complex x(:). Requested zero signs were not independently asserted before every TAN call. No fresh negative-zero or universal IEEE claim. Class and whole-array isreal remain decisive; complex reshape cannot turn NaN imaginary values into zeros.",
+    "mixed_collector_integrity_control": {
+      "input": {
+        "class": "double",
+        "imag_hex": [
+          "0000000000000000",
+          "8000000000000000",
+          "0000000000000000",
+          "3fd3333333333333"
+        ],
+        "isreal": false,
+        "real_hex": [
+          "7ff0000000000000",
+          "fff8000000000000",
+          "fff0000000000000",
+          "3fd999999999999a"
+        ],
+        "shape": [
+          1,
+          4
+        ]
+      },
+      "label": "complex_d_nonfinite_mixed",
+      "method": "uplus",
+      "ok": true,
+      "output": {
+        "class": "double",
+        "imag_hex": [
+          "0000000000000000",
+          "8000000000000000",
+          "0000000000000000",
+          "3fd3333333333333"
+        ],
+        "isreal": false,
+        "real_hex": [
+          "7ff0000000000000",
+          "fff8000000000000",
+          "fff0000000000000",
+          "3fd999999999999a"
+        ],
+        "shape": [
+          1,
+          4
+        ]
+      }
+    },
+    "mixed_control_reason": "The same mixed complex input under UPLUS retains negative imaginary zero in historical packed output. Thus mixed-complex packing does not unconditionally canonicalize zero signs; TAN mixed output positive zeros are independently recorded.",
+    "proposed_correction": "Preserve original TAN real values and all finite/off-axis arithmetic. Set imaginary component to positive zero only for nonfinite real input with word-exact-zero imaginary input."
+  },
+  "cached_native_guard_review": {
+    "scope": "Cached native event metadata, no current native execution or full-library runtime guard claim.",
+    "source_head_before_after": {
+      "/scratch/gpfs/GILLES/mg6942/chebfun_matlab_ref": "7574c77680d7e82b79626300bf255498271a72df"
+    },
+    "active_input_hashes_before_after_equal": true,
+    "guarded_input_count": 3,
+    "receipt_inputs_stable": true,
+    "command_exit_code": 0,
+    "remaining_owned_pids": [],
+    "capture_mat_sha256": "573d4561853bcacd6ce6212ce470cf62a59224e8a6eebc5f81aec4f6a8198338"
+  },
+  "source_change": "Set only TAN imaginary output to positive zero for nonfinite real input with word-exact-zero imaginary input; preserve original JAX real component, all finite/off-axis arithmetic, and existing eager storage. Bitwise real_sign excludes nonzero subnormals.",
+  "derivative_contract": "No finite branch changes and no new custom JVP. Independent cmath TAN controls check first derivative1+tan(z)^2 and second derivative2tan(z)(1+tan(z)^2) for finite complex64/128 axis/off-axis points and real/imaginary tangents in eager/JIT.",
+  "qualified_baseline": {
+    "total": 18,
+    "failed": 4,
+    "xfailed": 0,
+    "passed": 14,
+    "seconds": 2.321,
+    "new_controls": 18,
+    "new_control_failures": 4
+  },
+  "candidate": {
+    "total": 1675,
+    "failed": 0,
+    "xfailed": 25,
+    "passed": 1650,
+    "seconds": 204.415,
+    "new_controls": 18,
+    "new_control_failures": 0
+  },
+  "test_scope": "Full original unary storage file with inherited SIN/COS/CONJ/UMINUS controls,18 new TAN controls, original univariate dispatch and RHS JAX modules; no unrelated heavy PDE expansion.",
+  "new_test_breakdown": {
+    "existing_native_array_cases": 2,
+    "component_preservation_complex64_128": 2,
+    "finite_first_second_derivative_controls": 12,
+    "real_input_words_dtype": 2
+  },
+  "runtime_guards": {
+    "baseline": {
+      "count": 1483,
+      "all_preguarded": true,
+      "active_before_after_guards_stable": true,
+      "immutable_baseline_source_preimages": [
+        "src/chebfunjax/operators/treevar.py",
+        "src/chebfunjax/utils/elementary.py"
+      ]
+    },
+    "candidate": {
+      "count": 1541,
+      "all_preguarded": true,
+      "active_before_after_guards_stable": true,
+      "immutable_baseline_source_preimages": []
+    }
+  },
+  "supervision": {
+    "unary_tan_axis_baseline_run001_20261018": {
+      "command_exit_code": 1,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 586044,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    },
+    "unary_tan_axis_candidate_run001_20261018": {
+      "command_exit_code": 0,
+      "censored_limit": null,
+      "sampled_peak_summed_rss_kib": 1308376,
+      "remaining_owned_pids": [],
+      "inputs_stable": true
+    }
+  },
+  "static_review": {
+    "base_head": "178634c8b54dc6fc5fa45b6c23d47211522ee761",
+    "source": "Only new _tan_numeric function, its import and TreeVar raw TAN map value change. All pre-existing elementary functions (including CONJ/UMINUS JVPs, SIN/COS and ASINH) and all other TreeVar AST exact.",
+    "pre_existing_test_AST_prefix_unchanged": true,
+    "native_fixture_words_assertions_bounds_unchanged": true,
+    "only_two_obsolete_xfail_rows_removed": true,
+    "remaining_records": 25,
+    "no_CI_owner_or_config_changes": true,
+    "protected_source_and_fixture_bytes": {
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native36.json": "1a63f96dcbd0ccd27dd6be43b3e2f0d1a3b157af0ccc8195532a1bbea5a22323",
+      "tests/test_matlab_port/treeVar/data/sin_cos_nonfinite_axis_native_20261018.json": "51ca4f02d9e9c37c9522110e15a4b0e11888d4d58afb77ac6d474751dddf7f0f",
+      "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+      "src/chebfunjax/chebfun1d/_pde_ndf/linear_boundary.py": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78"
+    }
+  },
+  "source_bridge": {
+    "frozen_child_predecessor": "178634c8b54dc6fc5fa45b6c23d47211522ee761",
+    "critical_source_test_reference_preimages_exact": {
+      "src/chebfunjax/utils/elementary.py": "d0a33c9fb9a5d6c42fde57749a00e4ca1bc15b54c6d83c491dfddbe51084aeea",
+      "src/chebfunjax/operators/treevar.py": "86651b6415c3e811c4a68a4925dcd139cf86b547c3aac0765b7035e188f99dc7",
+      "tests/test_matlab_port/treeVar/test_unary_eager_storage_source.py": "32763651e2103933050bb8d61f50ddf52523b91e452f9cfd13d86e9b6109f37e",
+      "tests/test_matlab_port/treeVar/data/unary_storage_open_arithmetic.json": "231159b647597e6b7fd6d40de8390ab01ce54d61b5337a81237ec52dbc086779",
+      "tests/test_matlab_port/treeVar/data/unary_storage_native_arrays.json": "d35558954a5cfba68d9b857bb4883e8100d5aa80f31a28c0fac7719bee645966",
+      "tests/test_matlab_port/treeVar/test_univariate_matlab.py": "4157d8cc4ac5e5cec4bb2b746520834397f9feb229d4e0d58543bf499fcef9b1",
+      "tests/test_matlab_port/treeVar/test_rhs_jax_source.py": "e1ec80ef6684a3c4ed28cbfa96695062ec3193e1edd111752ec3f2ebeaebb30a",
+      "src/chebfunjax/utils/numeric_sign.py": "16deb3de5e320f7cb9c22f1d3914a4a4c700a562026f52d0f7609c7df750c83e",
+      "src/chebfunjax/utils/_signed_gradual.py": "aae2b4bfece9e8c6052b3ff393473108e8f710637b3525b33b94089459e3c97b"
+    },
+    "candidate_delta": "Only TAN helper/import/raw-map entry, appended18controls and two obsolete xfail records; detailed AST/fixture preservation proof in STATIC_REVIEW.json.",
+    "publication_bridge": "Pending actual-parent integration. Root explicitly authorized sealing against frozen178634c8 while unchanged CONJ/UMINUS parent guard repeat runs; root will verify the exact published combined source bridge. No claim of testing an unexecuted published candidate.",
+    "no_further_numerical_run_required_by_root": true
+  },
+  "validation": "Full ruff src/tests/scripts/examples and git diff --check pass. Native fixtures and all original assertions/bounds/test AST retained. Two obsolete expected-failure records removed,27\u219225. No CI owner/config changes.",
+  "warnings": "Existing incompatible CUDA plugin import warning and pytest jaxtyping rewrite warning retained; pinned CPU backend/affinity/versions/x64/cacheoff asserted.",
+  "remaining": [
+    "25 unary expected-failure records:18 zero-sign conventions and7 minimum-subnormal imaginary-loss records. Other TAN nonfinite input classes remain independently unqualified.",
+    "Historical native pack uses complex x(:); no fresh requested all-negative-zero input-word or full runtime-library-hash claim. Mixed UPLUS preserves negative zero under the same collector, while TAN mixed output records positive zeros; zero classes and native isreal are not changed by complex flattening.",
+    "No native session reserved or launched. Source pin and MAT/JSON/receipt verification are archived evidence, not new native qualification.",
+    "Finite derivative controls and exact primitive preservation outside the selected boundary do not establish full API/JIT/AD/vmap/extreme IEEE/backends/performance/pages/latest-main scientificCI.",
+    "Root actual-parent gate and published combined source bridge remain required. No native buffer or fixture is read by production code."
+  ],
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_axis_evidence_20261018",
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_axis_package_20261018.tar.gz",
+    "sha256": "d799f78d0b76a32a2785a04e47ef7227238ef0ad19511a78094b6be8e5f8872c",
+    "bytes": 34930443,
+    "payloads": 3531
+  },
+  "streamed_hash_manifest": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/unary_tan_axis_stream_hashes_20261018.json",
+    "sha256": "7e5b42235c6c63dbb4e625e38eb27340e264cf82732638ed5c57b9376d71c307"
+  }
+}
