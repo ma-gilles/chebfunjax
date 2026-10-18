@@ -5,7 +5,8 @@ Provenance
 MATLAB source : @chebtech/clenshaw.m
 Chebfun commit: 7574c77 (7574c77680d7e82b79626300bf255498271a72df).
 The paired recurrence and final half-times-doubled argument follow that source.
-Each recurrence operation occupies its own loop iteration, preventing contraction.
+Multiplication occupies a separate loop iteration from its following add/subtract
+pair, preventing contraction while retaining the source add-then-subtract order.
 A packed register buffer and branch-local row reads avoid copying untouched rows.
 Independent points are processed in chunks; their recurrence order is unchanged.
 Setup and epilogue retain whole-array CPU ordering and finiteness decisions.
@@ -35,22 +36,21 @@ def source_clenshaw(coeffs, x):
         # The temporary row survives coefficient pairs but instruction zero
         # overwrites it before any read in the next pair.
         initial = jnp.zeros((3,) + points.shape, dtype=coeffs.dtype)
-        destinations = jnp.asarray([2, 2, 1, 2, 2, 0], dtype=jnp.int32)
+        destinations = jnp.asarray([2, 1, 2, 0], dtype=jnp.int32)
 
         def pair(i, registers):
             k = degree - 2 * i
 
             def instruction(registers, opcode):
                 # Read rows inside each branch so XLA can fuse the required
-                # loads with its single arithmetic operation. The scan carry
-                # separates multiply/add/subtract without allowing contraction.
+                # loads with its arithmetic. Each add/subtract pair has no
+                # product to contract; the scan carry separates its preceding
+                # multiply. The written add-then-subtract order is retained.
                 operations = (
                     lambda r: points * r[0],
-                    lambda r: coeffs[k] + r[2],
-                    lambda r: r[2] - r[1],
+                    lambda r: (coeffs[k] + r[2]) - r[1],
                     lambda r: points * r[1],
-                    lambda r: coeffs[k - 1] + r[2],
-                    lambda r: r[2] - r[0],
+                    lambda r: (coeffs[k - 1] + r[2]) - r[0],
                 )
                 row = jax.lax.switch(opcode, operations, registers)
                 registers = jax.lax.dynamic_update_slice_in_dim(
@@ -58,7 +58,7 @@ def source_clenshaw(coeffs, x):
                 return registers, None
 
             registers, _ = jax.lax.scan(
-                instruction, registers, jnp.arange(6, dtype=jnp.int32),
+                instruction, registers, jnp.arange(4, dtype=jnp.int32),
                 unroll=False)
             return registers
 

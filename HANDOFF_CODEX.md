@@ -1,3 +1,16 @@
+# Four-stage ordered CPU Clenshaw — 2026-10-17
+
+Each coefficient pair now uses4instruction iterations instead of6, retaining
+separate multiplication and ordered add/subtract groups. Ninety existing
+Clenshaw/native/IEEE/AD/chunk controls and64unchanged original Clenshaw/inverse/
+interp1checks pass. Inspected98optimized LLVM files have noFMA intrinsic.
+Same-input wholeinverse medianwarm2.3134s→1.7380s (3calls per arm); all20output
+artifacts byte-identical,8630coefficients retained. This is descriptive sharedhost
+CPU40-43 evidence, not matched native speed closure. Other363tracked library
+files/tests unchanged; no selector/owner change. Batch4variant was slower and
+rejected. Full API/low-word/page/figure/latestCI/coverage remain open.
+Evidence: docs/clenshaw_four_stage_cpu_20261017.json.
+
 # Real radix-two inverse transform family — 2026-10-17
 
 CPU finite realfloat64 DCT-I now uses C2R for power-of-two FFT lengths,

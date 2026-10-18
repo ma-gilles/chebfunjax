@@ -77,3 +77,12 @@ actual native32768plan evidence and a general power-of-two predicate, preserving
 257compositions nearroundoff. Raw coefficient words still differ; no universal
 bit-equality claim. Warm2.327s vsbase2.336s leaves native speed open. Dense724
 Chebfun3T strictxfail and full API/page/figure/latestCI qualification remain open.
+
+
+## Ordered Clenshaw CPU overhead
+
+[Four-stage source scheduling](clenshaw_four_stage_cpu_20261017.json) reduces
+same-host wholeinverse medianwarm2.3134s to1.7380s while preserving all20output
+artifacts exactly. Ninety Clenshaw controls and64original-source checks pass.
+The matched MATLAB speed qualification and native low-word/API/page/figure
+work remain open; historical timings above describe their measured source.

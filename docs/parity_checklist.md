@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Four-stage ordered CPU Clenshaw:90existing scientific plus64original-source checks pass; actual inverse3warm median2.3134s→1.7380s,20output artifacts identical. [Evidence](clenshaw_four_stage_cpu_20261017.json).
+- [ ] Matched native CPU performance and full inverse/Clenshaw API/page/figure qualification remain open.
+
+
 - [x] Native-motivated real CPU radix-two C2R DCT-I family:254scientific checks plus21parent CIprotocol checks; actual inverse8630/native8630 coefficients and nearroundoff value/composition controls. [Evidence](inverse_c2r_parent_cpu_20261017.json).
 - [ ] Inverse full API/low-word/page/figure and matched CPU performance remain open; dense724 strictxfail unchanged.
 

@@ -84,6 +84,11 @@
       "scope": "Stable recorded core CI ownership; scientific assertions, job/per-test deadlines and coverage requirements unchanged.",
       "sha256": "6a09a42da8bbdc17765660d1294dc41fa2be5923fbcaf0ba3044cf4ab20d88fc"
     },
+    "clenshaw_four_stage_cpu_20261017": {
+      "path": "docs/clenshaw_four_stage_cpu_20261017.json",
+      "scope": "Reduce real CPU Clenshaw instruction overhead without changing source multiply/add/subtract results; actual inverse performance comparison",
+      "sha256": "82cc68311ca0648b78c88d96dc75ae0bdad92c3fb881eb24cefd593788c2dc55"
+    },
     "colororder_20261017": {
       "path": "docs/colororder_cpu_20261017.json",
       "scope": "Color property versus LineSpec source ordering;21 controls and native metadata. Full graphics grammar/rendering remains unverified.",
@@ -52101,6 +52106,10 @@
         {
           "artifact": "inverse_c2r_parent_cpu_20261017",
           "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
+        },
+        {
+          "artifact": "clenshaw_four_stage_cpu_20261017",
+          "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
         }
       ],
       "functions": [
@@ -69258,6 +69267,10 @@
         {
           "artifact": "inverse_packed_color_cpu_20261017",
           "scope": "Scoped packed Clenshaw arithmetic/performance or iteration-color controls; full-file and API parity remain unverified."
+        },
+        {
+          "artifact": "clenshaw_four_stage_cpu_20261017",
+          "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
         }
       ],
       "functions": [
@@ -102944,6 +102957,10 @@
         {
           "artifact": "inverse_c2r_parent_cpu_20261017",
           "scope": "CPU real radix-two family, listed254checks and actual inverse functional/representation controls; full-item status unchanged"
+        },
+        {
+          "artifact": "clenshaw_four_stage_cpu_20261017",
+          "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
         }
       ],
       "functions": [
@@ -116119,7 +116136,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebtech/test_clenshaw_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "artifact": "clenshaw_four_stage_cpu_20261017",
+          "scope": "Four-stage ordered Clenshaw, listed154checks and bit-identical whole inverse/performance controls; full-item status unchanged"
+        }
+      ],
       "functions": [
         {
           "evidence": [],

@@ -1,0 +1,86 @@
+{
+  "scope": "Reduce real CPU Clenshaw instruction overhead without changing source multiply/add/subtract results; actual inverse performance comparison",
+  "base_commit": "1ebcc590a3665fe3ae7e49078bf38b2a257bdb31",
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "change": "Six instruction iterations per coefficient pair become four: separate multiply, ordered add-then-subtract, separate multiply, ordered add-then-subtract. No multiplication shares a loop iteration with its consumer. Existing1024point chunks/setup/global finiteness/epilogue and generic fallback unchanged.",
+  "verification": {
+    "existing_clenshaw_checks": 90,
+    "original_clenshaw_inverse_interp1_checks": 64,
+    "all_eight_test_files_bytes_unchanged": true,
+    "native_scope": "Retained pinned26real scalar/column captures match exact words;5complex bound controls and chemical/public endpoints included. Original five Clenshaw predicates run unchanged.",
+    "source_scope": "Other363tracked library files identical (361Python plus license/data); no new test selector/ownership change",
+    "compiled_scope": {
+      "optimized_LLVM_files": 98,
+      "FMA_intrinsic_files": 0,
+      "limit": "Inspected two static query shapes/current pinned compiler; no all-backend guarantee"
+    }
+  },
+  "actual_inverse": {
+    "baseline_warm_median": 2.3133996771648526,
+    "candidate_warm_median": 1.737999795936048,
+    "complete_output_bin_files_equal": 20,
+    "output_hashes": {
+      "warm2_domain.bin": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+      "roundtrip129.bin": "9da73fe9223032acef42f09011f9692bab093875262d2720481bd3c4967a9e82",
+      "cold_pointValues.bin": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+      "cold_coeffs.bin": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+      "inverse_composition257.bin": "fdbd9a75f732b55e2a7850f890038f7c708ad52473548d628a20ac1b9e23dc31",
+      "warm1_domain.bin": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+      "warm3_pointValues.bin": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+      "warm1_pointValues.bin": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+      "forward_composition257.bin": "4876bd3297b5b37a32000d5aff165392974a9189776f1c4641d14708e6d73b15",
+      "warm3_coeffs.bin": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+      "gridx257.bin": "69b4f2ef4e2543b75b00553cff7f4b6fc0b48a8802210e396537971060058f69",
+      "grids257.bin": "9d7de3c8dbb741d0f7263f02b411e72798a22ee417f5e3160202fc90b9efb476",
+      "native_sites129.bin": "7483519099af79eabf5c6a18c2c29a47d59e4509867c5f6adcedafd12a970af2",
+      "warm2_coeffs.bin": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+      "cold_domain.bin": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+      "inverse_samples129.bin": "2ed49327b246bec16e39aeb7e40ba606ec762ba5676e72e157ac19a02326f44c",
+      "warm2_pointValues.bin": "f9715ac641254d38b61d837c6c4f71e4bfb7f157591029a12c81beae666413ff",
+      "warm3_domain.bin": "871a75a8094a95fec9b0965ccfcbea7e8eb30f29712d1dda5662c0194139a318",
+      "warm1_coeffs.bin": "d844c64a88ddef0530b7c0d6ac7942b36cb1fa44fdd9b556956fff8960ae7d18",
+      "inverse_grid257.bin": "b7380445a0a131254445d9a961d56f31aa0d955734b10da1cf4cff6ca8dd942c"
+    },
+    "runtime_coverage": {
+      "baseline": {
+        "observed": 1365,
+        "missing": [],
+        "changed": []
+      },
+      "candidate": {
+        "observed": 1364,
+        "missing": [],
+        "changed": []
+      }
+    },
+    "comparison": {
+      "native_length": 8630,
+      "candidate_length": 8630,
+      "common_prefix_max_abs": 5.551115123125783e-17,
+      "common_prefix_word_mismatches": 8626,
+      "domain_word_equal": true,
+      "pointValues_word_equal": true,
+      "native_sites129_max_abs": 3.885780586188048e-16,
+      "original_supplemental_roundtrip129_max_abs": 1.1102230246251565e-15,
+      "inverse_composition257_max_abs": 1.3322676295501878e-15,
+      "forward_composition257_max_abs": 7.105427357601002e-15
+    },
+    "scope": "Same-host sequential CPU40-43,3ordinarywarm calls each, descriptive only; no matched native speed qualification"
+  },
+  "cold_seconds": {
+    "baseline": 17.441298947203904,
+    "candidate": 16.890424505341798
+  },
+  "rejected_experiment": "Batching4independent chunks kept output bits but was20-30percent slower in three measured cases; no production change from it. Raw evidence retained.",
+  "limits": [
+    "Whole inverse3ordinarywarm calls per arm are same-host sequential CPU40-43 descriptive measurements, not matched MATLAB performance qualification or a statistical benchmark.",
+    "Actual20binary output artifacts including coefficients/domain/pointValues/native samples/compositions are byte-identical; this speed repair does not close remaining native coefficient low-word/full API/page/figure differences.",
+    "All1365baseline/1364candidate observed runtime files preguarded; core pytest gates freeze source/tests/selected native fixtures, not all external runtime imports.",
+    "Current-main scientific CI/coverage>=79%, Hermite/Maxwell/complex poles/dense3T and complete goal remain open."
+  ],
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/clenshaw_four_stage_cpu_20261017.tar.gz",
+    "sha256": "85fb1b0674a7983786610eefae7f2e8d47d8a4a0f36e92c39bb1ade0fea23bc8",
+    "verified_payloads": 841
+  }
+}
