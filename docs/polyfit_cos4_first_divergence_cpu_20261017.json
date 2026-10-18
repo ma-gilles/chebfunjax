@@ -1,0 +1,101 @@
+{
+  "actual_test": "tests/test_new_functions.py::TestPolyfitL1::test_evaluable",
+  "base": "38d2fefa75fe61cdf5316d133a93cead8328e108",
+  "baseline": "Actual unchanged test fails DID NOT WARN. Public fit finite, no MAXITER warning; historical native run NaNs/MAXITER. No warning or NaN synthesized.",
+  "causal_replay": "Native f coefficients/current interpolation restores4roots. Native interpolation y/current interpolation restores4roots. Current f/native p still6roots. Current original residual has extra roots +/-5.2401e-7 and small Newton update; retained native4roots leads rank4Newton matrix and huge update.",
+  "existing_cos_provider": "Arbitrary jnp.cos callbacks execute JAXcos primitive. cj.cos handles Chebfun objects only; Chebfun.cos composes jnp.cos. Existing _cos_boundary_angles is JAX-only fdlibm source recipe finite|x|<=pi, qualified for PDE endpoint rows; not a generic or proven MATLABcos provider.",
+  "first_divergence": "Third constructor callback, nested16new points: at exact nodes +/-0.7730104533627369 native cos word3fe6e7ee040a75e6 vs JAX3fe6e7ee040a75e5. All five callback node arrays and call shapes [2,17,16,2,2] match exactly; other callback sample words match.",
+  "library_and_tests_unchanged": true,
+  "limitations": [
+    "No fullpage or numerical library edit.",
+    "Python run guards cover complete Wsource and selected tests/fixtures/config/drivers; external runtime binary/import closure not fully preguarded. Native all reference .m/drivers/inputwords guarded; full MATLAB binary closure not claimed.",
+    "First native attempt failed before operands due nested static workspace restoredefaultpath; preserved rawreceipt. V2 only replaces nested logging scope with global subfunction; actual neutral result captured.",
+    "Rawword counts diagnose exact same inputs here; do not establish fullAPIparity or a universal rawword acceptance requirement."
+  ],
+  "native_original8": "All8 are optimality moment norm<1e-8, not a cos4 warning test. Native1/2 use exp*sin10x on[-1,1] withdegrees5/10; second intentionally retainsT0..5;3exp*sin on[-2,2],degree5;4/5abs degree7 withsplitting on[-1,1]/[-2,2];6sin(x-.1)*cos3x on[-3,2],degree11;7/8sin(x-.1)+cos3x on[0,100],degree11/101. Existing literal port retains operands and bounds. No new8passclaim.",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "neutrality": "Native ordinary/logged/ordinary f coefficients identical; current ordinary/logged coefficients identical. Logged callable returns unmodified cos values.",
+  "parent_archive_integrity": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/polyfit_cos4_first_state_package_20261017.tar.gz",
+    "sha256": "50c08e3b7459703e10f63a28cd9e270f83ad6d1c493141359f850812eb022fde",
+    "verified_payloads": 97
+  },
+  "proposal": {
+    "decision": "No small local polyfit/constructor repair justified. Keep actual CI warning regression open pending general-provider design and qualification; no test weakening.",
+    "first": "Independent diagnostic existing bounded _cos_boundary_angles against fresh actual native samples and independently chosen bounded dyadic/dense inputs, including actual critical nodes, then native source range/reduction qualification. This is numerical-provider qualification, not replacing actual original cos callback.",
+    "gates": "Independent cosine value/error/IEEE/dtype/JVP controls; callback composition and multiplecos operations; unchanged actual cos4 test; unchanged native8optimality predicates split4GiB; existing source constructor/transform/interp controls. No tolerances/degrees/chop/root rules/eigen dimensions change.",
+    "general_repair": "If qualified, design a general CPUfloat64real cosine provider with source argument reduction/kernel schedule and explicit outside-supported-range/complex/dtype fallback plus analyticJVP. A constructor callback containing arbitrary jnp.cos needs a reviewed general primitive evaluation policy to consume it; callable-identity or node/value recognition is forbidden. Do not route production merely to make cos4 fail.",
+    "native_slot": "released after native_run2; root now owns nonfinite capture"
+  },
+  "runs": {
+    "baseline_run1": {
+      "censored_limit": null,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1019436,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 13.599355481099337
+    },
+    "constructor_routes_run1": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 763968,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 5.94070919463411
+    },
+    "native_run1": {
+      "censored_limit": null,
+      "command_exit_code": 1,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1259408,
+      "supervisor_exit_code": 1,
+      "wall_seconds": 80.76994667667896
+    },
+    "native_run2": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1301852,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 82.28459340613335
+    },
+    "replay_run1": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 869624,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 9.944565366022289
+    },
+    "run1": {
+      "censored_limit": null,
+      "command_exit_code": 0,
+      "inputs_stable": true,
+      "remaining_owned_pids": [],
+      "sampled_peak_summed_rss_kib": 1043432,
+      "supervisor_exit_code": 0,
+      "wall_seconds": 14.185045421123505
+    }
+  },
+  "same_input_transform_proof": "Native vals2coeffs on exact saved current JAX17 and33 samples matches current transform17/17 and33/33 coefficient words. Not a universal transform parity claim. Native raw33 transform first15words equals observed/ordinary constructor and retained historical native15words.",
+  "scope": "First divergent state for current cos degree4 supplemental warning regression; diagnosis/proposal only",
+  "source_hashes": {
+    "pyproject.toml": "95f79ae45be4eebbf0885891020e9e206dc4b80f6dd0b1f9cd10d77c5fae957c",
+    "src/chebfunjax/chebfun1d/_interp1.py": "8dd6e71da5b8cc96b58a602f228fe918595d74f4f2e5828ba58d7903ab6afb91",
+    "src/chebfunjax/chebfun1d/_polyfit_l1.py": "8e41175a717948d3888e993a73dbf236fcf668dab7066f8c56211d679bb9f71e",
+    "src/chebfunjax/chebfun1d/chebfun.py": "f4d742f09bd7944fd47a3dc1e284110b7bda13200daccbdd19d202a627d31560",
+    "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "49961b21a7312b3ea2121c0e1b8d1442616bdb23c390322e52328ff32ddcba08",
+    "src/chebfunjax/utils/_fdlibm_projection_sine.py": "ed7bbc50b30d46a64e32df924020e71f45bff4044c13bdd8151272158df895a9",
+    "src/chebfunjax/utils/_fdlibm_sine.py": "298394b29f0fd159f8a557988b5c1626e9ab2099123084d149fa2689fc481cf5",
+    "src/chebfunjax/utils/interpolation.py": "e8f7d6c17f9757450667cc7aa4118720ed02f5869191c548aacd72e955a8d009",
+    "src/chebfunjax/utils/transforms.py": "cef81ddbcd77ac709f7848afcb624b579395bee5e8129ce553e1e315602a587d",
+    "tests/test_matlab_port/chebfun/test_polyfitL1_native_literal.py": "eef221c7ad2df4e0b4a20b5694d327e36be604a67bc336288fc968c9a107fd42",
+    "tests/test_new_functions.py": "57d459887dd1b13ea54812380bb359c5ec0734880ae0e683b83c1d1eaaa6157a"
+  }
+}

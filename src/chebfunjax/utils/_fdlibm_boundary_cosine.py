@@ -21,7 +21,7 @@ from chebfunjax.utils._fdlibm_sine import _high_abs, _kernel_cos, _sub
 
 
 @jax.jit
-def _cos_boundary_angles(x):
+def _cos_boundary_primal(x):
     """Evaluate the source cosine reduction schedule on the bounded interval."""
     if not jax.config.x64_enabled:
         raise ValueError("Requires binary64 mode")
@@ -49,3 +49,24 @@ def _cos_boundary_angles(x):
     reduced = jnp.where(ix < 0x4002D97C, special, medium)
     result = jnp.where(ix <= 0x3FE921FB, _kernel_cos(ax, jnp.zeros_like(ax)), reduced)
     return jnp.where(valid, result, jnp.nan)
+
+
+@jax.custom_jvp
+def _cos_boundary_angles(x):
+    """Source-rounded bounded cosine with the real analytic derivative.
+
+    Constant branches in the finite-precision source kernel retain primal
+    words but must not define the derivatives of the cosine function.
+    No derivative contract is provided outside the supported real interval.
+    """
+    return _cos_boundary_primal(x)
+
+
+@_cos_boundary_angles.defjvp
+def _cos_boundary_angles_jvp(primals, tangents):
+    (x,), (tangent,) = primals, tangents
+    x = jnp.asarray(x, jnp.float64)
+    tangent = jnp.asarray(tangent, jnp.float64)
+    valid = jnp.isfinite(x) & (jnp.abs(x) <= jnp.pi)
+    derivative = jnp.where(valid, -jnp.sin(x), jnp.nan)
+    return _cos_boundary_primal(x), derivative * tangent

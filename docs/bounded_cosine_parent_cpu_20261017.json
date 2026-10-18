@@ -1,0 +1,35 @@
+{
+  "archive": {
+    "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bounded_cosine_parent_cpu_20261017.tar.gz",
+    "sha256": "074e5cc7caa36fc39e109127a5f7e1850ee6ad75eb3e780543ce287668ee3380",
+    "verified_payloads": 18
+  },
+  "base_commit": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb",
+  "child_archive": {
+    "archive": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bounded_cosine_derivatives_package_20261017.tar.gz",
+    "sha256": "65c96e0f62b78fc748a7b2254487b5fae38dcd88320d9af5c0c280766ac311d1",
+    "verified_payloads": 91
+  },
+  "core_ownership": {
+    "added": {
+      "tests/test_utils/test_bounded_cosine_derivatives_source.py": 6
+    },
+    "final": 1087,
+    "moved": [],
+    "prior": 1086
+  },
+  "limits": [
+    "No constructor/callback primitive routing; supplemental polyfitL1(cos,4) warning regression remains open.",
+    "Original eight polyfitL1 predicates are separately audited; cosine helper success does not qualify the solver.",
+    "Bounded real CPU helper only; full APIs, matched performance and latest-main CI/coverage remain open."
+  ],
+  "parent_verification": {
+    "censored_limit": null,
+    "inputs_stable": true,
+    "nodes": 21,
+    "remaining_owned_pids": [],
+    "source_primal_ast_identical": true
+  },
+  "reference_commit": "7574c77680d7e82b79626300bf255498271a72df",
+  "scope": "Bounded finite real CPU float64 cosine primal qualification and analytic derivative repair; no constructor/primitive routing"
+}

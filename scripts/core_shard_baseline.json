@@ -705,7 +705,8 @@
       "tests/test_coverage/test_port_mirrors.py::test_port_mirror[tests.test_matlab_port.spherefun.test_svd_matlab]",
       "tests/test_operators/test_fourier_scalar_coefficient_layout.py",
       "tests/test_utils/test_ratinterp_inherited_domain_source.py",
-      "tests/test_operators/test_system_eigs_projection_source.py"
+      "tests/test_operators/test_system_eigs_projection_source.py",
+      "tests/test_utils/test_bounded_cosine_derivatives_source.py"
     ],
     [
       "tests/test_array_abs_norm_source.py",
@@ -1114,6 +1115,6 @@
     ]
   ],
   "seed_commit": "e650390926379fb066d6ad1bdb3a20540728322c",
-  "last_update_parent": "96143681abe1b6537c74a00ae0cd526d458b6b53",
+  "last_update_parent": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb",
   "update_scope": "Ownership only; includes current working-tree inventory."
 }

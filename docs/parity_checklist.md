@@ -27,6 +27,10 @@ There is **no defensible overall completion percentage** yet. Checked items belo
 
 ## Completed scoped work
 
+- [x] Bounded source cosine analytic derivatives:15new+8existing checks and unchanged fixed48 PDE pass;1040independent native vector/scalar and50actual sample words exact; parent21protocol checks. [Evidence](bounded_cosine_parent_cpu_20261017.json).
+- [ ] Supplemental polyfitL1(cos,4) warning parity remains open: two external cosine sample words differ1ULP; same-input transforms agree. [Diagnosis](polyfit_cos4_first_divergence_cpu_20261017.json). No constructor/provider or full solver closure.
+
+
 - [x] Source existing-grid C1/C2 ABS storage dispatch and representation:87parent tech/original/protocol checks and3literal unbounded assertions pass, all1085prior core owners preserved+1new. [Evidence](abs_existing_grid_parent_cpu_20261017.json).
 - [ ] Native nonfinite transform-mask differences in3cases, full ABS/API/JAX and matched speed remain open; storage dispatch success is not full output parity.
 

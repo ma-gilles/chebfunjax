@@ -1,0 +1,125 @@
+{
+  "scope": "Bounded finite real CPU float64 cosine primal qualification and analytic derivative repair; no constructor/primitive routing",
+  "base": "36e6e43fc96c65c9aa5629ba941f81696c3ca8bb",
+  "native_pin": "7574c77680d7e82b79626300bf255498271a72df",
+  "source": "src/chebfunjax/utils/_fdlibm_boundary_cosine.py",
+  "mechanism": "Rounded source _kernel_cos has a constant1 return below highword0x3e400000 (|x|<2^-27); source argument reduction reuses such finite-precision constant branches nearpi. Differentiating the arithmetic gives zero second derivative atzero andpi versus mathematical-1/+1, and higher-order inaccuracies elsewhere.",
+  "repair": "Retain entire original @jax.jit primal AST under _cos_boundary_primal; unchanged exported private name now customJVP calls same primal and uses analytic -jnp.sin(x)*tangent in supported interval. Unsupported domain yields NaN primal; no outside derivative contract. Float32 argument conversion and reverse-mode gradient dtype preserved. New numerics allJAX; no imports/providers/waivers added.",
+  "source_bridge": {
+    "baseline_sha256": "49961b21a7312b3ea2121c0e1b8d1442616bdb23c390322e52328ff32ddcba08",
+    "candidate_sha256": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+    "original_function_ast_identical_after_name_change": true,
+    "qualified_primal_body_and_decorator_unchanged": true,
+    "unchanged_consumer_sha256": "9ea107c65c15c8c2ca587663ac8b43830295f36569485ab3ddda83525042cc78",
+    "new_test_bytes_identical_baseline_candidate": true
+  },
+  "native": {
+    "fresh_independent_count": 1040,
+    "source_inputs": "Broad513grid[-pi,pi],dyadic sweep, adjacent reduction-boundary values,signedzeros/subnormal/normal tiny values; all exact input words supplied unchanged to native scalar and vectorcos.",
+    "fresh_scalar_equal_words": 1040,
+    "fresh_vector_equal_words": 1040,
+    "native_scalar_vector_identical": true,
+    "captured_original_constructor17_and33_words": "all50match; includes the two original callback samples at+/-0.7730104533627369",
+    "retained_qualified_native_word_count": 139783,
+    "matlab_provider": "built-in (/usr/licensed/matlab-R2025b/toolbox/matlab/elfun/cos)",
+    "no_global_libm_claim": true
+  },
+  "tests": {
+    "new_selector_count": 15,
+    "new_file_owners": 1,
+    "baseline_final_bytes": {
+      "failed": 12,
+      "passed": 3,
+      "scientific_fault": "First/fourthderivatives andarrayHessian; tinyanglefloat32tangent. Three primalnativeword tests already pass."
+    },
+    "candidate": {
+      "passed": 23,
+      "composition": "same15new+all8existing tests/test_utils/test_pde_large_arithmetic_native.py"
+    },
+    "actual_fixed48_publiccaller": {
+      "selector": "tests/test_coverage/test_v13_v18_utils.py::TestPde15s::test_pde15s_advection_dominated_stable",
+      "passed": 1,
+      "unchanged_test_sha256": "02f19979ca971cac2627de9e911dc5f22b99995b8b695bf0878d69f5f932fe25",
+      "retained_operands": "[-1,1];0.05*u.diff(2)+u.diff();times0..4,n48,rtol1e-9/atol1e-11; exact existing bounds"
+    },
+    "total_final_unique_pytest_passes": 24,
+    "authored_derivative_bound": "4*float64eps absolute for firstfouranalytic derivatives at ten probes and weightedarrayHessian; existing original bounds untouched."
+  },
+  "runs": {
+    "jax_run1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 9.171899813227355,
+      "sampled_peak_summed_rss_kib": 690760,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "ad_detail_run1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 4.4118718123063445,
+      "sampled_peak_summed_rss_kib": 582252,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "native_run1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 82.6382983699441,
+      "sampled_peak_summed_rss_kib": 1274004,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "baseline_gate1": {
+      "command_exit_code": 1,
+      "supervisor_exit_code": 1,
+      "censored_limit": null,
+      "wall_seconds": 13.478436580859125,
+      "sampled_peak_summed_rss_kib": 789684,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "candidate_gate1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 80.67942710686475,
+      "sampled_peak_summed_rss_kib": 4045872,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    },
+    "publiccaller_gate1": {
+      "command_exit_code": 0,
+      "supervisor_exit_code": 0,
+      "censored_limit": null,
+      "wall_seconds": 34.18583931075409,
+      "sampled_peak_summed_rss_kib": 1444168,
+      "inputs_stable": true,
+      "remaining_owned_pids": []
+    }
+  },
+  "open": [
+    "No constructor, callable identity, sample/degree-specific override, primitive routing, polynomial/root filtering, tolerance, warning or NaN synthesis.",
+    "Actual supplemental polyfitL1(cos,4)warning test remains an upstream external JAXcos sampling discrepancy; not fixed or rerun by this helper-only package. Its source path does not consume this helper.",
+    "Original eight polyfitL1 source predicates are separate solver qualification, not credited by cosine controls.",
+    "No global real/complex/dtype/platform cosine API or full goal completion claim. Bounded helper domain remains finite|x|<=pi. No new complex derivative contract.",
+    "No performance benchmark or improvement claim.",
+    "Existing native arithmetic fixture load uses preexisting test-onlyNumPy/SciPy. No new libraryhost numerics.",
+    "Python source/tests/config/drivers/nativefixture guarded; importedexternal files recordedpostrun, not full externalruntimepreguard. Native reference .mfiles and driver/inputwords guarded; loadedmaps retained but not full nativebinaryclosure."
+  ],
+  "publication_paths": [
+    "src/chebfunjax/utils/_fdlibm_boundary_cosine.py",
+    "tests/test_utils/test_bounded_cosine_derivatives_source.py",
+    "tests/test_utils/fixtures/bounded_cosine_native_20261017.json",
+    "docs/bounded_cosine_derivatives_cpu_20261017.json"
+  ],
+  "publication_hashes": {
+    "src/chebfunjax/utils/_fdlibm_boundary_cosine.py": "6711011c674423721e81cda3914552f6cbc3d4080a213d75ff8602d7fee5d696",
+    "tests/test_utils/test_bounded_cosine_derivatives_source.py": "b6affa5c9d6dd575a1dcc69946bd208aad4c5d7409e4319ef90e024e84753742",
+    "tests/test_utils/fixtures/bounded_cosine_native_20261017.json": "a029af44a5afdeb70d2e14f8c1a5367c1562d107734989484c17f4a1aa59ca94"
+  },
+  "evidence_directory": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bounded_cosine_qualification_evidence_20261017"
+}

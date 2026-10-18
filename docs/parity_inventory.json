@@ -42,6 +42,21 @@
       "scope": "Native barycentric node-loop materialization and elementwise division; combined root-recurrence integration",
       "sha256": "97e6a6cf06ed271f54f2f513a04d6049f66d0c34030cc706cb147c907da0a638"
     },
+    "bounded_cosine_parent_cpu_20261017": {
+      "archive": {
+        "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/bounded_cosine_parent_cpu_20261017.tar.gz",
+        "sha256": "074e5cc7caa36fc39e109127a5f7e1850ee6ad75eb3e780543ce287668ee3380",
+        "verified_payloads": 18
+      },
+      "limits": [
+        "No constructor/callback primitive routing; supplemental polyfitL1(cos,4) warning regression remains open.",
+        "Original eight polyfitL1 predicates are separately audited; cosine helper success does not qualify the solver.",
+        "Bounded real CPU helper only; full APIs, matched performance and latest-main CI/coverage remain open."
+      ],
+      "report": "docs/bounded_cosine_parent_cpu_20261017.json",
+      "report_sha256": "2d0eb0bb7b72f42fd074a6952a3528a05f0dea96cca09da71f5ef8f002a6a117",
+      "scope": "Bounded finite real CPU float64 cosine primal qualification and analytic derivative repair; no constructor/primitive routing"
+    },
     "c1_eigs_adaptive_cpu_20261017": {
       "archive": {
         "path": "/scratch/gpfs/CRYOEM/gilleslab/mg6942/_agent_scratch/c1_eigs_adaptive_cpu_20261017.tar.gz",
@@ -338,6 +353,11 @@
       "scope": "Four authored fixed-grid native comparison cases and24 Python controls; additional PDE options/spatial adaptation/full API remain unverified.",
       "sha256": "b4aecd023a82a43b6a86df1571d355965f30753168d45d5114847e2eb517c877",
       "source_base": "c7b54411bb72d22ce284571e30973eef37aa4489"
+    },
+    "polyfit_cos4_first_divergence_cpu_20261017": {
+      "report": "docs/polyfit_cos4_first_divergence_cpu_20261017.json",
+      "report_sha256": "a9c8106d460cdc42053ab1945c422c10350bc17158812f204f13695f3f95b7c5",
+      "scope": "Diagnosed supplemental cosine/provider discrepancy, unresolved; not whole polyfitL1 qualification."
     },
     "power_original41_cpu_20261017": {
       "path": "docs/power_original41_cpu_20261017.json",
@@ -54372,7 +54392,12 @@
     {
       "api_assertion_status": "unverified",
       "candidate_port_paths": [],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "polyfit_cos4_first_divergence_cpu_20261017",
+          "scope": "Supplemental cos4 provider diagnosis; absent from original eight clauses; original test-file statuses unchanged."
+        }
+      ],
       "functions": [
         {
           "evidence": [],
@@ -104473,7 +104498,12 @@
       "candidate_port_paths": [
         "tests/test_matlab_port/chebfun/test_polyfitL1_matlab.py"
       ],
-      "evidence": [],
+      "evidence": [
+        {
+          "evidence_id": "polyfit_cos4_first_divergence_cpu_20261017",
+          "scope": "Supplemental cos4 provider diagnosis; absent from original eight clauses; original test-file statuses unchanged."
+        }
+      ],
       "functions": [
         {
           "evidence": [],

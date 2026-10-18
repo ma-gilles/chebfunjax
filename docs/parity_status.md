@@ -1,3 +1,17 @@
+# Bounded source cosine derivatives and polyfit diagnosis — 2026-10-17
+
+Bounded source cosine retains its exact primal AST and now uses analytic
+JAX tangents. Twelve failing derivative controls are repaired;15new checks,
+8existing source controls and the unchanged fixed48 PDE regression pass.
+Parent21CIprotocol checks pass;1086prior owners retained+1new. Native1040
+independent vector/scalar controls and50actual constructor samples match words.
+The supplemental polyfitL1(cos,4) warning failure remains: two external JAX
+cosine samples differ1ULP from native, whereas transforms of identical samples
+match exactly. No callback routing, root filtering or synthetic warning added.
+Full APIs, pages/figures, matched speed and latestCI/coverage remain required.
+Evidence: docs/bounded_cosine_parent_cpu_20261017.json and
+docs/polyfit_cos4_first_divergence_cpu_20261017.json.
+
 # Existing-grid absolute value representation — 2026-10-17
 
 C1/C2 direct absolute value now follows native real/pure-imaginary storage
